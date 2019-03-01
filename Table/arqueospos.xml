@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Document   : arqueospos.xml
+   Description:
+        Estructura de la tabla arqueospos.
+-->
+<table>
+    <column>
+        <name>abierto</name>
+        <type>boolean</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>fechainicio</name>
+        <type>date</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>fechafin</name>
+        <type>date</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>horainicio</name>
+        <type>time without time zone</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>horafin</name>
+        <type>time without time zone</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>idarqueo</name>
+        <type>serial</type>
+        <null>NO</null>
+        <default>nextval('arqueospos_idarqueo_seq'::regclass)</default>
+    </column>
+    <column>
+        <name>idterminal</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>    
+    <column>
+        <name>nickusuario</name>
+        <type>character varying(50)</type>
+        <null>NO</null>
+    </column>    
+    <column>
+        <name>saldofinal</name>
+        <type>double precision</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>saldoinicial</name>
+        <type>double precision</type>
+        <null>NO</null>
+    </column>
+    <constraint>
+        <name>arqueospos_pkey</name>
+        <type>PRIMARY KEY (idarqueo)</type>
+    </constraint>
+    <constraint>
+        <name>ca_arqueospos_terminalespos</name>
+        <type>FOREIGN KEY (idterminal) REFERENCES terminalespos (idterminal) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_arqueospos_users</name>
+        <type>FOREIGN KEY (nickusuario) REFERENCES users (nick) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+</table>

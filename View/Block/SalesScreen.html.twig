@@ -1,0 +1,75 @@
+<script type="text/javascript">
+    businessDocViewLineData = {"headers":["Referencia","Descripci\u00f3n","Cantidad","Precio","Neto"],"columns":[{"data":"referencia","type":"autocomplete","source":{"source":"Variante","fieldcode":"referencia","fieldtitle":"referencia"},"strict":false,"visibleRows":5,"trimDropdown":false},{"data":"descripcion","type":"text"},{"data":"cantidad","type":"numeric","numericFormat":{"pattern":"0.00"}},{"data":"pvpunitario","type":"numeric","numericFormat":{"pattern":"0.00"}},{"data":"pvptotal","type":"numeric","numericFormat":{"pattern":"0.00"}}],"rows":[]};
+    businessDocViewFormName = "formBusinessDocumentLine";
+    businessDocViewUrl = "EditFacturaCliente";
+    function businessDocViewDelete(viewName) {
+        bootbox.confirm({
+            title: "¿Realmente desea eliminar esto?",
+            message: "Esto no se puede deshacer. ¿Estás seguro que quieres continuar?",
+            closeButton: false,
+            buttons: {
+                cancel: {
+                    label: '<i class="fas fa-times"></i> Cancelar'
+                },
+                confirm: {
+                    label: '<i class="fas fa-check"></i> Confirmar',
+                    className: "btn-danger"
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $("#form" + viewName + " :input[name=\"action\"]").val("delete");
+                    $("#form" + viewName).submit();
+                }
+            }
+        });
+
+        return false;
+    }
+</script>
+<div class="container-fluid">
+    <form id="formSalesPoint" method="POST" autocomplete="off">
+        <div class="form-row">
+            <div class="form-group col-5">
+                <label for="searchbox">Buscar articulo</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fas fa-search fa-fw"></i></span>
+                    </div>
+                    <input type="text" id="searchbox" name="search" value="" class="form-control">
+                </div>
+            </div>
+            <div class="form-group col-3">
+                <label for="codcliente">Cliente</label>
+                <select class="form-control" id="codcliente" name="codcliente">
+                    {% set defaultcustomer = fsc.terminal.codcliente %}
+                    {% for cliente in fsc.cliente.all() %}
+                        {% if cliente.codcliente == defaultcustomer %} {% set selected  = 'selected' %} {% endif %}
+                        <option value="{{ cliente.codagente }}" {{ selected }}>
+                            {{ cliente.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>            
+            <div class="form-group col-2">
+                <label>Fecha</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fas fa-calendar-alt fa-fw"></i></span>
+                    </div>
+                    <input type="text" id="documentdate" name="documentdate" value="" class="form-control" readonly>
+                </div>
+            </div>
+            <div class="form-group col-2">
+                <label>Total</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fas fa-money-check-alt fa-fw"></i></span>
+                    </div>
+                    <input type="number" id="doc_total" name="documenttotal" value="0" class="form-control" readonly>
+                </div>
+            </div>
+        </div>
+        <div id="document-lines"></div>
+    </form>
+</div>

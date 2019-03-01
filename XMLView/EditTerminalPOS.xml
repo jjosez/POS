@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of FacturaScripts
+ * Copyright (C) 2017-2019 Carlos Garcia Gomez <carlos@facturascripts.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ * Description for the controller EditDivisa
+ *
+ * @author Raúl Jiménez Nazca Networks  <comercial@nazcanetworks.com>
+ * @author Carlos Jiménez Gómez         <carlos@evolunext.es>
+ * @author Carlos García Gómez          <carlos@facturascripts.com>
+-->
+<view>
+    <columns>
+        <group name="data" numcolumns="12">
+            <column name="name" numcolumns="3" order="100">
+                <widget type="text" fieldname="nombre" icon="fas fa-tag" required="true" />
+            </column>
+            <column name="customer" titleurl="ListCliente" numcolumns="3" order="100">
+                <widget type="select" fieldname="codcliente" onclick="EditCliente">
+                    <values source="clientes" fieldcode="codcliente" fieldtitle="nombre"></values>
+                </widget>
+            </column>
+            <column name="warehouse" titleurl="ListAlmacen" numcolumns="3" order="100">
+                <widget type="select" fieldname="codalmacen" onclick="EditAlmacen">
+                    <values source="almacenes" fieldcode="codalmacen" fieldtitle="nombre"></values>
+                </widget>
+            </column>
+            <column name="serie" titleurl="ListSerie" numcolumns="3" order="100">
+                <widget type="select" fieldname="codserie" onclick="EditSerie">
+                    <values source="series" fieldcode="codserie" fieldtitle="descripcion"></values>
+                </widget>
+            </column>            
+        </group>
+        <group name="extra" numcolumns="12">
+            <column name="Comando apertura" numcolumns="3" order="100">
+                <widget type="text" fieldname="comandoapertura" />
+            </column>            
+            <column name="Comando corte" numcolumns="3" order="100">
+                <widget type="text" fieldname="comandocorte" />
+            </column>
+            <column name="Ancho papel" numcolumns="3" order="100">
+                <widget type="number" fieldname="anchopapel" />
+            </column>
+            <column name="Numero tickets" numcolumns="3" order="100">
+                <widget type="number" fieldname="numerotickets" />
+            </column>            
+            <column name='Acepta pagos' order='120' display='right'>
+                <widget type="checkbox" fieldname='aceptapagos' />
+            </column> 
+        </group>        
+    </columns>
+</view>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of FacturaScripts
+ * Copyright (C) 2017-2018 Carlos Garcia Gomez <carlos@facturascripts.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ * Initial description for the controller ListDivisa
+ *
+ * @author Artex Trading sa <jcuello@artextrading.com>
+-->
+
+<view>
+    <columns>
+        <column name="ID" order="100">
+            <widget type="text" fieldname="idterminal" onclick="EditTerminalPOS" />
+        </column>
+        <column name="name" order="100">
+            <widget type="text" fieldname="nombre"/>
+        </column>
+        <column name="default-customer" order="100">
+            <widget type="text" fieldname="codcliente"/>
+        </column>
+        <column name="default-warehouse" order="100">
+            <widget type="text" fieldname="codalmacen"/>
+        </column>
+        <column name="Comando apertura" order="100">
+            <widget type="text" fieldname="comandoapertura"/>
+        </column>
+        <column name="Comando corte" order="100">
+            <widget type="text" fieldname="comandocorte"/>
+        </column>
+        <column name='Numero tickets' order='100' display='right'>
+            <widget type='number' decimal="0" fieldname='numerotickets' />
+        </column>
+        <column name='Disponible' order='100' display='right'>
+            <widget type="checkbox" fieldname='disponible' />
+        </column>        
+    </columns>
+</view>
