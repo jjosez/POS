@@ -56,10 +56,8 @@ class PointOfSale extends Controller
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
-
-        $this->assets();
-        $this->cliente = new Cliente();
-
+        
+        $this->initValues();
         $this->isCashCountOpened();
 
         $terminal = $this->request->query->get('terminal');        
@@ -67,8 +65,8 @@ class PointOfSale extends Controller
             $this->terminal = (new TerminalPOS)->get($terminal);           
         }
 
-        $accion = $this->request->request->get('accion');
-        switch ($accion) {
+        $action = $this->request->request->get('action');
+        switch ($action) {
             case 'iniciararqueo':
                 $this->initCashCount();
                 break;
@@ -76,15 +74,22 @@ class PointOfSale extends Controller
             case 'cerrararqueo':
                 $this->closeCashCount();
                 break;
+
+            case 'save-document':
+                $this->saveSalesDocument();
+                break;
             
             default:
                 # code...
                 break;
         }
-
-        //$this->isCashCountOpened();
     }
 
+    /**
+     * Initialize a new cashcount if not exist.
+     *
+     * @return void
+     */
     private function initCashCount()
     {
         //$codagente = $this->request->request->get('codagente');
@@ -113,6 +118,30 @@ class PointOfSale extends Controller
         $this->arqueo = false;
     }
 
+    protected function assets()
+    {
+        AssetManager::add('css', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.css');
+        AssetManager::add('js', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.js');
+        AssetManager::add('js', FS_ROUTE . '/Dinamic/Assets/JS/POSDocumentView.js');
+    }
+
+    /**
+     * Initialize common values.
+     *
+     * @return array
+     */
+    private function initValues()
+    {
+        $this->assets();
+
+        $this->cliente = new Cliente();
+    }
+
+    /**
+     * Verify if a cashcount is opened by user or terminalpos
+     *
+     * @return bool
+     */
     private function isCashCountOpened()
     {   
         if ($this->terminal) {
@@ -134,6 +163,11 @@ class PointOfSale extends Controller
         return false;      
     }
 
+    /**
+     * Close current cashcount.
+     *
+     * @return void
+     */
     private function closeCashCount()
     {
         $terminal = $this->request->request->get('terminal'); 
@@ -151,10 +185,19 @@ class PointOfSale extends Controller
         }               
     }
 
-    protected function assets()
+    private function saveSalesDocument()
     {
-        AssetManager::add('css', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.css');
-        AssetManager::add('js', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.js');
-        AssetManager::add('js', FS_ROUTE . '/Dinamic/Assets/JS/BusinessDocumentView.js');
+        //$this->setTemplate(false);
+        if (!$this->permissions->allowUpdate) {
+            $this->response->setContent($this->i18n->trans('not-allowed-modify'));
+            return false;
+        }
+
+        $data = $this->request->request->all();
+
+        $this->miniLog->info(print_r($data, true));
+
+        $result = 'OK:' . $this->url();
+        $this->response->setContent($result);
     }
 }

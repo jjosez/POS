@@ -3,21 +3,23 @@
     {% set pageData = fsc.getPageData() %}
     <div class="container-fluid">
         <div class="row">
-            <div class="col-1">
+            <div class="col-4">
                 <a class="btn btn-sm btn-outline-secondary" href="{{ fsc.url() }}">
                     <i class="fas fa-sync" aria-hidden="true"></i>
                 </a>
             </div>
-            {% if fsc.arqueo.abierto %}
-                <div class="col-2">
+            <div class="col-4 text-center">
+                {% if fsc.arqueo.abierto %}                    
                     <form id="formCloseCashCount" method="POST" autocomplete="off">
-                        <input type="hidden" name="accion" value="cerrararqueo">
-                        <input type="hidden" name="idterminal" value="{{ fsc.arqueo.idterminal }}">
-                        <button type="submit" class="btn btn-sm btn-danger">Cerrar caja</button>
+                        <input type="hidden" name="action" value="cerrararqueo">
+                        <input type="hidden" name="idterminal" value="{{ fsc.arqueo.idterminal }}">                        
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            <i class="fas fa-lock" aria-hidden="true"></i>&nbsp; Cerrar caja
+                        </button>
                     </form>
-                </div>
-            {% endif %}
-            <div class="col-9 text-right">
+                {% endif %}
+            </div>
+            <div class="col-4 text-right">
                 <h1 class="h3">
                 {{ fsc.title }} {{ fsc.terminal.nombre ? ' / '}} {{ fsc.terminal.nombre }}
                 <i class="{{ pageData.icon }} fa-fw" aria-hidden="true"></i>
@@ -39,7 +41,7 @@
             {% if fsc.terminal.idterminal %}
                 <form id="formInitCashCount" method="POST" autocomplete="off">
                     <input type="hidden" name="terminal" value="{{ fsc.terminal.idterminal }}">
-                    <input type="hidden" name="accion" value="iniciararqueo">
+                    <input type="hidden" name="action" value="iniciararqueo">
                     
                     <div class="card mx-auto w-50">
                         <div class="card-header bg-dark text-white text-center">{{ fsc.terminal.nombre }}</div>

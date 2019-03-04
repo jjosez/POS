@@ -1,34 +1,52 @@
 <script type="text/javascript">
-    businessDocViewLineData = {"headers":["Referencia","Descripci\u00f3n","Cantidad","Precio","Neto"],"columns":[{"data":"referencia","type":"autocomplete","source":{"source":"Variante","fieldcode":"referencia","fieldtitle":"referencia"},"strict":false,"visibleRows":5,"trimDropdown":false},{"data":"descripcion","type":"text"},{"data":"cantidad","type":"numeric","numericFormat":{"pattern":"0.00"}},{"data":"pvpunitario","type":"numeric","numericFormat":{"pattern":"0.00"}},{"data":"pvptotal","type":"numeric","numericFormat":{"pattern":"0.00"}}],"rows":[]};
-    businessDocViewFormName = "formBusinessDocumentLine";
-    businessDocViewUrl = "EditFacturaCliente";
-    function businessDocViewDelete(viewName) {
-        bootbox.confirm({
-            title: "¿Realmente desea eliminar esto?",
-            message: "Esto no se puede deshacer. ¿Estás seguro que quieres continuar?",
-            closeButton: false,
-            buttons: {
-                cancel: {
-                    label: '<i class="fas fa-times"></i> Cancelar'
-                },
-                confirm: {
-                    label: '<i class="fas fa-check"></i> Confirmar',
-                    className: "btn-danger"
-                }
-            },
-            callback: function (result) {
-                if (result) {
-                    $("#form" + viewName + " :input[name=\"action\"]").val("delete");
-                    $("#form" + viewName).submit();
+    POSDocViewLineData = {"headers":["Referencia","Descripci\u00f3n","Cantidad","Precio","Neto"],"columns":[{"data":"referencia","type":"autocomplete","source":{"source":"Variante","fieldcode":"referencia","fieldtitle":"referencia"},"strict":false,"visibleRows":5,"trimDropdown":false},{"data":"descripcion","type":"text"},{"data":"cantidad","type":"numeric","numericFormat":{"pattern":"0.00"}},{"data":"pvpunitario","type":"numeric","numericFormat":{"pattern":"0.00"}},{"data":"pvptotal","type":"numeric","numericFormat":{"pattern":"0.00"}}],"rows":[]};
+    POSDocViewFormName = "formBusinessDocumentLine";
+    POSDocViewUrl = "EditFacturaCliente";
+
+    function salesDocumentSave2() {
+        $("#btn-document-save").prop("disabled", true);
+
+        var data = {};
+        $.each($("#" + POSDocViewFormName).serializeArray(), function (key, value) {
+            data[value.name] = value.value;
+        });
+        data.action = "save-document";
+        data.lines = getGridData();
+        console.log(data);
+        $.ajax({
+            type: "POST",
+            url: "{{ asset('PointOfSale') }}",
+            dataType: "text",
+            data: data,
+            success: function (results) {
+                if (results.substring(0, 3) === "OK:") {
+                    //location.href = results.substring(3);
+                    alert(results);
+                } else {
+                    alert(results);
                 }
             }
         });
 
-        return false;
+        $("#btn-document-save").prop("disabled", false);
+    }
+
+    function salesDocumentSave() {
+        $("#btn-document-save").prop("disabled", true);
+
+        document.getElementById("action").value = "save-document";
+        document.getElementById("lines").value = JSON.stringify(getGridData());
+
+        console.log(getGridData());
+        document.formSalesDocument.submit();
+
+        $("#btn-document-save").prop("disabled", false);
     }
 </script>
 <div class="container-fluid">
-    <form id="formSalesPoint" method="POST" autocomplete="off">
+    <form id="formSalesDocument" name="formSalesDocument" method="POST" autocomplete="off">
+        <input type="hidden" id="action" name="action"/>
+        <input type="hidden" id="lines" name="lines"/>
         <div class="form-row">
             <div class="form-group col-5">
                 <label for="searchbox">Buscar articulo</label>
@@ -45,7 +63,7 @@
                     {% set defaultcustomer = fsc.terminal.codcliente %}
                     {% for cliente in fsc.cliente.all() %}
                         {% if cliente.codcliente == defaultcustomer %} {% set selected  = 'selected' %} {% endif %}
-                        <option value="{{ cliente.codagente }}" {{ selected }}>
+                        <option value="{{ cliente.codcliente }}" {{ selected }}>
                             {{ cliente.nombre }}
                         </option>
                     {% endfor %}
@@ -57,7 +75,7 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fas fa-calendar-alt fa-fw"></i></span>
                     </div>
-                    <input type="text" id="documentdate" name="documentdate" value="" class="form-control" readonly>
+                    <input type="text" id="documentdate" name="documentdate" value="{{ "now"|date("d-m-Y") }}" class="form-control" readonly>
                 </div>
             </div>
             <div class="form-group col-2">
@@ -71,5 +89,23 @@
             </div>
         </div>
         <div id="document-lines"></div>
+        <div class="form-row mt-3">
+            <div class="col">
+            </div>
+            <div class="col-sm-2">
+            </div>
+            
+            <div class="col-sm-2">
+            </div>
+            
+            <div class="col-sm-2">
+            </div>
+            
+            <div class="col text-right">
+                <button type="button" class="btn btn-sm btn-primary" id="btn-document-save" onclick="salesDocumentSave();">
+                <i class="fas fa-save" aria-hidden="true"></i>&nbsp; Guardar
+                </button>
+            </div>
+        </div>
     </form>
 </div>

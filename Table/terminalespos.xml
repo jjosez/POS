@@ -58,7 +58,7 @@
     </column>    
     <column>
         <name>numerotickets</name>
-        <type>number</type>
+        <type>integer</type>
         <null>NO</null>
     </column>
     <constraint>
