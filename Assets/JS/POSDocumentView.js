@@ -144,7 +144,7 @@ function businessDocViewSetAutocompletes(columns) {
                 };
                 $.ajax({
                     type: "POST",
-                    url: POSDocViewUrl,
+                    url: "EditFacturaCliente",
                     dataType: "json",
                     data: ajaxData,
                     success: function (response) {

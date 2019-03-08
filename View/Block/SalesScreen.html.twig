@@ -1,7 +1,7 @@
 <script type="text/javascript">
     POSDocViewLineData = {"headers":["Referencia","Descripci\u00f3n","Cantidad","Precio","Neto"],"columns":[{"data":"referencia","type":"autocomplete","source":{"source":"Variante","fieldcode":"referencia","fieldtitle":"referencia"},"strict":false,"visibleRows":5,"trimDropdown":false},{"data":"descripcion","type":"text"},{"data":"cantidad","type":"numeric","numericFormat":{"pattern":"0.00"}},{"data":"pvpunitario","type":"numeric","numericFormat":{"pattern":"0.00"}},{"data":"pvptotal","type":"numeric","numericFormat":{"pattern":"0.00"}}],"rows":[]};
     POSDocViewFormName = "formBusinessDocumentLine";
-    POSDocViewUrl = "EditFacturaCliente";
+    POSDocViewUrl = "PointOfSale";
 
     function salesDocumentSave2() {
         $("#btn-document-save").prop("disabled", true);
@@ -47,6 +47,7 @@
     <form id="formSalesDocument" name="formSalesDocument" method="POST" autocomplete="off">
         <input type="hidden" id="action" name="action"/>
         <input type="hidden" id="lines" name="lines"/>
+        <input type="hidden" id="idfactura" name="idfactura">
         <div class="form-row">
             <div class="form-group col-5">
                 <label for="searchbox">Buscar articulo</label>

@@ -20,9 +20,11 @@ namespace FacturaScripts\Plugins\POS\Controller;
 
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Lib\AssetManager;
+use FacturaScripts\Dinamic\Lib\BusinessDocumentTools;
 use FacturaScripts\Dinamic\Model\Agente;
 use FacturaScripts\Dinamic\Model\ArqueoPOS;
 use FacturaScripts\Dinamic\Model\Cliente;
+use FacturaScripts\Dinamic\Model\FacturaCliente;
 use FacturaScripts\Dinamic\Model\TerminalPOS;
 
 /**
@@ -78,6 +80,10 @@ class PointOfSale extends Controller
             case 'save-document':
                 $this->saveSalesDocument();
                 break;
+
+            case 'recalculate-document':
+                $this->recalculateDocumentAction();
+                return false;
             
             default:
                 # code...
@@ -116,13 +122,6 @@ class PointOfSale extends Controller
         }
 
         $this->arqueo = false;
-    }
-
-    protected function assets()
-    {
-        AssetManager::add('css', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.css');
-        AssetManager::add('js', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.js');
-        AssetManager::add('js', FS_ROUTE . '/Dinamic/Assets/JS/POSDocumentView.js');
     }
 
     /**
@@ -185,6 +184,90 @@ class PointOfSale extends Controller
         }               
     }
 
+    private function getColumns()
+    {
+        $columns = [ 
+            "referencia"=> null,
+            "descripcion"=> null,
+            "cantidad"=> null,
+            "servido"=> null,
+            "pvpunitario"=> null,
+            "dtopor"=> null,
+            "pvptotal"=> null,
+            "iva"=> null,
+            "recargo"=> null,
+            "irpf"=> null,
+        ];
+
+        return $columns;
+
+        /*$columns = [
+            {
+                "data":"referencia",
+                "type":"autocomplete",
+                "source":{"source":"Variante","fieldcode":"referencia","fieldtitle":"referencia"},
+                "strict":false,
+                "visibleRows":5,
+                "trimDropdown":false
+            },
+            {
+                "data":"descripcion",
+                "type":"text"
+            },
+            {
+                "data":"cantidad",
+                "type":"numeric",
+                "numericFormat":{"pattern":"0.00"}
+            },
+            {
+                "data":"pvpunitario",
+                "type":"numeric",
+                "numericFormat":{"pattern":"0.00"}
+            },
+            {
+                "data":"pvptotal",
+                "type":"numeric",
+                "numericFormat":{"pattern":"0.00"}
+            }
+        ];*/
+    }
+
+    private function processLines(array $formLines)
+    {
+        $newLines = [];
+        $order = count($formLines);
+        foreach ($formLines as $data) {
+            $line = ['orden' => $order];
+            foreach ($this->getColumns() as $key => $value) {
+                $line[$key] = isset($data[$key]) ? $data[$key] : null;
+            }
+            $newLines[] = $line;
+            $order--;
+        }
+        return $newLines;
+    }
+
+    private function recalculateDocumentAction()
+    {
+        $this->setTemplate(false);
+
+        $model = new FacturaCliente();
+        $documentTools = new BusinessDocumentTools();
+
+        /// gets data form and separate lines data
+        $data = $this->request->request->all();
+        $lines = isset($data['lines']) ? $this->processLines($data['lines']) : [];
+        unset($data['lines']);
+
+        /// load model data
+        $model->loadFromData($data, ['action']);
+
+        /// recalculate
+        $result = $documentTools->recalculateForm($model, $lines);
+        $this->response->setContent($result);
+        return false;
+    }
+
     private function saveSalesDocument()
     {
         //$this->setTemplate(false);
@@ -199,5 +282,12 @@ class PointOfSale extends Controller
 
         $result = 'OK:' . $this->url();
         $this->response->setContent($result);
+    }
+
+    protected function assets()
+    {
+        AssetManager::add('css', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.css');
+        AssetManager::add('js', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.js');
+        AssetManager::add('js', FS_ROUTE . '/Dinamic/Assets/JS/POSDocumentView.js');
     }
 }

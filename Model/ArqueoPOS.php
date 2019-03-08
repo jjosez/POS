@@ -31,6 +31,13 @@ class ArqueoPOS extends Base\ModelClass
         $this->saldofinal = 0.0;
     }  
 
+    public function install()
+    {
+        /// needed dependencies
+        new TerminalPOS();
+        return parent::install();
+    }
+
     public function isOpened($search, $value)
     {
         switch ($search) {
