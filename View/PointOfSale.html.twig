@@ -10,8 +10,8 @@
             </div>
             <div class="col-4 text-center">
                 {% if fsc.arqueo.abierto %}                    
-                    <form id="formCloseCashCount" method="POST" autocomplete="off">
-                        <input type="hidden" name="action" value="cerrararqueo">
+                    <form id="formCloseCashUp" method="POST" autocomplete="off">
+                        <input type="hidden" name="action" value="close-cashup">
                         <input type="hidden" name="idterminal" value="{{ fsc.arqueo.idterminal }}">                        
                         <button type="submit" class="btn btn-sm btn-danger">
                             <i class="fas fa-lock" aria-hidden="true"></i>&nbsp; Cerrar caja
@@ -41,7 +41,7 @@
             {% if fsc.terminal.idterminal %}
                 <form id="formInitCashCount" method="POST" autocomplete="off">
                     <input type="hidden" name="terminal" value="{{ fsc.terminal.idterminal }}">
-                    <input type="hidden" name="action" value="iniciararqueo">
+                    <input type="hidden" name="action" value="open-cashup">
                     
                     <div class="card mx-auto w-50">
                         <div class="card-header bg-dark text-white text-center">{{ fsc.terminal.nombre }}</div>

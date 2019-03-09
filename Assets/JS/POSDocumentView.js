@@ -16,17 +16,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var POSDocViewAutocompleteColumns = [];
-var POSDocViewLineData = [];
-var POSDocViewFormName = "f_document_primary";
-var POSDocViewUrl = "";
+var PosDocViewAutocompleteColumns = [];
+var PosDocViewLineData = [];
+var PosDocViewFormName = "f_document_primary";
+var PosDocViewUrl = "";
+var PosDocAutocompleteUrl = "";
 var hsTable = null;
 
 function beforeChange(changes, source) {
     // Check if the value has changed. Not Multiselection
     if (changes !== null && changes[0][2] !== changes[0][3]) {
-        for (var i = 0; i < POSDocViewAutocompleteColumns.length; i++) {
-            if (changes[0][1] === POSDocViewAutocompleteColumns[i]) {
+        for (var i = 0; i < PosDocViewAutocompleteColumns.length; i++) {
+            if (changes[0][1] === PosDocViewAutocompleteColumns[i]) {
                 // apply for autocomplete columns
                 if (typeof changes[0][3] === "string") {
                     changes[0][3] = changes[0][3].split(" | ", 1)[0];
@@ -55,7 +56,7 @@ function businessDocViewAutocompleteGetData(formId, field, source, fieldcode, fi
 
 function businessDocViewRecalculate() {
     var data = {};
-    $.each($("#" + POSDocViewFormName).serializeArray(), function (key, value) {
+    $.each($("#" + PosDocViewFormName).serializeArray(), function (key, value) {
         data[value.name] = value.value;
     });
     data.action = "recalculate-document";
@@ -64,7 +65,7 @@ function businessDocViewRecalculate() {
 
     $.ajax({
         type: "POST",
-        url: POSDocViewUrl,
+        url: PosDocViewUrl,
         dataType: "json",
         data: data,
         success: function (results) {
@@ -73,7 +74,7 @@ function businessDocViewRecalculate() {
             var rowPos = 0;
             results.lines.forEach(function (element) {
                 var visualRow = hsTable.toVisualRow(rowPos);
-                POSDocViewLineData.rows[visualRow] = element;
+                PosDocViewLineData.rows[visualRow] = element;
                 rowPos++;
             });
 
@@ -90,7 +91,7 @@ function businessDocViewSave() {
     $("#btn-document-save").prop("disabled", true);
 
     var data = {};
-    $.each($("#" + POSDocViewFormName).serializeArray(), function (key, value) {
+    $.each($("#" + PosDocViewFormName).serializeArray(), function (key, value) {
         data[value.name] = value.value;
     });
     data.action = "save-document";
@@ -98,7 +99,7 @@ function businessDocViewSave() {
     console.log(data);
     $.ajax({
         type: "POST",
-        url: POSDocViewUrl,
+        url: PosDocViewUrl,
         dataType: "text",
         data: data,
         success: function (results) {
@@ -115,13 +116,13 @@ function businessDocViewSave() {
 
 function getGridData() {
     var rowIndex, lines = [];
-    for (var i = 0, max = POSDocViewLineData.rows.length; i < max; i++) {
+    for (var i = 0, max = PosDocViewLineData.rows.length; i < max; i++) {
         rowIndex = hsTable.toVisualRow(i);
         if (hsTable.isEmptyRow(rowIndex)) {
             continue;
         }
 
-        lines[rowIndex] = POSDocViewLineData.rows[i];
+        lines[rowIndex] = PosDocViewLineData.rows[i];
     }
     return lines;
 }
@@ -129,7 +130,7 @@ function getGridData() {
 function businessDocViewSetAutocompletes(columns) {
     for (var key = 0; key < columns.length; key++) {
         if (columns[key].type === "autocomplete") {
-            POSDocViewAutocompleteColumns.push(columns[key].data);
+            PosDocViewAutocompleteColumns.push(columns[key].data);
             var source = columns[key].source["source"];
             var field = columns[key].source["fieldcode"];
             var title = columns[key].source["fieldtitle"];
@@ -144,7 +145,7 @@ function businessDocViewSetAutocompletes(columns) {
                 };
                 $.ajax({
                     type: "POST",
-                    url: "EditFacturaCliente",
+                    url: PosDocAutocompleteUrl,
                     dataType: "json",
                     data: ajaxData,
                     success: function (response) {
@@ -168,10 +169,10 @@ function businessDocViewSetAutocompletes(columns) {
 $(document).ready(function () {
     var container = document.getElementById("document-lines");
     hsTable = new Handsontable(container, {
-        data: POSDocViewLineData.rows,
-        columns: businessDocViewSetAutocompletes(POSDocViewLineData.columns),
+        data: PosDocViewLineData.rows,
+        columns: businessDocViewSetAutocompletes(PosDocViewLineData.columns),
         rowHeaders: true,
-        colHeaders: POSDocViewLineData.headers,
+        colHeaders: PosDocViewLineData.headers,
         stretchH: "all",
         autoWrapRow: true,
         manualRowResize: true,
@@ -212,7 +213,7 @@ $(document).ready(function () {
             source: function (request, response) {
                 $.ajax({
                     method: "POST",
-                    url: POSDocViewUrl,
+                    url: PosDocAutocompleteUrl,
                     data: businessDocViewAutocompleteGetData(formName, field, source, fieldcode, fieldtitle, request.term),
                     dataType: "json",
                     success: function (results) {

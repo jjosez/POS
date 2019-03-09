@@ -21,10 +21,12 @@ namespace FacturaScripts\Plugins\POS\Controller;
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Lib\AssetManager;
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTools;
+use FacturaScripts\Dinamic\Lib\BusinessDocumentGenerator;
 use FacturaScripts\Dinamic\Model\Agente;
 use FacturaScripts\Dinamic\Model\ArqueoPOS;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\FacturaCliente;
+use FacturaScripts\Dinamic\Model\LineaFacturaCliente;
 use FacturaScripts\Dinamic\Model\TerminalPOS;
 
 /**
@@ -69,20 +71,20 @@ class PointOfSale extends Controller
 
         $action = $this->request->request->get('action');
         switch ($action) {
-            case 'iniciararqueo':
-                $this->initCashCount();
+            case 'open-cashup':
+                $this->openCashUp();
                 break;
 
-            case 'cerrararqueo':
-                $this->closeCashCount();
+            case 'close-cashup':
+                $this->closeCashUp();
                 break;
 
             case 'save-document':
-                $this->saveSalesDocument();
+                $this->saveDocument();
                 break;
 
             case 'recalculate-document':
-                $this->recalculateDocumentAction();
+                $this->recalculateDocument();
                 return false;
             
             default:
@@ -96,7 +98,7 @@ class PointOfSale extends Controller
      *
      * @return void
      */
-    private function initCashCount()
+    private function openCashUp()
     {
         //$codagente = $this->request->request->get('codagente');
         //$agente = $this->agente->loadFromCode($codagente);
@@ -124,11 +126,6 @@ class PointOfSale extends Controller
         $this->arqueo = false;
     }
 
-    /**
-     * Initialize common values.
-     *
-     * @return array
-     */
     private function initValues()
     {
         $this->assets();
@@ -137,7 +134,7 @@ class PointOfSale extends Controller
     }
 
     /**
-     * Verify if a cashcount is opened by user or terminalpos
+     * Verify if a cashup is opened by user or terminalpos
      *
      * @return bool
      */
@@ -163,11 +160,11 @@ class PointOfSale extends Controller
     }
 
     /**
-     * Close current cashcount.
+     * Close current cashup.
      *
      * @return void
      */
-    private function closeCashCount()
+    private function closeCashUp()
     {
         $terminal = $this->request->request->get('terminal'); 
         $this->terminal = (new TerminalPOS)->get($terminal); 
@@ -200,36 +197,6 @@ class PointOfSale extends Controller
         ];
 
         return $columns;
-
-        /*$columns = [
-            {
-                "data":"referencia",
-                "type":"autocomplete",
-                "source":{"source":"Variante","fieldcode":"referencia","fieldtitle":"referencia"},
-                "strict":false,
-                "visibleRows":5,
-                "trimDropdown":false
-            },
-            {
-                "data":"descripcion",
-                "type":"text"
-            },
-            {
-                "data":"cantidad",
-                "type":"numeric",
-                "numericFormat":{"pattern":"0.00"}
-            },
-            {
-                "data":"pvpunitario",
-                "type":"numeric",
-                "numericFormat":{"pattern":"0.00"}
-            },
-            {
-                "data":"pvptotal",
-                "type":"numeric",
-                "numericFormat":{"pattern":"0.00"}
-            }
-        ];*/
     }
 
     private function processLines(array $formLines)
@@ -247,7 +214,7 @@ class PointOfSale extends Controller
         return $newLines;
     }
 
-    private function recalculateDocumentAction()
+    private function recalculateDocument()
     {
         $this->setTemplate(false);
 
@@ -268,9 +235,8 @@ class PointOfSale extends Controller
         return false;
     }
 
-    private function saveSalesDocument()
+    private function saveDocument()
     {
-        //$this->setTemplate(false);
         if (!$this->permissions->allowUpdate) {
             $this->response->setContent($this->i18n->trans('not-allowed-modify'));
             return false;
@@ -278,16 +244,35 @@ class PointOfSale extends Controller
 
         $data = $this->request->request->all();
 
-        $this->miniLog->info(print_r($data, true));
+        $customer = (new Cliente)->get($data['codcliente']);
 
-        $result = 'OK:' . $this->url();
-        $this->response->setContent($result);
+        $invoice = new FacturaCliente();
+        $invoice->setSubject($customer);
+        $invoice->codserie = $data['codserie'];
+        $invoice->fecha = $data['documentdate'];
+
+        if ($invoice->save()) {
+            foreach (json_decode($data["lines"], true) as $line) {
+                $newLine = new LineaFacturaCliente();
+                $newLine = $invoice->getNewLine($line);
+
+                if (!$newLine->save()) {
+                    $this->miniLog->info(print_r($newLine, true));
+                }
+            }
+
+            $tool = new BusinessDocumentTools();
+            $tool->recalculate($invoice);
+            $invoice->save();
+        }
+
+        $this->miniLog->info('Generada ' . $this->i18n->trans('customer-invoice') . ' ' . $invoice->codigo);
     }
 
     protected function assets()
     {
         AssetManager::add('css', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.css');
         AssetManager::add('js', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.js');
-        AssetManager::add('js', FS_ROUTE . '/Dinamic/Assets/JS/POSDocumentView.js');
+        AssetManager::add('js', FS_ROUTE . '/Dinamic/Assets/JS/PosDocumentView.js');
     }
 }

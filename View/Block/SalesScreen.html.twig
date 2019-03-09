@@ -1,35 +1,9 @@
+{% import _self as macros %}
 <script type="text/javascript">
-    POSDocViewLineData = {"headers":["Referencia","Descripci\u00f3n","Cantidad","Precio","Neto"],"columns":[{"data":"referencia","type":"autocomplete","source":{"source":"Variante","fieldcode":"referencia","fieldtitle":"referencia"},"strict":false,"visibleRows":5,"trimDropdown":false},{"data":"descripcion","type":"text"},{"data":"cantidad","type":"numeric","numericFormat":{"pattern":"0.00"}},{"data":"pvpunitario","type":"numeric","numericFormat":{"pattern":"0.00"}},{"data":"pvptotal","type":"numeric","numericFormat":{"pattern":"0.00"}}],"rows":[]};
-    POSDocViewFormName = "formBusinessDocumentLine";
-    POSDocViewUrl = "PointOfSale";
-
-    function salesDocumentSave2() {
-        $("#btn-document-save").prop("disabled", true);
-
-        var data = {};
-        $.each($("#" + POSDocViewFormName).serializeArray(), function (key, value) {
-            data[value.name] = value.value;
-        });
-        data.action = "save-document";
-        data.lines = getGridData();
-        console.log(data);
-        $.ajax({
-            type: "POST",
-            url: "{{ asset('PointOfSale') }}",
-            dataType: "text",
-            data: data,
-            success: function (results) {
-                if (results.substring(0, 3) === "OK:") {
-                    //location.href = results.substring(3);
-                    alert(results);
-                } else {
-                    alert(results);
-                }
-            }
-        });
-
-        $("#btn-document-save").prop("disabled", false);
-    }
+    PosDocViewLineData = {"headers":["Referencia","Descripci\u00f3n","Cantidad","Precio","Neto"],"columns":[{"data":"referencia","type":"autocomplete","source":{"source":"Variante","fieldcode":"referencia","fieldtitle":"referencia"},"strict":false,"visibleRows":5,"trimDropdown":false},{"data":"descripcion","type":"text"},{"data":"cantidad","type":"numeric","numericFormat":{"pattern":"0.00"}},{"data":"pvpunitario","type":"numeric","numericFormat":{"pattern":"0.00"}},{"data":"pvptotal","type":"numeric","numericFormat":{"pattern":"0.00"}}],"rows":[]};
+    PosDocViewFormName = "formBusinessDocumentLine";
+    PosDocViewUrl = "PointOfSale";
+    PosDocAutocompleteUrl = "EditFacturaCliente";
 
     function salesDocumentSave() {
         $("#btn-document-save").prop("disabled", true);
@@ -45,33 +19,15 @@
 </script>
 <div class="container-fluid">
     <form id="formSalesDocument" name="formSalesDocument" method="POST" autocomplete="off">
-        <input type="hidden" id="action" name="action"/>
+        <input type="hidden" id="action" name="action"/>        
+        <input type="hidden" id="codserie" name="codserie" value="{{ fsc.terminal.codserie}}">
         <input type="hidden" id="lines" name="lines"/>
-        <input type="hidden" id="idfactura" name="idfactura">
-        <div class="form-row">
-            <div class="form-group col-5">
-                <label for="searchbox">Buscar articulo</label>
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="fas fa-search fa-fw"></i></span>
-                    </div>
-                    <input type="text" id="searchbox" name="search" value="" class="form-control">
-                </div>
-            </div>
+        <div class="form-row">            
+            {% set customer = fsc.cliente.get(fsc.terminal.codcliente) %}
+            {{ macros.customerSelect(i18n, 'codcliente', 'codcliente', customer, fsc.cliente.url('new')) }}
             <div class="form-group col-3">
-                <label for="codcliente">Cliente</label>
-                <select class="form-control" id="codcliente" name="codcliente">
-                    {% set defaultcustomer = fsc.terminal.codcliente %}
-                    {% for cliente in fsc.cliente.all() %}
-                        {% if cliente.codcliente == defaultcustomer %} {% set selected  = 'selected' %} {% endif %}
-                        <option value="{{ cliente.codcliente }}" {{ selected }}>
-                            {{ cliente.nombre }}
-                        </option>
-                    {% endfor %}
-                </select>
             </div>            
-            <div class="form-group col-2">
-                <label>Fecha</label>
+            <div class="form-group col-3">
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fas fa-calendar-alt fa-fw"></i></span>
@@ -79,8 +35,7 @@
                     <input type="text" id="documentdate" name="documentdate" value="{{ "now"|date("d-m-Y") }}" class="form-control" readonly>
                 </div>
             </div>
-            <div class="form-group col-2">
-                <label>Total</label>
+            <div class="form-group col-3">
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fas fa-money-check-alt fa-fw"></i></span>
@@ -110,3 +65,25 @@
         </div>
     </form>
 </div>
+
+{% macro customerSelect(i18n, id, name, model, newUrl) %}
+    <div class="col mb-3">
+        <div class="input-group">
+            <span class="input-group-prepend">
+                {% if model.codcliente %}
+                    <a href="EditCliente?code={{ model.codcliente }}" target="_blank" class="btn btn-info">
+                        <i class="fas fa-user-cog fa-fw" aria-hidden="true"></i>
+                    </a>
+                {% else %}
+                    <a href="{{ newUrl }}" target="_blank" class="btn btn-success" title="{{ i18n.trans('new-customer') }}">
+                        <i class="fas fa-user-plus fa-fw" aria-hidden="true"></i>
+                    </a>
+                {% endif %}
+            </span>
+            <input type="hidden" id="{{ id }}Autocomplete" name="{{ name }}" value="{{ model.codcliente }}"/>
+            <input type="text" id="{{ id }}" value="{{ model.nombre | raw }}" class="form-control autocomplete-dc"
+                   data-field="{{ id }}" data-source="Cliente" data-fieldcode="codcliente" data-fieldtitle="nombre"
+                   placeholder="{{ i18n.trans('customer') }}" autocomplete="off"/>
+        </div>
+    </div>
+{% endmacro %}

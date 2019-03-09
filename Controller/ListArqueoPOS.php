@@ -36,7 +36,7 @@ class ListArqueoPOS extends ExtendedController\ListController
     public function getPageData()
     {
         $pagedata = parent::getPageData();
-        $pagedata['title'] = 'cash-counts';
+        $pagedata['title'] = 'cash-ups';
         $pagedata['icon'] = 'fas fa-money-bill-alt';
         $pagedata['menu'] = 'point-of-sale';
 
@@ -48,10 +48,10 @@ class ListArqueoPOS extends ExtendedController\ListController
      */
     protected function createViews()
     {
-        $this->addView('ListArqueoPOS', 'ArqueoPOS', 'cash-counts', 'fas fa-money-bill-alt');
+        $this->addView('ListArqueoPOS', 'ArqueoPOS', 'cash-ups', 'fas fa-money-bill-alt');
         $this->addSearchFields('ListArqueoPOS', ['nombreagente']);
 
-        $this->addOrderBy('ListArqueoPOS', ['fechainicio'], 'Fecha Inicio');
-        $this->addOrderBy('ListArqueoPOS', ['fechafin'], 'Fecha Fin');
+        $this->addOrderBy('ListArqueoPOS', ['fechainicio','horainicio'], 'Fecha Inicio', 2);
+        $this->addOrderBy('ListArqueoPOS', ['fechafin','horafin'], 'Fecha Fin');
     }
 }
