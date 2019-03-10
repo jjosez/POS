@@ -19,20 +19,19 @@
 namespace FacturaScripts\Plugins\POS\Controller;
 
 use FacturaScripts\Core\Base\Controller;
-use FacturaScripts\Core\Lib\AssetManager;
+use FacturaScripts\Dinamic\Lib\AssetManager;
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTools;
+use FacturaScripts\Dinamic\Lib\PosDocumentTools;
 use FacturaScripts\Dinamic\Model\Agente;
 use FacturaScripts\Dinamic\Model\ArqueoPOS;
 use FacturaScripts\Dinamic\Model\Cliente;
-use FacturaScripts\Dinamic\Model\FacturaCliente;
 use FacturaScripts\Dinamic\Model\FormaPago;
-use FacturaScripts\Dinamic\Model\LineaFacturaCliente;
 use FacturaScripts\Dinamic\Model\TerminalPOS;
 
 /**
  * Controller to edit a single item from the AlbaranCliente model
  *
- * @author Carlos García Gómez <carlos@facturascripts.com>
+ * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 class PointOfSale extends Controller
 {
@@ -98,42 +97,32 @@ class PointOfSale extends Controller
     }
 
     /**
-     * Initialize a new cashcount if not exist.
+     * Close current cashup.
      *
      * @return void
      */
-    private function openCashup()
+    private function closeCashup()
     {
+        $terminal = $this->request->request->get('terminal'); 
+        $this->terminal = (new TerminalPOS)->get($terminal); 
+
         if ($this->isCashupOpened()) {
-            return;
+            $this->arqueo->abierto = false;
+            $this->arqueo->fechafin = date('d-m-Y');
+            $this->arqueo->horafin = date('H:i:s');
+
+            if ($this->arqueo->save()) {
+                $this->terminal->disponible = true;
+                $this->terminal->save();
+            }
         }               
-
-        if (!$this->terminal) {
-            $this->miniLog->warning($this->i18n->trans('cash-register-not-found'));
-            return;           
-        }
-
-        $saldoinicial = $this->request->request->get('saldoinicial');
-
-        $this->arqueo = new ArqueoPOS();
-        $this->arqueo->abierto = true;
-        $this->arqueo->idterminal = $this->terminal->idterminal;
-        $this->arqueo->nickusuario = $this->user->nick;
-        $this->arqueo->saldoinicial = $saldoinicial;
-        $this->arqueo->saldofinal = $saldoinicial;
-
-        if ($this->arqueo->save()) { 
-            $msg = $this->terminal->nombre . ' iniciada con: ' . $saldoinicial . ', por ' . $this->user->nick;           
-            $this->miniLog->info($msg);
-            $this->terminal->disponible = false;
-
-            $this->terminal->save();
-            return;
-        }
-
-        $this->arqueo = false;
     }
 
+    /**
+     * Initialize a common values.
+     *
+     * @return void
+     */
     private function initValues()
     {
         $this->assets();
@@ -171,81 +160,66 @@ class PointOfSale extends Controller
     }
 
     /**
-     * Close current cashup.
+     * Initialize a new cashcount if not exist.
      *
      * @return void
      */
-    private function closeCashup()
+    private function openCashup()
     {
-        $terminal = $this->request->request->get('terminal'); 
-        $this->terminal = (new TerminalPOS)->get($terminal); 
-
         if ($this->isCashupOpened()) {
-            $this->arqueo->abierto = false;
-            $this->arqueo->fechafin = date('d-m-Y');
-            $this->arqueo->horafin = date('H:i:s');
-
-            if ($this->arqueo->save()) {
-                $this->terminal->disponible = true;
-                $this->terminal->save();
-            }
+            return;
         }               
-    }
 
-    private function getColumns()
-    {
-        $columns = [ 
-            "referencia"=> null,
-            "descripcion"=> null,
-            "cantidad"=> null,
-            "servido"=> null,
-            "pvpunitario"=> null,
-            "dtopor"=> null,
-            "pvptotal"=> null,
-            "iva"=> null,
-            "recargo"=> null,
-            "irpf"=> null,
-        ];
-
-        return $columns;
-    }
-
-    private function processLines(array $formLines)
-    {
-        $newLines = [];
-        $order = count($formLines);
-        foreach ($formLines as $data) {
-            $line = ['orden' => $order];
-            foreach ($this->getColumns() as $key => $value) {
-                $line[$key] = isset($data[$key]) ? $data[$key] : null;
-            }
-            $newLines[] = $line;
-            $order--;
+        if (!$this->terminal) {
+            $this->miniLog->warning($this->i18n->trans('cash-register-not-found'));
+            return;           
         }
-        return $newLines;
+
+        $saldoinicial = $this->request->request->get('saldoinicial');
+
+        $this->arqueo = new ArqueoPOS();
+        $this->arqueo->abierto = true;
+        $this->arqueo->idterminal = $this->terminal->idterminal;
+        $this->arqueo->nickusuario = $this->user->nick;
+        $this->arqueo->saldoinicial = $saldoinicial;
+        $this->arqueo->saldofinal = $saldoinicial;
+
+        if ($this->arqueo->save()) { 
+            $msg = $this->terminal->nombre . ' iniciada con: ' . $saldoinicial . ', por ' . $this->user->nick;           
+            $this->miniLog->info($msg);
+            $this->terminal->disponible = false;
+
+            $this->terminal->save();
+            return;
+        }
+
+        $this->arqueo = false;
     }
 
+    /**
+     * Recalculate pos document, pos document lines from form data.
+     *
+     * @return void
+     */
     private function recalculateDocument()
     {
         $this->setTemplate(false);
 
-        $model = new FacturaCliente();
-        $documentTools = new BusinessDocumentTools();
-
-        /// gets data form and separate lines data
+        $tools = new PosDocumentTools();
+        $modelName = 'FacturaCliente';
         $data = $this->request->request->all();
-        $lines = isset($data['lines']) ? $this->processLines($data['lines']) : [];
-        unset($data['lines']);
 
-        /// load model data
-        $model->loadFromData($data, ['action']);
-
-        /// recalculate
-        $result = $documentTools->recalculateForm($model, $lines);
+        $result = $tools->recalculateData($modelName, $data);
         $this->response->setContent($result);
+
         return false;
     }
 
+    /**
+     * Process pos document.
+     *
+     * @return void
+     */
     private function saveDocument()
     {
         if (!$this->permissions->allowUpdate) {
@@ -253,36 +227,24 @@ class PointOfSale extends Controller
             return false;
         }
 
+        $tools = new PosDocumentTools();
         $data = $this->request->request->all();
-
-        $customer = (new Cliente)->get($data['codcliente']);
         $payments = json_decode($data['payments'], true);
+        
+        $modelName = 'FacturaCliente';
+        $className = 'FacturaScripts\\Dinamic\\Model\\' . $modelName;        
+        $document = new $className();        
 
-        $invoice = new FacturaCliente();
-        $invoice->setSubject($customer);
-        $invoice->codserie = $data['codserie'];
-        $invoice->codpago = $payments['method'];
-        $invoice->fecha = $data['documentdate'];        
-
-        if ($invoice->save()) {
-            foreach (json_decode($data["lines"], true) as $line) {
-                $newLine = new LineaFacturaCliente();
-                $newLine = $invoice->getNewLine($line);
-
-                if (!$newLine->save()) {
-                    $this->miniLog->info(print_r($newLine, true));
-                }
+        if ($tools->processDocumentData($document, $data)) {
+            if (!$document->save()) {
+                $this->miniLog->info(print_r($data, true));
             }
-
-            $tool = new BusinessDocumentTools();
-            $tool->recalculate($invoice);
-            $invoice->save();
-        }
+        }       
 
         $this->arqueo->saldofinal += (float) ($payments['amount'] - $payments['change']);
         $this->arqueo->save(); 
 
-        $this->miniLog->info('Generada ' . $this->i18n->trans('customer-invoice') . ' ' . $invoice->codigo);
+        $this->miniLog->info('Generado documento ' . $document->codigo);
         //$this->miniLog->info(print_r($data, true));
     }
 

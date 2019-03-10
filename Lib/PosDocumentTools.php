@@ -19,13 +19,16 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTools;
+use FacturaScripts\Dinamic\Model\Cliente;
+use FacturaScripts\Dinamic\Model\FormaPago;
+use FacturaScripts\Dinamic\Model\Serie;
 
 /**
  * A set of tools to recalculate Point of Sale documents.
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class BusinessDocumentTools
+class PosDocumentTools
 {
     private $tools;
 
@@ -67,9 +70,9 @@ class BusinessDocumentTools
         return $newLines;
     }
 
-    public function recalculateData($document, $data)
+    public function recalculateData($modelName, $data)
     {
-        $className = 'FacturaScripts\\Dinamic\\Model\\' . $document;        
+        $className = 'FacturaScripts\\Dinamic\\Model\\' . $modelName;        
         $model = new $className();
 
         /// gets data form and separate lines data
@@ -82,5 +85,53 @@ class BusinessDocumentTools
         /// recalculate
         $result = $this->tools->recalculateForm($model, $lines);
         return $result;
+    }
+
+    public function processDocumentData(&$document, $data)
+    {
+        $continuar = true;
+
+        $cliente = (new Cliente)->get($data['codcliente']);
+        if (!$cliente) {
+            $continuar = false;
+        }
+
+        $serie = (new Serie)->get($data['codserie']);
+        if (!$serie) {
+            $continue = false;
+        }
+
+        $pagos = json_decode($data['payments'], true);
+        $formaPago = (new FormaPago)->get($pagos['method']);
+        if (!$formaPago) {
+            $continuar = false;
+        }
+
+        if (!$continuar) {
+            return false;
+        }
+
+        $document->setSubject($cliente);
+        $document->codserie = $serie->codserie;
+        $document->codpago = $formaPago->codpago;
+        $document->fecha = $data['documentdate'];                
+
+        if ($document->save()) {
+            $lineClassName = 'FacturaScripts\\Dinamic\\Model\\Linea' . $document->modelClassName(); 
+            foreach (json_decode($data["lines"], true) as $line) {
+                $newLine = new $lineClassName();
+                $newLine = $document->getNewLine($line);
+
+                if (!$newLine->save()) {
+                    return false;
+                }
+            }
+
+            $this->tools = new BusinessDocumentTools();
+            $this->tools->recalculate($document);
+            return true;
+        }
+
+        return false;
     }
 }
