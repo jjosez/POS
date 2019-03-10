@@ -166,6 +166,28 @@ function businessDocViewSetAutocompletes(columns) {
     return columns;
 }
 
+function calculatePaymentChange()
+{
+    documentTotal = parseFloat($('#doc_total').val());
+    paymentAmount = parseFloat($('#payment-amount').val());
+
+    paymentReturn = paymentAmount - documentTotal;
+    $('#payment-change').val(formatNumber(paymentReturn));
+
+    if (paymentReturn >= 0) {
+        $("#btn-payment-ok").prop('disabled', false);
+        console.log('Cambio : ' + paymentReturn);
+    } else {
+        $("#btn-payment-ok").prop('disabled', true);
+        console.log('Falta : ' + paymentReturn);
+    }
+}
+
+function formatNumber(val)
+{
+    return parseFloat(val).toFixed(2);
+}
+
 $(document).ready(function () {
     var container = document.getElementById("document-lines");
     hsTable = new Handsontable(container, {
@@ -201,6 +223,10 @@ $(document).ready(function () {
 
     $("#doc_codserie").change(function () {
         businessDocViewRecalculate();
+    });
+
+    $("#payment-amount").keyup(function (e) {
+        calculatePaymentChange();
     });
 
     $(".autocomplete-dc").each(function () {

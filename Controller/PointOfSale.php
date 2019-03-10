@@ -21,11 +21,11 @@ namespace FacturaScripts\Plugins\POS\Controller;
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Lib\AssetManager;
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTools;
-use FacturaScripts\Dinamic\Lib\BusinessDocumentGenerator;
 use FacturaScripts\Dinamic\Model\Agente;
 use FacturaScripts\Dinamic\Model\ArqueoPOS;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\FacturaCliente;
+use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\LineaFacturaCliente;
 use FacturaScripts\Dinamic\Model\TerminalPOS;
 
@@ -40,6 +40,7 @@ class PointOfSale extends Controller
     public $agente = false;
     public $cliente;
     public $terminal;
+    public $formaPago;
 
     /**
      * Returns basic page attributes
@@ -62,21 +63,24 @@ class PointOfSale extends Controller
         parent::privateCore($response, $user, $permissions);
         
         $this->initValues();
-        $this->isCashCountOpened();
+        
+        if (!$this->isCashupOpened()) {
+            $idterminal = $this->request->query->get('terminal'); 
+            $idterminal = ($idterminal) ? $idterminal : $this->request->request->get('terminal');
 
-        $terminal = $this->request->query->get('terminal');        
-        if ($terminal) {
-            $this->terminal = (new TerminalPOS)->get($terminal);           
-        }
+            if ($idterminal) {
+                $this->terminal = (new TerminalPOS)->get($idterminal);   
+            }
+        }                   
 
         $action = $this->request->request->get('action');
         switch ($action) {
             case 'open-cashup':
-                $this->openCashUp();
+                $this->openCashup();
                 break;
 
             case 'close-cashup':
-                $this->closeCashUp();
+                $this->closeCashup();
                 break;
 
             case 'save-document':
@@ -98,13 +102,15 @@ class PointOfSale extends Controller
      *
      * @return void
      */
-    private function openCashUp()
+    private function openCashup()
     {
-        //$codagente = $this->request->request->get('codagente');
-        //$agente = $this->agente->loadFromCode($codagente);
-
-        if ($this->isCashCountOpened()) {
+        if ($this->isCashupOpened()) {
             return;
+        }               
+
+        if (!$this->terminal) {
+            $this->miniLog->warning($this->i18n->trans('cash-register-not-found'));
+            return;           
         }
 
         $saldoinicial = $this->request->request->get('saldoinicial');
@@ -114,9 +120,11 @@ class PointOfSale extends Controller
         $this->arqueo->idterminal = $this->terminal->idterminal;
         $this->arqueo->nickusuario = $this->user->nick;
         $this->arqueo->saldoinicial = $saldoinicial;
+        $this->arqueo->saldofinal = $saldoinicial;
 
-        if ($this->arqueo->save()) {            
-            $this->miniLog->info('Caja iniciada con: ' . $saldoinicial . ' por ' . $this->user->nick);
+        if ($this->arqueo->save()) { 
+            $msg = $this->terminal->nombre . ' iniciada con: ' . $saldoinicial . ', por ' . $this->user->nick;           
+            $this->miniLog->info($msg);
             $this->terminal->disponible = false;
 
             $this->terminal->save();
@@ -131,6 +139,7 @@ class PointOfSale extends Controller
         $this->assets();
 
         $this->cliente = new Cliente();
+        $this->formaPago = new FormaPago();
     }
 
     /**
@@ -138,7 +147,7 @@ class PointOfSale extends Controller
      *
      * @return bool
      */
-    private function isCashCountOpened()
+    private function isCashupOpened()
     {   
         if ($this->terminal) {
             $this->arqueo = (new ArqueoPOS)->isOpened('terminal', $this->terminal->idterminal);
@@ -147,8 +156,10 @@ class PointOfSale extends Controller
         }        
 
         if ($this->arqueo) {
-            //$this->miniLog->info(print_r($this->arqueo, true));
-            $this->terminal = (new TerminalPOS)->get($this->arqueo->idterminal);
+            if (!$this->terminal) {
+                $this->terminal = (new TerminalPOS)->get($this->arqueo->idterminal);
+            }
+            
             return true;
         }
 
@@ -164,12 +175,12 @@ class PointOfSale extends Controller
      *
      * @return void
      */
-    private function closeCashUp()
+    private function closeCashup()
     {
         $terminal = $this->request->request->get('terminal'); 
         $this->terminal = (new TerminalPOS)->get($terminal); 
 
-        if ($this->isCashCountOpened()) {
+        if ($this->isCashupOpened()) {
             $this->arqueo->abierto = false;
             $this->arqueo->fechafin = date('d-m-Y');
             $this->arqueo->horafin = date('H:i:s');
@@ -245,11 +256,13 @@ class PointOfSale extends Controller
         $data = $this->request->request->all();
 
         $customer = (new Cliente)->get($data['codcliente']);
+        $payments = json_decode($data['payments'], true);
 
         $invoice = new FacturaCliente();
         $invoice->setSubject($customer);
         $invoice->codserie = $data['codserie'];
-        $invoice->fecha = $data['documentdate'];
+        $invoice->codpago = $payments['method'];
+        $invoice->fecha = $data['documentdate'];        
 
         if ($invoice->save()) {
             foreach (json_decode($data["lines"], true) as $line) {
@@ -266,7 +279,11 @@ class PointOfSale extends Controller
             $invoice->save();
         }
 
+        $this->arqueo->saldofinal += (float) ($payments['amount'] - $payments['change']);
+        $this->arqueo->save(); 
+
         $this->miniLog->info('Generada ' . $this->i18n->trans('customer-invoice') . ' ' . $invoice->codigo);
+        //$this->miniLog->info(print_r($data, true));
     }
 
     protected function assets()
