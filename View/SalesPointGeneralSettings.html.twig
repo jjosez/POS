@@ -6,7 +6,23 @@
                 <div class="col-md-12">
                     <div class="form-row">
                         <legend class="text-info">
-                            <i class="fas fa-credit-card"></i> M&eacute;todos de pago disoponibles.
+                            <i class="fas fa-hand-holding-usd"></i> Forma de pago en efectivo.
+                        </legend>
+                        <div class="form-group col-6">
+                            {% set cash = appSettings.get('pointofsale','fpagoefectivo') %}
+                            <label for="cash-payment">{{ i18n.trans('payment-method') }}</label>
+                            <select class="form-control" id="cash-payment" name="cash-payment">                                
+                                {% for formapago in fsc.paymentMethods %}
+                                    <option value="{{ formapago.codpago }}"{% if formapago.codpago == cash %} selected {% endif %}>
+                                        {{ formapago.descripcion }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div> 
+                    </div>
+                    <div class="form-row">
+                        <legend class="text-info">
+                            <i class="fas fa-credit-card"></i> Formas de pago disoponibles.
                         </legend>
                         {% for paymentMethod in fsc.paymentMethods %}
                             {% set checked = fsc.isPaymentMethodEneabled(paymentMethod.codpago) %}
@@ -14,6 +30,22 @@
                                 <div class="form-group form-check">
                                     <input type="checkbox" name="paymentmethod[]" value="{{ paymentMethod.codpago }}" class="form-check-input" {{ checked ? 'checked' }}>
                                     <label for="checkbox0">{{ paymentMethod.descripcion|e }}</label>
+                                </div>
+                            </div>
+                        {% else %}
+                            <li><em>No se encontro ningun m&eacute;todo de pago.</em></li>
+                        {% endfor %}
+                    </div>
+                    <div class="form-row">
+                        <legend class="text-info">
+                            <i class="fas fa-credit-card"></i> Tipos de documentos disoponibles.
+                        </legend>
+                        {% for businessDoc in fsc.businessDocTypes %}
+                            <div class="col">
+                                {% set checked = fsc.isBusinessDocEneabled(businessDoc.tipodoc) %}
+                                <div class="form-group form-check">
+                                    <input type="checkbox" name="bussinesdocs[]" value="{{ businessDoc.tipodoc }}" class="form-check-input" {{ checked ? 'checked' }}>
+                                    <label for="checkbox0">{{ businessDoc.tipodoc|e }}</label>
                                 </div>
                             </div>
                         {% else %}

@@ -19,6 +19,7 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTools;
+use FacturaScripts\Dinamic\Model\Almacen;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\Serie;
@@ -82,14 +83,19 @@ class PosDocumentTools
         /// load model data
         $model->loadFromData($data, ['action']);
 
-        /// recalculate
+        /// recalculate with bussines tools
         $result = $this->tools->recalculateForm($model, $lines);
         return $result;
     }
 
-    public function processDocumentData(&$document, $data)
+    public function processDocumentData(&$document, $data, &$miniLog)
     {
         $continuar = true;
+
+        $almacen = (new Almacen)->get($data['codalmacen']);
+        if (!$almacen) {
+            $continuar = false;
+        }
 
         $cliente = (new Cliente)->get($data['codcliente']);
         if (!$cliente) {
@@ -112,6 +118,7 @@ class PosDocumentTools
         }
 
         $document->setSubject($cliente);
+        $document->codalmacen = $almacen->codalmacen;
         $document->codserie = $serie->codserie;
         $document->codpago = $formaPago->codpago;
         $document->fecha = $data['documentdate'];                
@@ -119,12 +126,14 @@ class PosDocumentTools
         if ($document->save()) {
             $lineClassName = 'FacturaScripts\\Dinamic\\Model\\Linea' . $document->modelClassName(); 
             foreach (json_decode($data["lines"], true) as $line) {
-                $newLine = new $lineClassName();
+                unset($line['actualizastock']);
                 $newLine = $document->getNewLine($line);
 
                 if (!$newLine->save()) {
+                    $miniLog->info( print_r($line, true));  
                     return false;
                 }
+                $newLine->updateStock($document->codalmacen);                             
             }
 
             $this->tools = new BusinessDocumentTools();

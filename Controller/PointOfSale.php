@@ -18,6 +18,7 @@
  */
 namespace FacturaScripts\Plugins\POS\Controller;
 
+use FacturaScripts\Core\App\AppSettings;
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Dinamic\Lib\AssetManager;
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTools;
@@ -235,17 +236,21 @@ class PointOfSale extends Controller
         $className = 'FacturaScripts\\Dinamic\\Model\\' . $modelName;        
         $document = new $className();        
 
-        if ($tools->processDocumentData($document, $data)) {
+        if ($tools->processDocumentData($document, $data, $this->miniLog)) {
             if (!$document->save()) {
                 $this->miniLog->info(print_r($data, true));
             }
-        }       
+        }
 
-        $this->arqueo->saldofinal += (float) ($payments['amount'] - $payments['change']);
-        $this->arqueo->save(); 
+        if ($payments['method'] == AppSettings::get('pointofsale','fpagoefectivo') ) {
+            $this->arqueo->saldofinal += (float) ($payments['amount'] - $payments['change']);
+            $this->arqueo->save(); 
+        }     
 
+
+        $lines = json_decode($data['lines']);
         $this->miniLog->info('Generado documento ' . $document->codigo);
-        //$this->miniLog->info(print_r($data, true));
+        //$this->miniLog->info(print_r($lines, true));
     }
 
     protected function assets()
