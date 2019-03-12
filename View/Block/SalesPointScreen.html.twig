@@ -4,6 +4,7 @@
     PosDocViewFormName = "formBusinessDocumentLine";
     PosDocViewUrl = "PointOfSale";
     PosDocAutocompleteUrl = "EditFacturaCliente";
+    PosDocCashPaymentMethod = "{{ appSettings.get('pointofsale','fpagoefectivo') }}";
 
     function salesDocumentSave() {
         $("#btn-document-save").prop("disabled", true);
@@ -41,8 +42,9 @@
             <div class="form-group col-3">
                 <select class="form-control" id="businessdoc" name="businessdoc">
                     {% set businessDocs = appSettings.get('pointofsale','tiposdocumento')|split('|') %}
+                    {% set defaultDoc = appSettings.get('pointofsale','defaultdoc') %}
                     {% for document in businessDocs %}
-                        <option value="{{ document }}">
+                        <option value="{{ document }}" {% if document == defaultDoc %} selected {% endif %}>
                             {{ document }}
                         </option>
                     {% endfor %}
@@ -124,10 +126,8 @@
                     <div class="form-group">
                         <label for="payment-method">{{ i18n.trans('payment-method') }}</label>
                         <select class="form-control" id="payment-method" name="payment-method">
-                            {% set defaultcustomer = fsc.terminal.codcliente %}
                             {% for formapago in fsc.formaPago.all() %}
-                                {% if formapago.codpago == defaultcustomer %} {% set selected  = 'selected' %} {% endif %}
-                                <option value="{{ formapago.codpago }}" {{ selected }}>
+                                <option value="{{ formapago.codpago }}">
                                     {{ formapago.descripcion }}
                                 </option>
                             {% endfor %}

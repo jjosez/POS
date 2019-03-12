@@ -21,6 +21,7 @@ var PosDocViewLineData = [];
 var PosDocViewFormName = "f_document_primary";
 var PosDocViewUrl = "";
 var PosDocAutocompleteUrl = "";
+var PosDocCashPaymentMethod = "";
 var hsTable = null;
 
 function beforeChange(changes, source) {
@@ -170,8 +171,17 @@ function calculatePaymentChange()
 {
     documentTotal = parseFloat($('#doc_total').val());
     paymentAmount = parseFloat($('#payment-amount').val());
+    paymentMethod = $('#payment-method').children("option:selected").val();
 
     paymentReturn = paymentAmount - documentTotal;
+    if (paymentMethod != PosDocCashPaymentMethod) {
+        if (paymentReturn > 0) {
+            paymentReturn = 0;
+            paymentAmount = documentTotal;
+            $('#payment-amount').val(formatNumber(paymentAmount));
+        }
+    }
+
     $('#payment-change').val(formatNumber(paymentReturn));
 
     if (paymentReturn >= 0) {

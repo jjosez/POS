@@ -94,6 +94,11 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
                 $appSettings->set('pointofsale', 'tiposdocumento', join('|', $tiposdocumento));
             }
 
+            $defauldocumento = $this->request->request->get('default-businessdoc');
+            if ($defauldocumento) {               
+                $appSettings->set('pointofsale', 'defaultdoc', $defauldocumento);
+            }
+
             $appSettings->save();  
         }
     }

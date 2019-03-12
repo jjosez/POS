@@ -205,11 +205,11 @@ class PointOfSale extends Controller
     private function recalculateDocument()
     {
         $this->setTemplate(false);
-
-        $tools = new PosDocumentTools();
-        $modelName = 'FacturaCliente';
+              
         $data = $this->request->request->all();
+        $modelName = 'FacturaCliente';
 
+        $tools = new PosDocumentTools();  
         $result = $tools->recalculateData($modelName, $data);
         $this->response->setContent($result);
 
