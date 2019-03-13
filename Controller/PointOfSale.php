@@ -39,8 +39,9 @@ class PointOfSale extends Controller
     public $arqueo = false;
     public $agente = false;
     public $cliente;
-    public $terminal;
+    public $businessDoc = false;
     public $formaPago;
+    public $terminal;    
 
     /**
      * Returns basic page attributes
@@ -240,6 +241,7 @@ class PointOfSale extends Controller
             if (!$document->save()) {
                 $this->miniLog->info(print_r($data, true));
             }
+            $this->businessDoc = $document;
         }
 
         if ($payments['method'] == AppSettings::get('pointofsale','fpagoefectivo') ) {

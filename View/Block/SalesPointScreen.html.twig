@@ -1,4 +1,5 @@
 {% import _self as macros %}
+
 <script type="text/javascript">
     PosDocViewLineData = {"headers":["Referencia","Descripci\u00f3n","Cantidad","Precio","Neto"],"columns":[{"data":"referencia","type":"autocomplete","source":{"source":"Variante","fieldcode":"referencia","fieldtitle":"referencia"},"strict":false,"visibleRows":5,"trimDropdown":false},{"data":"descripcion","type":"text"},{"data":"cantidad","type":"numeric","numericFormat":{"pattern":"0.00"}},{"data":"pvpunitario","type":"numeric","numericFormat":{"pattern":"0.00"}},{"data":"pvptotal","type":"numeric","numericFormat":{"pattern":"0.00"}}],"rows":[]};
     PosDocViewFormName = "formBusinessDocumentLine";
@@ -30,6 +31,18 @@
     }
 </script>
 <div class="container-fluid">
+    {% if fsc.businessDoc.primaryColumnValue() %}    
+        <div class="alert alert-info" role="alert">
+            <strong><i class="fas fa-print"></i></strong> Imprimiendo documento.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <div class="d-none">
+                <img src="{{ asset('PrintTicket') }}?documento={{ fsc.businessDoc.modelClassName() }}&code={{ fsc.businessDoc.primaryColumnValue() }}">
+                <img src='http://localhost:10080?documento={{ fsc.businessDoc.modelClassName }}' alt='remote-printer'/>
+            </div>
+        </div>
+    {% endif %}
     <form id="formSalesDocument" name="formSalesDocument" method="POST" autocomplete="off">
         <input type="hidden" id="action" name="action"/>        
         <input type="hidden" id="codalmacen" name="codalmacen" value="{{ fsc.terminal.codalmacen}}">
@@ -89,29 +102,6 @@
     </form>
 </div>
 
-{% macro customerSelect(i18n, id, name, model, newUrl) %}
-    <div class="col mb-3">
-        <div class="input-group">
-            <span class="input-group-prepend">
-                {% if model.codcliente %}
-                    <a href="EditCliente?code={{ model.codcliente }}" target="_blank" class="btn btn-info">
-                        <i class="fas fa-user-cog fa-fw" aria-hidden="true"></i>
-                    </a>
-                {% else %}
-                    <a href="{{ newUrl }}" target="_blank" class="btn btn-success" title="{{ i18n.trans('new-customer') }}">
-                        <i class="fas fa-user-plus fa-fw" aria-hidden="true"></i>
-                    </a>
-                {% endif %}
-            </span>
-            <input type="hidden" id="{{ id }}Autocomplete" name="{{ name }}" value="{{ model.codcliente }}"/>
-            <input type="text" id="{{ id }}" value="{{ model.nombre | raw }}" class="form-control autocomplete-dc"
-                   data-field="{{ id }}" data-source="Cliente" data-fieldcode="codcliente" data-fieldtitle="nombre"
-                   placeholder="{{ i18n.trans('customer') }}" autocomplete="off"/>
-        </div>
-    </div>
-{% endmacro %}
-
-
 <div class="modal fade" id="modal-payment" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -150,3 +140,25 @@
         </div>
     </div>
 </div>
+
+{% macro customerSelect(i18n, id, name, model, newUrl) %}
+    <div class="col mb-3">
+        <div class="input-group">
+            <span class="input-group-prepend">
+                {% if model.codcliente %}
+                    <a href="EditCliente?code={{ model.codcliente }}" target="_blank" class="btn btn-info">
+                        <i class="fas fa-user-cog fa-fw" aria-hidden="true"></i>
+                    </a>
+                {% else %}
+                    <a href="{{ newUrl }}" target="_blank" class="btn btn-success" title="{{ i18n.trans('new-customer') }}">
+                        <i class="fas fa-user-plus fa-fw" aria-hidden="true"></i>
+                    </a>
+                {% endif %}
+            </span>
+            <input type="hidden" id="{{ id }}Autocomplete" name="{{ name }}" value="{{ model.codcliente }}"/>
+            <input type="text" id="{{ id }}" value="{{ model.nombre | raw }}" class="form-control autocomplete-dc"
+                   data-field="{{ id }}" data-source="Cliente" data-fieldcode="codcliente" data-fieldtitle="nombre"
+                   placeholder="{{ i18n.trans('customer') }}" autocomplete="off"/>
+        </div>
+    </div>
+{% endmacro %}
