@@ -31,6 +31,9 @@
     }    
 </script>
 <div class="container-fluid">
+    {% if fsc.businessDoc.codigo %}    
+        <div class="d-none"><img src="" id="printercaller"></div>
+    {% endif %}
     <form id="formSalesDocument" name="formSalesDocument" method="POST" autocomplete="off">
         <input type="hidden" id="action" name="action"/>        
         <input type="hidden" id="codalmacen" name="codalmacen" value="{{ fsc.terminal.codalmacen}}">
