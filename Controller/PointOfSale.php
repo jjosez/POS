@@ -197,7 +197,7 @@ class PointOfSale extends Controller
 
         $this->arqueo = false;
     }
-
+    
     /**
      * Recalculate pos document, pos document lines from form data.
      *
@@ -247,8 +247,7 @@ class PointOfSale extends Controller
         if ($payments['method'] == AppSettings::get('pointofsale','fpagoefectivo') ) {
             $this->arqueo->saldofinal += (float) ($payments['amount'] - $payments['change']);
             $this->arqueo->save(); 
-        }     
-
+        }
 
         $lines = json_decode($data['lines']);
         $this->miniLog->info('Generado documento ' . $document->codigo);

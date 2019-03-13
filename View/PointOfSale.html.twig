@@ -1,4 +1,20 @@
 {% extends 'Master/MenuTemplate.html.twig' %}
+{% block messages %}
+    {{ parent() }}
+    {% if fsc.businessDoc.codigo %}    
+        <div class="container-fluid">
+            <div class="alert alert-info d-none" role="alert">
+                <strong><i class="fas fa-print"></i></strong> Imprimiendo {{ fsc.businessDoc.codigo }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="d-none">
+                    <img src="" id="printercaller">
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
 {% block bodyHeaderOptions %}
     {% set pageData = fsc.getPageData() %}
     <div class="container-fluid">
@@ -100,4 +116,25 @@
             {% endif %}
         </div>
     {% endif %}
+    <script type="text/javascript">
+        {% if fsc.businessDoc.codigo %}
+            $(document).ready(function () { 
+                var data = {
+                    "documento":"{{ fsc.businessDoc.modelClassName() }}",
+                    "code":"{{ fsc.businessDoc.primaryColumnValue() }}"
+                }; 
+                var url = "{{ asset('PrintTicket') }}";     
+
+                $.ajax({
+                    data: data,
+                    url: url,                
+                    success: function (result) {
+                        var src = "http://localhost:10080?documento={{ fsc.businessDoc.modelClassName() }}";
+                        $('#printercaller').attr('src', src);
+                        //$('.alert').removeClass('d-none').addClass('show');
+                    }
+                });
+            });
+        {% endif %}
+    </script>
 {% endblock %}

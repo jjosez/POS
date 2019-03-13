@@ -28,21 +28,9 @@
             document.getElementById("payments").value = JSON.stringify(paymentData);
             document.formSalesDocument.submit()
         });        
-    }
+    }    
 </script>
 <div class="container-fluid">
-    {% if fsc.businessDoc.primaryColumnValue() %}    
-        <div class="alert alert-info" role="alert">
-            <strong><i class="fas fa-print"></i></strong> Imprimiendo documento.
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-            <div class="d-none">
-                <img src="{{ asset('PrintTicket') }}?documento={{ fsc.businessDoc.modelClassName() }}&code={{ fsc.businessDoc.primaryColumnValue() }}">
-                <img src='http://localhost:10080?documento={{ fsc.businessDoc.modelClassName }}' alt='remote-printer'/>
-            </div>
-        </div>
-    {% endif %}
     <form id="formSalesDocument" name="formSalesDocument" method="POST" autocomplete="off">
         <input type="hidden" id="action" name="action"/>        
         <input type="hidden" id="codalmacen" name="codalmacen" value="{{ fsc.terminal.codalmacen}}">
