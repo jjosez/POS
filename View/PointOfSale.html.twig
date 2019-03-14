@@ -100,25 +100,4 @@
             {% endif %}
         </div>
     {% endif %}
-    <script type="text/javascript">
-        {% if fsc.businessDoc.codigo %}
-            $(document).ready(function () { 
-                var data = {
-                    "documento":"{{ fsc.businessDoc.modelClassName() }}",
-                    "code":"{{ fsc.businessDoc.primaryColumnValue() }}"
-                }; 
-                var url = "{{ asset('PrintTicket') }}";     
-
-                $.ajax({
-                    data: data,
-                    url: url,                
-                    success: function (result) {
-                        var src = "http://localhost:10080?documento={{ fsc.businessDoc.modelClassName() }}";
-                        $('#printercaller').attr('src', src);
-                        //$('.alert').removeClass('d-none').addClass('show');
-                    }
-                });
-            });
-        {% endif %}
-    </script>
 {% endblock %}

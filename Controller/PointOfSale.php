@@ -23,6 +23,7 @@ use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Dinamic\Lib\AssetManager;
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTools;
 use FacturaScripts\Dinamic\Lib\PosDocumentTools;
+use FacturaScripts\Dinamic\Lib\TicketPrinter;
 use FacturaScripts\Dinamic\Model\Agente;
 use FacturaScripts\Dinamic\Model\ArqueoPOS;
 use FacturaScripts\Dinamic\Model\Cliente;
@@ -197,7 +198,7 @@ class PointOfSale extends Controller
 
         $this->arqueo = false;
     }
-    
+
     /**
      * Recalculate pos document, pos document lines from form data.
      *
@@ -242,6 +243,13 @@ class PointOfSale extends Controller
                 $this->miniLog->info(print_r($data, true));
             }
             $this->businessDoc = $document;
+            $printer = new TicketPrinter();
+            if ($printer->printTicket($document)) {
+                $msg = '<div class="d-none"><img src="http://localhost:10080?documento=%1s"/></div>';
+                $this->miniLog->info('Generado documento ' . $document->codigo);
+                $this->miniLog->info('Imprimiendo' . sprintf($msg, $modelName));
+            }
+
         }
 
         if ($payments['method'] == AppSettings::get('pointofsale','fpagoefectivo') ) {
@@ -250,7 +258,6 @@ class PointOfSale extends Controller
         }
 
         $lines = json_decode($data['lines']);
-        $this->miniLog->info('Generado documento ' . $document->codigo);
         //$this->miniLog->info(print_r($lines, true));
     }
 
