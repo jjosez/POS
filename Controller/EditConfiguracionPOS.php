@@ -27,12 +27,13 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
     {
         $this->setTemplate('SalesPointSettings');
 
-        $this->addListView('ListFraccionMoneda', 'FraccionMoneda', 'currency-fraction');
         $this->addHtmlView('SalesPointGeneralSettings', 'SalesPointGeneralSettings', 'FormaPago', 'general', 'fas fa-cogs');
+        $this->addListView('ListFraccionMoneda', 'FraccionMoneda', 'currency-fraction');     
     }
 
     protected function loadData($viewName, $view)
     {
+        $this->hasData = true;
         switch ($viewName) {
             case 'ListFraccionMoneda':
                 $code = $this->request->get('code');

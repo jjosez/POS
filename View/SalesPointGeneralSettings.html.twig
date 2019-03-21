@@ -6,11 +6,11 @@
                 <div class="col-md-12">
                     <div class="form-row mb-4">
                         <legend class="text-info">
-                            <i class="fas fa-sliders-h"></i> Opciones predeterminadas.
+                            <i class="fas fa-sliders-h"></i> Opciones predefinidas.
                         </legend>
                         <div class="form-group col-6">
                             {% set cash = appSettings.get('pointofsale','fpagoefectivo') %}
-                            <label for="cash-payment">{{ i18n.trans('payment-method') }}</label>
+                            <label for="cash-payment">{{ i18n.trans('default-payment-method') }}</label>
                             <select class="form-control" id="cash-payment" name="cash-payment">                                
                                 {% for formapago in fsc.paymentMethods %}
                                     <option value="{{ formapago.codpago }}"{% if formapago.codpago == cash %} selected {% endif %}>
@@ -21,7 +21,7 @@
                         </div>
                         <div class="form-group col-6">
                             {% set defaultdoc = appSettings.get('pointofsale','defaultdoc') %}
-                            <label for="cash-payment">Documento predeterminado</label>
+                            <label for="cash-payment">Documento por defecto</label>
                             <select class="form-control" id="default-businessdoc" name="default-businessdoc">
                                 {% for businessDoc in fsc.businessDocTypes %}
                                     <option value="{{ businessDoc.tipodoc }}"{% if businessDoc.tipodoc == defaultdoc %} selected {% endif %}>

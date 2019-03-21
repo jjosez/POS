@@ -49,4 +49,9 @@
             <widget type="number" decimal="2" fieldname="saldofinal" />
         </column>
     </columns>
+    <rows>
+        <row type='status'>
+            <option color='warning' fieldname='abierto'>1</option>
+        </row>
+    </rows>
 </view>

@@ -31,10 +31,17 @@
             <widget type="text" fieldname="nombre"/>
         </column>
         <column name="default-customer" order="100">
-            <widget type="text" fieldname="codcliente"/>
+            <widget type="select" fieldname="codcliente">
+                <values source="clientes" fieldcode="codcliente" fieldtitle="nombre"></values>
+            </widget>
         </column>
         <column name="default-warehouse" order="100">
             <widget type="text" fieldname="codalmacen"/>
+        </column>
+        <column name="default-warehouse" order="100">
+            <widget type="select" fieldname="codalmacen">
+                <values source="almacenes" fieldcode="codalmacen" fieldtitle="nombre"></values>
+            </widget>
         </column>
         <column name="Comando apertura" order="100">
             <widget type="text" fieldname="comandoapertura"/>
@@ -49,4 +56,9 @@
             <widget type="checkbox" fieldname='disponible' />
         </column>        
     </columns>
+    <rows>
+        <row type='status'>
+            <option color='warning' fieldname='disponible'>0</option>
+        </row>
+    </rows>
 </view>
