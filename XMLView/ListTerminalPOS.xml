@@ -43,12 +43,6 @@
                 <values source="almacenes" fieldcode="codalmacen" fieldtitle="nombre"></values>
             </widget>
         </column>
-        <column name="Comando apertura" order="100">
-            <widget type="text" fieldname="comandoapertura"/>
-        </column>
-        <column name="Comando corte" order="100">
-            <widget type="text" fieldname="comandocorte"/>
-        </column>
         <column name='Numero tickets' order='100' display='right'>
             <widget type='number' decimal="0" fieldname='numerotickets' />
         </column>

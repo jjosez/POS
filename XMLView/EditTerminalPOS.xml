@@ -46,12 +46,6 @@
             </column>            
         </group>
         <group name="extra" numcolumns="12">
-            <column name="Comando apertura" numcolumns="3" order="100">
-                <widget type="text" fieldname="comandoapertura" />
-            </column>            
-            <column name="Comando corte" numcolumns="3" order="100">
-                <widget type="text" fieldname="comandocorte" />
-            </column>
             <column name="Ancho papel" numcolumns="3" order="100">
                 <widget type="number" fieldname="anchopapel" />
             </column>

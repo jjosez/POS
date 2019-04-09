@@ -21,7 +21,6 @@ namespace FacturaScripts\Plugins\POS\Controller;
 use FacturaScripts\Core\App\AppSettings;
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Dinamic\Lib\AssetManager;
-use FacturaScripts\Dinamic\Lib\BusinessDocumentTools;
 use FacturaScripts\Dinamic\Lib\PosDocumentTools;
 use FacturaScripts\Dinamic\Lib\TicketPrinter;
 use FacturaScripts\Dinamic\Model\Agente;
@@ -40,7 +39,6 @@ class PointOfSale extends Controller
     public $arqueo = false;
     public $agente = false;
     public $cliente;
-    public $businessDoc = false;
     public $formaPago;
     public $terminal;    
 
@@ -242,12 +240,16 @@ class PointOfSale extends Controller
             if (!$document->save()) {
                 $this->miniLog->info(print_r($data, true));
             }
-            $this->businessDoc = $document;
+
             $printer = new TicketPrinter();
             if ($printer->printTicket($document)) {
                 $msg = '<div class="d-none"><img src="http://localhost:10080?documento=%1s"/></div>';
                 $this->miniLog->info('Generado documento ' . $document->codigo);
                 $this->miniLog->info('Imprimiendo' . sprintf($msg, $modelName));
+            } else {
+                foreach ($printer->getErrors() as $error) {
+                    $this->miniLog->warning($error);
+                }
             }
 
         }

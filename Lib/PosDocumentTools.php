@@ -133,7 +133,7 @@ class PosDocumentTools
                     $miniLog->info( print_r($line, true));  
                     return false;
                 }
-                $newLine->updateStock($document->codalmacen);                             
+                //$newLine->updateStock($document->codalmacen);                             
             }
 
             $this->tools = new BusinessDocumentTools();
