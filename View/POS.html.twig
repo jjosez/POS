@@ -13,7 +13,7 @@
                     <form id="formCloseCashUp" method="POST" autocomplete="off">
                         <input type="hidden" name="action" value="close-cashup">
                         <input type="hidden" name="idterminal" value="{{ fsc.arqueo.idterminal }}">                        
-                        <button type="submit" class="btn btn-sm btn-danger">
+                        <button type="button" class="btn btn-sm btn-danger" onclick="closeCashUp()">
                             <i class="fas fa-lock" aria-hidden="true"></i>&nbsp; Cerrar caja
                         </button>
                     </form>
@@ -35,26 +35,18 @@
 {% endblock %}
 {% block body %}
     {% if fsc.arqueo.abierto %}
-        {{ include('Block/SalesPointScreen.html.twig') }}
+        {{ include('Block/POSSalesScreen.html.twig') }}
     {% else %}
         <div class="container-fluid">
             {% if fsc.terminal.idterminal %}
-                <form id="formInitCashCount" method="POST" autocomplete="off">
+                <form id="formInitCashUp" method="POST" autocomplete="off">
                     <input type="hidden" name="terminal" value="{{ fsc.terminal.idterminal }}">
                     <input type="hidden" name="action" value="open-cashup">
                     
                     <div class="card mx-auto w-50">
                         <div class="card-header bg-dark text-white text-center">{{ fsc.terminal.nombre }}</div>
                         <div class="card-body">
-                            <p class="card-text">Selecciona un vendedor y el efectivo en caja para iniciar.</p>
-                            <div class="form-group">
-                                <select class="form-control" id="codagente" name="codagente">
-                                    <option value="0"> --- </option>
-                                    {% for agente in fsc.agente.all() %}
-                                        <option value="{{ agente.codagente }}">{{ agente.nombre }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
+                            <p class="card-text">Ingresa el efectivo en caja para iniciar.</p>
                             <div class="form-row">
                                 <div class="col">
                                     <div class="form-group">
@@ -69,7 +61,7 @@
                             </div>
                             <div class="row">
                                 <div class="col text left">
-                                    <a href="{{ asset('PointOfSale') }}">Ver todas</a>
+                                    <a href="{{ asset('POS') }}">Ver todas</a>
                                 </div>
                                 <div class="col text-right">
                                     <button class="btn btn-primary" type="submit">

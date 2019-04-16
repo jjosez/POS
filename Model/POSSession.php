@@ -4,18 +4,20 @@ namespace FacturaScripts\Plugins\POS\Model;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
 
-class ArqueoPOS extends Base\ModelClass
+class POSSession extends Base\ModelClass
 {
     use Base\ModelTrait;
 
     public $abierto;
+    public $conteo;
     public $fechainicio;
     public $fechafin;
     public $horainicio;
     public $horafin;
     public $idarqueo;
     public $idterminal;
-    public $nickusuario;    
+    public $nickusuario;
+    public $saldocontado;    
     public $saldofinal;
     public $saldoinicial; 
     public $saldomovimientos;
@@ -28,6 +30,7 @@ class ArqueoPOS extends Base\ModelClass
         $this->abierto = false;
         $this->fechainicio = date('d-m-Y');
         $this->horainicio = date('H:i:s');
+        $this->saldocontado = 0.0;
         $this->saldofinal = 0.0;
     }  
 

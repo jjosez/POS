@@ -21,11 +21,11 @@ namespace FacturaScripts\Plugins\POS\Controller;
 use FacturaScripts\Core\Lib\ExtendedController;
 
 /**
- * Controller to list the items in the FraccionMoneda model
+ * Controller to list the items in the ArqueoPOS model
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class ListTerminalPOS extends ExtendedController\ListController
+class ListPOSSession extends ExtendedController\ListController
 {
 
     /**
@@ -36,8 +36,8 @@ class ListTerminalPOS extends ExtendedController\ListController
     public function getPageData()
     {
         $pagedata = parent::getPageData();
-        $pagedata['title'] = 'cash-registers';
-        $pagedata['icon'] = 'fas fa-cash-register';
+        $pagedata['title'] = 'cash-ups';
+        $pagedata['icon'] = 'fas fa-money-bill-alt';
         $pagedata['menu'] = 'point-of-sale';
 
         return $pagedata;
@@ -48,10 +48,10 @@ class ListTerminalPOS extends ExtendedController\ListController
      */
     protected function createViews()
     {
-        $this->addView('ListTerminalPOS', 'TerminalPOS', 'cash-registers', 'fas fa-cash-register');
-        $this->addSearchFields('ListTerminalPOS', ['nombre']);
+        $this->addView('ListPOSSession', 'POSSession', 'cash-ups', 'fas fa-money-bill-alt');
+        $this->addSearchFields('ListPOSSession', ['nombreagente']);
 
-        $this->addOrderBy('ListTerminalPOS', ['idterminal'], 'ID');
-        $this->addOrderBy('ListTerminalPOS', ['nombre'], 'Nombre');
+        $this->addOrderBy('ListPOSSession', ['fechainicio','horainicio'], 'Fecha Inicio', 2);
+        $this->addOrderBy('ListPOSSession', ['fechafin','horafin'], 'Fecha Fin');
     }
 }

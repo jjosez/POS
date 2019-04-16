@@ -21,12 +21,20 @@ namespace FacturaScripts\Plugins\POS\Controller;
 use FacturaScripts\Core\Lib\ExtendedController;
 
 /**
- * Controller to list the items in the FraccionMoneda model
+ * Controller to edit a single item from the Divisa model
  *
- * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ * @author Raúl Jiménez <comercial@nazcanetworks.com>
  */
-class ListFraccionMoneda extends ExtendedController\ListController
+class EditPOSSession extends ExtendedController\EditController
 {
+
+    /**
+     * Returns the model name
+     */
+    public function getModelClassName()
+    {
+        return 'POSSession';
+    }
 
     /**
      * Returns basic page attributes
@@ -36,24 +44,11 @@ class ListFraccionMoneda extends ExtendedController\ListController
     public function getPageData()
     {
         $pagedata = parent::getPageData();
-        $pagedata['title'] = 'currency-fraction';
+        $pagedata['title'] = 'till-session';
+        $pagedata['menu'] = 'admin';
         $pagedata['icon'] = 'fas fa-money-bill-alt';
-        $pagedata['menu'] = 'point-of-sale';
         $pagedata['showonmenu'] = false;
 
         return $pagedata;
-    }
-
-    /**
-     * Load views
-     */
-    protected function createViews()
-    {
-        $this->addView('ListFraccionMoneda', 'FraccionMoneda', 'currency-fraction', 'fas fa-money-bill-alt');
-        $this->addSearchFields('ListFraccionMoneda', ['clave', 'coddivisa']);
-
-        $this->addOrderBy('ListFraccionMoneda', ['clave'], 'Clave');
-        $this->addOrderBy('ListFraccionMoneda', ['coddivisa'], 'code');
-        $this->addOrderBy('ListFraccionMoneda', ['valor'], 'value');
     }
 }

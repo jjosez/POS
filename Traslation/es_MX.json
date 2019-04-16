@@ -1,0 +1,12 @@
+{   
+    "available-cash-registers": "Terminales disponibles", 
+    "cash-registers": "Terminales",
+    "cash-register-not-found" : "No se encontro la terminal",
+    "cash-up": "arqueo",
+    "cash-ups": "Arqueos",
+    "currency-denomination": "Denominacion monetaria",
+    "default-payment-method": "Metodo de pago predefinido",
+    "payment-amount": "Cantidad pagada",
+    "payment-change": "Cambio",
+    "point-of-sale": "Punto de venta"
+}

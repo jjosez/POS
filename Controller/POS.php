@@ -20,27 +20,32 @@ namespace FacturaScripts\Plugins\POS\Controller;
 
 use FacturaScripts\Core\App\AppSettings;
 use FacturaScripts\Core\Base\Controller;
+
 use FacturaScripts\Dinamic\Lib\AssetManager;
-use FacturaScripts\Dinamic\Lib\PosDocumentTools;
-use FacturaScripts\Dinamic\Lib\TicketPrinter;
-use FacturaScripts\Dinamic\Model\Agente;
-use FacturaScripts\Dinamic\Model\ArqueoPOS;
+use FacturaScripts\Dinamic\Lib\BusinessDocumentOptions;
+use FacturaScripts\Dinamic\Lib\BusinessDocumentTicket;
+use FacturaScripts\Dinamic\Lib\POSBusinessDocumentTools;
+
 use FacturaScripts\Dinamic\Model\Cliente;
+use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\FormaPago;
-use FacturaScripts\Dinamic\Model\TerminalPOS;
+use FacturaScripts\Dinamic\Model\POSTerminal;
+use FacturaScripts\Dinamic\Model\POSSession;
+//use FacturaScripts\Dinamic\Model\POSSales;
 
 /**
  * Controller to edit a single item from the AlbaranCliente model
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class PointOfSale extends Controller
+class POS extends Controller
 {
     public $arqueo = false;
     public $agente = false;
     public $cliente;
     public $formaPago;
-    public $terminal;    
+    public $terminal;   
+    protected $pageOption;
 
     /**
      * Returns basic page attributes
@@ -69,17 +74,22 @@ class PointOfSale extends Controller
             $idterminal = ($idterminal) ? $idterminal : $this->request->request->get('terminal');
 
             if ($idterminal) {
-                $this->terminal = (new TerminalPOS)->get($idterminal);   
+                $this->terminal = (new POSTerminal)->get($idterminal);   
             }
-        }                   
+        }
 
+        $this->execAction();
+    }
+
+    private function execAction()
+    {
         $action = $this->request->request->get('action');
         switch ($action) {
             case 'open-cashup':
                 $this->openCashup();
                 break;
 
-            case 'close-cashup':
+            case 'close-till':
                 $this->closeCashup();
                 break;
 
@@ -105,12 +115,24 @@ class PointOfSale extends Controller
     private function closeCashup()
     {
         $terminal = $this->request->request->get('terminal'); 
-        $this->terminal = (new TerminalPOS)->get($terminal); 
+        $this->terminal = (new POSTerminal)->get($terminal); 
 
         if ($this->isCashupOpened()) {
             $this->arqueo->abierto = false;
             $this->arqueo->fechafin = date('d-m-Y');
             $this->arqueo->horafin = date('H:i:s');
+
+            $cash = $this->request->request->get('cash');       
+            $total = 0.0;
+
+            foreach ($cash as $value => $count) {
+                $total += (float) $value * (float) $count;
+            }
+
+            $this->miniLog->info(print_r($cash,true));
+            $this->miniLog->info('Dinero contado - ' . $total);
+            $this->arqueo->saldocontado = $total;
+            $this->arqueo->conteo = json_encode($cash);
 
             if ($this->arqueo->save()) {
                 $this->terminal->disponible = true;
@@ -120,7 +142,7 @@ class PointOfSale extends Controller
     }
 
     /**
-     * Initialize a common values.
+     * Initialize default values.
      *
      * @return void
      */
@@ -133,28 +155,28 @@ class PointOfSale extends Controller
     }
 
     /**
-     * Verify if a cashup is opened by user or terminalpos
+     * Verify if a cashup is opened by user or POSTerminal
      *
      * @return bool
      */
     private function isCashupOpened()
     {   
         if ($this->terminal) {
-            $this->arqueo = (new ArqueoPOS)->isOpened('terminal', $this->terminal->idterminal);
+            $this->arqueo = (new POSSession)->isOpened('terminal', $this->terminal->idterminal);
         } else {
-            $this->arqueo = (new ArqueoPOS)->isOpened('user', $this->user->nick);           
+            $this->arqueo = (new POSSession)->isOpened('user', $this->user->nick);           
         }        
 
         if ($this->arqueo) {
             if (!$this->terminal) {
-                $this->terminal = (new TerminalPOS)->get($this->arqueo->idterminal);
+                $this->terminal = (new POSTerminal)->get($this->arqueo->idterminal);
             }
             
             return true;
         }
 
         if (!$this->terminal) {
-            $this->terminal = new TerminalPOS(); 
+            $this->terminal = new POSTerminal(); 
         }        
 
         return false;      
@@ -178,7 +200,7 @@ class PointOfSale extends Controller
 
         $saldoinicial = $this->request->request->get('saldoinicial');
 
-        $this->arqueo = new ArqueoPOS();
+        $this->arqueo = new POSSession();
         $this->arqueo->abierto = true;
         $this->arqueo->idterminal = $this->terminal->idterminal;
         $this->arqueo->nickusuario = $this->user->nick;
@@ -209,7 +231,7 @@ class PointOfSale extends Controller
         $data = $this->request->request->all();
         $modelName = 'FacturaCliente';
 
-        $tools = new PosDocumentTools();  
+        $tools = new POSBusinessDocumentTools();  
         $result = $tools->recalculateData($modelName, $data);
         $this->response->setContent($result);
 
@@ -228,7 +250,7 @@ class PointOfSale extends Controller
             return false;
         }
 
-        $tools = new PosDocumentTools();
+        $tools = new POSBusinessDocumentTools();
         $data = $this->request->request->all();
         $payments = json_decode($data['payments'], true);
         
@@ -238,18 +260,21 @@ class PointOfSale extends Controller
 
         if ($tools->processDocumentData($document, $data, $this->miniLog)) {
             if (!$document->save()) {
-                $this->miniLog->info(print_r($data, true));
+                $this->miniLog->info($this->i18n-trans('record-save-error'));
             }
 
-            $printer = new TicketPrinter();
-            if ($printer->printTicket($document)) {
+            $businessTicket = new BusinessDocumentTicket($document); 
+
+            $ticket = new Ticket();
+            $ticket->coddocument = $document->modelClassName();
+            $ticket->text = $businessTicket->getTicket(); 
+
+            if ($ticket->save()) {
                 $msg = '<div class="d-none"><img src="http://localhost:10080?documento=%1s"/></div>';
                 $this->miniLog->info('Generado documento ' . $document->codigo);
                 $this->miniLog->info('Imprimiendo' . sprintf($msg, $modelName));
             } else {
-                foreach ($printer->getErrors() as $error) {
-                    $this->miniLog->warning($error);
-                }
+                $this->miniLog->warning('Error al imprimir el ticket');
             }
 
         }
@@ -258,9 +283,16 @@ class PointOfSale extends Controller
             $this->arqueo->saldofinal += (float) ($payments['amount'] - $payments['change']);
             $this->arqueo->save(); 
         }
+    }
 
-        $lines = json_decode($data['lines']);
-        //$this->miniLog->info(print_r($lines, true));
+    public function getDocColumnsData()
+    {
+        return BusinessDocumentOptions::getLineData($this->user);
+    }
+
+    public function getDenominaciones()
+    {
+        return (new DenominacionMoneda)->all();
     }
 
     protected function assets()

@@ -17,11 +17,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * Description for the controller EditDivisa
+ * Description for the controller EditTerminalPOS
  *
- * @author Raúl Jiménez Nazca Networks  <comercial@nazcanetworks.com>
- * @author Carlos Jiménez Gómez         <carlos@evolunext.es>
- * @author Carlos García Gómez          <carlos@facturascripts.com>
+ * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
 -->
 <view>
     <columns>
@@ -29,18 +27,18 @@
             <column name="name" numcolumns="3" order="100">
                 <widget type="text" fieldname="nombre" icon="fas fa-tag" required="true" />
             </column>
-            <column name="customer" titleurl="ListCliente" numcolumns="3" order="100">
-                <widget type="select" fieldname="codcliente" onclick="EditCliente">
-                    <values source="clientes" fieldcode="codcliente" fieldtitle="nombre"></values>
+            <column name='customer' numcolumns='3' order='100'>
+                <widget type='autocomplete' fieldname='codcliente' onclick='EditCliente'>
+                    <values source='clientes' fieldcode='codcliente' fieldtitle='nombre'></values>
                 </widget>
             </column>
             <column name="warehouse" titleurl="ListAlmacen" numcolumns="3" order="100">
-                <widget type="select" fieldname="codalmacen" onclick="EditAlmacen">
+                <widget type="select" fieldname="codalmacen" required='true' onclick="EditAlmacen">
                     <values source="almacenes" fieldcode="codalmacen" fieldtitle="nombre"></values>
                 </widget>
             </column>
             <column name="serie" titleurl="ListSerie" numcolumns="3" order="100">
-                <widget type="select" fieldname="codserie" onclick="EditSerie">
+                <widget type="select" fieldname="codserie" required='true' onclick="EditSerie">
                     <values source="series" fieldcode="codserie" fieldtitle="descripcion"></values>
                 </widget>
             </column>            

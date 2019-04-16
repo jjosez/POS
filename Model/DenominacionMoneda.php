@@ -3,7 +3,7 @@ namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Model\Base;
 
-class FraccionMoneda extends Base\ModelClass
+class DenominacionMoneda extends Base\ModelClass
 {
     use Base\ModelTrait;
 
@@ -18,6 +18,6 @@ class FraccionMoneda extends Base\ModelClass
 
     public static function tableName()
     {
-        return 'fraccionesmoneda';
+        return 'denominacionesmoneda';
     }
 }

@@ -29,11 +29,11 @@ use FacturaScripts\Dinamic\Model\Serie;
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class PosDocumentTools
+class POSBusinessDocumentTools
 {
     private $tools;
 
-    public function __construct($width = null, $comands = FALSE) 
+    public function __construct() 
     {
         $this->tools = new BusinessDocumentTools();
     }

@@ -11,6 +11,11 @@
         <null>NO</null>
     </column>
     <column>
+        <name>conteo</name>
+        <type>text</type>
+        <null>YES</null>
+    </column>
+    <column>
         <name>fechainicio</name>
         <type>date</type>
         <null>NO</null>
@@ -44,6 +49,11 @@
     <column>
         <name>nickusuario</name>
         <type>character varying(50)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>saldocontado</name>
+        <type>double precision</type>
         <null>NO</null>
     </column>    
     <column>

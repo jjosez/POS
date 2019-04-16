@@ -21,11 +21,11 @@
         <null>NO</null>
     </column>
     <constraint>
-        <name>fraccionesmoneda_pkey</name>
+        <name>denominacionesmoneda_pkey</name>
         <type>PRIMARY KEY (clave)</type>
     </constraint>
     <constraint>
-        <name>ca_fraccionesmoneda_divisas</name>
+        <name>ca_denominacionesmoneda_divisas</name>
         <type>FOREIGN KEY (coddivisa) REFERENCES divisas (coddivisa) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
 </table>

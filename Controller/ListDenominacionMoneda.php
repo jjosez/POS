@@ -21,11 +21,11 @@ namespace FacturaScripts\Plugins\POS\Controller;
 use FacturaScripts\Core\Lib\ExtendedController;
 
 /**
- * Controller to list the items in the FraccionMoneda model
+ * Controller to list the items in the DenominacionMoneda model
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class ListArqueoPOS extends ExtendedController\ListController
+class ListDenominacionMoneda extends ExtendedController\ListController
 {
 
     /**
@@ -36,9 +36,10 @@ class ListArqueoPOS extends ExtendedController\ListController
     public function getPageData()
     {
         $pagedata = parent::getPageData();
-        $pagedata['title'] = 'cash-ups';
+        $pagedata['title'] = 'currency-denomination';
         $pagedata['icon'] = 'fas fa-money-bill-alt';
         $pagedata['menu'] = 'point-of-sale';
+        $pagedata['showonmenu'] = false;
 
         return $pagedata;
     }
@@ -48,10 +49,11 @@ class ListArqueoPOS extends ExtendedController\ListController
      */
     protected function createViews()
     {
-        $this->addView('ListArqueoPOS', 'ArqueoPOS', 'cash-ups', 'fas fa-money-bill-alt');
-        $this->addSearchFields('ListArqueoPOS', ['nombreagente']);
+        $this->addView('ListDenominacionMoneda', 'DenominacionMoneda', 'currency-denominations', 'fas fa-money-bill-alt');
+        $this->addSearchFields('ListDenominacionMoneda', ['clave', 'coddivisa']);
 
-        $this->addOrderBy('ListArqueoPOS', ['fechainicio','horainicio'], 'Fecha Inicio', 2);
-        $this->addOrderBy('ListArqueoPOS', ['fechafin','horafin'], 'Fecha Fin');
+        $this->addOrderBy('ListDenominacionMoneda', ['clave'], 'Clave');
+        $this->addOrderBy('ListDenominacionMoneda', ['coddivisa'], 'code');
+        $this->addOrderBy('ListDenominacionMoneda', ['valor'], 'value');
     }
 }

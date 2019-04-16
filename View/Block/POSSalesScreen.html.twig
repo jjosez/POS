@@ -1,9 +1,9 @@
 {% import _self as macros %}
 
 <script type="text/javascript">
-    PosDocViewLineData = {"headers":["Referencia","Descripci\u00f3n","Cantidad","Precio","Neto"],"columns":[{"data":"referencia","type":"autocomplete","source":{"source":"Variante","fieldcode":"referencia","fieldtitle":"referencia"},"strict":false,"visibleRows":5,"trimDropdown":false},{"data":"descripcion","type":"text"},{"data":"cantidad","type":"numeric","numericFormat":{"pattern":"0.00"}},{"data":"pvpunitario","type":"numeric","numericFormat":{"pattern":"0.00"}},{"data":"pvptotal","type":"numeric","numericFormat":{"pattern":"0.00"}}],"rows":[]};
+    PosDocViewLineData = {{ fsc.getDocColumnsData() | raw }};
     PosDocViewFormName = "formBusinessDocumentLine";
-    PosDocViewUrl = "PointOfSale";
+    PosDocViewUrl = "POS";
     PosDocAutocompleteUrl = "EditFacturaCliente";
     PosDocCashPaymentMethod = "{{ appSettings.get('pointofsale','fpagoefectivo') }}";
 
@@ -14,7 +14,7 @@
         document.getElementById("lines").value = JSON.stringify(getGridData());
 
         console.log(getGridData());
-        var modal = $('#modal-payment');
+        var modal = $('#payment-modal');
         modal.find('.modal-title').text("{{ i18n.trans('total') }} "  + formatNumber(document.getElementById("doc_total").value));
         modal.modal();
 
@@ -28,6 +28,10 @@
             document.getElementById("payments").value = JSON.stringify(paymentData);
             document.formSalesDocument.submit()
         });        
+    }
+
+    function closeCashUp() {
+        $("#cashup-modal").modal('show');
     }    
 </script>
 <div class="container-fluid">
@@ -90,11 +94,11 @@
     </form>
 </div>
 
-<div class="modal fade" id="modal-payment" tabindex="-1" role="dialog">
+<div class="modal fade" id="payment-modal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">payment</h5>
+                <h5 class="modal-title">payment</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -126,6 +130,44 @@
                 <button type="button" class="btn btn-primary" id="btn-payment-ok" disabled="disabled">Continuar</button>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="modal fade" id="cashup-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <form method="POST">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ i18n.trans('cash-up') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="close-till">
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label">Denominacion</label>
+                        <label class="col-sm-8 col-form-label">Cantidad</label>
+                    </div>
+                    {% for denominacion in fsc.getDenominaciones() %}
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label text-right">{{ denominacion.valor }} x </label>
+                            <div class="col-sm-8">
+                                <input type="number" class="form-control" name="cash[{{ denominacion.valor }}]" placeholder="0">
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning" role="alert">
+                            No hay denominaciones registradas, registralas en.
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ i18n.trans('cancel') }}</button>
+                    <button type="submit" class="btn btn-primary" id="btn-close-till">Continuar</button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 

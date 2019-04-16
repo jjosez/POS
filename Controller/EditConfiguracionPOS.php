@@ -25,22 +25,22 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
 
     protected function createViews()
     {
-        $this->setTemplate('SalesPointSettings');
+        $this->setTemplate('POSSettings');
 
-        $this->addHtmlView('SalesPointGeneralSettings', 'SalesPointGeneralSettings', 'FormaPago', 'general', 'fas fa-cogs');
-        $this->addListView('ListFraccionMoneda', 'FraccionMoneda', 'currency-fraction');     
+        $this->addHtmlView('POSGeneralSettings', 'POSGeneralSettings', 'FormaPago', 'general', 'fas fa-cogs');
+        $this->addListView('ListDenominacionMoneda', 'DenominacionMoneda', 'currency-denomination');     
     }
 
     protected function loadData($viewName, $view)
     {
         $this->hasData = true;
         switch ($viewName) {
-            case 'ListFraccionMoneda':
+            case 'ListDenominacionMoneda':
                 $code = $this->request->get('code');
                 $view->loadData($code);
                 break;
-            case 'SalesPointGeneralSettings':
-                $this->loadSalesPointGeneralSettings();
+            case 'POSGeneralSettings':
+                $this->loadPOSGeneralSettings();
                 break;
         }
     }
@@ -71,7 +71,7 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
         return false;
     }
 
-    private function loadSalesPointGeneralSettings()
+    private function loadPOSGeneralSettings()
     {
         $this->paymentMethods = $this->getEneabledPaymentMethod();
         $this->businessDocTypes = $this->getBusinessDocumentTypes();

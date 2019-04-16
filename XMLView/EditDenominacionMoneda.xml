@@ -17,11 +17,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * Description for the controller EditDivisa
+ * Description for the controller EditDenominacionMoneda
  *
- * @author Raúl Jiménez Nazca Networks  <comercial@nazcanetworks.com>
- * @author Carlos Jiménez Gómez         <carlos@evolunext.es>
- * @author Carlos García Gómez          <carlos@facturascripts.com>
+ * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
 -->
 <view>
     <columns>
@@ -29,9 +27,11 @@
             <column name="code" numcolumns="4" order="100">
                 <widget type="text" fieldname="clave" icon="fas fa-hashtag" required="true" />
             </column>
-            <column name="currency" numcolumns="4" order="100">
-                <widget type="text" fieldname="coddivisa" maxlength="3" required="true" />
-            </column>            
+            <column name='currency' numcolumns='4' order='100'>
+                <widget type='autocomplete' fieldname='coddivisa' onclick='EditDivisa'>
+                    <values source='divisas' fieldcode='coddivisa' fieldtitle='descripcion'></values>
+                </widget>
+            </column>          
             <column name="value" numcolumns="4" order="100">
                 <widget type="number" decimal="0" fieldname="valor" required="true" />
             </column>

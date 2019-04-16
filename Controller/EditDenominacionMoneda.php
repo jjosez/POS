@@ -25,7 +25,7 @@ use FacturaScripts\Core\Lib\ExtendedController;
  *
  * @author Raúl Jiménez <comercial@nazcanetworks.com>
  */
-class EditTerminalPOS extends ExtendedController\EditController
+class EditDenominacionMoneda extends ExtendedController\EditController
 {
 
     /**
@@ -33,7 +33,7 @@ class EditTerminalPOS extends ExtendedController\EditController
      */
     public function getModelClassName()
     {
-        return 'TerminalPOS';
+        return 'DenominacionMoneda';
     }
 
     /**
@@ -44,9 +44,9 @@ class EditTerminalPOS extends ExtendedController\EditController
     public function getPageData()
     {
         $pagedata = parent::getPageData();
-        $pagedata['title'] = 'cash-register';
-        $pagedata['menu'] = 'point-of-sale';
-        $pagedata['icon'] = 'fas fa-cash-register';
+        $pagedata['title'] = 'currency-denomination';
+        $pagedata['menu'] = 'admin';
+        $pagedata['icon'] = 'fas fa-money-bill-alt';
         $pagedata['showonmenu'] = false;
 
         return $pagedata;

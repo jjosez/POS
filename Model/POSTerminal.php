@@ -4,7 +4,7 @@ namespace FacturaScripts\Plugins\POS\Model;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
 
-class TerminalPOS extends Base\ModelClass
+class POSTerminal extends Base\ModelClass
 {
     use Base\ModelTrait;
 
@@ -23,10 +23,11 @@ class TerminalPOS extends Base\ModelClass
     public function clear()
     {
         parent::clear();
-
-        $this->disponible = true;
+        
         $this->aceptapagos = true;
-        $this->numerotickets = 0;
+        $this->anchopapel = 45;
+        $this->disponible = true;
+        $this->numerotickets = 1;
     } 
 
     public static function primaryColumn()

@@ -21,20 +21,12 @@ namespace FacturaScripts\Plugins\POS\Controller;
 use FacturaScripts\Core\Lib\ExtendedController;
 
 /**
- * Controller to edit a single item from the Divisa model
+ * Controller to list the items in the TerminalPOS model
  *
- * @author Raúl Jiménez <comercial@nazcanetworks.com>
+ * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class EditFraccionMoneda extends ExtendedController\EditController
+class ListPOSTerminal extends ExtendedController\ListController
 {
-
-    /**
-     * Returns the model name
-     */
-    public function getModelClassName()
-    {
-        return 'FraccionMoneda';
-    }
 
     /**
      * Returns basic page attributes
@@ -44,11 +36,22 @@ class EditFraccionMoneda extends ExtendedController\EditController
     public function getPageData()
     {
         $pagedata = parent::getPageData();
-        $pagedata['title'] = 'currency-fraction';
-        $pagedata['menu'] = 'admin';
-        $pagedata['icon'] = 'fas fa-money-bill-alt';
-        $pagedata['showonmenu'] = false;
+        $pagedata['title'] = 'cash-registers';
+        $pagedata['icon'] = 'fas fa-cash-register';
+        $pagedata['menu'] = 'point-of-sale';
 
         return $pagedata;
+    }
+
+    /**
+     * Load views
+     */
+    protected function createViews()
+    {
+        $this->addView('ListPOSTerminal', 'POSTerminal', 'cash-registers', 'fas fa-cash-register');
+        $this->addSearchFields('ListPOSTerminal', ['nombre']);
+
+        $this->addOrderBy('ListPOSTerminal', ['idterminal'], 'ID');
+        $this->addOrderBy('ListPOSTerminal', ['nombre'], 'Nombre');
     }
 }
