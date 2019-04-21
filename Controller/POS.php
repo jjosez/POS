@@ -265,12 +265,11 @@ class POS extends Controller
                 $this->miniLog->warning('Error al imprimir el ticket');
             }
 
-        }
-
-        if ($payments['method'] == AppSettings::get('pointofsale','fpagoefectivo') ) {
-            $this->arqueo->saldoesperado += (float) ($payments['amount'] - $payments['change']);
-            $this->arqueo->save(); 
-        }
+            if ($payments['method'] == AppSettings::get('pointofsale','fpagoefectivo') ) {
+                $this->arqueo->saldoesperado += (float) ($payments['amount'] - $payments['change']);
+                $this->arqueo->save(); 
+            }
+        }        
     }
 
     public function getDocColumnsData()
