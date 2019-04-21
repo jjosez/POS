@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Document   : operaciones.xml
+   Description:
+        Estructura de la tabla operacionespos.
+-->
+<table>
+    <column>
+        <name>idoperacion</name>
+        <type>serial</type>
+        <null>NO</null>
+        <default>nextval('operacionespos_idoperacion_seq'::regclass)</default>
+    </column>
+    <column>
+        <name>idsesionpos</name>
+        <type>serial</type>
+        <null>NO</null>
+        <default>nextval('sesionespos_idterminal_seq'::regclass)</default>
+    </column>    
+    <column>
+        <name>nombre</name>
+        <type>character varying(100)</type>
+        <null>NO</null>
+    </column>    
+    <column>
+        <name>numerotickets</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>
+    <constraint>
+        <name>terminalespos_pkey</name>
+        <type>PRIMARY KEY (idterminal)</type>
+    </constraint>
+    <constraint>
+        <name>ca_terminalespos_almacen</name>
+        <type>FOREIGN KEY (codalmacen) REFERENCES almacenes (codalmacen) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_terminalespos_cliente</name>
+        <type>FOREIGN KEY (codcliente) REFERENCES clientes (codcliente) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_terminalespos_series</name>
+        <type>FOREIGN KEY (codserie) REFERENCES series (codserie) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+</table>

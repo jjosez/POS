@@ -8,8 +8,6 @@
     PosDocCashPaymentMethod = "{{ appSettings.get('pointofsale','fpagoefectivo') }}";
 
     function salesDocumentSave() {
-        $("#btn-document-save").prop("disabled", true);
-
         document.getElementById("action").value = "save-document";
         document.getElementById("lines").value = JSON.stringify(getGridData());
 
@@ -45,11 +43,11 @@
             {% set customer = fsc.cliente.get(fsc.terminal.codcliente) %}
             {{ macros.customerSelect(i18n, 'codcliente', 'codcliente', customer, fsc.cliente.url('new')) }}
             <div class="form-group col-3">
-                <select class="form-control" id="businessdoc" name="businessdoc">
+                <select class="form-control" id="tipodocumento" name="tipodocumento">
                     {% set businessDocs = appSettings.get('pointofsale','tiposdocumento')|split('|') %}
                     {% set defaultDoc = appSettings.get('pointofsale','defaultdoc') %}
                     {% for document in businessDocs %}
-                        <option value="{{ document }}" {% if document == defaultDoc %} selected {% endif %}>
+                        <option value="{{ document }}" {% if document == defaultDoc %} selected="selected" {% endif %}>
                             {{ document }}
                         </option>
                     {% endfor %}

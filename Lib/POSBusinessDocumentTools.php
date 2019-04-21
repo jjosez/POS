@@ -124,7 +124,6 @@ class POSBusinessDocumentTools
         $document->fecha = $data['documentdate'];                
 
         if ($document->save()) {
-            $lineClassName = 'FacturaScripts\\Dinamic\\Model\\Linea' . $document->modelClassName(); 
             foreach (json_decode($data["lines"], true) as $line) {
                 unset($line['actualizastock']);
                 $newLine = $document->getNewLine($line);
@@ -132,8 +131,7 @@ class POSBusinessDocumentTools
                 if (!$newLine->save()) {
                     $miniLog->info( print_r($line, true));  
                     return false;
-                }
-                //$newLine->updateStock($document->codalmacen);                             
+                }                            
             }
 
             $this->tools = new BusinessDocumentTools();

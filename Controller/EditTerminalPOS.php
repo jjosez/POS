@@ -1,7 +1,7 @@
 <?php
 /**
- * This file is part of FacturaScripts
- * Copyright (C) 2017-2018 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -23,9 +23,9 @@ use FacturaScripts\Core\Lib\ExtendedController;
 /**
  * Controller to edit a single item from the Divisa model
  *
- * @author Raúl Jiménez <comercial@nazcanetworks.com>
+ * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class EditPOSTerminal extends ExtendedController\EditController
+class EditTerminalPOS extends ExtendedController\EditController
 {
 
     /**
@@ -33,7 +33,7 @@ class EditPOSTerminal extends ExtendedController\EditController
      */
     public function getModelClassName()
     {
-        return 'POSTerminal';
+        return 'TerminalPOS';
     }
 
     /**

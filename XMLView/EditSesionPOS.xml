@@ -24,15 +24,18 @@
 <view>
     <columns>
         <group name="data" numcolumns="12">
-            <column name="initdate" order="130" display="right" readonly="true">
-                <widget type="date" fieldname="fechainicio" />
+            <column name="start-date" numcolumns="4" order="100">
+                <widget type="date" fieldname="fechainicio" icon="fas fa-calendar-alt" readonly="true" />
             </column> 
-            <column name="enddate" order='130' display="right" readonly="true">
-                <widget type='date' fieldname='fechafin' />
-            </column>        
-            <column name="value" numcolumns="4" order="100">
-                <widget type="number" decimal="0" fieldname="saldocontado" readonly="true" />
+            <column name="end-date" numcolumns="4" order='100'>
+                <widget type='date' fieldname='fechafin' icon="fas fa-calendar-alt" readonly="true" />
+            </column>      
+            <column name="total-expected" numcolumns="4" order="100">
+                <widget type="money" fieldname="saldoesperado" readonly="true" />
             </column>
+            <column name="total-counted" numcolumns="4" order="100">
+                <widget type="money" fieldname="saldocontado" readonly="true" />
+            </column>            
         </group>
     </columns>
 </view>

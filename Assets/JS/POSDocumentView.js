@@ -89,7 +89,7 @@ function businessDocViewRecalculate() {
 }
 
 function businessDocViewSave() {
-    $("#btn-document-save").prop("disabled", true);
+    //$("#btn-document-save").prop("disabled", true);
 
     var data = {};
     $.each($("#" + PosDocViewFormName).serializeArray(), function (key, value) {
@@ -112,7 +112,7 @@ function businessDocViewSave() {
         }
     });
 
-    $("#btn-document-save").prop("disabled", false);
+    //$("#btn-document-save").prop("disabled", false);
 }
 
 function getGridData() {
@@ -174,6 +174,7 @@ function calculatePaymentChange()
     paymentMethod = $('#payment-method').children("option:selected").val();
 
     paymentReturn = paymentAmount - documentTotal;
+    paymentReturn = paymentReturn || 0;
     if (paymentMethod != PosDocCashPaymentMethod) {
         if (paymentReturn > 0) {
             paymentReturn = 0;

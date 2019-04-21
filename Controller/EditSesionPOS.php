@@ -1,7 +1,7 @@
 <?php
 /**
- * This file is part of FacturaScripts
- * Copyright (C) 2017-2018 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,21 +21,12 @@ namespace FacturaScripts\Plugins\POS\Controller;
 use FacturaScripts\Core\Lib\ExtendedController;
 
 /**
- * Controller to edit a single item from the Divisa model
+ * Controller to edit a single item from the SesionPOS model
  *
- * @author Raúl Jiménez <comercial@nazcanetworks.com>
+ * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class EditPOSSession extends ExtendedController\EditController
+class EditSesionPOS extends ExtendedController\EditController
 {
-
-    /**
-     * Returns the model name
-     */
-    public function getModelClassName()
-    {
-        return 'POSSession';
-    }
-
     /**
      * Returns basic page attributes
      *
@@ -51,4 +42,26 @@ class EditPOSSession extends ExtendedController\EditController
 
         return $pagedata;
     }
+
+    /**
+     * Load views
+     */
+    protected function createViews()
+    {
+        parent::createViews();
+
+        $this->addListView('ListAsiento', 'Asiento', 'accounting-entries', 'fas fa-balance-scale');
+
+        $this->setSettings('EditSesionPOS', 'btnNew', false);
+        $this->setTabsPosition('top');  
+    }
+
+    /**
+     * Returns the model name
+     */
+    public function getModelClassName()
+    {
+        return 'SesionPOS';
+    }
+
 }

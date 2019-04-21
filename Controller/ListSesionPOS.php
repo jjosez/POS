@@ -1,7 +1,7 @@
 <?php
 /**
- * This file is part of FacturaScripts
- * Copyright (C) 2017-2018 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,11 +21,11 @@ namespace FacturaScripts\Plugins\POS\Controller;
 use FacturaScripts\Core\Lib\ExtendedController;
 
 /**
- * Controller to list the items in the TerminalPOS model
+ * Controller to list the items in the SesionPOS model
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class ListPOSTerminal extends ExtendedController\ListController
+class ListSesionPOS extends ExtendedController\ListController
 {
 
     /**
@@ -36,8 +36,8 @@ class ListPOSTerminal extends ExtendedController\ListController
     public function getPageData()
     {
         $pagedata = parent::getPageData();
-        $pagedata['title'] = 'cash-registers';
-        $pagedata['icon'] = 'fas fa-cash-register';
+        $pagedata['title'] = 'till-sessions';
+        $pagedata['icon'] = 'fas fa-money-bill-alt';
         $pagedata['menu'] = 'point-of-sale';
 
         return $pagedata;
@@ -48,10 +48,12 @@ class ListPOSTerminal extends ExtendedController\ListController
      */
     protected function createViews()
     {
-        $this->addView('ListPOSTerminal', 'POSTerminal', 'cash-registers', 'fas fa-cash-register');
-        $this->addSearchFields('ListPOSTerminal', ['nombre']);
+        $this->addView('ListSesionPOS', 'SesionPOS', 'till-sessions', 'fas fa-money-bill-alt');
+        $this->addSearchFields('ListSesionPOS', ['nombreagente']);
 
-        $this->addOrderBy('ListPOSTerminal', ['idterminal'], 'ID');
-        $this->addOrderBy('ListPOSTerminal', ['nombre'], 'Nombre');
+        $this->addOrderBy('ListSesionPOS', ['fechainicio','horainicio'], 'Fecha Inicio', 2);
+        $this->addOrderBy('ListSesionPOS', ['fechafin','horafin'], 'Fecha Fin');
+
+        $this->setSettings('ListSesionPOS', 'btnNew', false);
     }
 }

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-   Document   : arqueospos.xml
+   Document   : sesionespos.xml
    Description:
-        Estructura de la tabla arqueospos.
+        Estructura de la tabla sesionespos.
 -->
 <table>
     <column>
@@ -36,10 +36,10 @@
         <null>YES</null>
     </column>
     <column>
-        <name>idarqueo</name>
+        <name>idsesion</name>
         <type>serial</type>
         <null>NO</null>
-        <default>nextval('arqueospos_idarqueo_seq'::regclass)</default>
+        <default>nextval('sesionespos_idsesion_seq'::regclass)</default>
     </column>
     <column>
         <name>idterminal</name>
@@ -57,7 +57,7 @@
         <null>NO</null>
     </column>    
     <column>
-        <name>saldofinal</name>
+        <name>saldoesperado</name>
         <type>double precision</type>
         <null>NO</null>
     </column>
@@ -67,15 +67,15 @@
         <null>NO</null>
     </column>
     <constraint>
-        <name>arqueospos_pkey</name>
-        <type>PRIMARY KEY (idarqueo)</type>
+        <name>sesionespos_pkey</name>
+        <type>PRIMARY KEY (idsesion)</type>
     </constraint>
     <constraint>
-        <name>ca_arqueospos_terminalespos</name>
+        <name>ca_sesionespos_terminalespos</name>
         <type>FOREIGN KEY (idterminal) REFERENCES terminalespos (idterminal) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_arqueospos_users</name>
+        <name>ca_sesionespos_users</name>
         <type>FOREIGN KEY (nickusuario) REFERENCES users (nick) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
 </table>

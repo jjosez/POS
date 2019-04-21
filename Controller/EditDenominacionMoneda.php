@@ -1,7 +1,7 @@
 <?php
 /**
- * This file is part of FacturaScripts
- * Copyright (C) 2017-2018 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,9 +21,9 @@ namespace FacturaScripts\Plugins\POS\Controller;
 use FacturaScripts\Core\Lib\ExtendedController;
 
 /**
- * Controller to edit a single item from the Divisa model
+ * Controller to edit a single item from the DenominacionMoneda model
  *
- * @author Raúl Jiménez <comercial@nazcanetworks.com>
+ * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 class EditDenominacionMoneda extends ExtendedController\EditController
 {

@@ -1,7 +1,7 @@
 <?php
 /**
- * This file is part of FacturaScripts
- * Copyright (C) 2017-2018 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -29,12 +29,12 @@ use FacturaScripts\Dinamic\Lib\POSBusinessDocumentTools;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\FormaPago;
-use FacturaScripts\Dinamic\Model\POSTerminal;
-use FacturaScripts\Dinamic\Model\POSSession;
-//use FacturaScripts\Dinamic\Model\POSSales;
+use FacturaScripts\Dinamic\Model\SesionPOS;
+use FacturaScripts\Dinamic\Model\TerminalPOS;
+use FacturaScripts\Dinamic\Model\Ticket;
 
 /**
- * Controller to edit a single item from the AlbaranCliente model
+ * Controller to process Point of Sale Operations
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
@@ -68,14 +68,12 @@ class POS extends Controller
         parent::privateCore($response, $user, $permissions);
         
         $this->initValues();
-        
-        if (!$this->isCashupOpened()) {
-            $idterminal = $this->request->query->get('terminal'); 
-            $idterminal = ($idterminal) ? $idterminal : $this->request->request->get('terminal');
 
-            if ($idterminal) {
-                $this->terminal = (new POSTerminal)->get($idterminal);   
-            }
+        if (!$this->isSessionOpened()) {
+            $idterminal = $this->request->query->get('terminal'); 
+            $idterminal = ($idterminal) ?: $this->request->request->get('terminal');
+
+            $this->terminal->loadFromCode($idterminal);   
         }
 
         $this->execAction();
@@ -86,11 +84,11 @@ class POS extends Controller
         $action = $this->request->request->get('action');
         switch ($action) {
             case 'open-cashup':
-                $this->openCashup();
+                $this->openSession();
                 break;
 
             case 'close-till':
-                $this->closeCashup();
+                $this->closeSession();
                 break;
 
             case 'save-document':
@@ -102,44 +100,10 @@ class POS extends Controller
                 return false;
             
             default:
-                # code...
+                
                 break;
         }
-    }
-
-    /**
-     * Close current cashup.
-     *
-     * @return void
-     */
-    private function closeCashup()
-    {
-        $terminal = $this->request->request->get('terminal'); 
-        $this->terminal = (new POSTerminal)->get($terminal); 
-
-        if ($this->isCashupOpened()) {
-            $this->arqueo->abierto = false;
-            $this->arqueo->fechafin = date('d-m-Y');
-            $this->arqueo->horafin = date('H:i:s');
-
-            $cash = $this->request->request->get('cash');       
-            $total = 0.0;
-
-            foreach ($cash as $value => $count) {
-                $total += (float) $value * (float) $count;
-            }
-
-            $this->miniLog->info(print_r($cash,true));
-            $this->miniLog->info('Dinero contado - ' . $total);
-            $this->arqueo->saldocontado = $total;
-            $this->arqueo->conteo = json_encode($cash);
-
-            if ($this->arqueo->save()) {
-                $this->terminal->disponible = true;
-                $this->terminal->save();
-            }
-        }               
-    }
+    }    
 
     /**
      * Initialize default values.
@@ -155,31 +119,57 @@ class POS extends Controller
     }
 
     /**
-     * Verify if a cashup is opened by user or POSTerminal
+     * Close current session.
+     *
+     * @return void
+     */
+    private function closeSession()
+    {
+        if (!$this->isSessionOpened()) {
+            $this->miniLog->info('there-is-no-open-till-session');
+            return;
+        }
+
+        $this->arqueo->abierto = false;
+        $this->arqueo->fechafin = date('d-m-Y');
+        $this->arqueo->horafin = date('H:i:s');
+
+        $cash = $this->request->request->get('cash');       
+        $total = 0.0;
+
+        foreach ($cash as $value => $count) {
+            $total += (float) $value * (float) $count;
+        }
+
+        $this->miniLog->info('Dinero contado: ' . $total);
+        $this->arqueo->saldocontado = $total;
+        $this->arqueo->conteo = json_encode($cash);
+
+        if ($this->arqueo->save()) {
+            $this->terminal->disponible = true;
+            $this->terminal->save();
+        }            
+    }
+
+    /**
+     * Verify if a cashup is opened by User or TerminalPOS
      *
      * @return bool
      */
-    private function isCashupOpened()
+    private function isSessionOpened()
     {   
-        if ($this->terminal) {
-            $this->arqueo = (new POSSession)->isOpened('terminal', $this->terminal->idterminal);
-        } else {
-            $this->arqueo = (new POSSession)->isOpened('user', $this->user->nick);           
-        }        
+        $this->arqueo = new SesionPOS();
+        $this->terminal = new TerminalPOS();
 
-        if ($this->arqueo) {
-            if (!$this->terminal) {
-                $this->terminal = (new POSTerminal)->get($this->arqueo->idterminal);
-            }
-            
-            return true;
+        if (!$this->arqueo->isOpened('user', $this->user->nick)) {
+            return false;
+        }
+        
+        if (!$this->terminal->loadFromCode($this->arqueo->idterminal)) {            
+            return false;
         }
 
-        if (!$this->terminal) {
-            $this->terminal = new POSTerminal(); 
-        }        
-
-        return false;      
+        return true;      
     }
 
     /**
@@ -187,25 +177,27 @@ class POS extends Controller
      *
      * @return void
      */
-    private function openCashup()
+    private function openSession()
     {
-        if ($this->isCashupOpened()) {
+        if ($this->isSessionOpened()) {
+            $this->miniLog->info('there-is-an-open-till-session-for-this-user');
             return;
-        }               
-
-        if (!$this->terminal) {
-            $this->miniLog->warning($this->i18n->trans('cash-register-not-found'));
-            return;           
         }
+
+        $idterminal = $this->request->request->get('terminal');  
+        if (!$this->terminal->loadFromCode($idterminal)) {
+            $this->miniLog->warning($this->i18n->trans('cash-register-not-found')); 
+            return;
+        }        
 
         $saldoinicial = $this->request->request->get('saldoinicial');
 
-        $this->arqueo = new POSSession();
+        $this->arqueo = new SesionPOS();
         $this->arqueo->abierto = true;
         $this->arqueo->idterminal = $this->terminal->idterminal;
         $this->arqueo->nickusuario = $this->user->nick;
         $this->arqueo->saldoinicial = $saldoinicial;
-        $this->arqueo->saldofinal = $saldoinicial;
+        $this->arqueo->saldoesperado = $saldoinicial;
 
         if ($this->arqueo->save()) { 
             $msg = $this->terminal->nombre . ' iniciada con: ' . $saldoinicial . ', por ' . $this->user->nick;           
@@ -254,15 +246,11 @@ class POS extends Controller
         $data = $this->request->request->all();
         $payments = json_decode($data['payments'], true);
         
-        $modelName = 'FacturaCliente';
+        $modelName = $data['tipodocumento'] ?: 'FacturaCliente';
         $className = 'FacturaScripts\\Dinamic\\Model\\' . $modelName;        
         $document = new $className();        
 
         if ($tools->processDocumentData($document, $data, $this->miniLog)) {
-            if (!$document->save()) {
-                $this->miniLog->info($this->i18n-trans('record-save-error'));
-            }
-
             $businessTicket = new BusinessDocumentTicket($document); 
 
             $ticket = new Ticket();
@@ -280,7 +268,7 @@ class POS extends Controller
         }
 
         if ($payments['method'] == AppSettings::get('pointofsale','fpagoefectivo') ) {
-            $this->arqueo->saldofinal += (float) ($payments['amount'] - $payments['change']);
+            $this->arqueo->saldoesperado += (float) ($payments['amount'] - $payments['change']);
             $this->arqueo->save(); 
         }
     }
