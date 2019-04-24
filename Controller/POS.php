@@ -29,6 +29,7 @@ use FacturaScripts\Dinamic\Lib\POSBusinessDocumentTools;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\FormaPago;
+use FacturaScripts\Dinamic\Model\OperacionPOS;
 use FacturaScripts\Dinamic\Model\SesionPOS;
 use FacturaScripts\Dinamic\Model\TerminalPOS;
 use FacturaScripts\Dinamic\Model\Ticket;
@@ -71,7 +72,6 @@ class POS extends Controller
 
         if (!$this->isSessionOpened()) {
             $idterminal = $this->request->query->get('terminal'); 
-            $idterminal = ($idterminal) ?: $this->request->request->get('terminal');
 
             $this->terminal->loadFromCode($idterminal);   
         }
@@ -243,33 +243,63 @@ class POS extends Controller
         }
 
         $tools = new POSBusinessDocumentTools();
-        $data = $this->request->request->all();
-        $payments = json_decode($data['payments'], true);
+        $data = $this->request->request->all();        
         
         $modelName = $data['tipodocumento'] ?: 'FacturaCliente';
         $className = 'FacturaScripts\\Dinamic\\Model\\' . $modelName;        
         $document = new $className();        
 
         if ($tools->processDocumentData($document, $data, $this->miniLog)) {
-            $businessTicket = new BusinessDocumentTicket($document); 
+            $this->saveDocumentPayments($document, $data);
+            $this->printDocumentTicket($document);
 
-            $ticket = new Ticket();
-            $ticket->coddocument = $document->modelClassName();
-            $ticket->text = $businessTicket->getTicket(); 
-
-            if ($ticket->save()) {
-                $msg = '<div class="d-none"><img src="http://localhost:10080?documento=%1s"/></div>';
-                $this->miniLog->info('Generado documento ' . $document->codigo);
-                $this->miniLog->info('Imprimiendo' . sprintf($msg, $modelName));
-            } else {
-                $this->miniLog->warning('Error al imprimir el ticket');
-            }
-
-            if ($payments['method'] == AppSettings::get('pointofsale','fpagoefectivo') ) {
-                $this->arqueo->saldoesperado += (float) ($payments['amount'] - $payments['change']);
-                $this->arqueo->save(); 
-            }
+            $this->saveTransaction($document);
         }        
+    }
+
+    private function saveDocumentPayments($document, $data)
+    {
+        $payments = json_decode($data['payments'], true);
+
+        if ($payments['method'] == AppSettings::get('pointofsale','fpagoefectivo') ) {
+            $this->arqueo->saldoesperado += (float) ($payments['amount'] - $payments['change']);
+            $this->arqueo->save(); 
+        }
+    }
+
+    private function saveTransaction($document)
+    {
+        $transaction = new OperacionPOS();
+
+        $transaction->codigo = $document->codigo;
+        $transaction->codcliente = $document->codcliente;
+        $transaction->fecha = $document->fecha;
+        $transaction->iddocumento = $document->primaryColumnValue();
+        $transaction->idsesion = $this->arqueo->idsesion;
+        $transaction->tipodoc = $document->modelClassName();
+        $transaction->total = $document->total;
+
+        return $transaction->save();
+    }
+
+    private function printDocumentTicket($document)
+    {
+        $businessTicket = new BusinessDocumentTicket($document); 
+
+        $ticket = new Ticket();
+        $ticket->coddocument = $document->modelClassName();
+        $ticket->text = $businessTicket->getTicket(); 
+
+        if ($ticket->save()) {
+            $this->printing = true;
+            $msg = '<div class="d-none"><img src="http://localhost:10080?documento=%1s"/></div>';
+            $this->miniLog->info('Imprimiendo documento ' . $document->codigo);
+            $this->miniLog->info(sprintf($msg, $modelName));
+            return true;
+        }
+
+         $this->miniLog->warning('Error al imprimir el ticket');
+         return false;
     }
 
     public function getDocColumnsData()
@@ -279,7 +309,7 @@ class POS extends Controller
 
     public function getDenominaciones()
     {
-        return (new DenominacionMoneda)->all();
+        return (new DenominacionMoneda)->all([],['valor' => 'ASC']);
     }
 
     protected function assets()

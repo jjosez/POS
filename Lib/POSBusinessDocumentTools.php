@@ -90,30 +90,24 @@ class POSBusinessDocumentTools
 
     public function processDocumentData(&$document, $data, &$miniLog)
     {
-        $continuar = true;
-
-        $almacen = (new Almacen)->get($data['codalmacen']);
-        if (!$almacen) {
-            $continuar = false;
+        $almacen = new Almacen();
+        if (!$almacen->loadFromCode($data['codalmacen'])) {
+            return false;
         }
 
-        $cliente = (new Cliente)->get($data['codcliente']);
-        if (!$cliente) {
-            $continuar = false;
+        $cliente = new Cliente();
+        if (!$cliente->loadFromCode($data['codcliente'])) {
+            return false;
         }
 
-        $serie = (new Serie)->get($data['codserie']);
-        if (!$serie) {
-            $continue = false;
+        $serie = new Serie();
+        if (!$serie->loadFromCode($data['codserie'])) {
+            return false;
         }
 
         $pagos = json_decode($data['payments'], true);
-        $formaPago = (new FormaPago)->get($pagos['method']);
-        if (!$formaPago) {
-            $continuar = false;
-        }
-
-        if (!$continuar) {
+        $formaPago = new FormaPago();
+        if (!$formaPago->loadFromCode($pagos['method'])) {
             return false;
         }
 

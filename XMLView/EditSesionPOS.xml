@@ -35,7 +35,7 @@
             </column>
             <column name="total-counted" numcolumns="4" order="100">
                 <widget type="money" fieldname="saldocontado" readonly="true" />
-            </column>            
+            </column>      
         </group>
     </columns>
 </view>

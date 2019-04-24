@@ -18,16 +18,16 @@
  */
 namespace FacturaScripts\Plugins\POS\Controller;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController;
 
 /**
- * Controller to edit a single item from the SesionPOS model
+ * Controller to list the items in the SesionPOS model
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class EditSesionPOS extends ExtendedController\EditController
+class ListOperacionPOS extends ExtendedController\ListController
 {
+
     /**
      * Returns basic page attributes
      *
@@ -36,9 +36,9 @@ class EditSesionPOS extends ExtendedController\EditController
     public function getPageData()
     {
         $pagedata = parent::getPageData();
-        $pagedata['title'] = 'till-session';
-        $pagedata['menu'] = 'admin';
+        $pagedata['title'] = 'till-session-operations';
         $pagedata['icon'] = 'fas fa-money-bill-alt';
+        $pagedata['menu'] = 'point-of-sale';
         $pagedata['showonmenu'] = false;
 
         return $pagedata;
@@ -49,35 +49,9 @@ class EditSesionPOS extends ExtendedController\EditController
      */
     protected function createViews()
     {
-        parent::createViews();
+        $this->addView('ListOperacionPOS', 'OperacionPOS', 'till-session-operations', 'fas fa-money-bill-alt');
+        $this->addSearchFields('ListOperacionPOS', ['nombrecliente']);
 
-        $this->addListView('ListOperacionPOS', 'OperacionPOS', 'till-session-operations', 'fas fa-balance-scale');
-
-        $this->setSettings('EditSesionPOS', 'btnNew', false);
         $this->setSettings('ListOperacionPOS', 'btnNew', false);
-        $this->setTabsPosition('top');  
     }
-
-    /**
-     * Returns the model name
-     */
-    public function getModelClassName()
-    {
-        return 'SesionPOS';
-    }
-
-    protected function loadData($viewName, $view)
-    {
-        switch ($viewName) {
-            case 'ListOperacionPOS':
-                $idsesion = $this->getViewModelValue('EditSesionPOS', 'idsesion');
-                $where = [new DataBaseWhere('idsesion', $idsesion)];
-                $view->loadData('', $where);
-                break;
-            default:
-                parent::loadData($viewName, $view);
-                break;
-        }
-    }
-
 }

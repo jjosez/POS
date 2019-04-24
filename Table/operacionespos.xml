@@ -6,41 +6,61 @@
 -->
 <table>
     <column>
+        <name>codcliente</name>
+        <type>character varying(10)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>codigo</name>
+        <type>character varying(20)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>fecha</name>
+        <type>date</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>hora</name>
+        <type>time without time zone</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>iddocumento</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>
+    <column>
         <name>idoperacion</name>
         <type>serial</type>
         <null>NO</null>
         <default>nextval('operacionespos_idoperacion_seq'::regclass)</default>
     </column>
     <column>
-        <name>idsesionpos</name>
-        <type>serial</type>
-        <null>NO</null>
-        <default>nextval('sesionespos_idterminal_seq'::regclass)</default>
-    </column>    
-    <column>
-        <name>nombre</name>
-        <type>character varying(100)</type>
-        <null>NO</null>
-    </column>    
-    <column>
-        <name>numerotickets</name>
+        <name>idsesion</name>
         <type>integer</type>
         <null>NO</null>
+    </column>     
+    <column>
+        <name>tipodoc</name>
+        <type>character varying(30)</type>
+        <null>NO</null>
     </column>
+    <column>
+        <name>total</name>
+        <type>double precision</type>
+        <null>NO</null>
+    </column>    
     <constraint>
-        <name>terminalespos_pkey</name>
-        <type>PRIMARY KEY (idterminal)</type>
+        <name>operacionespos_pkey</name>
+        <type>PRIMARY KEY (idoperacion)</type>
     </constraint>
     <constraint>
-        <name>ca_terminalespos_almacen</name>
-        <type>FOREIGN KEY (codalmacen) REFERENCES almacenes (codalmacen) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+        <name>ca_operacionespos_sesionpos</name>
+        <type>FOREIGN KEY (idsesion) REFERENCES sesionespos (idsesion) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_terminalespos_cliente</name>
+        <name>ca_operacionespos_cliente</name>
         <type>FOREIGN KEY (codcliente) REFERENCES clientes (codcliente) ON DELETE RESTRICT ON UPDATE CASCADE</type>
-    </constraint>
-    <constraint>
-        <name>ca_terminalespos_series</name>
-        <type>FOREIGN KEY (codserie) REFERENCES series (codserie) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
 </table>
