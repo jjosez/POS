@@ -72,7 +72,9 @@ class EditSesionPOS extends ExtendedController\EditController
             case 'ListOperacionPOS':
                 $idsesion = $this->getViewModelValue('EditSesionPOS', 'idsesion');
                 $where = [new DataBaseWhere('idsesion', $idsesion)];
-                $view->loadData('', $where);
+                $view->addOrderBy(['fecha','hora'], 'Fecha',2);
+                $view->loadData('', $where);                
+                //('ListGrupoClientes', ['nombre'], 'name', 1);
                 break;
             default:
                 parent::loadData($viewName, $view);

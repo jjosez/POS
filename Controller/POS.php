@@ -69,12 +69,11 @@ class POS extends Controller
         parent::privateCore($response, $user, $permissions);
         
         $this->initValues();
+        $this->isSessionOpened();
 
-        if (!$this->isSessionOpened()) {
-            $idterminal = $this->request->query->get('terminal'); 
-
-            $this->terminal->loadFromCode($idterminal);   
-        }
+        $idterminal = $this->request->query->get('terminal');
+        ($idterminal) ? $this->terminal->loadFromCode($idterminal) : null;
+        
 
         $this->execAction();
     }
@@ -152,7 +151,7 @@ class POS extends Controller
     }
 
     /**
-     * Verify if a cashup is opened by User or TerminalPOS
+     * Verify if a cashup is opened by User or Point of Sale Terminal
      *
      * @return bool
      */
@@ -223,7 +222,7 @@ class POS extends Controller
         $data = $this->request->request->all();
         $modelName = 'FacturaCliente';
 
-        $tools = new POSBusinessDocumentTools();  
+        $tools = new POSBusinessDocumentTools($this->user);  
         $result = $tools->recalculateData($modelName, $data);
         $this->response->setContent($result);
 
@@ -242,7 +241,7 @@ class POS extends Controller
             return false;
         }
 
-        $tools = new POSBusinessDocumentTools();
+        $tools = new POSBusinessDocumentTools($this->user);
         $data = $this->request->request->all();        
         
         $modelName = $data['tipodocumento'] ?: 'FacturaCliente';
@@ -294,7 +293,7 @@ class POS extends Controller
             $this->printing = true;
             $msg = '<div class="d-none"><img src="http://localhost:10080?documento=%1s"/></div>';
             $this->miniLog->info('Imprimiendo documento ' . $document->codigo);
-            $this->miniLog->info(sprintf($msg, $modelName));
+            $this->miniLog->info(sprintf($msg,  $document->modelClassName()));
             return true;
         }
 

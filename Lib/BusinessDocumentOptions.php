@@ -30,6 +30,13 @@ class BusinessDocumentOptions
         return $columns[$key]->columns;
     }
 
+    public static function getEnabledColumns($user)
+    {
+        $columns = self::loadPageOptions($user);
+
+        return self::getColumns($columns);
+    }
+
     /**
      * Returns the data of lines to the view.
      *

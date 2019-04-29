@@ -19,6 +19,7 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTools;
+use FacturaScripts\Dinamic\Lib\BusinessDocumentOptions;
 use FacturaScripts\Dinamic\Model\Almacen;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\FormaPago;
@@ -32,42 +33,44 @@ use FacturaScripts\Dinamic\Model\Serie;
 class POSBusinessDocumentTools
 {
     private $tools;
+    private $user;    
 
-    public function __construct() 
+    public function __construct($user) 
     {
         $this->tools = new BusinessDocumentTools();
+        $this->user = $user;        
     }
 
-    private function getColumns()
+    /**
+     * 
+     * @return array
+     */
+    public function getColumns()
     {
-        $columns = [ 
-            "referencia"=> null,
-            "descripcion"=> null,
-            "cantidad"=> null,
-            "servido"=> null,
-            "pvpunitario"=> null,
-            "dtopor"=> null,
-            "pvptotal"=> null,
-            "iva"=> null,
-            "recargo"=> null,
-            "irpf"=> null,
-        ];
-
-        return $columns;
+        return BusinessDocumentOptions::getEnabledColumns($this->user);
     }
 
-    private function processLines(array $formLines)
+    /**
+     * Process form lines to add missing data from data form.
+     * Also adds order column.
+     *
+     * @param array $formLines
+     *
+     * @return array
+     */
+    public function processLines(array $formLines)
     {
         $newLines = [];
         $order = count($formLines);
         foreach ($formLines as $data) {
             $line = ['orden' => $order];
-            foreach ($this->getColumns() as $key => $value) {
-                $line[$key] = isset($data[$key]) ? $data[$key] : null;
+            foreach ($this->getColumns() as $col) {
+                $line[$col->widget->fieldname] = isset($data[$col->widget->fieldname]) ? $data[$col->widget->fieldname] : null;
             }
             $newLines[] = $line;
             $order--;
         }
+
         return $newLines;
     }
 
@@ -130,7 +133,7 @@ class POSBusinessDocumentTools
 
             $this->tools = new BusinessDocumentTools();
             $this->tools->recalculate($document);
-            return true;
+            return $document->save();
         }
 
         return false;
