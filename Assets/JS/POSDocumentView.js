@@ -71,6 +71,7 @@ function businessDocViewRecalculate() {
         data: data,
         success: function (results) {
             $("#doc_total").val(results.total);
+            $("#doc_display_total").text(results.total);
 
             var rowPos = 0;
             results.lines.forEach(function (element) {
@@ -86,33 +87,6 @@ function businessDocViewRecalculate() {
             alert(xhr.responseText);
         }
     });
-}
-
-function businessDocViewSave() {
-    //$("#btn-document-save").prop("disabled", true);
-
-    var data = {};
-    $.each($("#" + PosDocViewFormName).serializeArray(), function (key, value) {
-        data[value.name] = value.value;
-    });
-    data.action = "save-document";
-    data.lines = getGridData();
-    console.log(data);
-    $.ajax({
-        type: "POST",
-        url: PosDocViewUrl,
-        dataType: "text",
-        data: data,
-        success: function (results) {
-            if (results.substring(0, 3) === "OK:") {
-                location.href = results.substring(3);
-            } else {
-                alert(results);
-            }
-        }
-    });
-
-    //$("#btn-document-save").prop("disabled", false);
 }
 
 function getGridData() {
@@ -167,33 +141,6 @@ function businessDocViewSetAutocompletes(columns) {
     return columns;
 }
 
-function calculatePaymentChange()
-{
-    documentTotal = parseFloat($('#doc_total').val());
-    paymentAmount = parseFloat($('#payment-amount').val());
-    paymentMethod = $('#payment-method').children("option:selected").val();
-
-    paymentReturn = paymentAmount - documentTotal;
-    paymentReturn = paymentReturn || 0;
-    if (paymentMethod != PosDocCashPaymentMethod) {
-        if (paymentReturn > 0) {
-            paymentReturn = 0;
-            paymentAmount = documentTotal;
-            $('#payment-amount').val(formatNumber(paymentAmount));
-        }
-    }
-
-    $('#payment-change').val(formatNumber(paymentReturn));
-
-    if (paymentReturn >= 0) {
-        $("#btn-payment-ok").prop('disabled', false);
-        console.log('Cambio : ' + paymentReturn);
-    } else {
-        $("#btn-payment-ok").prop('disabled', true);
-        console.log('Falta : ' + paymentReturn);
-    }
-}
-
 function formatNumber(val)
 {
     return parseFloat(val).toFixed(2);
@@ -234,10 +181,6 @@ $(document).ready(function () {
 
     $("#doc_codserie").change(function () {
         businessDocViewRecalculate();
-    });
-
-    $("#payment-amount").keyup(function (e) {
-        calculatePaymentChange();
     });
 
     $(".autocomplete-dc").each(function () {

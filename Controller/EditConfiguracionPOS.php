@@ -47,7 +47,7 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
 
     protected function createViews()
     {
-        $this->setTemplate('POSSettings');
+        $this->setTemplate('EditConfiguracionPOS');
 
         $this->addHtmlView('POSGeneralSettings', 'POSGeneralSettings', 'FormaPago', 'general', 'fas fa-cogs');
         $this->addListView('ListDenominacionMoneda', 'DenominacionMoneda', 'currency-denomination');     

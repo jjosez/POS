@@ -1,7 +1,7 @@
 <?php
 /**
- * This file is part of FacturaScripts
- * Copyright (C) 2018 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -19,7 +19,6 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTools;
-use FacturaScripts\Dinamic\Lib\BusinessDocumentOptions;
 use FacturaScripts\Dinamic\Model\Almacen;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\FormaPago;
@@ -30,15 +29,15 @@ use FacturaScripts\Dinamic\Model\Serie;
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class POSBusinessDocumentTools
+class POSDocumentTools
 {
     private $tools;
-    private $user;    
+    private $columns;    
 
-    public function __construct($user) 
+    public function __construct($columns = false) 
     {
         $this->tools = new BusinessDocumentTools();
-        $this->user = $user;        
+        $this->columns = $columns;        
     }
 
     /**
@@ -47,7 +46,7 @@ class POSBusinessDocumentTools
      */
     public function getColumns()
     {
-        return BusinessDocumentOptions::getEnabledColumns($this->user);
+        return $this->columns;
     }
 
     /**

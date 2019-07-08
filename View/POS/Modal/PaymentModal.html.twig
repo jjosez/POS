@@ -1,0 +1,57 @@
+{#
+/**
+* This file is part of POS plugin for FacturaScripts
+* Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Lesser General Public License as
+* published by the Free Software Foundation, either version 3 of the
+* License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+#}
+<div class="modal fade" id="payment-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">payment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="payment-method">{{ i18n.trans('payment-method') }}</label>
+                        <select class="form-control" id="payment-method" name="payment-method">
+                            {% for formapago in fsc.formaPago.all() %}
+                                <option value="{{ formapago.codpago }}">
+                                    {{ formapago.descripcion }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-amount" class="col-form-label">{{ i18n.trans('payment-amount') }}:</label>
+                        <input type="text" class="form-control" id="payment-amount">
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-change" class="col-form-label">{{ i18n.trans('payment-change') }}:</label>
+                        <input type="text" class="form-control" id="payment-change" readonly="readonly">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ i18n.trans('cancel') }}</button>
+                <button type="button" class="btn btn-primary" id="btn-payment-ok" disabled="disabled">Continuar</button>
+            </div>
+        </div>
+    </div>
+</div>

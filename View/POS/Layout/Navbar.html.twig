@@ -1,0 +1,21 @@
+<nav class="navbar navbar-expand navbar-dark bg-dark py-md-2 mb-3">
+    <a class="navbar-brand" href="index.php">{{ fsc.empresa.nombrecorto }}</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-lg-auto">
+            {% if fsc.arqueo.abierto %}
+                <button id="show-cashup-btn" class="btn btn-warning m-2" type="button">Cerrar caja</button>
+                <li class="nav-item dropdown py-md-2">
+                    <a class="nav-link" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ fsc.user.nick |capitalize }}</a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                    </div>
+                </li>
+            {% endif %}            
+        </ul>
+    </div>
+</nav>

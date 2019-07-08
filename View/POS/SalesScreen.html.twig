@@ -1,0 +1,55 @@
+{#
+/**
+* This file is part of POS plugin for FacturaScripts
+* Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Lesser General Public License as
+* published by the Free Software Foundation, either version 3 of the
+* License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+#}
+{% extends 'POS/Layout/Base.html.twig' %}
+{% block body %}
+    <form id="formSalesDocument" name="formSalesDocument" method="POST" autocomplete="off">
+        <input type="hidden" id="action" name="action"/>
+        <input type="hidden" id="codalmacen" name="codalmacen" value="{{ fsc.terminal.codalmacen}}">
+        <input type="hidden" id="codserie" name="codserie" value="{{ fsc.terminal.codserie}}">
+        <input type="hidden" id="lines" name="lines"/>
+        <input type="hidden" id="payments" name="payments"/>
+        <input type="hidden" id="token" name="token" value="{{ fsc.getRandomToken() }}">
+
+        <div class="row">
+            <div class="col-8">
+                {{ include('POS/Block/ItemList.html.twig') }}
+            </div>
+            <div class="col-4">
+                {{ include('POS/Block/SaleData.html.twig') }}
+            </div>
+        </div>        
+    </form>
+
+    <script type="text/javascript">
+        PosDocViewLineData = {{ fsc.getDocColumnsData() | raw }};
+        PosDocViewFormName = "formBusinessDocumentLine";
+        PosDocViewUrl = "POS";
+        PosDocAutocompleteUrl = "EditFacturaCliente";
+        PosDocCashPaymentMethod = "{{ appSettings.get('pointofsale','fpagoefectivo') }}";
+    </script>
+{% endblock %}
+{% block modals %}
+    {{ include('POS/Modal/PaymentModal.html.twig') }}
+    {{ include('POS/Modal/CashupModal.html.twig') }}
+{% endblock %}
+{% block js %}
+    {{ parent() }}
+    <script src="{{ asset('Dinamic/Assets/JS/POS.js') }}"></script>
+{% endblock %}

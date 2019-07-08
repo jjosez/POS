@@ -1,0 +1,42 @@
+{% macro input(name, value, type = "text", size = 20) %}
+    <input type="{{ type }}" name="{{ name }}" value="{{ value|e }}" size="{{ size }}" />
+{% endmacro %}
+
+{% macro textarea(name, value, rows = 10, cols = 40) %}
+    <textarea name="{{ name }}" rows="{{ rows }}" cols="{{ cols }}">{{ value|e }}</textarea>
+{% endmacro %}
+
+{% macro customerSelect(i18n, id, name, model, newUrl) %}
+    <div class="form-group col">
+        <label for="{{ id }}Autocomplete">{{ i18n.trans('customer') }}</label>
+        <div class="input-group">
+            <span class="input-group-prepend">
+                {% if model.codcliente %}
+                    <a href="EditCliente?code={{ model.codcliente }}" target="_blank" class="btn btn-success">
+                        <i class="fas fa-user-cog fa-fw" aria-hidden="true"></i>
+                    </a>
+                {% else %}
+                    <a href="{{ newUrl }}" target="_blank" class="btn btn-success" title="{{ i18n.trans('new-customer') }}">
+                        <i class="fas fa-user-plus fa-fw" aria-hidden="true"></i>
+                    </a>
+                {% endif %}
+            </span>
+            <input type="hidden" id="{{ id }}Autocomplete" name="{{ name }}" value="{{ model.codcliente }}"/>
+            <input type="text" id="{{ id }}" value="{{ model.nombre | raw }}" class="form-control autocomplete-dc"
+                   data-field="{{ id }}" data-source="Cliente" data-fieldcode="codcliente" data-fieldtitle="nombre"
+                   placeholder="{{ i18n.trans('customer') }}" autocomplete="off"/>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro documentSelect(i18n, default, documentList) %}
+    <div class="form-group col-12">
+        <label for="tipodocumento">Tipo de documento</label>
+        <select class="form-control" id="tipodocumento" name="tipodocumento">            
+            {% for document in documentList %}
+                <option value="{{ document }}" {% if document == default %} selected="selected" {% endif %}>
+                {{ document }}</option>
+            {% endfor %}
+        </select>
+    </div>
+{% endmacro %}

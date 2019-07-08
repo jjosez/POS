@@ -22,14 +22,16 @@ use FacturaScripts\Core\App\AppSettings;
 use FacturaScripts\Core\Base\Controller;
 
 use FacturaScripts\Dinamic\Lib\AssetManager;
-use FacturaScripts\Dinamic\Lib\BusinessDocumentOptions;
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTicket;
-use FacturaScripts\Dinamic\Lib\POSBusinessDocumentTools;
+use FacturaScripts\Dinamic\Lib\MultiRequestProtection;
+use FacturaScripts\Dinamic\Lib\POSDocumentOptions;
+use FacturaScripts\Dinamic\Lib\POSDocumentTools;
 
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\OperacionPOS;
+//use FacturaScripts\Dinamic\Model\PagoCliente;
 use FacturaScripts\Dinamic\Model\SesionPOS;
 use FacturaScripts\Dinamic\Model\TerminalPOS;
 use FacturaScripts\Dinamic\Model\Ticket;
@@ -72,8 +74,7 @@ class POS extends Controller
         $this->isSessionOpened();
 
         $idterminal = $this->request->query->get('terminal');
-        ($idterminal) ? $this->terminal->loadFromCode($idterminal) : null;
-        
+        ($idterminal) ? $this->terminal->loadFromCode($idterminal) : null;        
 
         $this->execAction();
     }
@@ -82,11 +83,11 @@ class POS extends Controller
     {
         $action = $this->request->request->get('action');
         switch ($action) {
-            case 'open-cashup':
+            case 'open-till-session':
                 $this->openSession();
                 break;
 
-            case 'close-till':
+            case 'close-till-session':
                 $this->closeSession();
                 break;
 
@@ -147,18 +148,21 @@ class POS extends Controller
         if ($this->arqueo->save()) {
             $this->terminal->disponible = true;
             $this->terminal->save();
-        }            
+        }
+
+        $this->isSessionOpened();            
     }
 
     /**
-     * Verify if a cashup is opened by User or Point of Sale Terminal
+     * Verify if a till session is opened by User or Point of Sale Terminal
      *
      * @return bool
      */
     private function isSessionOpened()
-    {   
+    {
         $this->arqueo = new SesionPOS();
         $this->terminal = new TerminalPOS();
+        $this->setTemplate('\POS\SessionScreen');   
 
         if (!$this->arqueo->isOpened('user', $this->user->nick)) {
             return false;
@@ -168,11 +172,12 @@ class POS extends Controller
             return false;
         }
 
+        $this->setTemplate('\POS\SalesScreen');
         return true;      
     }
 
     /**
-     * Initialize a new cashcount if not exist.
+     * Initialize a new till session if not exist.
      *
      * @return void
      */
@@ -204,6 +209,7 @@ class POS extends Controller
             $this->terminal->disponible = false;
 
             $this->terminal->save();
+            $this->isSessionOpened();
             return;
         }
 
@@ -222,7 +228,8 @@ class POS extends Controller
         $data = $this->request->request->all();
         $modelName = 'FacturaCliente';
 
-        $tools = new POSBusinessDocumentTools($this->user);  
+        $columns = POSDocumentOptions::getEnabledColumns($this->user);
+        $tools = new POSDocumentTools($columns);  
         $result = $tools->recalculateData($modelName, $data);
         $this->response->setContent($result);
 
@@ -236,13 +243,20 @@ class POS extends Controller
      */
     private function saveDocument()
     {
+        $data = $this->request->request->all(); 
+
         if (!$this->permissions->allowUpdate) {
             $this->response->setContent($this->i18n->trans('not-allowed-modify'));
             return false;
         }
 
-        $tools = new POSBusinessDocumentTools($this->user);
-        $data = $this->request->request->all();        
+        $token = $data['token'];
+        if (!empty($token) && (new MultiRequestProtection)->tokenExist($token)) {
+            $this->miniLog->alert($this->i18n->trans('duplicated-request'));
+            return false;
+        }
+
+        $tools = new POSDocumentTools();               
         
         $modelName = $data['tipodocumento'] ?: 'FacturaCliente';
         $className = 'FacturaScripts\\Dinamic\\Model\\' . $modelName;        
@@ -260,10 +274,21 @@ class POS extends Controller
     {
         $payments = json_decode($data['payments'], true);
 
+        $paymentAmount = $payments['amount'];
+        $paymentChange = $payments['change'];
+
         if ($payments['method'] == AppSettings::get('pointofsale','fpagoefectivo') ) {
-            $this->arqueo->saldoesperado += (float) ($payments['amount'] - $payments['change']);
+            $this->arqueo->saldoesperado += (float) ($paymentAmount - $paymentChange);
             $this->arqueo->save(); 
         }
+
+        /*$newPayment = new PagoCliente();
+        $newPayment->cantidad = $paymentAmount - $paymentChange;
+        $newPayment->codcliente = $document->codcliente;
+        $newPayment->coddivisa = $document->coddivisa;
+        $newPayment->codpago = $document->codpago;
+
+        $newPayment->save();*/
     }
 
     private function saveTransaction($document)
@@ -303,12 +328,17 @@ class POS extends Controller
 
     public function getDocColumnsData()
     {
-        return BusinessDocumentOptions::getLineData($this->user);
+        return POSDocumentOptions::getLineData($this->user);
     }
 
     public function getDenominaciones()
     {
         return (new DenominacionMoneda)->all([],['valor' => 'ASC']);
+    }
+
+    public function getRandomToken()
+    {
+        return (new MultiRequestProtection)->newToken();
     }
 
     protected function assets()
