@@ -252,7 +252,7 @@ class POS extends Controller
 
         $token = $data['token'];
         if (!empty($token) && (new MultiRequestProtection)->tokenExist($token)) {
-            $this->miniLog->alert($this->i18n->trans('duplicated-request'));
+            $this->miniLog->warning($this->i18n->trans('duplicated-request'));            
             return false;
         }
 
