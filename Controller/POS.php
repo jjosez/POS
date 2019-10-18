@@ -22,10 +22,11 @@ use FacturaScripts\Core\App\AppSettings;
 use FacturaScripts\Core\Base\Controller;
 
 use FacturaScripts\Dinamic\Lib\AssetManager;
-use FacturaScripts\Dinamic\Lib\BusinessDocumentTicket;
 use FacturaScripts\Dinamic\Lib\MultiRequestProtection;
 use FacturaScripts\Dinamic\Lib\POSDocumentOptions;
 use FacturaScripts\Dinamic\Lib\POSDocumentTools;
+use FacturaScripts\Dinamic\Lib\POSTicketTools;
+use FacturaScripts\Dinamic\Lib\POSDocumentLineTools;
 
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
@@ -34,7 +35,6 @@ use FacturaScripts\Dinamic\Model\OperacionPOS;
 //use FacturaScripts\Dinamic\Model\PagoCliente;
 use FacturaScripts\Dinamic\Model\SesionPOS;
 use FacturaScripts\Dinamic\Model\TerminalPOS;
-use FacturaScripts\Dinamic\Model\Ticket;
 
 /**
  * Controller to process Point of Sale Operations
@@ -96,7 +96,7 @@ class POS extends Controller
                 break;
 
             case 'recalculate-document':
-                $this->recalculateDocument();
+                $this->recalculateDocumentLines();
                 return false;
             
             default:
@@ -221,18 +221,16 @@ class POS extends Controller
      *
      * @return void
      */
-    private function recalculateDocument()
+    private function recalculateDocumentLines()
     {
         $this->setTemplate(false);
               
-        $data = $this->request->request->all();
         $modelName = 'FacturaCliente';
 
-        $columns = POSDocumentOptions::getEnabledColumns($this->user);
-        $tools = new POSDocumentTools($columns);  
-        $result = $tools->recalculateData($modelName, $data);
-        $this->response->setContent($result);
+        $tools = new POSDocumentLineTools($modelName);
+        $result = $tools->recalculateLines($this->request);
 
+        $this->response->setContent($result);
         return false;
     }
 
@@ -252,7 +250,7 @@ class POS extends Controller
 
         $token = $data['token'];
         if (!empty($token) && (new MultiRequestProtection)->tokenExist($token)) {
-            $this->miniLog->alert($this->i18n->trans('duplicated-request'));
+            $this->miniLog->warning($this->i18n->trans('duplicated-request'));
             return false;
         }
 
@@ -306,24 +304,16 @@ class POS extends Controller
         return $transaction->save();
     }
 
+    private function printCashupTicket()
+    {
+
+    }
+
     private function printDocumentTicket($document)
     {
-        $businessTicket = new BusinessDocumentTicket($document); 
+        $ticket = new POSTicketTools($document);
 
-        $ticket = new Ticket();
-        $ticket->coddocument = $document->modelClassName();
-        $ticket->text = $businessTicket->getTicket(); 
-
-        if ($ticket->save()) {
-            $this->printing = true;
-            $msg = '<div class="d-none"><img src="http://localhost:10080?documento=%1s"/></div>';
-            $this->miniLog->info('Imprimiendo documento ' . $document->codigo);
-            $this->miniLog->info(sprintf($msg,  $document->modelClassName()));
-            return true;
-        }
-
-         $this->miniLog->warning('Error al imprimir el ticket');
-         return false;
+        $this->printing = ($ticket->printTicket()) ? true : false;
     }
 
     public function getDocColumnsData()
@@ -332,6 +322,11 @@ class POS extends Controller
     }
 
     public function getDenominaciones()
+    {
+        return (new DenominacionMoneda)->all([],['valor' => 'ASC']);
+    }
+
+    public function getDenominations()
     {
         return (new DenominacionMoneda)->all([],['valor' => 'ASC']);
     }

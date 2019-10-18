@@ -18,7 +18,7 @@
 
 var PosDocViewAutocompleteColumns = [];
 var PosDocViewLineData = [];
-var PosDocViewFormName = "f_document_primary";
+var PosDocViewFormName = "formSalesDocument";
 var PosDocViewUrl = "";
 var PosDocAutocompleteUrl = "";
 var PosDocCashPaymentMethod = "";
@@ -43,6 +43,7 @@ function beforeChange(changes, source) {
 function businessDocViewAutocompleteGetData(formId, field, source, fieldcode, fieldtitle, term) {
     var formData = {};
     var rawForm = $("form[id=" + formId + "]").serializeArray();
+    console.log("Form data", rawForm);
     $.each(rawForm, function (i, input) {
         formData[input.name] = input.value;
     });
@@ -59,7 +60,11 @@ function businessDocViewRecalculate() {
     var data = {};
     $.each($("#" + PosDocViewFormName).serializeArray(), function (key, value) {
         data[value.name] = value.value;
+        console.log("Field", value.name);
     });
+    
+    console.log("Form data", data);
+
     data.action = "recalculate-document";
     data.lines = getGridData();
     console.log("data", data);
