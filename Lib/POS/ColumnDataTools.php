@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
@@ -16,19 +16,21 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-namespace FacturaScripts\Plugins\POS\Lib;
+namespace FacturaScripts\Plugins\POS\Lib\POS;
 
 use FacturaScripts\Core\Base\Translator;
 use FacturaScripts\Core\Base\DivisaTools;
-use FacturaScripts\Core\Base\Utils;
 use FacturaScripts\Core\Lib\Widget\VisualItemLoadEngine;
 use FacturaScripts\Core\Model\PageOption;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 
 /**
- * 
+ * A set of tools to manage sessions and user acces.
+ *
+ * @author Carlos García Gómez   <carlos@facturascripts.com>
+ * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class POSDocumentOptions
+class ColumnDataTools
 {
     private static $i18n;
 
@@ -47,20 +49,13 @@ class POSDocumentOptions
         return $columns[$key]->columns;
     }
 
-    public static function getEnabledColumns($user)
-    {
-        $columns = self::loadPageOptions($user);
-
-        return self::getColumns($columns);
-    }
-
     /**
      * Returns the data of lines to the view.
      *
      * @return string
      */
-    public static function getLineData($user)
-    {
+    public static function getColumnsDataHeader($user)
+    {       
         self::$i18n = new Translator;
         $data = [
             'headers' => [],

@@ -23,10 +23,10 @@ use FacturaScripts\Core\Base\Controller;
 
 use FacturaScripts\Dinamic\Lib\AssetManager;
 use FacturaScripts\Dinamic\Lib\MultiRequestProtection;
+use FacturaScripts\Dinamic\Lib\POS as TOOLS;
 use FacturaScripts\Dinamic\Lib\POSDocumentOptions;
 use FacturaScripts\Dinamic\Lib\POSDocumentTools;
 use FacturaScripts\Dinamic\Lib\POSTicketTools;
-use FacturaScripts\Dinamic\Lib\POSDocumentLineTools;
 
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
@@ -227,40 +227,32 @@ class POS extends Controller
               
         $modelName = 'FacturaCliente';
 
-        $tools = new POSDocumentLineTools($modelName);
-        $result = $tools->recalculateLines($this->request);
+        $documentTools = new TOOLS\DocumentTools($modelName);
+        $result = $documentTools->recalculateDocument($this->request);
 
         $this->response->setContent($result);
         return false;
     }
 
     /**
-     * Process pos document.
+     * Process sales.
      *
      * @return void
      */
     private function saveDocument()
     {
-        $data = $this->request->request->all(); 
+        $data = $this->request->request->all();
 
-        if (!$this->permissions->allowUpdate) {
-            $this->response->setContent($this->i18n->trans('not-allowed-modify'));
-            return false;
-        }
-
-        $token = $data['token'];
-        if (!empty($token) && (new MultiRequestProtection)->tokenExist($token)) {
-            $this->miniLog->warning($this->i18n->trans('duplicated-request'));
-            return false;
-        }
-
-        $tools = new POSDocumentTools();               
+        if (!$this->validateSaveRequest($data)) {
+             return;   
+        }                         
         
         $modelName = $data['tipodocumento'] ?: 'FacturaCliente';
-        $className = 'FacturaScripts\\Dinamic\\Model\\' . $modelName;        
-        $document = new $className();        
+        $documentTools = new TOOLS\DocumentTools($modelName);    
 
-        if ($tools->processDocumentData($document, $data, $this->miniLog)) {
+        if ($documentTools->processDocumentData($data)) {
+            $document = $documentTools->getDocument();
+
             $this->saveDocumentPayments($document, $data);
             $this->printDocumentTicket($document);
 
@@ -311,14 +303,29 @@ class POS extends Controller
 
     private function printDocumentTicket($document)
     {
-        $ticket = new POSTicketTools($document);
-
+        $ticket = new TOOLS\TicketTools($document);
         $this->printing = ($ticket->printTicket()) ? true : false;
+    }
+
+    private function validateSaveRequest($data)
+    {
+        if (!$this->permissions->allowUpdate) {
+            $this->miniLog->warning($this->i18n->trans('not-allowed-modify'));
+            return false;
+        }
+
+        $token = $data['token'];
+        if (!empty($token) && (new MultiRequestProtection)->tokenExist($token)) {
+            $this->miniLog->warning($this->i18n->trans('duplicated-request'));
+            return false;
+        }
+
+        return true;      
     }
 
     public function getDocColumnsData()
     {
-        return POSDocumentOptions::getLineData($this->user);
+        return TOOLS\ColumnDataTools::getColumnsDataHeader($this->user);
     }
 
     public function getDenominaciones()

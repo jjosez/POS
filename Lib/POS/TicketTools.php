@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-namespace FacturaScripts\Plugins\POS\Lib;
+namespace FacturaScripts\Plugins\POS\Lib\POS;
 
 use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTicket;
@@ -27,7 +27,7 @@ use FacturaScripts\Dinamic\Model\Ticket;
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class POSTicketTools
+class TicketTools
 {
     private $data;
     private $ticket;
