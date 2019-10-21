@@ -3,7 +3,7 @@
     "cash-registers": "Terminales",
     "cash-register-not-found" : "No se encontró la terminal",
     "cash-up": "Corte de caja",
-    "cash-denomination": "Denominación monetaria",
+    "currency-denomination": "Denominación monetaria",
     "default-payment-method": "Método de pago predefinido",
     "payment-amount": "Cantidad pagada",
     "payment-change": "Cambio",

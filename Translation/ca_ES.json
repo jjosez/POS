@@ -3,7 +3,7 @@
     "cash-registers": "Terminals",
     "cash-register-not-found" : "No es va trobar la terminal",
     "cash-up": "Tancament de caixa",
-    "cash-denomination": "Denominació monetària",
+    "currency-denomination": "Denominació monetària",
     "default-payment-method": "Mètode de pagament predefinit",
     "payment-amount": "Quantitat pagada",
     "payment-change": "Canvi",

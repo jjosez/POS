@@ -25,7 +25,7 @@
                             <select class="form-control" id="default-businessdoc" name="default-businessdoc">
                                 {% for businessDoc in fsc.businessDocTypes %}
                                     <option value="{{ businessDoc.tipodoc }}"{% if businessDoc.tipodoc == defaultdoc %} selected {% endif %}>
-                                        {{ businessDoc.tipodoc }}
+                                        {{ i18n.trans(businessDoc.tipodoc) }}
                                     </option>
                                 {% endfor %}
                             </select>
@@ -56,7 +56,7 @@
                                 {% set checked = fsc.isBusinessDocEneabled(businessDoc.tipodoc) %}
                                 <div class="form-group form-check">
                                     <input type="checkbox" name="bussinesdocs[]" value="{{ businessDoc.tipodoc }}" class="form-check-input" {{ checked ? 'checked' }}>
-                                    <label for="checkbox0">{{ businessDoc.tipodoc|e }}</label>
+                                    <label for="checkbox0">{{ i18n.trans(businessDoc.tipodoc) }}</label>
                                 </div>
                             </div>
                         {% else %}

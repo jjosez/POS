@@ -35,7 +35,7 @@
         <select class="form-control" id="tipodocumento" name="tipodocumento">            
             {% for document in documentList %}
                 <option value="{{ document }}" {% if document == default %} selected="selected" {% endif %}>
-                {{ document }}</option>
+                {{ i18n.trans(document) }}</option>
             {% endfor %}
         </select>
     </div>

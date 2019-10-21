@@ -38,7 +38,7 @@
     </form>
 
     <script type="text/javascript">
-        PosDocViewLineData = {{ fsc.getDocColumnsData() | raw }};
+        PosDocViewLineData = {{ fsc.getColumnsHeaders() | raw }};
         PosDocViewFormName = "formSalesDocument";
         PosDocViewUrl = "POS";
         PosDocAutocompleteUrl = "EditFacturaCliente";

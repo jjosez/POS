@@ -14,7 +14,7 @@
                         <label class="col-sm-8 col-form-label">Cantidad contada</label>
                         <label class="col-sm-4 col-form-label">Denominacion</label>
                     </div>
-                    {% for denominacion in fsc.getDenominaciones() %}
+                    {% for denominacion in fsc.getDenomination() %}
                         <div class="form-group row">
                             <div class="col-sm-8">
                                 <input type="number" class="form-control" name="cash[{{ denominacion.valor }}]" placeholder="0">

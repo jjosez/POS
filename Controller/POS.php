@@ -24,9 +24,6 @@ use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Dinamic\Lib\AssetManager;
 use FacturaScripts\Dinamic\Lib\MultiRequestProtection;
 use FacturaScripts\Dinamic\Lib\POS as TOOLS;
-use FacturaScripts\Dinamic\Lib\POSDocumentOptions;
-use FacturaScripts\Dinamic\Lib\POSDocumentTools;
-use FacturaScripts\Dinamic\Lib\POSTicketTools;
 
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
@@ -77,6 +74,21 @@ class POS extends Controller
         ($idterminal) ? $this->terminal->loadFromCode($idterminal) : null;        
 
         $this->execAction();
+    }
+
+    public function getColumnsHeaders()
+    {
+        return TOOLS\ColumnDataTools::getColumnsDataHeader($this->user);
+    }
+
+    public function getDenominations()
+    {
+        return (new DenominacionMoneda)->all([],['valor' => 'ASC']);
+    }
+
+    public function getRandomToken()
+    {
+        return (new MultiRequestProtection)->newToken();
     }
 
     private function execAction()
@@ -321,27 +333,7 @@ class POS extends Controller
         }
 
         return true;      
-    }
-
-    public function getDocColumnsData()
-    {
-        return TOOLS\ColumnDataTools::getColumnsDataHeader($this->user);
-    }
-
-    public function getDenominaciones()
-    {
-        return (new DenominacionMoneda)->all([],['valor' => 'ASC']);
-    }
-
-    public function getDenominations()
-    {
-        return (new DenominacionMoneda)->all([],['valor' => 'ASC']);
-    }
-
-    public function getRandomToken()
-    {
-        return (new MultiRequestProtection)->newToken();
-    }
+    }    
 
     protected function assets()
     {
