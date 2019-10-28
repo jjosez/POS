@@ -22,14 +22,12 @@ use FacturaScripts\Core\App\AppSettings;
 use FacturaScripts\Core\Base\Controller;
 
 use FacturaScripts\Dinamic\Lib\AssetManager;
-use FacturaScripts\Dinamic\Lib\MultiRequestProtection;
-use FacturaScripts\Dinamic\Lib\POS as TOOLS;
+use FacturaScripts\Dinamic\Lib\POSHelper;
 
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\OperacionPOS;
-//use FacturaScripts\Dinamic\Model\PagoCliente;
 use FacturaScripts\Dinamic\Model\SesionPOS;
 use FacturaScripts\Dinamic\Model\TerminalPOS;
 
@@ -45,7 +43,6 @@ class POS extends Controller
     public $cliente;
     public $formaPago;
     public $terminal;   
-    protected $pageOption;
 
     /**
      * Returns basic page attributes
@@ -73,12 +70,17 @@ class POS extends Controller
         $idterminal = $this->request->query->get('terminal');
         ($idterminal) ? $this->terminal->loadFromCode($idterminal) : null;        
 
-        $this->execAction();
+        $this->execAction();   
     }
 
-    public function getColumnsHeaders()
+    public function getCashPaymentMethod()
     {
-        return TOOLS\ColumnDataTools::getColumnsDataHeader($this->user);
+        return $this->toolBox()->appSettings()->get('pointofsale','fpagoefectivo');
+    }
+
+    public function getDataGridHeaders()
+    {
+        return POSHelper\SalesDataGrid::getDataGridHeaders($this->user);
     }
 
     public function getDenominations()
@@ -88,8 +90,43 @@ class POS extends Controller
 
     public function getRandomToken()
     {
-        return (new MultiRequestProtection)->newToken();
+        return $this->multiRequestProtection->newToken();
     }
+
+    /**
+     * Close current session.
+     *
+     * @return void
+     */
+    private function closeSession()
+    {
+        if (!$this->isSessionOpened()) {
+            $this->toolBox()->log()->info('there-is-no-open-till-session');
+            return;
+        }
+
+        $this->arqueo->abierto = false;
+        $this->arqueo->fechafin = date('d-m-Y');
+        $this->arqueo->horafin = date('H:i:s');
+
+        $cash = $this->request->request->get('cash');       
+        $total = 0.0;
+
+        foreach ($cash as $value => $count) {
+            $total += (float) $value * (float) $count;
+        }
+
+        $this->toolBox()->log()->info('Dinero contado: ' . $total);
+        $this->arqueo->saldocontado = $total;
+        $this->arqueo->conteo = json_encode($cash);
+
+        if ($this->arqueo->save()) {
+            $this->terminal->disponible = true;
+            $this->terminal->save();
+        }
+
+        $this->redirect('POS');
+    }   
 
     private function execAction()
     {
@@ -115,7 +152,7 @@ class POS extends Controller
                 
                 break;
         }
-    }    
+    } 
 
     /**
      * Initialize default values.
@@ -124,46 +161,11 @@ class POS extends Controller
      */
     private function initValues()
     {
-        $this->assets();
+        $this->loadAssets();
 
         $this->cliente = new Cliente();
         $this->formaPago = new FormaPago();
-    }
-
-    /**
-     * Close current session.
-     *
-     * @return void
-     */
-    private function closeSession()
-    {
-        if (!$this->isSessionOpened()) {
-            $this->miniLog->info('there-is-no-open-till-session');
-            return;
-        }
-
-        $this->arqueo->abierto = false;
-        $this->arqueo->fechafin = date('d-m-Y');
-        $this->arqueo->horafin = date('H:i:s');
-
-        $cash = $this->request->request->get('cash');       
-        $total = 0.0;
-
-        foreach ($cash as $value => $count) {
-            $total += (float) $value * (float) $count;
-        }
-
-        $this->miniLog->info('Dinero contado: ' . $total);
-        $this->arqueo->saldocontado = $total;
-        $this->arqueo->conteo = json_encode($cash);
-
-        if ($this->arqueo->save()) {
-            $this->terminal->disponible = true;
-            $this->terminal->save();
-        }
-
-        $this->isSessionOpened();            
-    }
+    }    
 
     /**
      * Verify if a till session is opened by User or Point of Sale Terminal
@@ -189,6 +191,17 @@ class POS extends Controller
     }
 
     /**
+     * Load assets on view.
+     *
+     * @return void
+     */
+    private function loadAssets()
+    {
+        AssetManager::add('css', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.css');
+        AssetManager::add('js', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.js');
+    }
+
+    /**
      * Initialize a new till session if not exist.
      *
      * @return void
@@ -196,13 +209,13 @@ class POS extends Controller
     private function openSession()
     {
         if ($this->isSessionOpened()) {
-            $this->miniLog->info('there-is-an-open-till-session-for-this-user');
+            $this->toolBox()->log()->info('there-is-an-open-till-session-for-this-user');
             return;
         }
 
         $idterminal = $this->request->request->get('terminal');  
         if (!$this->terminal->loadFromCode($idterminal)) {
-            $this->miniLog->warning($this->i18n->trans('cash-register-not-found')); 
+            $this->toolBox()->log()->warning($this->i18n->trans('cash-register-not-found')); 
             return;
         }        
 
@@ -217,7 +230,7 @@ class POS extends Controller
 
         if ($this->arqueo->save()) { 
             $msg = $this->terminal->nombre . ' iniciada con: ' . $saldoinicial . ', por ' . $this->user->nick;           
-            $this->miniLog->info($msg);
+            $this->toolBox()->log()->info($msg);
             $this->terminal->disponible = false;
 
             $this->terminal->save();
@@ -239,7 +252,7 @@ class POS extends Controller
               
         $modelName = 'FacturaCliente';
 
-        $documentTools = new TOOLS\DocumentTools($modelName);
+        $documentTools = new POSHelper\DocumentTools($modelName);
         $result = $documentTools->recalculateDocument($this->request);
 
         $this->response->setContent($result);
@@ -260,7 +273,7 @@ class POS extends Controller
         }                         
         
         $modelName = $data['tipodocumento'] ?: 'FacturaCliente';
-        $documentTools = new TOOLS\DocumentTools($modelName);    
+        $documentTools = new POSHelper\DocumentTools($modelName);    
 
         if ($documentTools->processDocumentData($data)) {
             $document = $documentTools->getDocument();
@@ -283,14 +296,6 @@ class POS extends Controller
             $this->arqueo->saldoesperado += (float) ($paymentAmount - $paymentChange);
             $this->arqueo->save(); 
         }
-
-        /*$newPayment = new PagoCliente();
-        $newPayment->cantidad = $paymentAmount - $paymentChange;
-        $newPayment->codcliente = $document->codcliente;
-        $newPayment->coddivisa = $document->coddivisa;
-        $newPayment->codpago = $document->codpago;
-
-        $newPayment->save();*/
     }
 
     private function saveTransaction($document)
@@ -315,30 +320,21 @@ class POS extends Controller
 
     private function printDocumentTicket($document)
     {
-        $ticket = new TOOLS\TicketTools($document);
+        $ticket = new POSHelper\TicketTools($document);
         $this->printing = ($ticket->printTicket()) ? true : false;
     }
 
     private function validateSaveRequest($data)
     {
         if (!$this->permissions->allowUpdate) {
-            $this->miniLog->warning($this->i18n->trans('not-allowed-modify'));
+            $this->toolBox()->log()->warning($this->i18n->trans('not-allowed-modify'));
             return false;
         }
-
         $token = $data['token'];
-        if (!empty($token) && (new MultiRequestProtection)->tokenExist($token)) {
-            $this->miniLog->warning($this->i18n->trans('duplicated-request'));
+        if (!empty($token) && $this->multiRequestProtection->tokenExist($token)) {
+            $this->toolBox()->log()->warning($this->i18n->trans('duplicated-request'));
             return false;
         }
-
         return true;      
-    }    
-
-    protected function assets()
-    {
-        AssetManager::add('css', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.css');
-        AssetManager::add('js', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.js');
-        AssetManager::add('js', FS_ROUTE . '/Dinamic/Assets/JS/PosDocumentView.js');
     }
 }

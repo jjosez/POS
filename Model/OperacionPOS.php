@@ -43,8 +43,8 @@ class OperacionPOS extends Base\ModelClass
     {
         parent::clear();
 
-        $this->fecha = date('d-m-Y');
-        $this->hora = date('H:i:s');
+        $this->fecha = date(self::DATE_STYLE);
+        $this->hora = date(self::HOUR_STYLE);
     }  
 
 

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-namespace FacturaScripts\Plugins\POS\Lib\POS;
+namespace FacturaScripts\Plugins\POS\Lib\POSHelper;
 
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTools;
 use FacturaScripts\Dinamic\Model\Almacen;
@@ -137,12 +137,19 @@ class DocumentTools
 
                 if (!$newLine->save()) {
                     //$miniLog->info( print_r($line, true));  
+                    $this->document->delete();
                     return false;
                 }                            
             }
 
             (new BusinessDocumentTools)->recalculate($this->document);
-            return $this->document->save();
+            
+
+            if ($this->document->save()) {
+                return true;
+            }
+
+            $this->document->delete();
         }
 
         return false;

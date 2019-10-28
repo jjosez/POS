@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-namespace FacturaScripts\Plugins\POS\Lib;
+namespace FacturaScripts\Plugins\POS\Lib\POSHelper;
 
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\ConciliacionPago;
@@ -28,7 +28,7 @@ use FacturaScripts\Dinamic\Model\PagoCliente;
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class POSPaymentsTools
+class Payments
 {
     private $cashPaymentMethod;
     private $cashPaymentAmount;  

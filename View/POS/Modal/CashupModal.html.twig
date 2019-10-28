@@ -1,4 +1,4 @@
-<div class="modal fade" id="cashup-modal" tabindex="-1" role="dialog">
+<div class="modal fade" id="cashupModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <form method="POST">
             <input type="hidden" name="action" value="close-till-session">
@@ -11,10 +11,10 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group row">
-                        <label class="col-sm-8 col-form-label">Cantidad contada</label>
-                        <label class="col-sm-4 col-form-label">Denominacion</label>
+                        <label class="col-sm-8 col-form-label">{{ i18n.trans('amount-counted') }}</label>
+                        <label class="col-sm-4 col-form-label">{{ i18n.trans('currency-denomination') }}</label>
                     </div>
-                    {% for denominacion in fsc.getDenomination() %}
+                    {% for denominacion in fsc.getDenominations() %}
                         <div class="form-group row">
                             <div class="col-sm-8">
                                 <input type="number" class="form-control" name="cash[{{ denominacion.valor }}]" placeholder="0">
@@ -23,7 +23,7 @@
                         </div>
                     {% else %}
                         <div class="alert alert-warning" role="alert">
-                            No hay denominaciones registradas, registralas en.
+                            No hay denominaciones registradas, registralas en. <a href="{{ i18n.trans('EditConfiguracionPOS') }}">{{ i18n.trans('pos-settings') }}</a>
                         </div>
                     {% endfor %}
                 </div>

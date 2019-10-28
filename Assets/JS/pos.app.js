@@ -16,70 +16,73 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function calculatePaymentChange()
+function processPaymentAmount()
 {
-    documentTotal = parseFloat($('#doc_total').val());
-    paymentAmount = parseFloat($('#payment-amount').val());
-    paymentMethod = $('#payment-method').children("option:selected").val();
+    total = parseFloat($('#total').val());
+    paymentAmount = parseFloat($('#checkoutPaymentAmount').val());
+    paymentMethod = $('#checkoutPaymentMethod').children("option:selected").val();
 
-    paymentReturn = paymentAmount - documentTotal;
+    paymentReturn = paymentAmount - total;
     paymentReturn = paymentReturn || 0;
-    if (paymentMethod != PosDocCashPaymentMethod) {
+    if (paymentMethod != documentCashPaymentMethod) {
         if (paymentReturn > 0) {
             paymentReturn = 0;
-            paymentAmount = documentTotal;
-            $('#payment-amount').val(formatNumber(paymentAmount));
+            paymentAmount = total;
+            $('#checkoutPaymentAmount').val(formatNumber(paymentAmount));
         }
     }
 
-    $('#payment-change').val(formatNumber(paymentReturn));
+    $('#checkoutPaymentChange').val(formatNumber(paymentReturn));
 
     if (paymentReturn >= 0) {
-        $("#btn-payment-ok").prop('disabled', false);
+        $("#savePaymentButton").prop('disabled', false);
         console.log('Cambio : ' + paymentReturn);
     } else {
-        $("#btn-payment-ok").prop('disabled', true);
+        $("#savePaymentButton").prop('disabled', true);
         console.log('Falta : ' + paymentReturn);
     }
 }
 
-function saveSalesDocument() {
+function showCashupModal() {
+    $("#cashupModal").modal('show');
+}
+
+function showCheckoutModal() {
     document.getElementById("action").value = "save-document";
     document.getElementById("lines").value = JSON.stringify(getGridData());
-
     console.log(getGridData());
-    var modal = $('#payment-modal');
-    modal.find('.modal-title').text(formatNumber(document.getElementById("doc_total").value));
+
+    total = formatNumber(document.getElementById("total").value);
+    var modal = $('#checkoutModal');
+    modal.find('.modal-title').text(total);
     modal.modal();
 
-    $('#btn-payment-ok').on('click', function(event) {
+    $('#savePaymentButton').on('click', function(event) {
         var paymentData = {};
 
-        paymentData['amount'] = $('#payment-amount').val();
-        paymentData['method'] = $('#payment-method').val();
-        paymentData['change'] = $('#payment-change').val();
+        paymentData['amount'] = $('#checkoutPaymentAmount').val();
+        paymentData['method'] = $('#checkoutPaymentMethod').val();
+        paymentData['change'] = $('#checkoutPaymentChange').val();
 
         document.getElementById("payments").value = JSON.stringify(paymentData);
         document.formSalesDocument.submit()
     });
 }
 
-function showCashupModal() {
-    $("#cashup-modal").modal('show');
-}
-
 $(document).ready(function() {
-
-    $("#show-cashup-btn").click(function() {
+    $("#cashupButton").click(function() {
         showCashupModal();
     });
 
-    $("#save-document-btn").click(function () {
-        saveSalesDocument();
+    $("#checkoutButton").click(function () {
+        showCheckoutModal();
     });
 
-    $("#payment-amount").keyup(function (e) {
-        calculatePaymentChange();
+    $("#checkoutPaymentAmount").keyup(function (e) {
+        processPaymentAmount();
     });
 
+    $('#checkoutPaymentMethod').change(function (e) {
+        processPaymentAmount();
+    });
 });

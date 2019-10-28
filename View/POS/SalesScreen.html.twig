@@ -22,34 +22,36 @@
     <form id="formSalesDocument" name="formSalesDocument" method="POST" autocomplete="off">
         <input type="hidden" id="action" name="action"/>
         <input type="hidden" id="codalmacen" name="codalmacen" value="{{ fsc.terminal.codalmacen}}">
-        <input type="hidden" id="codserie" name="codserie" value="{{ fsc.terminal.codserie}}">
+        <input type="hidden" id="codserie" name="codserie" value="{{ fsc.terminal.codserie}}">        
         <input type="hidden" id="lines" name="lines"/>
         <input type="hidden" id="payments" name="payments"/>
         <input type="hidden" id="token" name="token" value="{{ fsc.getRandomToken() }}">
+        <input type="hidden" id="total" name="total" value="0">
 
         <div class="row">
             <div class="col-8">
                 {{ include('POS/Block/ItemList.html.twig') }}
             </div>
-            <div class="col-4">
-                {{ include('POS/Block/SaleData.html.twig') }}
+            <div class="col-4 ">                
+                {{ include('POS/Block/SaleData.html.twig') }}                
             </div>
         </div>        
     </form>
-
-    <script type="text/javascript">
-        PosDocViewLineData = {{ fsc.getColumnsHeaders() | raw }};
-        PosDocViewFormName = "formSalesDocument";
-        PosDocViewUrl = "POS";
-        PosDocAutocompleteUrl = "EditFacturaCliente";
-        PosDocCashPaymentMethod = "{{ appSettings.get('pointofsale','fpagoefectivo') }}";
-    </script>
 {% endblock %}
 {% block modals %}
     {{ include('POS/Modal/PaymentModal.html.twig') }}
     {{ include('POS/Modal/CashupModal.html.twig') }}
 {% endblock %}
 {% block js %}
+    <script type="text/javascript">
+        documentAutocompleteUrl = "EditFacturaCliente";
+        documentCashPaymentMethod = "{{ fsc.getCashPaymentMethod() }}";
+        documentFormName = "formSalesDocument";
+        documentGridData = {{ fsc.getDataGridHeaders() | raw }};
+        documentUrlAccess = "POS";       
+    </script>
+
     {{ parent() }}
-    <script src="{{ asset('Dinamic/Assets/JS/POS.js') }}"></script>
+    <script src="{{ asset('Dinamic/Assets/JS/pos.app.js') }}"></script>
+    <script src="{{ asset('Dinamic/Assets/JS/pos.document.view.js') }}"></script>
 {% endblock %}

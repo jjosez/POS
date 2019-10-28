@@ -50,8 +50,8 @@ class SesionPOS extends Base\ModelClass
         parent::clear();
 
         $this->abierto = false;
-        $this->fechainicio = date('d-m-Y');
-        $this->horainicio = date('H:i:s');
+        $this->fechainicio = date(self::DATE_STYLE);
+        $this->horainicio = date(self::HOUR_STYLE);
         $this->saldocontado = 0.0;
         $this->saldoesperado = 0.0;
     }  

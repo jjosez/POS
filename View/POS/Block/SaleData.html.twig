@@ -20,7 +20,7 @@
 {% import "POS/Macro/Inputs.html.twig" as input %}
 
 <div class="card">
-    <h5 class="card-header">Informacion de la venta</h5>
+    <h5 class="card-header">Informacion de la venta</h5>    
     <div class="card-body">
         <div class="form-row">
             {% set customer = fsc.cliente.get(fsc.terminal.codcliente) %}
@@ -30,7 +30,7 @@
             {% set defaultDocument = appSettings.get('pointofsale','defaultdoc') %}
             {{ input.documentSelect(i18n, defaultDocument, documentList) }}
 
-            <div class="form-group col-6">
+            <div class="form-group col-12">
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fas fa-calendar-alt fa-fw"></i></span>
@@ -38,19 +38,11 @@
                     <input type="text" id="documentdate" name="documentdate" value="{{ "now"|date("d-m-Y") }}" class="form-control" readonly>
                 </div>
             </div>
-
-            <div class="form-group col-6">
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="fas fa-money-check-alt fa-fw"></i></span>
-                    </div>
-                    <input type="number" id="doc_total" name="documenttotal" value="0" class="form-control" readonly>
-                </div>
-            </div>
         </div>
-        <div id="doc_display_total" class="display-3 text-center">0.00</div>
-        <button type="button" class="btn btn-lg btn-block btn-primary mt-4" id="save-document-btn">
-            <i class="fas fa-save" aria-hidden="true"></i>&nbsp; Guardar
+        <hr>
+        <div id="view_display_total" class="display-3 text-center">0.00</div>
+        <button type="button" class="btn btn-lg btn-block btn-primary mt-4" id="checkoutButton">
+            <i class="fas fa-save" aria-hidden="true"></i>&nbsp;{{ i18n.trans("save") }}
         </button>
     </div>
 </div>

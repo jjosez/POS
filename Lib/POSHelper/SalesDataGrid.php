@@ -16,10 +16,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-namespace FacturaScripts\Plugins\POS\Lib\POS;
+namespace FacturaScripts\Plugins\POS\Lib\POSHelper;
 
-use FacturaScripts\Core\Base\Translator;
-use FacturaScripts\Core\Base\DivisaTools;
+use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Lib\Widget\VisualItemLoadEngine;
 use FacturaScripts\Core\Model\PageOption;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
@@ -30,10 +29,8 @@ use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
  * @author Carlos García Gómez   <carlos@facturascripts.com>
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class ColumnDataTools
+class SalesDataGrid
 {
-    private static $i18n;
-
     /**
      * 
      * @return array
@@ -54,9 +51,8 @@ class ColumnDataTools
      *
      * @return string
      */
-    public static function getColumnsDataHeader($user)
+    public static function getDataGridHeaders($user)
     {       
-        self::$i18n = new Translator;
         $data = [
             'headers' => [],
             'columns' => [],
@@ -73,7 +69,7 @@ class ColumnDataTools
 
             if ($item['type'] === 'number' || $item['type'] === 'money') {
                 $item['type'] = 'numeric';
-                $item['numericFormat'] = DivisaTools::gridMoneyFormat();
+                $item['numericFormat'] = (new ToolBox)->coins()::gridMoneyFormat();
             } elseif ($item['type'] === 'autocomplete') {
                 $item['source'] = $col->widget->getDataSource();
                 $item['strict'] = false;
@@ -83,7 +79,7 @@ class ColumnDataTools
 
             if (!$col->hidden()) {
                 $data['columns'][] = $item;
-                $data['headers'][] = self::$i18n->trans($col->title);
+                $data['headers'][] = (new ToolBox)->i18n()->trans($col->title);
             }
         }
 
@@ -105,7 +101,7 @@ class ColumnDataTools
         $where = [
             new DataBaseWhere('name', 'BusinessDocumentLine'),
             new DataBaseWhere('nick', $user->nick),
-            new DataBaseWhere('nick', 'NULL', 'IS', 'OR'),
+            new DataBaseWhere('nick', null, 'IS', 'OR'),
         ];;
         
         if (!$pageOption->loadFromCode('', $where, $orderby)) {
