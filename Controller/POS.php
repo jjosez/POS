@@ -133,16 +133,17 @@ class POS extends Controller
             $total += (float) $value * (float) $count;
         }
 
-        $this->toolBox()->log()->info('Dinero contado: ' . $total);
+        $this->toolBox()->i18nLog()->info('cashup-money-counted', ['%amount%' => $total]);
         $this->arqueo->saldocontado = $total;
         $this->arqueo->conteo = json_encode($cash);
 
         if ($this->arqueo->save()) {
             $this->terminal->disponible = true;
             $this->terminal->save();
+            $this->setTemplate('\POS\SessionScreen');
         }
 
-        $this->redirect('POS');
+        //$this->redirect('POS');
     }   
 
     private function execAction()
@@ -251,11 +252,16 @@ class POS extends Controller
         $this->arqueo->saldoesperado = $saldoinicial;
 
         if ($this->arqueo->save()) { 
-            $msg = $this->terminal->nombre . ' iniciada con: ' . $saldoinicial . ', por ' . $this->user->nick;           
-            $this->toolBox()->log()->info($msg);
+            $params = [                
+                '%terminalName%' => $this->terminal->nombre,
+                '%userNickname%' => $this->user->nick,
+            ];
+            $this->toolBox()->i18nLog()->info('till-session-opened', $params);
+            $this->toolBox()->i18nLog()->info('cashup-money-counted', ['%amount%' => $saldoinicial]);
+            
             $this->terminal->disponible = false;
-
             $this->terminal->save();
+            
             $this->setTemplate('\POS\SalesScreen');
             return;
         }
