@@ -42,7 +42,37 @@ class POS extends Controller
     public $agente = false;
     public $cliente;
     public $formaPago;
-    public $terminal;   
+    public $terminal;    
+
+    /**
+     * Returns the cash payment method ID.
+     *
+     * @return string
+     */
+    public function getCashPaymentMethod()
+    {
+        return $this->toolBox()->appSettings()->get('pointofsale','fpagoefectivo');
+    }
+
+    /**
+     * Returns headers and columns available by user permissions.
+     *
+     * @return array
+     */
+    public function getDataGridHeaders()
+    {
+        return POSHelper\SalesDataGrid::getDataGridHeaders($this->user);
+    }
+
+    /**
+     * Returns all available denominatios.
+     *
+     * @return array
+     */
+    public function getDenominations()
+    {
+        return (new DenominacionMoneda)->all([],['valor' => 'ASC']);
+    }
 
     /**
      * Returns basic page attributes
@@ -60,37 +90,24 @@ class POS extends Controller
         return $pagedata;
     }
 
+    /**
+     * Returns a random token to avoid multiple form submission.
+     *
+     * @return string
+     */
+    public function getRandomToken()
+    {
+        return $this->multiRequestProtection->newToken();
+    }
+
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
         
         $this->initValues();
-        $this->isSessionOpened();
-
-        $idterminal = $this->request->query->get('terminal');
-        ($idterminal) ? $this->terminal->loadFromCode($idterminal) : null;        
+        $this->isSessionOpen();
 
         $this->execAction();   
-    }
-
-    public function getCashPaymentMethod()
-    {
-        return $this->toolBox()->appSettings()->get('pointofsale','fpagoefectivo');
-    }
-
-    public function getDataGridHeaders()
-    {
-        return POSHelper\SalesDataGrid::getDataGridHeaders($this->user);
-    }
-
-    public function getDenominations()
-    {
-        return (new DenominacionMoneda)->all([],['valor' => 'ASC']);
-    }
-
-    public function getRandomToken()
-    {
-        return $this->multiRequestProtection->newToken();
     }
 
     /**
@@ -100,8 +117,8 @@ class POS extends Controller
      */
     private function closeSession()
     {
-        if (!$this->isSessionOpened()) {
-            $this->toolBox()->log()->info('there-is-no-open-till-session');
+        if (!$this->isSessionOpen()) {
+            $this->toolBox()->i18nLog()->info('there-is-no-open-till-session');
             return;
         }
 
@@ -145,7 +162,7 @@ class POS extends Controller
                 break;
 
             case 'recalculate-document':
-                $this->recalculateDocumentLines();
+                $this->recalculateDocument();
                 return false;
             
             default:
@@ -165,24 +182,29 @@ class POS extends Controller
 
         $this->cliente = new Cliente();
         $this->formaPago = new FormaPago();
-    }    
+    } 
 
     /**
-     * Verify if a till session is opened by User or Point of Sale Terminal
+     * Verify if a till session is opened by user or pos terminal.
      *
      * @return bool
      */
-    private function isSessionOpened()
+    private function isSessionOpen()
     {
         $this->arqueo = new SesionPOS();
         $this->terminal = new TerminalPOS();
-        $this->setTemplate('\POS\SessionScreen');   
+        $this->setTemplate('\POS\SessionScreen');
 
-        if (!$this->arqueo->isOpened('user', $this->user->nick)) {
+        $idterminal = $this->request->query->get('terminal');
+        if ($idterminal) {
+            $this->terminal->loadFromCode($idterminal);
+        }
+
+        if (!$this->arqueo->isOpen('user', $this->user->nick)) {
             return false;
         }
         
-        if (!$this->terminal->loadFromCode($this->arqueo->idterminal)) {            
+        if (!$this->terminal->loadFromCode($this->arqueo->idterminal)) {                    
             return false;
         }
 
@@ -208,14 +230,14 @@ class POS extends Controller
      */
     private function openSession()
     {
-        if ($this->isSessionOpened()) {
+        if ($this->isSessionOpen()) {
             $this->toolBox()->log()->info('there-is-an-open-till-session-for-this-user');
             return;
         }
 
         $idterminal = $this->request->request->get('terminal');  
         if (!$this->terminal->loadFromCode($idterminal)) {
-            $this->toolBox()->log()->warning($this->i18n->trans('cash-register-not-found')); 
+            $this->toolBox()->i18nLog()->warning('cash-register-not-found'); 
             return;
         }        
 
@@ -234,7 +256,7 @@ class POS extends Controller
             $this->terminal->disponible = false;
 
             $this->terminal->save();
-            $this->isSessionOpened();
+            $this->setTemplate('\POS\SalesScreen');
             return;
         }
 
@@ -246,7 +268,7 @@ class POS extends Controller
      *
      * @return void
      */
-    private function recalculateDocumentLines()
+    private function recalculateDocument()
     {
         $this->setTemplate(false);
               
@@ -327,12 +349,12 @@ class POS extends Controller
     private function validateSaveRequest($data)
     {
         if (!$this->permissions->allowUpdate) {
-            $this->toolBox()->log()->warning($this->i18n->trans('not-allowed-modify'));
+            $this->toolBox()->i18nLog()->warning('not-allowed-modify');
             return false;
         }
         $token = $data['token'];
         if (!empty($token) && $this->multiRequestProtection->tokenExist($token)) {
-            $this->toolBox()->log()->warning($this->i18n->trans('duplicated-request'));
+            $this->toolBox()->i18nLog()->warning('duplicated-request');
             return false;
         }
         return true;      

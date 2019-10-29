@@ -62,7 +62,7 @@ class SesionPOS extends Base\ModelClass
         return parent::install();
     }
 
-    public function isOpened($search, $value)
+    public function isOpen($search, $value)
     {
         switch ($search) {
             case 'terminal':
