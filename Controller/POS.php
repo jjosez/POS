@@ -144,6 +144,7 @@ class POS extends Controller
         }
 
         //$this->redirect('POS');
+        $this->pipe('closeSession');
     }   
 
     private function execAction()
@@ -229,7 +230,7 @@ class POS extends Controller
      *
      * @return void
      */
-    private function openSession()
+    public function openSession()
     {
         if ($this->isSessionOpen()) {
             $this->toolBox()->log()->info('there-is-an-open-till-session-for-this-user');
@@ -263,10 +264,11 @@ class POS extends Controller
             $this->terminal->save();
             
             $this->setTemplate('\POS\SalesScreen');
+            $this->pipe('openSession');
             return;
         }
 
-        $this->arqueo = false;
+        $this->arqueo = false;       
     }
 
     /**
@@ -348,7 +350,7 @@ class POS extends Controller
 
     private function printDocumentTicket($document)
     {
-        $ticket = new POSHelper\TicketTools($document);
+        $ticket = new POSHelper\Tickets($document);
         $this->printing = ($ticket->printTicket()) ? true : false;
     }
 

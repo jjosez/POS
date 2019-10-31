@@ -74,7 +74,7 @@ class Tickets
 
         if ($this->ticket->save()) {
             $msg = '<div class="d-none"><img src="http://localhost:10080?documento=%1s"/></div>';
-            (new ToolBox)->log()->info('printing-ticket ' . $document->codigo);
+            (new ToolBox)->i18nLog()->info('printing-ticket', ['%ticket%' => $document->codigo]);
             (new ToolBox)->log()->info(sprintf($msg,  $printID));
             return true;
         }
