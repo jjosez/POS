@@ -43,8 +43,8 @@ class OperacionPOS extends Base\ModelClass
     {
         parent::clear();
 
-        $this->arqueo->fechafin = date('d-m-Y');
-        $this->arqueo->horafin = date('H:i:s');
+        $this->fecha = date('d-m-Y');
+        $this->hora = date('H:i:s');
         // Pendiente hasta que se actualize la version del core.
         // $this->fecha = date(self::DATE_STYLE);
         // $this->hora = date(self::HOUR_STYLE);
