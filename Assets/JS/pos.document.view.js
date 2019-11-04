@@ -55,7 +55,7 @@ function businessDocViewRecalculate() {
     var data = {};
     $.each($("#" + documentFormName).serializeArray(), function (key, value) {
         data[value.name] = value.value;
-        console.log("Field", value.name);
+        //console.log("Field", value.name);
     });
     
     console.log("Form data", data);

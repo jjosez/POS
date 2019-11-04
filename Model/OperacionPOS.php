@@ -42,12 +42,8 @@ class OperacionPOS extends Base\ModelClass
     public function clear()
     {
         parent::clear();
-
-        $this->fecha = date('d-m-Y');
-        $this->hora = date('H:i:s');
-        // Pendiente hasta que se actualize la version del core.
-        // $this->fecha = date(self::DATE_STYLE);
-        // $this->hora = date(self::HOUR_STYLE);
+        $this->fecha = date(self::DATE_STYLE);
+        $this->hora = date(self::HOUR_STYLE);
     }  
 
 
