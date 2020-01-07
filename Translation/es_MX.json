@@ -5,6 +5,7 @@
     "cash-register-not-found" : "No se encontró la terminal",
     "cashup": "Corte de caja",
     "cashup-money-counted": "Dinero contado en caja: %amount%",
+    "charge": "Cobrar",
     "currency-denomination": "Denominación",
     "default-payment-method": "Método de pago predefinido",
     "payment-amount": "Cantidad pagada",

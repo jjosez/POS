@@ -222,7 +222,8 @@ class POS extends Controller
     private function loadAssets()
     {
         AssetManager::add('css', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.css');
-        AssetManager::add('js', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.js');
+        AssetManager::add('css', FS_ROUTE . '/Dinamic/Assets/CSS/pos.hstable.css', 0);
+        AssetManager::add('js', FS_ROUTE . '/node_modules/handsontable/dist/handsontable.full.min.js');        
     }
 
     /**
