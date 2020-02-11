@@ -1,6 +1,8 @@
 {   
-    "amount-counted": "Cantidad contada",
+    "amount-counted": "Cantidad contada",    
     "available-cash-registers": "Terminales disponibles", 
+    "available-custumer-doctypes" : "Tipos de documentos disponibles",
+    "available-payment-methods" : "Formas de pago disponibles",
     "cash-registers": "Terminales",
     "cash-register-not-found" : "No se encontró la terminal",
     "cashup": "Corte de caja",
@@ -8,6 +10,7 @@
     "charge": "Cobrar",
     "currency-denomination": "Denominación",
     "default-payment-method": "Método de pago predefinido",
+    "default-business-document" : "Documento predefinido",
     "payment-amount": "Cantidad pagada",
     "payment-change": "Cambio",
     "point-of-sale": "Punto de venta",

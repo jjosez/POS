@@ -25,7 +25,7 @@
                 <div class="col-md-12">
                     <div class="form-row mb-4">
                         <legend class="text-info">
-                            <i class="fas fa-sliders-h"></i> Opciones predefinidas.
+                            <i class="fas fa-sliders-h"></i> Opciones predefinidas
                         </legend>
                         <div class="form-group col-6">
                             {% set cash = appSettings.get('pointofsale','fpagoefectivo') %}
@@ -40,7 +40,7 @@
                         </div>
                         <div class="form-group col-6">
                             {% set defaultdoc = appSettings.get('pointofsale','defaultdoc') %}
-                            <label for="cash-payment">Documento por defecto</label>
+                            <label for="cash-payment">{{ i18n.trans('default-business-document') }}</label>
                             <select class="form-control" id="default-businessdoc" name="default-businessdoc">
                                 {% for businessDoc in fsc.businessDocTypes %}
                                     <option value="{{ businessDoc.tipodoc }}"{% if businessDoc.tipodoc == defaultdoc %} selected {% endif %}>
@@ -52,7 +52,7 @@
                     </div>
                     <div class="form-row mb-4">
                         <legend class="text-info">
-                            <i class="fas fa-credit-card"></i> Formas de pago disoponibles.
+                            <i class="fas fa-credit-card"></i> {{ i18n.trans('available-payment-methods') }}
                         </legend>
                         {% for paymentMethod in fsc.paymentMethods %}
                             {% set checked = fsc.isPaymentMethodEneabled(paymentMethod.codpago) %}
@@ -68,7 +68,7 @@
                     </div>
                     <div class="form-row mb-4">
                         <legend class="text-info">
-                            <i class="fas fa-file-invoice-dollar"></i> Tipos de documentos disoponibles.
+                            <i class="fas fa-file-invoice-dollar"></i> {{ i18n.trans('available-custumer-doctypes') }}
                         </legend>
                         {% for businessDoc in fsc.businessDocTypes %}
                             <div class="col">
@@ -86,7 +86,7 @@
                         <div class="col text-right">
                             <button class="btn btn-sm btn-primary" type="submit" name="accion" value="save">
                                 <i class="fas fa-save fa-fw" aria-hidden="true"></i>
-                                <span class="d-none d-sm-inline-block">Guardar</span>
+                                <span class="d-none d-sm-inline-block">{{ i18n.trans('save') }}</span>
                             </button>
                         </div>
                     </div>

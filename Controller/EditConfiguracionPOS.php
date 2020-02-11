@@ -49,7 +49,7 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
     {
         $this->setTemplate('EditConfiguracionPOS');
 
-        $this->addHtmlView('POSGeneralSettings', 'POSGeneralSettings', 'FormaPago', 'general', 'fas fa-cogs');
+        $this->addHtmlView('GeneralSettingsPOS', 'GeneralSettingsPOS', 'FormaPago', 'general', 'fas fa-cogs');
         $this->addListView('ListDenominacionMoneda', 'DenominacionMoneda', 'currency-denomination');     
     }
 
@@ -61,15 +61,25 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
                 $code = $this->request->get('code');
                 $view->loadData($code);
                 break;
-            case 'POSGeneralSettings':
-                $this->loadPOSGeneralSettings();
+            case 'GeneralSettingsPOS':
+                $this->loadGeneralSettingsPOS();
                 break;
         }
     }
 
+    private function getCustumerBusinessDocuments()
+    {
+        /*SELECT DISTINCT tipodoc FROM estados_documentos WHERE tipodoc LIKE '%Cliente'*/
+        $where = [
+            new DataBaseWhere('predeterminado', true),
+            new DataBaseWhere('tipodoc', '%Cliente', 'LIKE'),
+        ];
+
+        return (new EstadoDocumento)->all($where);
+    }
+
     private function getEneabledPaymentMethod()
     {
-        //$where = [new DataBaseWhere('codfabricante', $codfabricante)];
         return (new FormaPago)->all();
     }
 
@@ -93,10 +103,10 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
         return false;
     }
 
-    private function loadPOSGeneralSettings()
+    private function loadGeneralSettingsPOS()
     {
         $this->paymentMethods = $this->getEneabledPaymentMethod();
-        $this->businessDocTypes = $this->getBusinessDocumentTypes();
+        $this->businessDocTypes = $this->getCustumerBusinessDocuments();
 
         $action = $this->request->get('action');
         if ($action) {
@@ -124,16 +134,5 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
 
             $appSettings->save();  
         }
-    }
-
-    private function getBusinessDocumentTypes()
-    {
-        //SELECT DISTINCT tipodoc FROM estados_documentos WHERE tipodoc LIKE '%Cliente'
-        $where = [
-            new DataBaseWhere('predeterminado', true),
-            new DataBaseWhere('tipodoc', '%Cliente', 'LIKE'),
-        ];
-
-        return (new EstadoDocumento)->all($where);
     }
 }

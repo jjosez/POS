@@ -22,7 +22,7 @@ use FacturaScripts\Core\App\AppSettings;
 use FacturaScripts\Core\Base\Controller;
 
 use FacturaScripts\Dinamic\Lib\AssetManager;
-use FacturaScripts\Dinamic\Lib\POSHelper;
+use FacturaScripts\Dinamic\Lib\POS as Tools;
 
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
@@ -61,7 +61,7 @@ class POS extends Controller
      */
     public function getDataGridHeaders()
     {
-        return POSHelper\SalesDataGrid::getDataGridHeaders($this->user);
+        return Tools\SalesDataGrid::getDataGridHeaders($this->user);
     }
 
     /**
@@ -283,7 +283,7 @@ class POS extends Controller
               
         $modelName = 'FacturaCliente';
 
-        $documentTools = new POSHelper\DocumentTools($modelName);
+        $documentTools = new Tools\DocumentTools($modelName);
         $result = $documentTools->recalculateDocument($this->request);
 
         $this->response->setContent($result);
@@ -304,7 +304,7 @@ class POS extends Controller
         }                         
         
         $modelName = $data['tipodocumento'] ?: 'FacturaCliente';
-        $documentTools = new POSHelper\DocumentTools($modelName);    
+        $documentTools = new Tools\DocumentTools($modelName);    
 
         if ($documentTools->processDocumentData($data)) {
             $document = $documentTools->getDocument();
@@ -351,7 +351,7 @@ class POS extends Controller
 
     private function printDocumentTicket($document)
     {
-        $ticket = new POSHelper\Tickets($document);
+        $ticket = new Tools\Tickets($document);
         $this->printing = ($ticket->printTicket()) ? true : false;
     }
 

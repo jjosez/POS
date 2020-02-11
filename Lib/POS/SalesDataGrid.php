@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-namespace FacturaScripts\Plugins\POS\Lib\POSHelper;
+namespace FacturaScripts\Plugins\POS\Lib\POS;
 
 use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Lib\Widget\VisualItemLoadEngine;
@@ -35,7 +35,7 @@ class SalesDataGrid
      * 
      * @return array
      */
-    private function getColumns($columns)
+    private static function getColumns($columns)
     {
         $keys = array_keys($columns);
         if (empty($keys)) {
@@ -90,7 +90,7 @@ class SalesDataGrid
      *
      * @param User|false $user
      */
-    public function loadPageOptions($user)
+    public static function loadPageOptions($user)
     {
         $businessDocumentColumns = [];
         $modals = [];

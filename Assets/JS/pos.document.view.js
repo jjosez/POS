@@ -70,7 +70,7 @@ function businessDocViewRecalculate() {
         dataType: "json",
         data: data,
         success: function (results) {
-            total = formatNumber(results.total);
+            total = formatNumber(results.doc.total);
             $("#total").val(total);
             $("#view_display_total").text(total);
 
