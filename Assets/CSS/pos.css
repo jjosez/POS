@@ -40,12 +40,12 @@ textarea, select {
 
 .dropdown-item-button {
   display: block;
-  width: 100%; // For `<button>`s
+  width: 100%; /* For `<button>`s*/
   clear: both;
-  text-align: inherit; // For `<button>`s
-  white-space: nowrap; // prevent links from randomly breaking onto new lines
-  background-color: transparent; // For `<button>`s
-  border: 0; // For `<button>`s
+  text-align: inherit;/* For `<button>`s*/
+  white-space: nowrap;/* prevent links from randomly breaking onto new lines*/
+  background-color: transparent;/* For `<button>`s*/
+  border: 0; /*For `<button>`s*/
 }
 
 .dropdown-item-btn {
