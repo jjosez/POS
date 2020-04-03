@@ -1,0 +1,69 @@
+{#
+/**
+* This file is part of POS plugin for FacturaScripts
+* Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Lesser General Public License as
+* published by the Free Software Foundation, either version 3 of the
+* License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+#}
+{% extends 'POS/Layout/Base.html.twig' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-lg-4 col-sm-12">
+            {{ include('POS/Block/ItemList.html.twig') }}
+        </div>
+        <div class="col-lg-8 col-sm-12">
+            {{ include('POS/Block/SaleData.html.twig') }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block modals %}
+    {{ include('POS/Modal/CheckoutModal.html.twig') }}
+    {{ include('POS/Modal/CashupModal.html.twig') }}
+{% endblock %}
+{% block js %}
+    <script id="cart-item-template" type="text/x-handlebars-template">
+        {% verbatim %}
+        <tr>
+            <td>
+                <div class="form-row">
+                    <div class="col-2">
+                        <input class="form-control cart-form-control" name="cart-item-id" value="{{id}}" type="text" readonly>
+                    </div>
+                    <div class="col-10">
+                        <input class="form-control cart-form-control" name="cart-item-id" value="{{desc}}" type="text">
+                    </div>
+                </div>
+            </td>
+            <td><input class="form-control cart-form-control" type="number" value="1"></td>
+            <td><input class="form-control cart-form-control" type="number" value="500"></td>
+            <td><input class="form-control cart-form-control" type="number" value="500"></td>
+        </tr>
+        {% endverbatim %}
+    </script>
+    <script type="text/javascript">
+        posAutocompleteUrl = "EditFacturaCliente";
+        posCashPaymentMethod = "{{ fsc.getCashPaymentMethod() }}";
+        posFormName = "salesDocumentForm";
+        posUrlAccess = "POS";
+    </script>
+
+    {#TODO: Change to dynamic for release #}
+    {{ parent() }}
+    <script src="{{ asset('Plugins/EasyPOS/Assets/JS/handlebars.min-v4.7.4.js') }}"></script>
+    <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.app.js') }}"></script>
+    <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.app.ui.js') }}"></script>
+{% endblock %}

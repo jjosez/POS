@@ -1,0 +1,121 @@
+/* Custom styles for EasyPOS Point of sale screen */
+
+.table > tbody > tr > td,
+.table > thead > tr > th {
+    padding: 0 15px !important;
+}
+
+.cart-table > tbody > tr > td,
+.cart-table > thead > tr > th {
+    padding: 0 10px !important;
+    height: 50px;
+}
+
+.cart-form-control {
+    height: calc(1.5em + .5rem + 2px) !important;
+}
+
+.w-20 {
+    width: 20% !important;
+}
+
+.w-70 {
+    width: 70% !important;
+}
+
+.w-80 {
+    width: 80% !important;
+}
+.w-90 {
+    width: 80% !important;
+}
+
+.footer {
+    position: fixed;
+    padding: 2px 15px;
+    bottom: 0;
+    width: calc(100% - 175px);
+}
+
+.display-5 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+@media screen and (max-width: 991px) {
+    .footer {
+        width: 100%;
+    }
+}
+
+@media screen and (min-width: 991px) {
+    .search-table {
+        max-width: 100%;
+        overflow-y: scroll;
+    }
+}
+
+/*
+ * jQuery UI Autocomplete 1.8.7
+ *
+ * Copyright 2010, AUTHORS.txt (http://jqueryui.com/about)
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ * http://jquery.org/license
+ *
+ * http://docs.jquery.com/UI/Autocomplete#theming
+ */
+.ui-autocomplete {
+    position: absolute;
+    cursor: default;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+    border-color: #ebedf2 !important;
+}
+
+/* workarounds */
+* html .ui-autocomplete {
+    width: 1px;
+}
+
+.ui-menu {
+    list-style: none;
+    padding: 5px 10px;
+    margin: 0;
+    display: block;
+    width: auto;
+}
+
+.ui-menu .ui-menu {
+    margin-top: -3px;
+}
+
+.ui-menu .ui-menu-item {
+    margin: 0;
+    padding: 0;
+    width: auto;
+}
+
+.ui-menu .ui-menu-item a {
+    text-decoration: none;
+    display: block;
+    padding: .2em .4em;
+    line-height: 1.1;
+    zoom: 1;
+}
+
+.ui-menu .ui-menu-item a.ui-state-hover,
+.ui-menu .ui-menu-item a.ui-state-active {
+    margin: -1px;
+}
+
+.ui-menu-item .ui-state-hover,
+.ui-menu-item .ui-state-active,
+.ui-menu-item .ui-state-focus {
+    border: none;
+    color: #f0f0f0;
+    background-color: #177dff;
+}
+
+

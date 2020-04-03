@@ -1,0 +1,59 @@
+{#
+/**
+* This file is part of POS plugin for FacturaScripts
+* Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Lesser General Public License as
+* published by the Free Software Foundation, either version 3 of the
+* License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+#}
+{% import "POS/Macro/Forms.html.twig" as form %}
+
+{% set customer = fsc.cliente.get(fsc.terminal.codcliente) %}
+{% set documentList = appSettings.get('pointofsale','tiposdocumento')|split('|') %}
+{% set defaultDocument = appSettings.get('pointofsale','defaultdoc') %}
+
+<form id="salesDocumentForm" class="form" method="post" autocomplete="off">
+    <input type="hidden" id="action" name="action"/>
+    <input type="hidden" id="codalmacen" name="codalmacen" value="{{ fsc.terminal.codalmacen }}">
+    <input type="hidden" id="codserie" name="codserie" value="{{ fsc.terminal.codserie }}">
+    <input type="hidden" id="lines" name="lines"/>
+    <input type="hidden" id="payments" name="payments"/>
+    <input type="hidden" id="token" name="token" value="{{ fsc.getRandomToken() }}">
+    <input type="hidden" id="total" name="total" value="0">
+
+    <div class="form-row">
+        {{ form.customerSelect(i18n, 'codcliente', 'codcliente', customer, fsc.cliente.url('new')) }}
+        <div class="form-group col-6">
+            {{ form.documentSelect(i18n, defaultDocument, documentList) }}
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <table class="table cart-table">
+                <thead>
+                <tr>
+                    <th class="w-70" scope="col">Producto</th>
+                    <th class="w-10" scope="col">Cantidad</th>
+                    <th class="w-10" scope="col">Precio</th>
+                    <th class="w-10" scope="col">Total</th>
+                </tr>
+                </thead>
+                <tbody id="cartItems">
+                </tbody>
+            </table>
+            <div class="form" id="cartItemsb">
+            </div>
+        </div>
+    </div>
+</form>

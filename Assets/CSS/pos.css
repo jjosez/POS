@@ -1,0 +1,16 @@
+body,html {
+    height:100%;
+}
+
+body {
+    display:flex;
+    flex-direction:column;
+}
+
+.flex-fill {
+    flex: 1 1 auto;
+}
+
+.flex-shrink {
+    flex-shrink: 0;
+}
