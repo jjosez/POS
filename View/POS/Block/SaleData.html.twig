@@ -32,27 +32,29 @@
     <input type="hidden" id="token" name="token" value="{{ fsc.getRandomToken() }}">
     <input type="hidden" id="total" name="total" value="0">
 
-    <div class="form-row">
-        {{ form.customerSelect(i18n, 'codcliente', 'codcliente', customer, fsc.cliente.url('new')) }}
-        <div class="form-group col-6">
-            {{ form.documentSelect(i18n, defaultDocument, documentList) }}
+    <div class="card">
+        <div class="card-body">
+            <div class="form-row">
+                {{ form.customerSelect(i18n, 'codcliente', 'codcliente', customer, fsc.cliente.url('new')) }}
+                <div class="form-group col-12">
+                    {{ form.documentSelect(i18n, defaultDocument, documentList) }}
+                </div>
+            </div>
         </div>
     </div>
     <div class="card">
         <div class="card-body">
-            <table class="table cart-table">
-                <thead>
-                <tr>
-                    <th class="w-70" scope="col">Producto</th>
-                    <th class="w-10" scope="col">Cantidad</th>
-                    <th class="w-10" scope="col">Precio</th>
-                    <th class="w-10" scope="col">Total</th>
-                </tr>
-                </thead>
-                <tbody id="cartItems">
-                </tbody>
-            </table>
-            <div class="form" id="cartItemsb">
+            <div class="col-12">
+                <small class="text-muted">Total:</small>
+            </div>
+            <div class="col-12 text-right">
+                <span class="display-4" id="cartTotalDisplay">9999.99</span>
+            </div>
+            <div class="col-12">
+                <small class="text-muted">Taxes:</small>
+            </div>
+            <div class="col-12 text-right">
+                <span class="display-4" id="cartTaxesDisplay">99.99</span>
             </div>
         </div>
     </div>

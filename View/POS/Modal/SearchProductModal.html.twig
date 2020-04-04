@@ -17,21 +17,33 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 #}
-<div class="modal fade" id="searchCustomerModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="searchProductModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Customers</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <div class="form-group col">
+                    <div class="input-icon">
+                        <input class="form-control input-pill" id="searchProductInput" name="search-input" type="text"
+                               placeholder="Buscar producto.." autocomplete="off">
+                        <span class="input-icon-addon"><i class="fas fa-search"></i></span>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body" id="searchCustomerResult">
-
+            <div class="modal-body">
+                <table class="table search-table table-striped">
+                    <thead>
+                    <tr>
+                        <th class="w-90" scope="col">Producto</th>
+                        <th scope="col"><i class="fas fa-cart-arrow-down"></i></th>
+                    </tr>
+                    </thead>
+                    <tbody id="searchProductResult">
+                    <tr><td colspan="2">Escribe en el cuadro para buscar</td></tr>
+                    </tbody>
+                </table>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ i18n.trans('cancel') }}</button>
-                <button type="button" class="btn btn-primary" id="savePaymentButton" disabled="disabled">Continuar
                 </button>
             </div>
         </div>

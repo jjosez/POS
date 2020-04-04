@@ -10,7 +10,7 @@ function searchProduct(query) {
         dataType: "text",
         startTime: performance.now(),
         success: function(data) {
-            $('#searchResults').html(data);
+            $('#searchProductResult').html(data);
             //Calculate the difference in milliseconds.
             var time = performance.now() - this.startTime;
             //Convert milliseconds to seconds.
@@ -41,7 +41,7 @@ function autocompleteGetData(searchInput, term) {
 }
 
 function addCartItem(item) {
-    var templateScript = $("#cart-item-template").html();
+    var templateScript = $("#cart-item-templateb").html();
     var template = Handlebars.compile(templateScript);
 
     var context={
@@ -51,9 +51,13 @@ function addCartItem(item) {
 
     var compiledHtml = template(context);
 
-    $shoppingCart = $("#cartItems");
-    $shoppingCart.append(compiledHtml);
+    $shoppingCart = $("#cartItemsAccordion");
+    $shoppingCart.prepend(compiledHtml);
 
+    var lastAddedItem = $('#collapse' + item.data('id'));
+    lastAddedItem.collapse('show');
+
+    $('#searchProductModal').modal('hide');
     getCartData();
 }
 
@@ -62,15 +66,11 @@ function onCartUpdate() {
 }
 
 function getCartData() {
-    var rows = $('#cartItems').children();
+    var rows = $('#cartItemsAccordion');
 
-    rows.each(function() {
-        $(this).children().each(function () {
-            console.log(this);
-            $(this).children().each(function () {
-                console.log(this.value);
-            })
-        });
+    rows.each(function(){
+        $(this).find(':input') ;
+        console.log($(this).find(':input'));
     });
 }
 
@@ -126,10 +126,16 @@ $(document).ready(function() {
     $('#checkoutPaymentMethod').change(function(e) {
         processPaymentAmount();
     });
-    $('#searchInput').keyup(function() {
+    $('#searchProduct').focus(function () {
+        $('#searchProductModal').modal('show');
+    });
+    $('#searchProductModal').on('shown.bs.modal', function () {
+        $('#searchProductInput').focus();
+    });
+    $('#searchProductInput').keyup(function () {
         searchProduct($(this).val());
     });
-    $('#searchResults').on('click', '.item-add-button', function() {
+    $('#searchProductResult').on('click', '.item-add-button', function() {
         addCartItem($(this));
     });
 });

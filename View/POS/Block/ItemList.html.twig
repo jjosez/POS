@@ -22,8 +22,7 @@
         <div class="form-row">
             <div class="form-group col">
                 <div class="input-icon">
-                    <input class="form-control input-pill" id="searchInput" name="search-input" type="text"
-                           placeholder="Buscar producto..">
+                    <input class="form-control input-pill" id="searchProduct" type="text" placeholder="Buscar producto..">
                     <span class="input-icon-addon">
                 <i class="fas fa-search"></i>
             </span>
@@ -32,16 +31,8 @@
         </div>
     </div>
     <div class="card-body">
-        <table class="table search-table table-striped">
-            <thead>
-            <tr>
-                <th class="w-90" scope="col">Producto</th>
-                <th scope="col"><i class="fas fa-cart-arrow-down"></i></th>
-            </tr>
-            </thead>
-            <tbody id="searchResults">
-                <tr><td colspan="2">Escribe en el cuadro para buscar</td></tr>
-            </tbody>
-        </table>
+        <div class="accordion accordion-secondary" id="cartItemsAccordion">
+
+        </div>
     </div>
 </div>

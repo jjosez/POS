@@ -17,7 +17,7 @@
                 </a>
             </span>
             <input name="{{ name }}" id="{{ id }}" type="hidden" value="{{ model.codcliente }}"/>
-            <input type="text" id="{{ id }}Autocomplete" value="{{ model.nombre | raw }}" class="form-control input-square"
+            <input type="text" id="{{ id }}Autocomplete" value="{{ model.nombre | raw }}" class="form-control"
                    data-field="{{ id }}" data-source="Cliente" data-fieldcode="codcliente" data-fieldtitle="nombre"
                    placeholder="{{ i18n.trans('customer') }}" autocomplete="off"/>
         </div>
@@ -25,7 +25,7 @@
 {% endmacro %}
 
 {% macro documentSelect(i18n, default, documentList) %}
-    <select class="form-control custom-select input-square" id="tipoDocumento" name="tipo-documento">
+    <select class="form-control custom-select" id="tipoDocumento" name="tipo-documento">
         {% for document in documentList %}
             <option value="{{ document }}" {% if document == default %} selected="selected" {% endif %}>
                 {{ i18n.trans(document) }}</option>

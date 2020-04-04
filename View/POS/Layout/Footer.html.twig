@@ -1,16 +1,12 @@
 <footer class="footer">
         <div class="row">
-            <div class="col-sm-4 col-lg-2">
-                <button type="button" class="btn btn-danger btn-round mt-2" id="resetButton">
+            <div class="col">
+                <button type="button" class="btn btn-danger btn-round" id="resetButton">
                     <i class="fas fa-money-bill-alt" aria-hidden="true"></i>&nbsp;{{ i18n.trans("cancel") }}
                 </button>
             </div>
-            <div class="col-sm-4 col-lg-8 text-center">
-                <span class="display-5 d-none d-lg-inline">TOTAL: </span>
-                <span class="display-5" id="cartTotalDisplay">525.55</span>
-            </div>
-            <div class="col-sm-4 col-lg-2 text-right">
-                <button type="button" class="btn btn-primary btn-round mt-2" id="checkoutButton">
+            <div class="col text-right">
+                <button type="button" class="btn btn-primary btn-round" id="checkoutButton">
                     <i class="fas fa-money-bill-alt" aria-hidden="true"></i>&nbsp;{{ i18n.trans("charge") }}
                 </button>
             </div>
