@@ -32,29 +32,45 @@
     <input type="hidden" id="token" name="token" value="{{ fsc.getRandomToken() }}">
     <input type="hidden" id="total" name="total" value="0">
 
-    <div class="card">
-        <div class="card-body">
-            <div class="form-row">
-                {{ form.customerSelect(i18n, 'codcliente', 'codcliente', customer, fsc.cliente.url('new')) }}
-                <div class="form-group col-12">
-                    {{ form.documentSelect(i18n, defaultDocument, documentList) }}
+    <div class="row row-card-no-pd no-gutters">
+        <div class="col-md-4 col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-row">
+                            {{ form.customerSelect(i18n, 'codcliente', 'codcliente', customer, fsc.cliente.url('new')) }}
+                        <div class="form-group col-12">
+                            {{ form.documentSelect(i18n, defaultDocument, documentList) }}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="card">
-        <div class="card-body">
-            <div class="col-12">
-                <small class="text-muted">Total:</small>
+        <div class="col-md-4 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <small class="text-muted">Total:</small>
+                        </div>
+                        <div class="col-12 text-right">
+                            <span class="display-5" id="cartTotalDisplay">9999.99</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-12 text-right">
-                <span class="display-4" id="cartTotalDisplay">9999.99</span>
-            </div>
-            <div class="col-12">
-                <small class="text-muted">Taxes:</small>
-            </div>
-            <div class="col-12 text-right">
-                <span class="display-4" id="cartTaxesDisplay">99.99</span>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <small class="text-muted">Taxes:</small>
+                        </div>
+                        <div class="col-12 text-right">
+                            <span class="display-5" id="cartTaxesDisplay">99.99</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

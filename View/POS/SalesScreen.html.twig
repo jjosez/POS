@@ -21,11 +21,13 @@
 
 {% block body %}
     <div class="row">
-        <div class="col-lg-9 col-sm-12">
-            {{ include('POS/Block/ItemList.html.twig') }}
-        </div>
-        <div class="col-lg-3 col-sm-12">
+        <div class="col-12">
             {{ include('POS/Block/SaleData.html.twig') }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            {{ include('POS/Block/ItemList.html.twig') }}
         </div>
     </div>
 {% endblock %}
@@ -53,34 +55,8 @@
             <td><input class="form-control cart-form-control" type="number" value="1"></td>
             <td><input class="form-control cart-form-control" type="number" value="500"></td>
             <td><input class="form-control cart-form-control" type="number" value="500"></td>
+            <td><a href="#"><i class="fas fa-trash text-danger"></i></a></td>
         </tr>
-        {% endverbatim %}
-    </script>
-    <script id="cart-item-templateb" type="text/x-handlebars-template">
-        {% verbatim %}
-            <div class="card">
-                <div class="card-header" data-toggle="collapse" data-target="#collapse{{id}}" aria-expanded="true">
-                    <div class="span-title">
-                        {{id}} | {{desc}}
-                    </div>
-                    <div class="span"><i class="fas fa-chevron-circle-down"></i></div>
-                </div>
-                <div id="collapse{{id}}" class="collapse" data-parent="#cartItemsAccordion">
-                    <div class="card-body">
-                        <div class="row">
-                        <div class="col">
-                            <input class="form-control cart-form-control" type="number" value="1">
-                        </div>
-                        <div class="col">
-                            <input class="form-control cart-form-control" type="number" value="1">
-                        </div>
-                        <div class="col">
-                            <input class="form-control cart-form-control" type="number" value="1">
-                        </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         {% endverbatim %}
     </script>
     <script type="text/javascript">
@@ -93,6 +69,7 @@
     {#TODO: Change to dynamic for release #}
     {{ parent() }}
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/handlebars.min-v4.7.4.js') }}"></script>
+    <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.cartitem.js') }}"></script>
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.app.js') }}"></script>
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.app.ui.js') }}"></script>
 {% endblock %}

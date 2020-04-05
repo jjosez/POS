@@ -22,10 +22,9 @@
         <div class="form-row">
             <div class="form-group col">
                 <div class="input-icon">
-                    <input class="form-control input-pill" id="searchProduct" type="text" placeholder="Buscar producto..">
-                    <span class="input-icon-addon">
-                <i class="fas fa-search"></i>
-            </span>
+                    <input class="form-control input-pill" id="searchProduct" type="text"
+                           placeholder="Buscar producto..">
+                    <span class="input-icon-addon"><i class="fas fa-search"></i></span>
                 </div>
             </div>
         </div>
@@ -33,6 +32,22 @@
     <div class="card-body">
         <div class="accordion accordion-secondary" id="cartItemsAccordion">
 
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped" id="cartItemsTable">
+                <thead>
+                <tr>
+                    <th class="w-60" scope="col">Producto</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Total</th>
+                    <th scope="col"><i class="fas fa-times"></i></th>
+                </tr>
+                </thead>
+                <tbody id="cartItems">
+
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

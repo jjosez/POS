@@ -167,6 +167,10 @@ class POS extends Controller
                 $this->saveDocument();
                 break;
 
+            case 'search-customer':
+                $this->searchCustomer();
+                return false;
+
             case 'search-product':
                 $this->searchProduct();
                 return false;
@@ -368,7 +372,7 @@ class POS extends Controller
     private function searchProduct()
     {
         //$this->setTemplate(false);
-        $this->setTemplate('\POS\Modal\SearchResults');
+        $this->setTemplate('\POS\Ajax\ProductList');
         $this->response->setContent("Buscando producto..");
     }
 
@@ -379,6 +383,21 @@ class POS extends Controller
         $variante = new Variante();
 
         return $variante->codeModelSearch($query, "referencia");
-        //return $query;
+    }
+
+    private function searchCustomer()
+    {
+        //$this->setTemplate(false);
+        //$this->response->setContent(print_r($this->searchCustomerList(), true));
+        $this->setTemplate('\POS\Ajax\CustomerList');
+        $this->response->setContent("Buscando");
+    }
+
+    public function searchCustomerList()
+    {
+        $query = $this->request->request->get('query');
+        $cliente = new Cliente();
+
+        return $cliente->codeModelSearch($query);
     }
 }

@@ -21,18 +21,29 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Customers</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <div class="form-group col">
+                    <div class="input-icon">
+                        <input class="form-control input-pill" id="searchCustomerInput" type="text"
+                               placeholder="Buscar cliente" autocomplete="off">
+                        <span class="input-icon-addon"><i class="fas fa-search"></i></span>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body" id="searchCustomerResult">
-
+            <div class="modal-body">
+                <table class="table search-table table-striped">
+                    <thead>
+                    <tr>
+                        <th class="w-90" scope="col">Cliente</th>
+                        <th scope="col"><i class="fas fa-user"></i></th>
+                    </tr>
+                    </thead>
+                    <tbody id="searchCustomerResult">
+                    <tr><td colspan="2">Escribe en el cuadro para buscar</td></tr>
+                    </tbody>
+                </table>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ i18n.trans('cancel') }}</button>
-                <button type="button" class="btn btn-primary" id="savePaymentButton" disabled="disabled">Continuar
-                </button>
             </div>
         </div>
     </div>

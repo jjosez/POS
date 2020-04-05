@@ -17,8 +17,7 @@
                 </a>
             </span>
             <input name="{{ name }}" id="{{ id }}" type="hidden" value="{{ model.codcliente }}"/>
-            <input type="text" id="{{ id }}Autocomplete" value="{{ model.nombre | raw }}" class="form-control"
-                   data-field="{{ id }}" data-source="Cliente" data-fieldcode="codcliente" data-fieldtitle="nombre"
+            <input type="text" id="searchCustomer" value="{{ model.nombre | raw }}" class="form-control"
                    placeholder="{{ i18n.trans('customer') }}" autocomplete="off"/>
         </div>
     </div>
