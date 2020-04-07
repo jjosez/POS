@@ -1,70 +1,105 @@
 class CartItem {
 
-    constructor(code = "", description = "", amount = 0, price = 0, discount = 0,
-                total = 0, taxes=0) {
-        this._code = code;
-        this._description = description;
-        this._amount = amount;
-        this._price = price;
-        this._discount = discount;
-        this._total = total;
-        this._taxes = taxes;
+    constructor(args = {}) {
+
+        this._cantidad = args.cantidad;
+        this._descripcion = args.descripcion;
+        this._dtopor = args.dtopor;
+        this._dtopor2 = args.dtopor2;
+        this._irpf = args.irpf;
+        this._iva = args.iva;
+        this._pvpsindto = args.pvpsindto;
+        this._pvptotal = args.pvptotal;
+        this._pvpunitario = args.pvpunitario;
+        this._recargo = args.recargo;
+        this._referencia = args.referencia;
+    }
+    get cantidad() {
+        return this._cantidad;
     }
 
-    get code() {
-        return this._code;
+    set cantidad(value) {
+        this._cantidad = value;
     }
 
-    set code(value) {
-        this._code = this.validateTypeOf(value, 'string');
+    get descripcion() {
+        return this._descripcion;
     }
 
-    get description() {
-        return this._description;
+    set descripcion(value) {
+        this._descripcion = value;
     }
 
-    set description(value) {
-        this._description = this.validateTypeOf(value, 'string');
+    get dtopor() {
+        return this._dtopor;
     }
 
-    get amount() {
-        return this._amount;
+    set dtopor(value) {
+        this._dtopor = value;
     }
 
-    set amount(value) {
-        this._amount = this.validateTypeOf(value, 'number');
+    get dtopor2() {
+        return this._dtopor2;
     }
 
-    get price() {
-        return this._price;
+    set dtopor2(value) {
+        this._dtopor2 = value;
     }
 
-    set price(value) {
-        this._price = this.validateTypeOf(value, 'number');
+    get irpf() {
+        return this._irpf;
     }
 
-    get discount() {
-        return this._discount;
+    set irpf(value) {
+        this._irpf = value;
     }
 
-    set discount(value) {
-        this._discount = this.validateTypeOf(value, 'number');
+    get iva() {
+        return this._iva;
     }
 
-    get total() {
-        return this._total;
+    set iva(value) {
+        this._iva = value;
     }
 
-    set total(value) {
-        this._total = this.validateTypeOf(value, 'number');
+    get pvpsindto() {
+        return this._pvpsindto;
     }
 
-    get taxes() {
-        return this._taxes;
+    set pvpsindto(value) {
+        this._pvpsindto = value;
     }
 
-    set taxes(value) {
-        this._taxes = this.validateTypeOf(value, 'number');
+    get pvptotal() {
+        return this._pvptotal;
+    }
+
+    set pvptotal(value) {
+        this._pvptotal = value;
+    }
+
+    get pvpunitario() {
+        return this._pvpunitario;
+    }
+
+    set pvpunitario(value) {
+        this._pvpunitario = value;
+    }
+
+    get recargo() {
+        return this._recargo;
+    }
+
+    set recargo(value) {
+        this._recargo = value;
+    }
+
+    get referencia() {
+        return this._referencia;
+    }
+
+    set referencia(value) {
+        this._referencia = value;
     }
 
     validateTypeOf(param , type) {
@@ -76,5 +111,21 @@ class CartItem {
                 if (param.lenght < 1) {return 0}
                 break;
         }
+    }
+
+    newLineData() {
+        return {
+            cantidad: this._cantidad,
+            descripcion: this._descripcion,
+            dtpor: this._dtopor,
+            dtpor2: this._dtopor2,
+            irpf: this._irpf,
+            iva: this._iva,
+            pvpsindto: this._pvpsindto,
+            pvptotal: this._pvptotal,
+            pvpunitario: this._pvpunitario,
+            recargo: this._recargo,
+            referencia: this._referencia,
+        };
     }
 }

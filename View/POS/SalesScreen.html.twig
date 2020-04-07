@@ -41,26 +41,27 @@
 {% block js %}
     <script id="cart-item-template" type="text/x-handlebars-template">
         {% verbatim %}
+        {{#each this}}
         <tr>
             <td>
                 <div class="form-row">
                     <div class="col-2">
-                        <input class="form-control cart-form-control" name="cart-item-id" value="{{id}}" type="text" readonly>
+                        <input class="form-control cart-form-control" name="cart-item-id" value="{{referencia}}" type="text" readonly>
                     </div>
                     <div class="col-10">
-                        <input class="form-control cart-form-control" name="cart-item-id" value="{{desc}}" type="text">
+                        <input class="form-control cart-form-control" name="cart-item-id" value="{{descripcion}}" type="text">
                     </div>
                 </div>
             </td>
-            <td><input class="form-control cart-form-control" type="number" value="1"></td>
-            <td><input class="form-control cart-form-control" type="number" value="500"></td>
-            <td><input class="form-control cart-form-control" type="number" value="500"></td>
+            <td><input class="form-control cart-form-control" type="number" value="{{cantidad}}"></td>
+            <td><input class="form-control cart-form-control" type="number" value="{{pvpunitario}}"></td>
+            <td><input class="form-control cart-form-control" type="number" value="{{pvptotal}}"></td>
             <td><a href="#"><i class="fas fa-trash text-danger"></i></a></td>
         </tr>
+        {{/each}}
         {% endverbatim %}
     </script>
     <script type="text/javascript">
-        posAutocompleteUrl = "EditFacturaCliente";
         posCashPaymentMethod = "{{ fsc.getCashPaymentMethod() }}";
         posFormName = "salesDocumentForm";
         posUrlAccess = "POS";

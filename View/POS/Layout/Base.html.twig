@@ -20,7 +20,7 @@
 {% extends 'Master/MicroTemplate.html.twig' %}
 {% block css %}
     {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('Dinamic/Assets/CSS/atlantis.css') }}" />
+    <link rel="stylesheet" href="{{ asset('Dinamic/Assets/CSS/atlantis.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('Plugins/EasyPOS/Assets/CSS/custom.ui.css') }}" />
 {% endblock %}
 {% block fullBody %}
@@ -60,7 +60,7 @@
         {% endblock %}
 
         {% block js %}
-            <script src="{{ asset('node_modules/bootbox/dist/bootbox.min.js') }}"></script>
+            <script src="{{ asset('node_modules/jquery-ui-dist/jquery-ui.min.js') }}"></script>
             <script src="{{ asset('Dinamic/Assets/JS/jquery.scrollbar.min.js') }}"></script>
             <script src="{{ asset('Dinamic/Assets/JS/atlantis.min.js') }}"></script>
         {% endblock %}

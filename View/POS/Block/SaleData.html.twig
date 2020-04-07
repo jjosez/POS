@@ -27,6 +27,7 @@
     <input type="hidden" id="action" name="action"/>
     <input type="hidden" id="codalmacen" name="codalmacen" value="{{ fsc.terminal.codalmacen }}">
     <input type="hidden" id="codserie" name="codserie" value="{{ fsc.terminal.codserie }}">
+    <input type="hidden" id="documentdate" name="documentdate" value="{{ "now"|date("d-m-Y") }}">
     <input type="hidden" id="lines" name="lines"/>
     <input type="hidden" id="payments" name="payments"/>
     <input type="hidden" id="token" name="token" value="{{ fsc.getRandomToken() }}">

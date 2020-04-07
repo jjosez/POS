@@ -21,17 +21,17 @@ namespace FacturaScripts\Plugins\EasyPOS\Controller;
 use FacturaScripts\Core\App\AppSettings;
 use FacturaScripts\Core\Base\Controller;
 
-use FacturaScripts\Dinamic\Lib\AssetManager;
-use FacturaScripts\Dinamic\Lib\POS as Helpers;
+use FacturaScripts\Core\Model\Base\BusinessDocument;
+use FacturaScripts\Core\Model\FacturaCliente;
+use FacturaScripts\Dinamic\Lib\BusinessDocumentFormTools;
+//use FacturaScripts\Dinamic\Lib\POS as Helpers;
 
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\FormaPago;
-use FacturaScripts\Dinamic\Model\OperacionPOS;
 use FacturaScripts\Dinamic\Model\SesionPOS;
 use FacturaScripts\Dinamic\Model\TerminalPOS;
 use FacturaScripts\Dinamic\Model\Variante;
-use function MongoDB\BSON\toJSON;
 
 /**
  * Controller to process Point of Sale Operations
@@ -40,6 +40,7 @@ use function MongoDB\BSON\toJSON;
  */
 class POS extends Controller
 {
+    const MODEL_NAMESPACE = '\\FacturaScripts\\Dinamic\\Model\\';
     public $arqueo = false;
     public $cliente;
     public $formaPago;
@@ -62,7 +63,7 @@ class POS extends Controller
      */
     public function getDataGridHeaders()
     {
-        return Helpers\SalesDataGrid::getDataGridHeaders($this->user);
+        //return Helpers\SalesDataGrid::getDataGridHeaders($this->user);
     }
 
     /**
@@ -109,11 +110,17 @@ class POS extends Controller
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
-        
+
+        $action = $this->request->request->get('action');
+
+        if ($this->execPreviusAction($action) === false) {
+            return;
+        }
+
         $this->initValues();
         $this->isSessionOpen();
 
-        $this->execAction();
+        $this->execAction($action);
     }
 
     /**
@@ -132,7 +139,7 @@ class POS extends Controller
         $this->arqueo->fechafin = date('d-m-Y');
         $this->arqueo->horafin = date('H:i:s');
 
-        $cash = $this->request->request->get('cash');       
+        $cash = $this->request->request->get('cash');
         $total = 0.0;
 
         foreach ($cash as $value => $count) {
@@ -151,9 +158,8 @@ class POS extends Controller
 
     }   
 
-    private function execAction()
+    private function execAction($action)
     {
-        $action = $this->request->request->get('action');
         switch ($action) {
             case 'open-till-session':
                 $this->openSession();
@@ -166,18 +172,6 @@ class POS extends Controller
             case 'save-document':
                 $this->saveDocument();
                 break;
-
-            case 'search-customer':
-                $this->searchCustomer();
-                return false;
-
-            case 'search-product':
-                $this->searchProduct();
-                return false;
-
-            case 'recalculate-document':
-                $this->recalculateDocument();
-                return false;
             
             default:
                 break;
@@ -277,82 +271,37 @@ class POS extends Controller
     private function recalculateDocument()
     {
         $this->setTemplate(false);
+        $response = [];
 
-        $modelName = 'FacturaCliente';
+        $startTotalTime = $this->testExecutionTime();
+        //$className = 'FacturaScripts\\Dinamic\\Model\\FacturaCliente';
+        $classModel = self::MODEL_NAMESPACE . 'FacturaCliente';
+        $document = new $classModel;
 
-        $documentTools = new Helpers\DocumentTools($modelName);
-        $result = $documentTools->recalculateDocument($this->request);
+        $startTime = $this->testExecutionTime();
+        $data = $this->getBusinessFormData();
+        $merged = array_merge($data['custom'], $data['final'], $data['form'], $data['subject']);
+        $response[0] = "Primera etapa: " . print_r(microtime(true) -$startTime, true);
 
-        $this->response->setContent($result);
+        $startTime = $this->testExecutionTime();
+        $this->loadFromData($document, $merged);
+        $response[1] = "Segunda etapa: " . print_r(microtime(true) -$startTime, true);
+
+        $startTime = $this->testExecutionTime();
+        if (!$document->exists()) {
+            $ttime = $this->testExecutionTime();
+            $document->updateSubject();
+            $response[6] = "Actualizando cliente: " . print_r(microtime(true) - $ttime, true);
+        }
+        $response[2] = "Tercera etapa: " . print_r(microtime(true) -$startTime, true);
+
+        $startTime = $this->testExecutionTime();
+        $result = (new BusinessDocumentFormTools)->recalculateForm($document, $data['lines']);
+        $response[4] = "Cuarta etapa: " . print_r(microtime(true) -$startTime, true);
+        $response[5] = "Tiempo toal: " . print_r(microtime(true) -$startTotalTime, true);
+
+        $this->response->setContent(print_r($response, true));
         return false;
-    }
-
-    /**
-     * Process sales.
-     *
-     * @return void
-     */
-    private function saveDocument()
-    {
-        $data = $this->request->request->all();
-
-        if (!$this->validateSaveRequest($data)) {
-             return;
-        }
-
-        $modelName = $data['tipodocumento'] ?: 'FacturaCliente';
-        $documentTools = new Helpers\DocumentTools($modelName);
-
-        if ($documentTools->processDocumentData($data)) {
-            $document = $documentTools->getDocument();
-
-            $this->saveDocumentPayments($document, $data);
-            $this->printDocumentTicket($document);
-
-            $this->saveTransaction($document);
-        }
-    }
-
-    /**
-     * @param $document
-     * @param array $data
-     */
-    private function saveDocumentPayments($document, $data)
-    {
-        $payments = json_decode($data['payments'], true);
-
-        $paymentAmount = $payments['amount'];
-        $paymentChange = $payments['change'];
-
-        if ($payments['method'] == AppSettings::get('pointofsale', 'fpagoefectivo') ) {
-            $this->arqueo->saldoesperado += (float) ($paymentAmount - $paymentChange);
-            $this->arqueo->save();
-        }
-    }
-
-    private function saveTransaction($document)
-    {
-        $transaction = new OperacionPOS();
-
-        $transaction->codigo = $document->codigo;
-        $transaction->codcliente = $document->codcliente;
-        $transaction->fecha = $document->fecha;
-        $transaction->iddocumento = $document->primaryColumnValue();
-        $transaction->idsesion = $this->arqueo->idsesion;
-        $transaction->tipodoc = $document->modelClassName();
-        $transaction->total = $document->total;
-
-        return $transaction->save();
-    }
-
-    private function printCashupTicket()
-    {
-    }
-
-    private function printDocumentTicket($document)
-    {
-        $ticket = new Helpers\Tickets($document);
-        $this->printing = ($ticket->printTicket()) ? true : false;
     }
 
     private function validateSaveRequest($data)
@@ -387,8 +336,6 @@ class POS extends Controller
 
     private function searchCustomer()
     {
-        //$this->setTemplate(false);
-        //$this->response->setContent(print_r($this->searchCustomerList(), true));
         $this->setTemplate('\POS\Ajax\CustomerList');
         $this->response->setContent("Buscando");
     }
@@ -399,5 +346,101 @@ class POS extends Controller
         $cliente = new Cliente();
 
         return $cliente->codeModelSearch($query);
+    }
+
+    private function execPreviusAction($action)
+    {
+        switch ($action) {
+            case 'search-customer':
+                $this->searchCustomer();
+                return false;
+
+            case 'search-product':
+                $this->searchProduct();
+                return false;
+
+            case 'recalculate-document':
+                $this->recalculateDocument();
+                return false;
+
+            default:
+                return true;
+        }
+    }
+
+    private function getBusinessFormData()
+    {
+        $data = ['custom' => [], 'final' => [], 'form' => [], 'lines' => [], 'subject' => []];
+        foreach ($this->request->request->all() as $field => $value) {
+            switch ($field) {
+                case 'codpago':
+                case 'codserie':
+                    $data['custom'][$field] = $value;
+                    break;
+
+                case 'dtopor1':
+                case 'dtopor2':
+                case 'idestado':
+                    $data['final'][$field] = $value;
+                    break;
+
+                case 'lines':
+                    $data['lines'] = $this->processFormLines($value);
+                    break;
+
+                case 'codcliente':
+                    $data['subject'][$field] = $value;
+                    break;
+
+                default:
+                    $data['form'][$field] = $value;
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Process form lines to add missing data from data form.
+     * Also adds order column.
+     *
+     * @param array $formLines
+     *
+     * @return array
+     */
+    public function processFormLines(array $formLines)
+    {
+        $newLines = [];
+        $order = count($formLines);
+        foreach ($formLines as $line) {
+            if (is_array($line)) {
+                $line['orden'] = $order;
+                $newLines[] = $line;
+                $order--;
+                continue;
+            }
+
+            /// empty line
+            $newLines[] = ['orden' => $order];
+            $order--;
+        }
+
+        return $newLines;
+    }
+
+    /**
+     * Verifies the structure and loads into the model the given data array
+     *
+     * @param BusinessDocument $model
+     * @param array $data
+     */
+    public function loadFromData(BusinessDocument &$model, array &$data)
+    {
+        $model->loadFromData($data, ['action']);
+    }
+
+    function testExecutionTime()
+    {
+        return microtime(true);
     }
 }
