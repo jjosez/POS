@@ -1,6 +1,8 @@
 <?php
 namespace FacturaScripts\Plugins\EasyPOS;
 
+require_once __DIR__ . '/vendor/autoload.php';
+
 use FacturaScripts\Core\Base\InitClass;
 
 

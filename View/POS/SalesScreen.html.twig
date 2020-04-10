@@ -39,26 +39,41 @@
     {{ include('POS/Modal/SearchProductModal.html.twig') }}
 {% endblock %}
 {% block js %}
-    <script id="cart-item-template" type="text/x-handlebars-template">
+    <script id="cart-item-template" type="text/template">
         {% verbatim %}
-        {{#each this}}
+        {{foreach(options.lines)}}
         <tr>
             <td>
                 <div class="form-row">
                     <div class="col-2">
-                        <input class="form-control cart-form-control" name="cart-item-id" value="{{referencia}}" type="text" readonly>
+                        <input class="form-control cart-form-control" name="cart-item-id" value="{{@this.referencia}}" type="text" readonly>
                     </div>
                     <div class="col-10">
-                        <input class="form-control cart-form-control" name="cart-item-id" value="{{descripcion}}" type="text">
+                        <input class="form-control cart-form-control" name="cart-item-id" value="{{@this.descripcion}}" type="text">
                     </div>
                 </div>
             </td>
-            <td><input class="form-control cart-form-control" type="number" value="{{cantidad}}"></td>
-            <td><input class="form-control cart-form-control" type="number" value="{{pvpunitario}}"></td>
-            <td><input class="form-control cart-form-control" type="number" value="{{pvptotal}}"></td>
+            <td><input class="form-control cart-form-control" type="number" value="{{@this.cantidad}}"></td>
+            <td><input class="form-control cart-form-control" type="number" value="{{@this.pvpunitario}}"></td>
+            <td><input class="form-control cart-form-control" type="number" value="{{@this.pvptotal}}"></td>
             <td><a href="#"><i class="fas fa-trash text-danger"></i></a></td>
         </tr>
-        {{/each}}
+        {{/foreach}}
+        {% endverbatim %}
+    </script>
+    <script id="ajax-search-template" type="text/template">
+        {% verbatim %}
+          {{foreach(options.list)}}
+          <tr>
+            <td><span class="font-weight-bold">{{@this.code}}</span><br>{{@this.description}}</td>
+            <td>
+                <button class="btn btn-sm btn-success item-add-button" type="button" data-code="{{ @this.code }}"
+                        data-description="{{@this.description}}">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </td>
+          </tr>
+        {{/foreach}}
         {% endverbatim %}
     </script>
     <script type="text/javascript">
@@ -69,7 +84,7 @@
 
     {#TODO: Change to dynamic for release #}
     {{ parent() }}
-    <script src="{{ asset('Plugins/EasyPOS/Assets/JS/handlebars.min-v4.7.4.js') }}"></script>
+    <script src="{{ asset('Plugins/EasyPOS/Assets/JS/squirrelly.min.js') }}"></script>
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.cartitem.js') }}"></script>
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.app.js') }}"></script>
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.app.ui.js') }}"></script>

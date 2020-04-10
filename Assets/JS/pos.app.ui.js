@@ -4,12 +4,15 @@
  */
 
 var cartItemsList = [];
-var $shoppingCartElement = $('#cartItems');
-var templateScript = $('#cart-item-template').html();
-var template = Handlebars.compile(templateScript);
+var shoppingCartElement = $('#cartItems');
+var cartTemplateSource = $('#cart-item-template').html();
+var cartTemplate = Sqrl.Compile(cartTemplateSource);
+
+var ajaxTemplateSource = $('#ajax-search-template').html();
+var ajaxTemplate = Sqrl.Compile(ajaxTemplateSource);
 
 function addCartItem(e) {
-    var cartItem = new CartItem({referencia : e.data('code'), descripcion : e.data('desc')});
+    var cartItem = new CartItem({referencia : e.data('code'), descripcion : e.data('description')});
     cartItemsList.push(cartItem);
 
 /*    if(typeof cartItemsList[e.data('code')] !== 'undefined') {
@@ -21,6 +24,12 @@ function addCartItem(e) {
 
     onCartUpdate();
 }
+
+function formatNumber(val)
+{
+    return parseFloat(val).toFixed(2);
+}
+
 
 function getCartData() {
     var lines = []; var n = 0;
@@ -51,11 +60,17 @@ function onCartUpdate() {
         startTime: performance.now(),
         success: function (results) {
             testResponseTime(this.startTime);
+            updateCartItemList(results.lines);
             $("#cartTotalDisplay").text(results.doc.total);
             $("#cartTaxesDisplay").text(results.doc.totaliva);
+            $("#total").val(results.doc.total);
+            $("#neto").val(results.doc.neto);
+            $("#totalsuplidos").val(results.doc.totalsuplidos);
+            $("#totaliva").val(results.doc.totaliva);
+            $("#totalirpf").val(results.doc.totalirpf);
+            $("#totalrecargo").val(results.doc.totalrecargo);
 
             console.log("results", results);
-            updateCartItemList(results.lines);
             testResponseTime(this.startTime);
         },
         error: function (xhr, status, error) {
@@ -65,8 +80,8 @@ function onCartUpdate() {
 }
 
 function redrawCartTable(items) {
-    var compiledHtml = template(items);
-    $shoppingCartElement.html(compiledHtml);
+    var html = cartTemplate(items, Sqrl);
+    shoppingCartElement.html(html);
 }
 
 function searchCustomer(query) {
@@ -79,9 +94,13 @@ function searchCustomer(query) {
         url: posUrlAccess,
         data: data,
         type: "POST",
-        dataType: "text",
+        dataType: "json",
+        startTime: performance.now(),
         success: function (data) {
-            $('#searchCustomerResult').html(data);
+            //console.log(data);
+            var html = ajaxTemplate({list:data}, Sqrl);
+            $('#searchCustomerResult').html(html);
+            //testResponseTime(this.startTime);
         },
         error: function (xhr, status) {
             console.log('Error: ');
@@ -99,15 +118,17 @@ function searchProduct(query) {
         url: posUrlAccess,
         data: data,
         type: "POST",
-        dataType: "text",
+        dataType: "json",
         startTime: performance.now(),
         success: function(data) {
-            $('#searchProductResult').html(data);
+            //console.log(data);
+            var html = ajaxTemplate({list:data}, Sqrl);
+            $('#searchProductResult').html(html);
             //testResponseTime(this.startTime);
         },
         error: function(xhr, status) {
-            alert("Sorry, there was a problem!");
-            console.log(xhr);
+            console.log('Error: ');
+            console.log(xhr.responseText);
         }
     });
 }
@@ -136,7 +157,7 @@ function updateCartItemList(items) {
     }
 
     $('#searchProductModal').modal('hide');
-    redrawCartTable(items);
+    redrawCartTable({lines: items});
 }
 
 $(document).ready(function() {

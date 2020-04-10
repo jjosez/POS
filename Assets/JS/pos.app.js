@@ -11,7 +11,7 @@ function processPaymentAmount()
 
     paymentReturn = paymentAmount - total;
     paymentReturn = paymentReturn || 0;
-    if (paymentMethod !== documentCashPaymentMethod) {
+    if (paymentMethod !== posCashPaymentMethod) {
         if (paymentReturn > 0) {
             paymentReturn = 0;
             paymentAmount = total;
@@ -37,11 +37,7 @@ function showCashupModal()
 
 function showCheckoutModal()
 {
-    document.getElementById("action").value = "save-document";
-    document.getElementById("lines").value = JSON.stringify(getGridData());
-    console.log(getGridData());
-
-    total = formatNumber(document.getElementById("total").value);
+    total = document.getElementById("total").value;
     var modal = $('#checkoutModal');
     modal.find('.modal-title').text(total);
     modal.modal();
@@ -53,7 +49,9 @@ function showCheckoutModal()
         paymentData['method'] = $('#checkoutPaymentMethod').val();
         paymentData['change'] = $('#checkoutPaymentChange').val();
 
+        document.getElementById("action").value = "save-document";
+        document.getElementById("lines").value = JSON.stringify(getCartData());
         document.getElementById("payments").value = JSON.stringify(paymentData);
-        document.formSalesDocument.submit()
+        document.salesDocumentForm.submit()
     });
 }
