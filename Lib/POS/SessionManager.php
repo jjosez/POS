@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * This file is part of EasyPOS plugin for FacturaScripts
+ * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
 
 namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
 
@@ -111,12 +114,12 @@ class SessionManager
      */
     public function openSession(string $idterminal, float $amount)
     {
-        if ($this->opened) {
+        if (true === $this->opened) {
             ToolBox::i18nLog()->info('till-session-allready-opened');
             return false;
         }
 
-        if (!$this->terminal->loadFromCode($idterminal)) {
+        if (false === $this->terminal->loadFromCode($idterminal)) {
             ToolBox::i18nLog()->warning('cash-register-not-found');
             return false;
         }
