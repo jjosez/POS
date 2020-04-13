@@ -1,0 +1,56 @@
+{#
+/**
+* This file is part of POS plugin for FacturaScripts
+* Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Lesser General Public License as
+* published by the Free Software Foundation, either version 3 of the
+* License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+#}
+<div class="modal fade" id="cashupModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <form method="POST">
+            <input type="hidden" name="action" value="close-session">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ i18n.trans('cashup') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label class="col-sm-8 col-form-label">{{ i18n.trans('amount-counted') }}</label>
+                        <label class="col-sm-4 col-form-label">{{ i18n.trans('currency-denomination') }}</label>
+                    </div>
+                    {% for denominacion in fsc.getDenominations() %}
+                        <div class="form-group row">
+                            <div class="col-sm-8">
+                                <input type="number" class="form-control" name="cash[{{ denominacion.valor }}]" placeholder="0">
+                            </div>
+                            <label class="col-sm-4 col-form-label"> x {{ denominacion.valor }}</label>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning" role="alert">
+                            No hay denominaciones registradas, registralas en. <a href="{{ i18n.trans('EditConfiguracionPOS') }}">{{ i18n.trans('pos-settings') }}</a>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ i18n.trans('cancel') }}</button>
+                    <button type="submit" class="btn btn-primary" id="btn-close-till">Continuar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

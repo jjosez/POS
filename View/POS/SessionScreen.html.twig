@@ -22,8 +22,8 @@
     <div class="container-fluid">
         {% if fsc.terminal.idterminal %}
             <form autocomplete="off" id="new-till-session-form" method="post">
-                <input name="terminal" type="hidden" value="{{ fsc.terminal.idterminal }}">
                 <input name="action" type="hidden" value="open-session">
+                <input name="terminal" type="hidden" value="{{ fsc.terminal.idterminal }}">
                 <div class="card mx-auto w-50">
                     <div class="card-header bg-dark text-white text-center">{{ fsc.terminal.nombre }}</div>
                     <div class="card-body">
@@ -61,21 +61,25 @@
                     </div>
                     <div class="card-body">
                         <p class="card-text">Selecciona una terminal para comenzar.</p>
-                        {% set terminals = fsc.terminal.allAvailable() %}
-                        {% for terminal in terminals %}
-                            <div class="row mb-2">
-                                <div class="col-12">
-                                    <a href="{{ fsc.url()}}?action=open-terminal&terminal={{ terminal.idterminal }}"
-                                       class="btn btn-primary btn-lg btn-block">{{ terminal.nombre }}</a>
+                        <form method="post">
+                            <input type="hidden" name="action" value="open-terminal"/>
+                            {% for terminal in fsc.terminal.allAvailable() %}
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <button class="btn btn-primary btn-lg btn-block" name="terminal"
+                                                value="{{ terminal.idterminal }}">
+                                            {{ terminal.nombre }}
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>   
-                        {% else %}
-                            <div class="row mb-2">
-                                <div class="col-12">
-                                    <a href="{{ asset('ListTerminalPOS') }}" class="btn btn-primary btn-lg btn-block">Agregar</a>
+                            {% else %}
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <a href="{{ asset('ListTerminalPOS') }}" class="btn btn-primary btn-lg btn-block">Agregar</a>
+                                    </div>
                                 </div>
-                            </div>
-                        {% endfor %}
+                            {% endfor %}
+                        </form>
                     </div>
                 </div>
             </div>

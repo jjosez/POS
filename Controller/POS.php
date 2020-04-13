@@ -61,7 +61,7 @@ class POS extends Controller
         $this->session = new SessionManager($this->user);
 
         // Get any operations that have to be performed
-        $action = $this->request->request->get('action', $this->request->query->get('action', ''));
+        $action = $this->request->request->get('action', '');
 
         /** Run operations before load all data and stop exceution if not nedeed*/
         if ($this->execPreviusAction($action) === false) return;
@@ -71,12 +71,12 @@ class POS extends Controller
         $this->formaPago = new FormaPago();
         $this->terminal = $this->session->getTerminal();
 
+        /** Run operations after load all data */
+        $this->execAfterAction($action);
+
         /** Set view template*/
         $template = $this->session->isOpen() ? '\POS\SalesScreen' : '\POS\SessionScreen';
         $this->setTemplate($template);
-
-        /** Run operations after load all data */
-        $this->execAfterAction($action);
     }
 
     /**
@@ -144,13 +144,19 @@ class POS extends Controller
     {
         switch ($action) {
             case 'open-session':
-                $idterminal = $this->request->query->get('terminal', '');
+                $idterminal = $this->request->request->get('terminal', '');
                 $amount = $this->request->request->get('saldoinicial', 0);
                 $this->session->openSession($idterminal, $amount);
                 break;
 
+            case 'open-terminal':
+                $idterminal = $this->request->request->get('terminal', '');
+                $this->terminal = $this->session->getTerminal($idterminal);
+                break;
+
             case 'close-session':
-                $this->session->close();
+                $cash = $this->request->request->get('cash');
+                $this->session->closeSession($cash);
                 break;
 
             case 'save-document':
@@ -169,11 +175,6 @@ class POS extends Controller
     private function execPreviusAction(string $action)
     {
         switch ($action) {
-            case 'open-terminal':
-                $idterminal = $this->request->query->get('terminal', '');
-                $this->session->getTerminal($idterminal);
-                return true;
-
             case 'search-customer':
                 $this->searchCustomer();
                 return false;

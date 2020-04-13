@@ -38,6 +38,38 @@ class SessionManager
     }
 
     /**
+     * Close current session.
+     *
+     * @return void
+     */
+    public function closeSession(array $cash)
+    {
+        if (false === $this->opened) {
+            ToolBox::i18nLog()->info('there-is-no-open-till-session');
+            return;
+        }
+
+        $this->arqueo->abierto = false;
+        $this->arqueo->fechafin = date('d-m-Y');
+        $this->arqueo->horafin = date('H:i:s');
+
+        $total = 0.0;
+        foreach ($cash as $value => $count) {
+            $total += (float) $value * (float) $count;
+        }
+
+        ToolBox::i18nLog()->info('cashup-money-counted', ['%amount%' => $total]);
+        $this->arqueo->saldocontado = $total;
+        $this->arqueo->conteo = json_encode($cash);
+
+        if ($this->arqueo->save()) {
+            $this->terminal->disponible = true;
+            $this->terminal->save();
+            $this->opened = false;
+        }
+    }
+
+    /**
      * @return SesionPOS
      */
     public function getArqueo()
@@ -57,12 +89,11 @@ class SessionManager
     {
         if ($this->opened) return $this->terminal;
 
-        if ($idterminal && $this->terminal->loadFromCode($idterminal)) {
-            return $this->terminal;
+        if ($idterminal && !$this->terminal->loadFromCode($idterminal)) {
+            ToolBox::i18nLog()->warning('cash-register-not-found');
         }
 
-        ToolBox::i18nLog()->warning('cash-register-not-found');
-        return new TerminalPOS();
+        return $this->terminal;
     }
 
     /**
@@ -106,7 +137,10 @@ class SessionManager
 
             $this->terminal->disponible = false;
             $this->terminal->save();
+
+            $this->opened = true;
+            return true;
         }
-        return true;
+        return false;
     }
 }
