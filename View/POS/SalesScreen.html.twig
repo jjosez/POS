@@ -48,13 +48,13 @@
                         <input class="form-control cart-form-control" type="text" value="{{@this.referencia}}" readonly>
                     </div>
                     <div class="col-10">
-                        <input class="form-control cart-form-control" type="text" value="{{@this.descripcion}}" data-code="{{@this.referencia}}">
+                        <input class="form-control cart-form-control" type="text" value="{{@this.descripcion}}" data-index="{{@key}}" data-field="descripcionS">
                     </div>
                 </div>
             </td>
-            <td><input class="form-control cart-form-control" type="number" value="{{@this.cantidad}}" data-code="{{@this.referencia}}"></td>
-            <td><input class="form-control cart-form-control" type="number" value="{{@this.pvpunitario}}" data-code="{{@this.referencia}}"></td>
-            <td><input class="form-control cart-form-control" type="number" value="{{@this.pvptotal}}" data-code="{{@this.referencia}}" readonly></td>
+            <td><input class="form-control cart-form-control" type="number" value="{{@this.cantidad}}" data-index="{{@key}}" data-field="cantidad"></td>
+            <td><input class="form-control cart-form-control" type="number" value="{{@this.pvpunitario}}" data-index="{{@key}}" data-field="pvpunitario"></td>
+            <td><input class="form-control cart-form-control" type="number" value="{{@this.pvptotal}}" tabindex="-1" readonly></td>
             <td><a href="#"><i class="fas fa-trash text-danger"></i></a></td>
         </tr>
         {{/foreach}}
