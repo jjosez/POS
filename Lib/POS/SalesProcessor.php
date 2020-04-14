@@ -8,7 +8,7 @@ namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
 use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Lib\BusinessDocumentFormTools;
 use FacturaScripts\Core\Model\Base\BusinessDocument;
-use FacturaScripts\Dinamic\Model\Cliente;
+use FacturaScripts\Dinamic\Model\FormaPago;
 use function json_decode;
 
 /**
@@ -60,7 +60,8 @@ class SalesProcessor
             $this->data['lines'] = json_decode($data['lines'], true);
             $this->data['payments'] = json_decode($data['payments'], true);
 
-            unset($data['lines'], $data['payments'], $data['token'], $data['tipo-documento']);
+            unset($data['lines'], $data['payments'], $data['token'], $data['tipo-documento'],
+                $data['total'], $data['totaliva'], $data['totalirpf'], $data['neto']);
             $this->data['doc'] = $data;
             return;
         }
@@ -173,18 +174,19 @@ class SalesProcessor
     {
         $this->loadFromData($this->document, $this->data['doc']);
 
-        if (!$this->testSubject($this->data['doc'])) return false;
+        if (false === $this->document->updateSubject()) return false;
 
+        ToolBox::i18nLog()->warning('Pagos: ' . print_r($this->document, true));
         if ($this->document->save()) {
             foreach ($this->data['lines'] as $line) {
                 $newLine = $this->document->getNewLine($line);
 
-                if (!$newLine->save()){
-                    ToolBox::i18nLog()->warning('Error al guardar la linea: ' . $newLine->referencia);
+                if (false === $newLine->save()) {
+                    //$miniLog->info( print_r($line, true));
+                    $this->document->delete();
                     return false;
                 }
             }
-
             (new BusinessDocumentFormTools())->recalculate($this->document);
 
             if ($this->document->save()) return true;
@@ -192,21 +194,6 @@ class SalesProcessor
             $this->document->delete();
         }
 
-        return false;
-    }
-
-    private function testSubject($data)
-    {
-        if (!empty($data['codcliente'])) {
-            $cliente = new Cliente();
-
-            if ($cliente->loadFromCode($data['codcliente'])) {
-                $this->document->setSubject($cliente);
-                return true;
-            }
-        }
-
-        ToolBox::i18nLog()->info('customer-not-found');
         return false;
     }
 }

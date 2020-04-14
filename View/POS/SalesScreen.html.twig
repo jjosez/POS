@@ -35,8 +35,7 @@
 {% block modals %}
     {{ include('POS/Modal/CheckoutModal.html.twig') }}
     {{ include('POS/Modal/CashupModal.html.twig') }}
-    {{ include('POS/Modal/SearchCustomerModal.html.twig') }}
-    {{ include('POS/Modal/SearchProductModal.html.twig') }}
+    {{ include('POS/Modal/AjaxSearchModal.html.twig') }}
 {% endblock %}
 {% block js %}
     <script id="cart-item-template" type="text/template">
@@ -46,16 +45,16 @@
             <td>
                 <div class="form-row">
                     <div class="col-2">
-                        <input class="form-control cart-form-control" name="cart-item-id" value="{{@this.referencia}}" type="text" readonly>
+                        <input class="form-control cart-form-control" type="text" value="{{@this.referencia}}" readonly>
                     </div>
                     <div class="col-10">
-                        <input class="form-control cart-form-control" name="cart-item-id" value="{{@this.descripcion}}" type="text">
+                        <input class="form-control cart-form-control" type="text" value="{{@this.descripcion}}" data-code="{{@this.referencia}}">
                     </div>
                 </div>
             </td>
-            <td><input class="form-control cart-form-control" type="number" value="{{@this.cantidad}}"></td>
-            <td><input class="form-control cart-form-control" type="number" value="{{@this.pvpunitario}}"></td>
-            <td><input class="form-control cart-form-control" type="number" value="{{@this.pvptotal}}"></td>
+            <td><input class="form-control cart-form-control" type="number" value="{{@this.cantidad}}" data-code="{{@this.referencia}}"></td>
+            <td><input class="form-control cart-form-control" type="number" value="{{@this.pvpunitario}}" data-code="{{@this.referencia}}"></td>
+            <td><input class="form-control cart-form-control" type="number" value="{{@this.pvptotal}}" data-code="{{@this.referencia}}" readonly></td>
             <td><a href="#"><i class="fas fa-trash text-danger"></i></a></td>
         </tr>
         {{/foreach}}
@@ -68,7 +67,7 @@
             <td><span class="font-weight-bold">{{@this.code}}</span><br>{{@this.description}}</td>
             <td>
                 <button class="btn btn-sm btn-success item-add-button" type="button" data-code="{{ @this.code }}"
-                        data-description="{{@this.description}}">
+                        data-description="{{@this.description}}" data-target="{{target}}">
                     <i class="fas fa-plus"></i>
                 </button>
             </td>
@@ -87,5 +86,4 @@
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/squirrelly.min.js') }}"></script>
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.cartitem.js') }}"></script>
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.app.js') }}"></script>
-    <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.app.ui.js') }}"></script>
 {% endblock %}

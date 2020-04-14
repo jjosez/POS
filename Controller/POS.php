@@ -23,6 +23,7 @@ use FacturaScripts\Core\App\AppSettings;
 use FacturaScripts\Core\Base\Controller;
 
 use FacturaScripts\Core\Base\ControllerPermissions;
+use FacturaScripts\Core\Model\Base\BusinessDocument;
 use FacturaScripts\Dinamic\Lib\POS\SalesDataGrid;
 use FacturaScripts\Dinamic\Lib\POS\SessionManager;
 use FacturaScripts\Dinamic\Lib\POS\SalesProcessor;
@@ -175,6 +176,10 @@ class POS extends Controller
     private function execPreviusAction(string $action)
     {
         switch ($action) {
+            case 'custom-search':
+                $this->customSearch();
+                return false;
+
             case 'search-customer':
                 $this->searchCustomer();
                 return false;
@@ -200,12 +205,13 @@ class POS extends Controller
     private function processDocument()
     {
         $data = $this->request->request->all();
-        $modelName = 'FacturaCliente';
+        $modelName = $data['tipo-documento'];
 
         if (!$this->validateSaveRequest($data)) return;
 
         $salesProcessor = new SalesProcessor($modelName, $data);
         if ($salesProcessor->saveDocument()){
+            $this->saveSessionOperation($salesProcessor->getDocument());
             $this->printTicket($salesProcessor->getDocument());
         }
     }
@@ -266,5 +272,27 @@ class POS extends Controller
     private function printTicket($document)
     {
         $this->toolBox()->i18nLog()->info('printing');
+    }
+
+    private function saveSessionOperation(BusinessDocument $getDocument)
+    {
+    }
+
+    private function customSearch()
+    {
+        $query = $this->request->request->get('query');
+        $target = $this->request->request->get('target');
+
+        switch ($target){
+            case 'customer':
+                $result = (new Cliente())->codeModelSearch($query);
+                break;
+
+            case 'product':
+                $query = str_replace(" ", "%", $query);
+                $result = (new Variante())->codeModelSearch($query, 'referencia');
+                break;
+        }
+        $this->response->setContent(json_encode($result));
     }
 }

@@ -1,3 +1,7 @@
+/**
+ * This file is part of EasyPOS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
 class CartItem {
 
     constructor(args = {}) {
