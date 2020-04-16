@@ -36,6 +36,7 @@
     {{ include('POS/Modal/CheckoutModal.html.twig') }}
     {{ include('POS/Modal/CashupModal.html.twig') }}
     {{ include('POS/Modal/AjaxSearchModal.html.twig') }}
+    {{ include('POS/Modal/HistoryModal.html.twig') }}
 {% endblock %}
 {% block js %}
     <script id="cart-item-template" type="text/template">
@@ -71,6 +72,17 @@
                     <i class="fas fa-plus"></i>
                 </button>
             </td>
+          </tr>
+        {{/foreach}}
+        {% endverbatim %}
+    </script>
+    <script id="history-template" type="text/template">
+        {% verbatim %}
+          {{foreach(options.list)}}
+          <tr>
+            <td>{{@this.codigo}}</td>
+            <td>{{@this.tipodoc}}</td>
+            <td>{{@this.total}}</td>
           </tr>
         {{/foreach}}
         {% endverbatim %}

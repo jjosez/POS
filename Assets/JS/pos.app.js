@@ -176,6 +176,25 @@ function testResponseTime(startTime, label = 'Exec time:') {
     console.log(label, seconds.toFixed(3));
 }
 
+function loadTransactionHistory() {
+    $.ajax({
+        url: posUrlAccess,
+        data: {action: 'load-hostory'},
+        type: "POST",
+        dataType: "json",
+        success: function (data) {
+            let templateSource = $('#history-template').html();
+            let template = Sqrl.Compile(templateSource);
+            let html = template({list: data}, Sqrl);
+            $('#historyResult').html(html);
+        },
+        error: function (xhr, status) {
+            console.log('Error: ');
+            console.log(xhr.responseText);
+        }
+    });
+}
+
 $(document).ready(function () {
     $('#cashupButton').click(function () {
         $('#cashupModal').modal('show');
@@ -188,6 +207,9 @@ $(document).ready(function () {
     });
     $('#checkoutPaymentMethod').change(function (e) {
         recalculatePaymentAmount();
+    });
+    $('#historyModal').on('shown.bs.modal', function () {
+        loadTransactionHistory();
     });
     /*Cart Items Events*/
     $('#cartItems').on('focusout', '.cart-form-control', function () {

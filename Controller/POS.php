@@ -87,6 +87,11 @@ class POS extends Controller
                 $this->customSearch();
                 return false;
 
+            case 'load-hostory':
+                $result = $this->session->loadHistory();
+                $this->response->setContent($result);
+                return false;
+
             case 'recalculate-document':
                 $this->recalculateDocument();
                 return false;

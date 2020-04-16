@@ -6,6 +6,7 @@
 
 namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
 
+use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Model\Base\BusinessDocument;
 use FacturaScripts\Dinamic\Model\OperacionPOS;
@@ -160,5 +161,14 @@ class SessionManager
         $trasaction->total = $document->total;
 
         return $trasaction->save();
+    }
+
+    public function loadHistory()
+    {
+        $trasaction = new OperacionPOS();
+        $where = [new DataBaseWhere('idsesion', $this->arqueo->idsesion)];
+        $result = $trasaction->all($where);
+
+        return json_encode($result);
     }
 }
