@@ -3,7 +3,7 @@
  * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 var cartItemsList = [];
-var shoppingCartElement = $('#cartItems');
+var cartItemsContainer = $('#cartItems');
 var cartTemplateSource = $('#cart-item-template').html();
 var cartTemplate = Sqrl.Compile(cartTemplateSource);
 var ajaxTemplateSource = $('#ajax-search-template').html();
@@ -30,7 +30,7 @@ function onCartEdit(e) {
 
 function onCartUpdate() {
     var data = {};
-    $.each($("#" + posFormName).serializeArray(), function(key, value) {
+    $.each($("#" + posFormName).serializeArray(), function (key, value) {
         data[value.name] = value.value;
     });
     console.log("Form data:", data);
@@ -42,20 +42,20 @@ function onCartUpdate() {
         dataType: "json",
         data: data,
         startTime: performance.now(),
-        success: function(results) {
+        success: function (results) {
             console.log("Request results: ", results);
             updateCartItemList(results.lines);
-            $("#cartTotalDisplay").text(results.doc.total);
-            $("#cartTaxesDisplay").text(results.doc.totaliva);
-            $("#total").val(results.doc.total);
-            $("#neto").val(results.doc.neto);
-            $("#totalsuplidos").val(results.doc.totalsuplidos);
-            $("#totaliva").val(results.doc.totaliva);
-            $("#totalirpf").val(results.doc.totalirpf);
-            $("#totalrecargo").val(results.doc.totalrecargo);
+            $('#cartTotalDisplay').text(results.doc.total);
+            $('#cartTaxesDisplay').text(results.doc.totaliva);
+            $('#total').val(results.doc.total);
+            $('#neto').val(results.doc.neto);
+            $('#totalsuplidos').val(results.doc.totalsuplidos);
+            $('#totaliva').val(results.doc.totaliva);
+            $('#totalirpf').val(results.doc.totalirpf);
+            $('#totalrecargo').val(results.doc.totalrecargo);
             testResponseTime(this.startTime, 'Recalculation exec time:');
         },
-        error: function(xhr, status, error) {
+        error: function (xhr, status, error) {
             alert(xhr.responseText);
         }
     });
@@ -70,8 +70,8 @@ function updateCartItemList(items) {
     /// Hide search modal
     $('#ajaxSearchModal').modal('hide');
     /// Update cart view
-    var html = cartTemplate({lines:items}, Sqrl);
-    shoppingCartElement.html(html);
+    var html = cartTemplate({lines: items}, Sqrl);
+    cartItemsContainer.html(html);
 }
 
 /* Search actions*/
@@ -87,12 +87,12 @@ function ajaxCustomSearch(query, target) {
         type: "POST",
         dataType: "json",
         startTime: performance.now(),
-        success: function(data) {
-            let html = ajaxTemplate({ list: data, target: target }, Sqrl);
+        success: function (data) {
+            let html = ajaxTemplate({list: data, target: target}, Sqrl);
             $('#ajaxSearchResult').html(html);
             //testResponseTime(this.startTime);
         },
-        error: function(xhr, status) {
+        error: function (xhr, status) {
             console.log('Error: ');
             console.log(xhr.responseText);
         }
@@ -100,14 +100,17 @@ function ajaxCustomSearch(query, target) {
 }
 
 function setProduct(e) {
-    var cartItem = new CartItem({ referencia: e.data('code'), descripcion: e.data('description') });
+    for (let i = 0; i < cartItemsList.length; i++) {
+        if (cartItemsList[i].referencia === e.data('code')) {
+            cartItemsList[i].cantidad +=1;
+            onCartUpdate();
+            return;
+        }
+    }
+
+    var cartItem = new CartItem({referencia: e.data('code'), descripcion: e.data('description')});
     cartItemsList.push(cartItem);
-    /*    if(typeof cartItemsList[e.data('code')] !== 'undefined') {
-            cartItemsList[e.data('code')].cantidad +=1;
-        } else {
-            var cartItem = new CartItem({referencia : e.data('code'), descripcion : e.data('desc')});
-            cartItemsList[cartItem.referencia] = cartItem;
-        }*/
+
     onCartUpdate();
 }
 
@@ -121,23 +124,24 @@ function setCustomer(e) {
 /*Payment calc*/
 function recalculatePaymentAmount() {
     total = parseFloat($("#total").val());
-    paymentAmount = parseFloat($("#checkoutPaymentAmount").val());
-    paymentMethod = $("#checkoutPaymentMethod").children("option:selected").val();
+    paymentAmountInput = $('#checkoutPaymentAmount');
+    paymentAmount = paymentAmountInput.val();
+    paymentMethod = $('#checkoutPaymentMethod').children("option:selected").val();
     paymentReturn = paymentAmount - total;
     paymentReturn = paymentReturn || 0;
     if (paymentMethod !== posCashPaymentMethod) {
         if (paymentReturn > 0) {
             paymentReturn = 0;
             paymentAmount = total;
-            $('#checkoutPaymentAmount').val(formatNumber(paymentAmount));
+            paymentAmountInput.val(formatNumber(paymentAmount));
         }
     }
-    $("#checkoutPaymentChange").val(formatNumber(paymentReturn));
+    $('#checkoutPaymentChange').val(formatNumber(paymentReturn));
     if (paymentReturn >= 0) {
-        $("#savePaymentButton").prop('disabled', false);
+        $('#savePaymentButton').prop('disabled', false);
         console.log('Cambio : ' + paymentReturn);
     } else {
-        $("#savePaymentButton").prop('disabled', true);
+        $('#savePaymentButton').prop('disabled', true);
         console.log('Falta : ' + paymentReturn);
     }
 }
@@ -147,7 +151,7 @@ function showCheckoutModal() {
     var modal = $('#checkoutModal');
     modal.find('.modal-title').text(total);
     modal.modal();
-    $('#savePaymentButton').on('click', function(event) {
+    $('#savePaymentButton').on('click', function (event) {
         var paymentData = {};
         paymentData['amount'] = $('#checkoutPaymentAmount').val();
         paymentData['method'] = $('#checkoutPaymentMethod').val();
@@ -172,39 +176,40 @@ function testResponseTime(startTime, label = 'Exec time:') {
     console.log(label, seconds.toFixed(3));
 }
 
-$(document).ready(function() {
-    $('#cashupButton').click(function() {
+$(document).ready(function () {
+    $('#cashupButton').click(function () {
         $('#cashupModal').modal('show');
     });
-    $("#checkoutButton").click(function() {
+    $("#checkoutButton").click(function () {
         showCheckoutModal();
     });
-    $("#checkoutPaymentAmount").keyup(function(e) {
+    $("#checkoutPaymentAmount").keyup(function (e) {
         recalculatePaymentAmount();
     });
-    $('#checkoutPaymentMethod').change(function(e) {
+    $('#checkoutPaymentMethod').change(function (e) {
         recalculatePaymentAmount();
     });
     /*Cart Items Events*/
-    $('#cartItems').on('focusout', '.cart-form-control', function() {
+    $('#cartItems').on('focusout', '.cart-form-control', function () {
         onCartEdit($(this));
     });
     /*Ajax Search Events*/
-    $('#searchCustomer').focus(function() {
+    $('#searchCustomer').focus(function () {
+        $('#ajaxSearchResult').html('');
         $('#ajaxSearchInput').data('target', 'customer');
         $('#ajaxSearchModal').modal('show');
     });
-    $('#searchProduct').focus(function() {
+    $('#searchProduct').focus(function () {
         $('#ajaxSearchInput').data('target', 'product');
         $('#ajaxSearchModal').modal('show');
     });
-    $('#ajaxSearchModal').on('shown.bs.modal', function() {
+    $('#ajaxSearchModal').on('shown.bs.modal', function () {
         $('#ajaxSearchInput').focus();
     });
-    $('#ajaxSearchInput').keyup(function() {
+    $('#ajaxSearchInput').keyup(function () {
         ajaxCustomSearch($(this).val(), $(this).data('target'));
     });
-    $('#ajaxSearchResult').on('click', '.item-add-button', function() {
+    $('#ajaxSearchResult').on('click', '.item-add-button', function () {
         let target = $(this).data('target');
         switch (target) {
             case 'product':

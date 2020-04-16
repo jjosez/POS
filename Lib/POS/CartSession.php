@@ -5,7 +5,7 @@ namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
 
 use Riesenia\Cart\Cart;
 
-class EasyCart extends Cart
+class CartSession extends Cart
 {
     private $id;
     private $session;

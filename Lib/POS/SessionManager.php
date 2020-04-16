@@ -7,10 +7,11 @@
 namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
 
 use FacturaScripts\Core\Base\ToolBox;
-use FacturaScripts\Core\Model\User;
-
-use FacturaScripts\Dinamic\Model\TerminalPOS;
+use FacturaScripts\Core\Model\Base\BusinessDocument;
+use FacturaScripts\Dinamic\Model\OperacionPOS;
 use FacturaScripts\Dinamic\Model\SesionPOS;
+use FacturaScripts\Dinamic\Model\TerminalPOS;
+use FacturaScripts\Dinamic\Model\User;
 
 class SessionManager
 {
@@ -58,7 +59,7 @@ class SessionManager
 
         $total = 0.0;
         foreach ($cash as $value => $count) {
-            $total += (float) $value * (float) $count;
+            $total += (float)$value * (float)$count;
         }
 
         ToolBox::i18nLog()->info('cashup-money-counted', ['%amount%' => $total]);
@@ -145,5 +146,19 @@ class SessionManager
             return true;
         }
         return false;
+    }
+
+    public function recordTransaction(BusinessDocument $document)
+    {
+        $trasaction = new OperacionPOS();
+        $trasaction->codigo = $document->codigo;
+        $trasaction->codcliente = $document->codcliente;
+        $trasaction->fecha = $document->fecha;
+        $trasaction->iddocumento = $document->primaryColumnValue();
+        $trasaction->idsesion = $this->arqueo->idsesion;
+        $trasaction->tipodoc = $document->modelClassName();
+        $trasaction->total = $document->total;
+
+        return $trasaction->save();
     }
 }

@@ -3,12 +3,11 @@
  * This file is part of EasyPOS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
+
 namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
 
-use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Lib\BusinessDocumentFormTools;
 use FacturaScripts\Core\Model\Base\BusinessDocument;
-use FacturaScripts\Dinamic\Model\FormaPago;
 use function json_decode;
 
 /**
@@ -56,11 +55,12 @@ class SalesProcessor
      */
     private function setDocumentData(array $data)
     {
-        if ($data['action']==='save-document'){
+        if ($data['action'] === 'save-document') {
             $this->data['lines'] = json_decode($data['lines'], true);
             $this->data['payments'] = json_decode($data['payments'], true);
 
-            unset($data['lines'], $data['payments'], $data['token'], $data['tipo-documento'],
+            unset(
+                $data['lines'], $data['payments'], $data['token'], $data['tipo-documento'],
                 $data['total'], $data['totaliva'], $data['totalirpf'], $data['neto']);
             $this->data['doc'] = $data;
             return;
@@ -129,17 +129,6 @@ class SalesProcessor
     }
 
     /**
-     * Verifies the structure and loads into the model the given data array
-     *
-     * @param BusinessDocument $model
-     * @param array $data
-     */
-    private function loadFromData(BusinessDocument &$model, array &$data)
-    {
-        $model->loadFromData($data, ['action']);
-    }
-
-    /**
      * @return BusinessDocument document
      */
     public function getDocument()
@@ -166,6 +155,17 @@ class SalesProcessor
     }
 
     /**
+     * Verifies the structure and loads into the model the given data array
+     *
+     * @param BusinessDocument $model
+     * @param array $data
+     */
+    private function loadFromData(BusinessDocument &$model, array &$data)
+    {
+        $model->loadFromData($data, ['action']);
+    }
+
+    /**
      * Saves the document.
      *
      * @return bool
@@ -176,7 +176,6 @@ class SalesProcessor
 
         if (false === $this->document->updateSubject()) return false;
 
-        ToolBox::i18nLog()->warning('Pagos: ' . print_r($this->document, true));
         if ($this->document->save()) {
             foreach ($this->data['lines'] as $line) {
                 $newLine = $this->document->getNewLine($line);
