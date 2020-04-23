@@ -3,7 +3,7 @@
  * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 var cartItemsList = [];
-var cartItemsContainer = $('#cartItems');
+var cartItemsContainer = $('#cartItemsContainer');
 var cartTemplateSource = $('#cart-item-template').html();
 var cartTemplate = Sqrl.Compile(cartTemplateSource);
 var ajaxTemplateSource = $('#ajax-search-template').html();
@@ -211,10 +211,7 @@ $(document).ready(function () {
     $('#historyModal').on('shown.bs.modal', function () {
         loadTransactionHistory();
     });
-    /*Cart Items Events*/
-    $('#cartItems').on('focusout', '.cart-form-control', function () {
-        onCartEdit($(this));
-    });
+
     /*Ajax Search Events*/
     $('#searchCustomer').focus(function () {
         $('#ajaxSearchResult').html('');
@@ -241,5 +238,10 @@ $(document).ready(function () {
                 setCustomer($(this));
                 break;
         }
+    });
+
+    /*Cart Items Events*/
+    cartItemsContainer.on('focusout', '.cart-item', function () {
+        onCartEdit($(this));
     });
 });

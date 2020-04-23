@@ -46,16 +46,16 @@
             <td>
                 <div class="form-row cart-product-row">
                     <div class="col-lg-2 col-4">
-                        <input class="form-control cart-form-control" type="text" value="{{@this.referencia}}" readonly>
+                        <input class="form-control form-control-sm" type="text" value="{{@this.referencia}}" readonly>
                     </div>
                     <div class="col-lg-10 col-8">
-                        <input class="form-control cart-form-control" type="text" value="{{@this.descripcion}}" data-index="{{@key}}" data-field="descripcionS">
+                        <input class="form-control form-control-sm" type="text" value="{{@this.descripcion}}" data-index="{{@key}}" data-field="descripcionS">
                     </div>
                 </div>
             </td>
-            <td><input class="form-control cart-form-control" type="number" value="{{@this.cantidad}}" data-index="{{@key}}" data-field="cantidad"></td>
-            <td><input class="form-control cart-form-control" type="number" value="{{@this.pvpunitario}}" data-index="{{@key}}" data-field="pvpunitario"></td>
-            <td><input class="form-control cart-form-control" type="number" value="{{@this.pvptotal}}" tabindex="-1" readonly></td>
+            <td><input class="form-control cart-item" type="number" value="{{@this.cantidad}}" data-index="{{@key}}" data-field="cantidad"></td>
+            <td><input class="form-control cart-item" type="number" value="{{@this.pvpunitario}}" data-index="{{@key}}" data-field="pvpunitario"></td>
+            <td><input class="form-control cart-item" type="number" value="{{@this.pvptotal}}" tabindex="-1" readonly></td>
             <td><a href="#"><i class="fas fa-trash text-danger"></i></a></td>
         </tr>
         {{/foreach}}

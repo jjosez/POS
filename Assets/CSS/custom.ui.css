@@ -14,10 +14,10 @@
     height: 50px;
 }
 
-.cart-form-control {
+.cart-item {
     height: calc(1.5em + .5rem + 2px) !important;
     min-width: 80px;
-    padding: .6rem .6rem;
+    padding: .25rem .5rem!important
 }
 
 .cart-product-row {
@@ -40,6 +40,10 @@
     font-size: 2.5rem;
     font-weight: 300;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.text-responsive {
+    font-size: calc(100% + 1vw + 1vh);
 }
 
 @media (min-width: 992px){
