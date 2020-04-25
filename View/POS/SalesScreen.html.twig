@@ -20,14 +20,23 @@
 {% extends 'POS/Layout/Base.html.twig' %}
 
 {% block body %}
-    <div class="row">
-        <div class="col-12">
-            {{ include('POS/Block/SaleData.html.twig') }}
+    <div class="col-sm-12 col-md-8 col-lg-9 mh-100">
+        <div class="form-row mb-3">
+                <div class="col">
+                    <div class="input-icon">
+                        <input class="form-control" id="searchProduct" type="text"
+                               placeholder="Buscar producto..">
+                        <span class="input-icon-addon"><i class="fas fa-search"></i></span>
+                    </div>
+                </div>
+        </div>
+        <div class="p-3 bg-white rounded box-shadow cart-content">
+            {{ include('POS/Block/ItemList.html.twig') }}
         </div>
     </div>
-    <div class="row">
-        <div class="col-12">
-            {{ include('POS/Block/ItemList.html.twig') }}
+    <div class="col-sm-12 col-md-4 col-lg-3">
+        <div class="p-3 bg-white rounded box-shadow h-100">
+            {{ include('POS/Block/SaleData.html.twig') }}
         </div>
     </div>
 {% endblock %}
@@ -49,14 +58,14 @@
                         <input class="form-control form-control-sm" type="text" value="{{@this.referencia}}" readonly>
                     </div>
                     <div class="col-lg-10 col-8">
-                        <input class="form-control form-control-sm" type="text" value="{{@this.descripcion}}" data-index="{{@key}}" data-field="descripcionS">
+                        <input class="form-control form-control-sm" type="text" value="{{@this.descripcion}}" data-index="{{@key}}" data-field="descripcion">
                     </div>
                 </div>
             </td>
             <td><input class="form-control cart-item" type="number" value="{{@this.cantidad}}" data-index="{{@key}}" data-field="cantidad"></td>
             <td><input class="form-control cart-item" type="number" value="{{@this.pvpunitario}}" data-index="{{@key}}" data-field="pvpunitario"></td>
             <td><input class="form-control cart-item" type="number" value="{{@this.pvptotal}}" tabindex="-1" readonly></td>
-            <td><a href="#"><i class="fas fa-trash text-danger"></i></a></td>
+            <td><a href="#" class="cart-item-del" data-index="{{@key}}"><i class="fas fa-trash text-danger"></i></a></td>
         </tr>
         {{/foreach}}
         {% endverbatim %}
@@ -65,7 +74,7 @@
         {% verbatim %}
           {{foreach(options.list)}}
           <tr>
-            <td><span class="font-weight-bold">{{@this.code}}</span><br>{{@this.description}}</td>
+            <td><span class="font-weight-bold">ID: {{@this.code}}</span><br>{{@this.description}}</td>
             <td>
                 <button class="btn btn-sm btn-success item-add-button" type="button" data-code="{{ @this.code }}"
                         data-description="{{@this.description}}" data-target="{{target}}">

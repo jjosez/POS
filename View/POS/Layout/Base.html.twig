@@ -21,50 +21,32 @@
 {% block css %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('Dinamic/Assets/CSS/atlantis.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('Plugins/EasyPOS/Assets/CSS/custom.ui.css') }}" />
+    <link rel="stylesheet" href="{{ asset('Plugins/EasyPOS/Assets/CSS/offcanvas.css') }}" />
+    <link rel="stylesheet" href="{{ asset('Plugins/EasyPOS/Assets/CSS/pos.css') }}" />
 {% endblock %}
 {% block fullBody %}
-    <body>
-        <div class="wrapper compact-wrapper">
-            <!-- Main Header -->
-                {{ include('POS/Layout/Header.html.twig') }}
-            <!-- Main Header -->
-            <!-- Sidebar -->
-                {{ include('POS/Layout/Sidebar.html.twig') }}
-            <!-- End Sidebar -->
-            <!-- Mainpanel -->
-            <div class="main-panel">
-                <div class="content">
-                    <div class="page-inner">
-                        <div class="row">
-                           <div class="col-12">
-                               {% block messages %}
-                                   {% from 'Macro/Utils.html.twig' import message as show_message %}
-                                   {{ show_message(log, ['error', 'critical', 'alert', 'emergency'], 'danger') }}
-                                   {{ show_message(log, ['warning'], 'warning') }}
-                                   {{ show_message(log, ['notice'], 'success') }}
-                                   {{ show_message(log, ['info'], 'info') }}
-                               {% endblock %}
-                           </div>
-                        </div>
-                        <div class="page-category">
-                            {% block body %}
-                            {% endblock %}
-                        </div>
-                    </div>
-                </div>
-                {{ include('POS/Layout/Footer.html.twig') }}
+    <body class="app">
+        <!-- Header -->
+        {{ include('POS/Layout/Header.html.twig') }}
+        <!-- End Header -->
+        <!-- Contend -->
+        <main role="main" class="container-fluid app-content">
+            {% block messages %}
+                {{ parent() }}
+            {% endblock %}
+            <div class="row h-100">
+                {% block body %}
+                {% endblock %}
             </div>
-            <!-- End Mainpanel -->
-        </div>
+        </main>
+        <!-- End Contend -->
 
         {% block modals %}
         {% endblock %}
 
         {% block js %}
-            <script src="{{ asset('node_modules/jquery-ui-dist/jquery-ui.min.js') }}"></script>
-            <script src="{{ asset('Dinamic/Assets/JS/jquery.scrollbar.min.js') }}"></script>
-            <script src="{{ asset('Dinamic/Assets/JS/atlantis.min.js') }}"></script>
+            {#<script src="{{ asset('node_modules/jquery-ui-dist/jquery-ui.min.js') }}"></script>  #}
+            {#<script src="{{ asset('Dinamic/Assets/JS/atlantis.min.js') }}"></script>#}
         {% endblock %}
 
         {{ debugBarRender.render() | raw }}

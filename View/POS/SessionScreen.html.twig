@@ -24,62 +24,62 @@
             <form autocomplete="off" id="new-till-session-form" method="post">
                 <input name="action" type="hidden" value="open-session">
                 <input name="terminal" type="hidden" value="{{ fsc.terminal.idterminal }}">
-                <div class="card mx-auto w-50">
-                    <div class="card-header bg-dark text-white text-center">{{ fsc.terminal.nombre }}</div>
-                    <div class="card-body">
-                        <p class="card-text">Ingresa el efectivo en caja para iniciar.</p>
-                        <div class="form-row">
-                            <div class="col">
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fas fa-money-bill-alt"></i></span>
+                <div class="row justify-content-md-center">
+                    <div class="col col-lg-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">{{ fsc.terminal.nombre }}</h5>
+                                <p class="card-text text-center">Ingresa el efectivo en caja para iniciar.</p>
+                                <div class="form-row">
+                                    <div class="form-group col">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-money-bill-alt"></i></span>
+                                            </div>
+                                            <input type="number" class="form-control" name="saldoinicial" placeholder="0">
                                         </div>
-                                        <input type="number" class="form-control" name="saldoinicial" placeholder="0">
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col text left">
-                                <a href="{{ asset('POS') }}">Ver todas</a>
-                            </div>
-                            <div class="col text-right">
-                                <button class="btn btn-primary" type="submit">
-                                <span class="d-none d-sm-inline-block">Continuar</span>
-                                </button>
+                                <div class="form-row">
+                                    <div class="col text left">
+                                        <a href="{{ asset('POS') }}">Ver todas</a>
+                                    </div>
+                                    <div class="col text-right">
+                                        <button class="btn btn-primary" type="submit">Continuar</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </form>
         {% else %}
-            <div class="row">
-                <div class="card mx-auto w-50">
-                    <div class="card-header bg-dark text-white text-center">
-                        {{ i18n.trans('available-cash-registers') }}
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">Selecciona una terminal para comenzar.</p>
-                        <form method="post">
-                            <input type="hidden" name="action" value="open-terminal"/>
-                            {% for terminal in fsc.terminal.allAvailable() %}
-                                <div class="row mb-2">
-                                    <div class="col-12">
-                                        <button class="btn btn-primary btn-lg btn-block" name="terminal"
-                                                value="{{ terminal.idterminal }}">
-                                            {{ terminal.nombre }}
-                                        </button>
+            <div class="row justify-content-md-center">
+                <div class="col col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">{{ i18n.trans('available-cash-registers') }}</h5>
+                            <p class="card-text text-center">Selecciona una terminal para comenzar.</p>
+                            <form method="post">
+                                <input type="hidden" name="action" value="open-terminal"/>
+                                {% for terminal in fsc.terminal.allAvailable() %}
+                                    <div class="form-row">
+                                        <div class="col">
+                                            <button class="btn btn-primary btn-block" name="terminal"
+                                                    value="{{ terminal.idterminal }}">
+                                                {{ terminal.nombre }}
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            {% else %}
-                                <div class="row mb-2">
-                                    <div class="col-12">
-                                        <a href="{{ asset('ListTerminalPOS') }}" class="btn btn-primary btn-lg btn-block">Agregar</a>
+                                {% else %}
+                                    <div class="form-row">
+                                        <div class="col">
+                                            <a href="{{ asset('ListTerminalPOS') }}" class="btn btn-success btn-block">Agregar</a>
+                                        </div>
                                     </div>
-                                </div>
-                            {% endfor %}
-                        </form>
+                                {% endfor %}
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

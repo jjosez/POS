@@ -1,48 +1,35 @@
-<div class="main-header">
-    <!-- Logo Header -->
-    <div class="logo-header" data-background-color="dark2">
-        <a href="index.php" class="logo ml-auto mr-auto">
-            <span class="navbar-brand text-white" height="35">{{ fsc.empresa.nombrecorto }}</span>
-        </a>
-        <button class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse" data-target="collapse" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon">
-                <i class="fas fa-bars"></i>
-            </span>
-        </button>
-        <button class="topbar-toggler more"><i class="fas fa-ellipsis-v"></i></button>
-    </div>
-    <!-- End Logo Header -->
-    <!-- Navbar Header -->
-    <nav class="navbar navbar-header navbar-expand-lg" data-background-color="dark">
-        {#<div class="collapse" id="search-nav">
-            <form class="navbar-left navbar-form nav-search mr-md-3">
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <button type="submit" class="btn btn-search pr-1">
-                            <i class="fas fa-search search-icon"></i>
-                        </button>
-                    </div>
-                    <input type="text" placeholder="Buscar ..." class="form-control">
+<nav class="navbar navbar-expand-md fixed-top navbar-dark bg-primary">
+    <a class="navbar-brand" href="index.php" data-background-color="dark2">{{ fsc.empresa.nombrecorto }}</a>
+    <button class="navbar-toggler p-0 border-0" type="button" data-toggle="offcanvas">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="navbar-collapse offcanvas-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item dropdown hidden-caret">
+                <a href="#" class="nav-link dropdown-toggle" id="dropdown1" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false"><i class="fa fa-cash-register"></i> POS</a>
+                <div class="dropdown-menu dropdown-menu-right hidden-caret" aria-labelledby="dropdown1">
+                        <span class="dropdown-item-btn">
+                            <button id="cashupButton" class="btn btn-block btn-danger">
+                                <i class="fas fa-cash-register"></i>&nbsp;{{ i18n.trans('cashup') }}
+                            </button>
+                        </span>
+                    <span class="dropdown-item-btn">
+                            <button class="btn btn-block btn-secondary" data-toggle="modal" data-target="#historyModal">
+                                <i class="fas fa-history"></i>&nbsp;{{ i18n.trans('cashup-operations') }}
+                            </button>
+                        </span>
                 </div>
-            </form>
-        </div>#}
-        <ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
-            {#<li class="nav-item toggle-nav-search hidden-caret">
-                <a class="nav-link" data-toggle="collapse" href="#search-nav" role="button" aria-expanded="false" aria-controls="search-nav">
-                    <i class="fa fa-search"></i>
-                </a>
-            </li>#}
-            <li class="nav-item dropdown hidden-caret submenu">
-                <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-bell"></i>
-                </a>
-                <ul class="dropdown-menu notif-box animated fadeIn" aria-labelledby="notifDropdown">
-                    <li>
-                        <div class="dropdown-title">Ninguna notificación</div>
-                    </li>
-                </ul>
+            </li>
+            <li class="nav-item dropdown hidden-caret">
+                <a href="#" class="nav-link dropdown-toggle" id="dropdown2" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false"><i class="fa fa-cogs"></i> Settings</a>
+                <div class="dropdown-menu dropdown-menu-right hidden-caret" aria-labelledby="dropdown2">
+                    <a class="dropdown-item" href="#">Action</a>
+                    <a class="dropdown-item" href="#">Another action</a>
+                    <a class="dropdown-item" href="#">Something else here</a>
+                </div>
             </li>
         </ul>
-    </nav>
-    <!-- End Navbar Header -->
-</div>
+    </div>
+</nav>

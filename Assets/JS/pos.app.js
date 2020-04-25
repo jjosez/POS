@@ -19,12 +19,20 @@ function getCartData() {
     return lines;
 }
 
+function onCartDelete(e) {
+    let index = e.data('index');
+
+    cartItemsList.splice( index, 1 );
+    console.log('Index deleting:', index);
+    onCartUpdate();
+}
+
 function onCartEdit(e) {
     let field = e.data('field');
     let index = e.data('index');
 
     cartItemsList[index][field] = e.val();
-    console.log('Index editing:', e.data('index'));
+    console.log('Index editing:', index);
     onCartUpdate();
 }
 
@@ -45,8 +53,9 @@ function onCartUpdate() {
         success: function (results) {
             console.log("Request results: ", results);
             updateCartItemList(results.lines);
-            $('#cartTotalDisplay').text(results.doc.total);
-            $('#cartTaxesDisplay').text(results.doc.totaliva);
+            $('#cartTotalDisplay').val(results.doc.total);
+            $('#cartTaxesDisplay').val(results.doc.totaliva);
+            $('#cartNetoDisplay').val(results.doc.netosindto);
             $('#total').val(results.doc.total);
             $('#neto').val(results.doc.neto);
             $('#totalsuplidos').val(results.doc.totalsuplidos);
@@ -196,6 +205,10 @@ function loadTransactionHistory() {
 }
 
 $(document).ready(function () {
+    'use strict'
+    $('[data-toggle="offcanvas"]').on('click', function () {
+        $('.offcanvas-collapse').toggleClass('open')
+    });
     $('#cashupButton').click(function () {
         $('#cashupModal').modal('show');
     });
@@ -243,5 +256,8 @@ $(document).ready(function () {
     /*Cart Items Events*/
     cartItemsContainer.on('focusout', '.cart-item', function () {
         onCartEdit($(this));
+    });
+    cartItemsContainer.on('click', '.cart-item-del', function () {
+        onCartDelete($(this));
     });
 });
