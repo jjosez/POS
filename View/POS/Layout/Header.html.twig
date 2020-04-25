@@ -16,18 +16,18 @@
                         </span>
                     <span class="dropdown-item-btn">
                             <button class="btn btn-block btn-secondary" data-toggle="modal" data-target="#historyModal">
-                                <i class="fas fa-history"></i>&nbsp;{{ i18n.trans('cashup-operations') }}
+                                <i class="fas fa-history"></i>&nbsp;{{ i18n.trans('till-session-operations') }}
                             </button>
                         </span>
                 </div>
             </li>
             <li class="nav-item dropdown hidden-caret">
                 <a href="#" class="nav-link dropdown-toggle" id="dropdown2" data-toggle="dropdown"
-                   aria-haspopup="true" aria-expanded="false"><i class="fa fa-cogs"></i> Settings</a>
+                   aria-haspopup="true" aria-expanded="false"><i class="fas fa-user-circle"></i> {{ fsc.user.nick |capitalize }}</a>
                 <div class="dropdown-menu dropdown-menu-right hidden-caret" aria-labelledby="dropdown2">
-                    <a class="dropdown-item" href="#">Action</a>
-                    <a class="dropdown-item" href="#">Another action</a>
-                    <a class="dropdown-item" href="#">Something else here</a>
+                    <a class="dropdown-item" href="{{ asset('EditSessionesPOS') }}"><i class="fas fa-list"></i>&nbsp;&nbsp;{{ i18n.trans('till-sessions') }}</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ asset('EditConfiguracionPOS') }}"><i class="fas fa-cogs"></i>&nbsp;&nbsp;{{ i18n.trans('options') }}</a>
                 </div>
             </li>
         </ul>

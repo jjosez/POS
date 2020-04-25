@@ -84,7 +84,11 @@ class POS extends Controller
     {
         switch ($action) {
             case 'custom-search':
-                $this->customSearch();
+                $this->searchbyText();
+                return false;
+
+            case 'barcode-search':
+                $this->searchbyBarcode();
                 return false;
 
             case 'load-hostory':
@@ -101,7 +105,7 @@ class POS extends Controller
         }
     }
 
-    private function customSearch()
+    private function searchbyText()
     {
         $query = $this->request->request->get('query');
         $target = $this->request->request->get('target');
@@ -116,6 +120,14 @@ class POS extends Controller
                 $result = (new Variante())->codeModelSearch($query, 'referencia');
                 break;
         }
+        $this->response->setContent(json_encode($result));
+    }
+
+    private function searchbyBarcode()
+    {
+        $query = $this->request->request->get('query');
+        $result = (new Variante())->codeModelSearch($query, 'referencia');
+
         $this->response->setContent(json_encode($result));
     }
 

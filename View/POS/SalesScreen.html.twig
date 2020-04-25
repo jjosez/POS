@@ -21,27 +21,50 @@
 
 {% block body %}
     <div class="col-sm-12 col-md-8 col-lg-9 mh-100">
-        <div class="form-row mb-3">
-                <div class="col">
-                    <div class="input-icon">
-                        <input class="form-control" id="searchProduct" type="text"
-                               placeholder="Buscar producto..">
-                        <span class="input-icon-addon"><i class="fas fa-search"></i></span>
-                    </div>
+        <div class="form-row mb-1">
+            <div class="form-group col-12 col-md-4 pt-0">
+                <div class="input-icon">
+                    <input class="form-control" id="searchByCode" type="search"
+                           placeholder="Codigo de barras" autocomplete="off">
+                    <span class="input-icon-addon"><i class="fas fa-barcode"></i></span>
                 </div>
+            </div>
+            <div class="form-group col pt-0">
+                <div class="input-icon">
+                    <input class="form-control" id="searchProduct" type="text"
+                           placeholder="Buscar por texto" autocomplete="off">
+                    <span class="input-icon-addon"><i class="fas fa-search"></i></span>
+                </div>
+            </div>
         </div>
         <div class="p-3 bg-white rounded box-shadow cart-content">
-            {{ include('POS/Block/ItemList.html.twig') }}
+            {{ include('POS/Block/CartBlock.html.twig') }}
         </div>
     </div>
     <div class="col-sm-12 col-md-4 col-lg-3">
         <div class="p-3 bg-white rounded box-shadow h-100">
-            {{ include('POS/Block/SaleData.html.twig') }}
+            {{ include('POS/Block/InfoBlock.html.twig') }}
         </div>
     </div>
 {% endblock %}
 
 {% block modals %}
+    <div class="modal fade" id="resetModal" tabindex="-1" role="dialog" aria-labelledby="resetModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="resetModalLabel">Reiniciar la venta</h5>
+                </div>
+                <div class="modal-body">
+                    <p>Se reiniciara la información</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ i18n.trans('cancel') }}</button>
+                    <button type="button" class="btn btn-danger" onclick="location.reload();">{{ i18n.trans('accept') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
     {{ include('POS/Modal/CheckoutModal.html.twig') }}
     {{ include('POS/Modal/CashupModal.html.twig') }}
     {{ include('POS/Modal/AjaxSearchModal.html.twig') }}
@@ -105,6 +128,7 @@
     {#TODO: Change to dynamic for release #}
     {{ parent() }}
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/squirrelly.min.js') }}"></script>
+    <script src="{{ asset('Plugins/EasyPOS/Assets/JS/onscan.min.js') }}"></script>
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.cartitem.js') }}"></script>
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.app.js') }}"></script>
 {% endblock %}

@@ -41,7 +41,6 @@ function onCartUpdate() {
     $.each($("#" + posFormName).serializeArray(), function (key, value) {
         data[value.name] = value.value;
     });
-    console.log("Form data:", data);
     data.action = "recalculate-document";
     data.lines = getCartData();
     $.ajax({
@@ -62,7 +61,7 @@ function onCartUpdate() {
             $('#totaliva').val(results.doc.totaliva);
             $('#totalirpf').val(results.doc.totalirpf);
             $('#totalrecargo').val(results.doc.totalrecargo);
-            testResponseTime(this.startTime, 'Recalculation exec time:');
+            testResponseTime(this.startTime, 'Request exec time:');
         },
         error: function (xhr, status, error) {
             alert(xhr.responseText);
@@ -99,7 +98,6 @@ function ajaxCustomSearch(query, target) {
         success: function (data) {
             let html = ajaxTemplate({list: data, target: target}, Sqrl);
             $('#ajaxSearchResult').html(html);
-            //testResponseTime(this.startTime);
         },
         error: function (xhr, status) {
             console.log('Error: ');
@@ -108,16 +106,38 @@ function ajaxCustomSearch(query, target) {
     });
 }
 
-function setProduct(e) {
+function ajaxBarcodeSearch(query) {
+    var data = {
+        action: "barcode-search",
+        query: query
+    };
+    $.ajax({
+        url: posUrlAccess,
+        data: data,
+        type: "POST",
+        dataType: "json",
+        startTime: performance.now(),
+        success: function (data) {
+            setProduct(data[0].code, data[0].description);
+            $('#searchByCode').val('');
+        },
+        error: function (xhr, status) {
+            console.log('Error: ');
+            console.log(xhr.responseText);
+        }
+    });
+}
+
+function setProduct(code, description) {
     for (let i = 0; i < cartItemsList.length; i++) {
-        if (cartItemsList[i].referencia === e.data('code')) {
+        if (cartItemsList[i].referencia === code) {
             cartItemsList[i].cantidad +=1;
             onCartUpdate();
             return;
         }
     }
 
-    var cartItem = new CartItem({referencia: e.data('code'), descripcion: e.data('description')});
+    var cartItem = new CartItem({referencia: code, descripcion: description});
     cartItemsList.push(cartItem);
 
     onCartUpdate();
@@ -205,7 +225,12 @@ function loadTransactionHistory() {
 }
 
 $(document).ready(function () {
-    'use strict'
+    var barcodeInput = document.getElementById("searchByCode");
+
+    onScan.attachTo(barcodeInput, {
+        onScan: function(sCode) { ajaxBarcodeSearch(sCode) }
+    });
+
     $('[data-toggle="offcanvas"]').on('click', function () {
         $('.offcanvas-collapse').toggleClass('open')
     });
@@ -243,12 +268,14 @@ $(document).ready(function () {
     });
     $('#ajaxSearchResult').on('click', '.item-add-button', function () {
         let target = $(this).data('target');
+        let code = $(this).data('code');
+        let description = $(this).data('description');
         switch (target) {
             case 'product':
-                setProduct($(this));
+                setProduct(code, description);
                 break;
             case 'customer':
-                setCustomer($(this));
+                setCustomer(code, description);
                 break;
         }
     });
