@@ -143,9 +143,9 @@ function setProduct(code, description) {
     onCartUpdate();
 }
 
-function setCustomer(e) {
-    $('#codcliente').val(e.data('code'));
-    $('#searchCustomer').val(e.data('description'));
+function setCustomer(code, description) {
+    $('#codcliente').val(code);
+    $('#searchCustomer').val(description);
     $('#ajaxSearchModal').modal('hide');
     $('#ajaxSearchResult').html('');
 }

@@ -17,8 +17,6 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 #}
-{% import "POS/Macro/Forms.html.twig" as form %}
-
 {% set customer = fsc.cliente.get(fsc.terminal.codcliente) %}
 {% set documentList = appSettings.get('pointofsale','tiposdocumento')|split('|') %}
 {% set defaultDocument = appSettings.get('pointofsale','defaultdoc') %}
@@ -39,9 +37,27 @@
     <input type="hidden" id="totalrecargo" name="totalrecargo" value="0">
 
     <div class="form-row">
-        {{ form.customerSelect(i18n, 'codcliente', 'codcliente', customer, fsc.cliente.url('new')) }}
+        {#{{ form.customerSelect(i18n, 'codcliente', 'codcliente', customer, fsc.cliente.url('new')) }}#}
         <div class="form-group col-12">
-            {{ form.documentSelect(i18n, defaultDocument, documentList) }}
+            <div class="input-group">
+            <span class="input-group-prepend">
+                <a href="{{ fsc.cliente.url('new') }}" target="_blank" class="btn btn-success" title="{{ i18n.trans('new-customer') }}">
+                    <i class="fas fa-user-plus fa-fw" aria-hidden="true"></i>
+                </a>
+            </span>
+                <input name="codcliente" id="codcliente" type="hidden" value="{{ customer.codcliente }}"/>
+                <input type="text" id="searchCustomer" value="{{ customer.nombre | raw }}" class="form-control"
+                       placeholder="{{ i18n.trans('customer') }}" autocomplete="off"/>
+            </div>
+        </div>
+        <div class="form-group col-12">
+            {#{{ form.documentSelect(i18n, defaultDocument, documentList) }}#}
+            <select class="form-control custom-select" id="tipoDocumento" name="tipo-documento">
+                {% for document in documentList %}
+                    <option value="{{ document }}" {% if document == defaultDocument %} selected="selected" {% endif %}>
+                        {{ i18n.trans(document) }}</option>
+                {% endfor %}
+            </select>
         </div>
     </div>
     <hr>

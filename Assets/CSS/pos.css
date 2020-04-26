@@ -3,19 +3,19 @@
     min-width: 800px;
 }
 
+.table thead th {
+    border-bottom-width: 3px;
+}
+
 .table > tbody > tr > td,
 .table > thead > tr > th {
     padding: 0 10px !important;
 }
 
-.table thead th {
-    border-bottom-width: 3px;
-}
-
-.cart-table > tbody > tr > td,
-.cart-table > thead > tr > th {
-    padding: 0 10px !important;
-    height: 45px;
+.table > tbody > tr > td {
+    height: 52px !important;
+    border-bottom-width: 2px;
+    border-bottom-style: dotted;
 }
 
 .cart-item {
@@ -52,14 +52,7 @@
     width: 90% !important;
 }
 
-.footer {
-    z-index: 1000;
-}
-
 .display-5 {
-    /*font-size: 2.5rem;
-    font-weight: 300;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
     font-size: 2.5rem;
     font-weight: 300;
     line-height: 1.2;
