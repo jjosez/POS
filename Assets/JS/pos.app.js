@@ -226,7 +226,6 @@ function loadTransactionHistory() {
 
 $(document).ready(function () {
     var barcodeInput = document.getElementById("searchByCode");
-
     onScan.attachTo(barcodeInput, {
         onScan: function(sCode) { ajaxBarcodeSearch(sCode) }
     });

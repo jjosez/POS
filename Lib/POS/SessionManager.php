@@ -149,7 +149,7 @@ class SessionManager
         return false;
     }
 
-    public function recordTransaction(BusinessDocument $document)
+    public function recordOperation(BusinessDocument $document)
     {
         $trasaction = new OperacionPOS();
         $trasaction->codigo = $document->codigo;

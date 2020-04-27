@@ -29,6 +29,7 @@ use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Dinamic\Model\Variante;
+use FacturaScripts\Plugins\EasyPOS\Lib\POS\PrintProcessor;
 use function json_encode;
 
 /**
@@ -162,8 +163,7 @@ class POS extends Controller
                 break;
 
             case 'close-session':
-                $cash = $this->request->request->get('cash');
-                $this->session->closeSession($cash);
+                $this->closeSession();
                 break;
 
             case 'save-document':
@@ -190,7 +190,7 @@ class POS extends Controller
         $salesProcessor = new SalesProcessor($modelName, $data);
         if ($salesProcessor->saveDocument()) {
             $document = $salesProcessor->getDocument();
-            $this->session->recordTransaction($document);
+            $this->session->recordOperation($document);
             $this->printTicket($document);
         }
     }
@@ -213,9 +213,19 @@ class POS extends Controller
         return true;
     }
 
+    /**
+     * @param $document
+     * @return void;
+     */
     private function printTicket($document)
     {
-        $this->toolBox()->i18nLog()->info('printing-ticket', ['%ticket%' => $document->codigo]);
+        if ((new PrintProcessor())->printDocument($document)) {
+            $msg = '<img class="d-none" src="http://localhost:10080?documento=%1s" alt=""/>';
+            $this->toolBox()->i18nLog()->info('printing-ticket', ['%ticket%' => $document->codigo]);
+            $this->toolBox()->log()->info(sprintf($msg, $document->modelClassName()));
+            return;
+        }
+        $this->toolBox()->i18nLog()->warning('error-printing-ticket');
     }
 
     /**
@@ -272,5 +282,16 @@ class POS extends Controller
     public function getRandomToken()
     {
         return $this->multiRequestProtection->newToken();
+    }
+
+    private function closeSession()
+    {
+        $cash = $this->request->request->get('cash');
+        $this->session->closeSession($cash);
+
+        (new PrintProcessor())->printCashup($this->session->getArqueo(), $this->empresa);
+        $msg = '<img class="d-none" src="http://localhost:10080?documento=%1s" alt=""/>';
+        $this->toolBox()->i18nLog()->info('printing-ticket', ['%ticket%' => 'cashup']);
+        $this->toolBox()->log()->info(sprintf($msg, 'cashup'));
     }
 }

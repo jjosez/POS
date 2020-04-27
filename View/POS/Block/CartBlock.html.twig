@@ -17,28 +17,37 @@
      * along with this program. If not, see <http://www.gnu.org/licenses/>.
      */
 #}
-{#<div class="form-row">
-    <div class="form-group col">
+<div class="form-row mb-1">
+    <div class="form-group col-12 col-md-4 pt-0">
         <div class="input-icon">
-            <input class="form-control input-pill" id="searchProduct" type="text"
-                   placeholder="Buscar producto..">
+            <input class="form-control" id="searchByCode" type="search"
+                   placeholder="Codigo de barras" autocomplete="off">
+            <span class="input-icon-addon"><i class="fas fa-barcode"></i></span>
+        </div>
+    </div>
+    <div class="form-group col pt-0">
+        <div class="input-icon">
+            <input class="form-control" id="searchProduct" type="text"
+                   placeholder="Buscar por texto" autocomplete="off">
             <span class="input-icon-addon"><i class="fas fa-search"></i></span>
         </div>
     </div>
-</div>#}
-<div class="table-responsive">
-    <table class="table">
-        <thead>
-        <tr>
-            <th class="w-60" scope="col">Producto</th>
-            <th scope="col">Cantidad</th>
-            <th scope="col">Precio</th>
-            <th scope="col">Total</th>
-            <th scope="col"><i class="fas fa-times"></i></th>
-        </tr>
-        </thead>
-        <tbody id="cartItemsContainer">
-
-        </tbody>
-    </table>
+</div>
+<div class="p-3 bg-white rounded box-shadow cart-content">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <tr>
+                <th class="w-60" scope="col">Producto</th>
+                <th scope="col">Cantidad</th>
+                <th scope="col">Precio</th>
+                <th scope="col">Total</th>
+                <th scope="col"><i class="fas fa-times"></i></th>
+            </tr>
+            </thead>
+            <tbody id="cartItemsContainer">
+                <tr><td colspan="6"><span>Ningun producto agregado.</span></td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>

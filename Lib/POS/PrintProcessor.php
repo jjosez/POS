@@ -6,8 +6,10 @@
 
 namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
 
-use FacturaScripts\Core\Base\ToolBox;
+use FacturaScripts\Core\Model\Base\BusinessDocument;
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTicket;
+use FacturaScripts\Dinamic\Lib\CashupTicket;
+use FacturaScripts\Dinamic\Model\SesionPOS;
 use FacturaScripts\Dinamic\Model\Ticket;
 
 /**
@@ -17,8 +19,36 @@ use FacturaScripts\Dinamic\Model\Ticket;
  */
 class PrintProcessor
 {
+    private $ticket;
 
     public function __construct()
     {
+        $this->ticket = new Ticket;
+    }
+
+    public function printCashup(SesionPOS $session, $company)
+    {
+        $cashupTicket = new CashupTicket($session, $company);
+        $printID = 'cashup';
+
+        $this->ticket->coddocument = $printID;
+        $this->ticket->text = $cashupTicket->getTicket();
+
+        if ($this->ticket->save()) return true;
+
+        return false;
+    }
+
+    public function printDocument(BusinessDocument $document)
+    {
+        $documentTicket = new BusinessDocumentTicket($document);
+        $printID = $document->modelClassName();
+
+        $this->ticket->coddocument = $printID;
+        $this->ticket->text = $documentTicket->getTicket();
+
+        if ($this->ticket->save()) return true;
+
+        return false;
     }
 }

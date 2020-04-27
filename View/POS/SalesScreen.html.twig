@@ -21,25 +21,7 @@
 
 {% block body %}
     <div class="col-sm-12 col-md-8 col-lg-9 mh-100">
-        <div class="form-row mb-1">
-            <div class="form-group col-12 col-md-4 pt-0">
-                <div class="input-icon">
-                    <input class="form-control" id="searchByCode" type="search"
-                           placeholder="Codigo de barras" autocomplete="off">
-                    <span class="input-icon-addon"><i class="fas fa-barcode"></i></span>
-                </div>
-            </div>
-            <div class="form-group col pt-0">
-                <div class="input-icon">
-                    <input class="form-control" id="searchProduct" type="text"
-                           placeholder="Buscar por texto" autocomplete="off">
-                    <span class="input-icon-addon"><i class="fas fa-search"></i></span>
-                </div>
-            </div>
-        </div>
-        <div class="p-3 bg-white rounded box-shadow cart-content">
-            {{ include('POS/Block/CartBlock.html.twig') }}
-        </div>
+        {{ include('POS/Block/CartBlock.html.twig') }}
     </div>
     <div class="col-sm-12 col-md-4 col-lg-3">
         <div class="p-3 bg-white rounded box-shadow h-100">
@@ -129,6 +111,7 @@
     {{ parent() }}
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/squirrelly.min.js') }}"></script>
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/onscan.min.js') }}"></script>
+    {#<script src="{{ asset('Plugins/EasyPOS/Assets/JS/bootstrap-notify.min.js') }}"></script>#}
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.cartitem.js') }}"></script>
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.app.js') }}"></script>
 {% endblock %}
