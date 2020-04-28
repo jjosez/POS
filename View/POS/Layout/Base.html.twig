@@ -58,29 +58,3 @@
         {{ debugBarRender.render() | raw }}
     </body>
 {% endblock %}
-
-{#{% macro notify(log, types, style) %}
-    {% set messages = log.readAll(types) %}
-    {% if messages | length > 0 %}
-        {% for msg in messages %}
-            var content = {};
-            content.title = 'EasyPOS';
-            content.message = '{{ msg.message | raw }}';
-
-            $.notify(content,{
-                type: '{{ style }}',
-                placement: {
-                    from: 'bottom',
-                    align: 'left'
-                },
-                time: 1000,
-                delay: 0,
-                template: '<div data-notify="container" class="col-10 col-sm-3 alert alert-{0}" role="alert">' +
-                        '<button type="button" aria-hidden="true" class="close" data-notify="dismiss">×</button>' +
-                        '<span data-notify="title">{1}</span> ' +
-                        '<span data-notify="message">{2}</span>' +
-                        '</div>'
-            });
-        {% endfor %}
-    {% endif %}
-{% endmacro %}#}

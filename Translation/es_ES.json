@@ -1,0 +1,16 @@
+{
+    "available-cash-registers": "Terminales disponibles", 
+    "cash-registers": "Terminales",
+    "cash-register-not-found" : "No se encontró la terminal",
+    "cash-up": "Cierre de caja",
+    "currency-denomination": "Denominación monetaria",
+    "default-payment-method": "Método de pago predefinido",
+    "payment-amount": "Cantidad pagada",
+    "payment-change": "Cambio",
+    "point-of-sale": "Punto de venta",
+    "till-session": "Arqueo",
+    "till-session-operations": "Operaciones arqueo",
+    "till-sessions": "Arqueos",
+    "total-counted": "Total contado",
+    "total-expected": "Total esperado"
+}

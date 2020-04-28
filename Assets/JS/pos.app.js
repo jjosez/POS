@@ -118,7 +118,11 @@ function ajaxBarcodeSearch(query) {
         dataType: "json",
         startTime: performance.now(),
         success: function (data) {
-            setProduct(data[0].code, data[0].description);
+            if (data.length > 0) {
+                setProduct(data[0].code, data[0].description);
+            } else {
+                console.log('no encontrado');
+            }
             $('#searchByCode').val('');
         },
         error: function (xhr, status) {

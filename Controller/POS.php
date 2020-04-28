@@ -175,6 +175,16 @@ class POS extends Controller
         }
     }
 
+    private function closeSession()
+    {
+        $cash = $this->request->request->get('cash');
+        $this->session->closeSession($cash);
+
+        PrintProcessor::printCashup($this->session->getArqueo(), $this->empresa);
+        $mvalues = ['%ticket%' => 'cashup','%code%'=>'cashup'];
+        $this->toolBox()->i18nLog()->info('printing-ticket', $mvalues);
+    }
+
     /**
      * Process sales.
      *
@@ -219,12 +229,15 @@ class POS extends Controller
      */
     private function printTicket($document)
     {
-        if ((new PrintProcessor())->printDocument($document)) {
-            $msg = '<img class="d-none" src="http://localhost:10080?documento=%1s" alt=""/>';
-            $this->toolBox()->i18nLog()->info('printing-ticket', ['%ticket%' => $document->codigo]);
-            $this->toolBox()->log()->info(sprintf($msg, $document->modelClassName()));
+        if (PrintProcessor::printDocument($document)) {
+            $mvalues = [
+                '%ticket%' => $document->codigo,
+                '%code%'=>$document->modelClassName()
+            ];
+            $this->toolBox()->i18nLog()->info('printing-ticket', $mvalues);
             return;
         }
+
         $this->toolBox()->i18nLog()->warning('error-printing-ticket');
     }
 
@@ -282,16 +295,5 @@ class POS extends Controller
     public function getRandomToken()
     {
         return $this->multiRequestProtection->newToken();
-    }
-
-    private function closeSession()
-    {
-        $cash = $this->request->request->get('cash');
-        $this->session->closeSession($cash);
-
-        (new PrintProcessor())->printCashup($this->session->getArqueo(), $this->empresa);
-        $msg = '<img class="d-none" src="http://localhost:10080?documento=%1s" alt=""/>';
-        $this->toolBox()->i18nLog()->info('printing-ticket', ['%ticket%' => 'cashup']);
-        $this->toolBox()->log()->info(sprintf($msg, 'cashup'));
     }
 }

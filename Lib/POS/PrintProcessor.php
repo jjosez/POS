@@ -19,35 +19,30 @@ use FacturaScripts\Dinamic\Model\Ticket;
  */
 class PrintProcessor
 {
-    private $ticket;
-
-    public function __construct()
-    {
-        $this->ticket = new Ticket;
-    }
-
-    public function printCashup(SesionPOS $session, $company)
+    public static function printCashup(SesionPOS $session, $company)
     {
         $cashupTicket = new CashupTicket($session, $company);
+        $ticket = new Ticket();
         $printID = 'cashup';
 
-        $this->ticket->coddocument = $printID;
-        $this->ticket->text = $cashupTicket->getTicket();
+        $ticket->coddocument = $printID;
+        $ticket->text = $cashupTicket->getTicket();
 
-        if ($this->ticket->save()) return true;
+        if ($ticket->save()) return true;
 
         return false;
     }
 
-    public function printDocument(BusinessDocument $document)
+    public static function printDocument(BusinessDocument $document)
     {
         $documentTicket = new BusinessDocumentTicket($document);
+        $ticket = new Ticket();
         $printID = $document->modelClassName();
 
-        $this->ticket->coddocument = $printID;
-        $this->ticket->text = $documentTicket->getTicket();
+        $ticket->coddocument = $printID;
+        $ticket->text = $documentTicket->getTicket();
 
-        if ($this->ticket->save()) return true;
+        if ($ticket->save()) return true;
 
         return false;
     }
