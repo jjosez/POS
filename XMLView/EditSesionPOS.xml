@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of EasyPOS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+-->
+
+<view>
+    <columns>
+        <group name="data" numcolumns="12">
+            <column name="start-date" numcolumns="4" order="100">
+                <widget type="date" fieldname="fechainicio" icon="fas fa-calendar-alt" readonly="true" />
+            </column> 
+            <column name="end-date" numcolumns="4" order='100'>
+                <widget type='date' fieldname='fechafin' icon="fas fa-calendar-alt" readonly="true" />
+            </column>      
+            <column name="total-expected" numcolumns="4" order="100">
+                <widget type="money" fieldname="saldoesperado" readonly="true" />
+            </column>
+            <column name="total-counted" numcolumns="4" order="100">
+                <widget type="money" fieldname="saldocontado" readonly="true" />
+            </column>      
+        </group>
+    </columns>
+</view>

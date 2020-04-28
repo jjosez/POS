@@ -1,35 +1,19 @@
 <?php
 /**
- * This file is part of POS plugin for FacturaScripts
+ * This file is part of EasyPOS plugin for FacturaScripts
  * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\Plugins\EasyPOS\Controller;
 
 use FacturaScripts\Core\Base\Controller;
-use FacturaScripts\Core\Base\ControllerPermissions;
+use FacturaScripts\Dinamic\Lib\POS\PrintProcessor;
 use FacturaScripts\Dinamic\Lib\POS\SalesDataGrid;
 use FacturaScripts\Dinamic\Lib\POS\SalesProcessor;
 use FacturaScripts\Dinamic\Lib\POS\SessionManager;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\FormaPago;
-use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Dinamic\Model\Variante;
-use FacturaScripts\Plugins\EasyPOS\Lib\POS\PrintProcessor;
 use function json_encode;
 
 /**
@@ -151,6 +135,10 @@ class POS extends Controller
     private function execAfterAction(string $action)
     {
         switch ($action) {
+            case 'close-session':
+                $this->closeSession();
+                break;
+
             case 'open-session':
                 $idterminal = $this->request->request->get('terminal', '');
                 $amount = $this->request->request->get('saldoinicial', 0);
@@ -162,8 +150,8 @@ class POS extends Controller
                 $this->terminal = $this->session->getTerminal($idterminal);
                 break;
 
-            case 'close-session':
-                $this->closeSession();
+            case 'print-cashup':
+                $this->printCashup();
                 break;
 
             case 'save-document':
@@ -180,9 +168,7 @@ class POS extends Controller
         $cash = $this->request->request->get('cash');
         $this->session->closeSession($cash);
 
-        PrintProcessor::printCashup($this->session->getArqueo(), $this->empresa);
-        $mvalues = ['%ticket%' => 'cashup','%code%'=>'cashup'];
-        $this->toolBox()->i18nLog()->info('printing-ticket', $mvalues);
+        $this->printCashup();
     }
 
     /**
@@ -200,8 +186,12 @@ class POS extends Controller
         $salesProcessor = new SalesProcessor($modelName, $data);
         if ($salesProcessor->saveDocument()) {
             $document = $salesProcessor->getDocument();
+            $payments = $salesProcessor->getPaymentsData();
+
             $this->session->recordOperation($document);
+            $this->session->updateCashCount($payments);
             $this->printTicket($document);
+            //$this->toolBox()->log()->info(print_r($payments, true));
         }
     }
 
@@ -224,17 +214,34 @@ class POS extends Controller
     }
 
     /**
+     * @return void;
+     */
+    private function printCashup()
+    {
+        if (PrintProcessor::printCashup($this->session->getArqueo(), $this->empresa)) {
+            $values = [
+                '%ticket%' => 'Cierre caja',
+                '%code%'=>'cashup'
+            ];
+            $this->toolBox()->i18nLog()->info('printing-ticket', $values);
+            return;
+        }
+
+        $this->toolBox()->i18nLog()->warning('error-printing-ticket');
+    }
+
+    /**
      * @param $document
      * @return void;
      */
     private function printTicket($document)
     {
         if (PrintProcessor::printDocument($document)) {
-            $mvalues = [
+            $values = [
                 '%ticket%' => $document->codigo,
                 '%code%'=>$document->modelClassName()
             ];
-            $this->toolBox()->i18nLog()->info('printing-ticket', $mvalues);
+            $this->toolBox()->i18nLog()->info('printing-ticket', $values);
             return;
         }
 

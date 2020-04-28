@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of EasyPOS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+-->
+
+<view>
+    <columns>
+        <column name="code" order="100">
+            <widget type="text" fieldname="clave"/>
+        </column>
+        <column name="currency" order="110">
+            <widget type="text" fieldname="coddivisa" />
+        </column>
+        <column name="value" display="right" order="120">
+            <widget type="number" decimal="4" fieldname="valor" />
+        </column>
+    </columns>
+</view>

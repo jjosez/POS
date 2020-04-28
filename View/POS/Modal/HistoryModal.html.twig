@@ -18,20 +18,32 @@
 */
 #}
 <div class="modal fade" id="historyModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{{ i18n.trans('till-session-operations') }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
+                <div class="d-flex w-100">
+                    <div class="pr-2 flex-grow-1">
+                        <h5 class="modal-title">{{ i18n.trans('till-session-operations') }}</h5>
+                    </div>
+                    <form method="post">
+                        <input type="hidden" name="action" value="print-cashup">
+                        <button type="submit" class="mr-2 btn btn-icon btn-round btn-primary" title="{{ i18n.trans('print-z') }}">
+                            <i class="fa fa-print"></i>
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-icon btn-round btn-danger" data-dismiss="modal">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
             </div>
             <div class="modal-body">
                 <table class="table search-table table-striped">
                     <thead>
                     <tr>
-                        <th scope="col" class="w-25">{{ i18n.trans('code') }}</th>
-                        <th scope="col">{{ i18n.trans('customer') }}</th>
+                        <th scope="col" class="w-20">{{ i18n.trans('code') }}</th>
+                        <th scope="col">{{ i18n.trans('doc-type') }}</th>
+                        <th scope="col" class="w-20">{{ i18n.trans('date') }}</th>
+                        <th scope="col" class="w-20">{{ i18n.trans('time') }}</th>
                         <th scope="col" class="w-20">{{ i18n.trans('total') }}</th>
                     </tr>
                     </thead>
@@ -39,9 +51,6 @@
 
                     </tbody>
                 </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">{{ i18n.trans('close') }}</button>
             </div>
         </div>
     </div>

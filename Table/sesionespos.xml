@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+*    This file is part of EasyPOS plugin for FacturaScripts
+*    Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+*
+*    Document   : sesionespos.xml
+*    Description:
+*         Estructura de la tabla sesionespos.
+-->
+<table>
+    <column>
+        <name>abierto</name>
+        <type>boolean</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>conteo</name>
+        <type>text</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>fechainicio</name>
+        <type>date</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>fechafin</name>
+        <type>date</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>horainicio</name>
+        <type>time without time zone</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>horafin</name>
+        <type>time without time zone</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>idsesion</name>
+        <type>serial</type>
+        <null>NO</null>
+        <default>nextval('sesionespos_idsesion_seq'::regclass)</default>
+    </column>
+    <column>
+        <name>idterminal</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>    
+    <column>
+        <name>nickusuario</name>
+        <type>character varying(50)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>saldocontado</name>
+        <type>double precision</type>
+        <null>NO</null>
+    </column>    
+    <column>
+        <name>saldoesperado</name>
+        <type>double precision</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>saldoinicial</name>
+        <type>double precision</type>
+        <null>NO</null>
+    </column>
+    <constraint>
+        <name>sesionespos_pkey</name>
+        <type>PRIMARY KEY (idsesion)</type>
+    </constraint>
+    <constraint>
+        <name>ca_sesionespos_terminalespos</name>
+        <type>FOREIGN KEY (idterminal) REFERENCES terminalespos (idterminal) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_sesionespos_users</name>
+        <type>FOREIGN KEY (nickusuario) REFERENCES users (nick) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+</table>

@@ -6,7 +6,7 @@
 
 namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
 
-use FacturaScripts\Core\Base\ToolBox;
+use FacturaScripts\Plugins\EasyPOS\Model\SesionPOS;
 
 /**
  * Class to manage POS payments.
@@ -16,16 +16,21 @@ use FacturaScripts\Core\Base\ToolBox;
 class PaymentsProcessor
 {
     private $cashPaymentAmount;
-    private $payments;
+    private $cashPaymentMethod;
+    private $paymentsData;
+    private $session;
     private $totalPaymentAmount;
 
     /**
      * PaymentsProcessor constructor.
-     * @param array $payments
+     * 
+     * @param string $cashPaymentMethod
+     * @param SesionPOS $session
      */
-    public function __construct(array $paymentsData = [])
+    public function __construct(string $cashPaymentMethod, SesionPOS $session)
     {
-        $this->setPayments($paymentsData);
+        $this->cashPaymentMethod = $cashPaymentMethod;
+        $this->session = $session;
     }
 
     /**
@@ -35,7 +40,6 @@ class PaymentsProcessor
     {
         foreach ($payments as $payment)
         {
-            print_r($payment);
         }
     }
 
@@ -46,7 +50,6 @@ class PaymentsProcessor
      */
     public function getCashPaymentAmount() : float
     {
-
     }
 
     /**
@@ -56,6 +59,10 @@ class PaymentsProcessor
      */
     public function getTotalPaymentAmount() : float
     {
+    }
 
+    public function savePayments(array $paymentsData)
+    {
+        ;
     }
 }

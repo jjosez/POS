@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+*    This file is part of EasyPOS plugin for FacturaScripts
+*    Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+*
+*    Document   : fraccionesmoneda.xml
+*    Description:
+*        Estructura de la tabla fraccionesmoneda.
+-->
+
+<table>
+    <column>
+        <name>clave</name>
+        <type>character varying(10)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>coddivisa</name>
+        <type>character varying(3)</type>
+        <null>NO</null>
+    </column>     
+    <column>
+        <name>valor</name>
+        <type>double precision</type>
+        <null>NO</null>
+    </column>
+    <constraint>
+        <name>denominacionesmoneda_pkey</name>
+        <type>PRIMARY KEY (clave)</type>
+    </constraint>
+    <constraint>
+        <name>ca_denominacionesmoneda_divisas</name>
+        <type>FOREIGN KEY (coddivisa) REFERENCES divisas (coddivisa) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+</table>

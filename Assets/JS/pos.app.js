@@ -38,14 +38,14 @@ function onCartEdit(e) {
 
 function onCartUpdate() {
     var data = {};
-    $.each($("#" + posFormName).serializeArray(), function (key, value) {
+    $.each($("#" + FormName).serializeArray(), function (key, value) {
         data[value.name] = value.value;
     });
     data.action = "recalculate-document";
     data.lines = getCartData();
     $.ajax({
         type: "POST",
-        url: posUrlAccess,
+        url: UrlAccess,
         dataType: "json",
         data: data,
         startTime: performance.now(),
@@ -90,7 +90,7 @@ function ajaxCustomSearch(query, target) {
         target: target
     };
     $.ajax({
-        url: posUrlAccess,
+        url: UrlAccess,
         data: data,
         type: "POST",
         dataType: "json",
@@ -112,7 +112,7 @@ function ajaxBarcodeSearch(query) {
         query: query
     };
     $.ajax({
-        url: posUrlAccess,
+        url: UrlAccess,
         data: data,
         type: "POST",
         dataType: "json",
@@ -162,7 +162,7 @@ function recalculatePaymentAmount() {
     paymentMethod = $('#checkoutPaymentMethod').children("option:selected").val();
     paymentReturn = paymentAmount - total;
     paymentReturn = paymentReturn || 0;
-    if (paymentMethod !== posCashPaymentMethod) {
+    if (paymentMethod !== CashPaymentMethod) {
         if (paymentReturn > 0) {
             paymentReturn = 0;
             paymentAmount = total;
@@ -211,7 +211,7 @@ function testResponseTime(startTime, label = 'Exec time:') {
 
 function loadTransactionHistory() {
     $.ajax({
-        url: posUrlAccess,
+        url: UrlAccess,
         data: {action: 'load-hostory'},
         type: "POST",
         dataType: "json",

@@ -151,24 +151,34 @@ class SessionManager
 
     public function recordOperation(BusinessDocument $document)
     {
-        $trasaction = new OperacionPOS();
-        $trasaction->codigo = $document->codigo;
-        $trasaction->codcliente = $document->codcliente;
-        $trasaction->fecha = $document->fecha;
-        $trasaction->iddocumento = $document->primaryColumnValue();
-        $trasaction->idsesion = $this->arqueo->idsesion;
-        $trasaction->tipodoc = $document->modelClassName();
-        $trasaction->total = $document->total;
+        $operation = new OperacionPOS();
+        $operation->codigo = $document->codigo;
+        $operation->codcliente = $document->codcliente;
+        $operation->fecha = $document->fecha;
+        $operation->iddocumento = $document->primaryColumnValue();
+        $operation->idsesion = $this->arqueo->idsesion;
+        $operation->tipodoc = $document->modelClassName();
+        $operation->total = $document->total;
 
-        return $trasaction->save();
+        return $operation->save();
     }
 
     public function loadHistory()
     {
-        $trasaction = new OperacionPOS();
+        $operation = new OperacionPOS();
         $where = [new DataBaseWhere('idsesion', $this->arqueo->idsesion)];
-        $result = $trasaction->all($where);
+        $result = $operation->all($where);
 
         return json_encode($result);
+    }
+
+    public function updateCashCount(array $payments)
+    {
+        $cashPaymentMethod  = ToolBox::appSettings()->get('pointofsale', 'fpagoefectivo');
+
+        if ($payments['method'] == $cashPaymentMethod) {
+            $this->arqueo->saldoesperado += $payments['amount'] - $payments['change'] ;
+            $this->arqueo->save();
+        }
     }
 }

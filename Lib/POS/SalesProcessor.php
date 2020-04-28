@@ -137,6 +137,14 @@ class SalesProcessor
     }
 
     /**
+     * @return array
+     */
+    public function getPaymentsData()
+    {
+        return $this->data['payments'];
+    }
+
+    /**
      * Recalculate the document total based on lines.
      *
      * @param array $request

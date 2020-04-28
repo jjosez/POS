@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of EasyPOS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+-->
+
+<view>
+    <columns>
+        <group name="data" numcolumns="12">
+            <column name="code" numcolumns="4" order="100">
+                <widget type="text" fieldname="clave" icon="fas fa-hashtag" required="true" />
+            </column>
+            <column name='currency' numcolumns='4' order='100'>
+                <widget type='autocomplete' fieldname='coddivisa' onclick='EditDivisa'>
+                    <values source='divisas' fieldcode='coddivisa' fieldtitle='descripcion'></values>
+                </widget>
+            </column>          
+            <column name="value" numcolumns="4" order="100">
+                <widget type="number" decimal="0" fieldname="valor" required="true" />
+            </column>
+        </group>
+    </columns>
+</view>

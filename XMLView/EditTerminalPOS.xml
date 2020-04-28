@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of EasyPOS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+-->
+
+<view>
+    <columns>
+        <group name="data" numcolumns="12">
+            <column name="name" numcolumns="3" order="100">
+                <widget type="text" fieldname="nombre" icon="fas fa-tag" required="true" />
+            </column>
+            <column name='customer' numcolumns='3' order='100'>
+                <widget type='autocomplete' fieldname='codcliente' onclick='EditCliente'>
+                    <values source='clientes' fieldcode='codcliente' fieldtitle='nombre'></values>
+                </widget>
+            </column>
+            <column name="warehouse" titleurl="ListAlmacen" numcolumns="3" order="100">
+                <widget type="select" fieldname="codalmacen" required='true' onclick="EditAlmacen">
+                    <values source="almacenes" fieldcode="codalmacen" fieldtitle="nombre"></values>
+                </widget>
+            </column>
+            <column name="serie" titleurl="ListSerie" numcolumns="3" order="100">
+                <widget type="select" fieldname="codserie" required='true' onclick="EditSerie">
+                    <values source="series" fieldcode="codserie" fieldtitle="descripcion"></values>
+                </widget>
+            </column>            
+        </group>
+        <group name="extra" numcolumns="12">
+            <column name="Ancho papel" numcolumns="3" order="100">
+                <widget type="number" fieldname="anchopapel" />
+            </column>
+            <column name="Numero tickets" numcolumns="3" order="100">
+                <widget type="number" fieldname="numerotickets" />
+            </column>            
+            <column name='Acepta pagos' order='120' display='right'>
+                <widget type="checkbox" fieldname='aceptapagos' />
+            </column> 
+        </group>        
+    </columns>
+</view>
