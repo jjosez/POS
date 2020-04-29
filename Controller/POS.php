@@ -6,6 +6,7 @@
 namespace FacturaScripts\Plugins\EasyPOS\Controller;
 
 use FacturaScripts\Core\Base\Controller;
+use FacturaScripts\Dinamic\Lib\POS\PaymentsProcessor;
 use FacturaScripts\Dinamic\Lib\POS\PrintProcessor;
 use FacturaScripts\Dinamic\Lib\POS\SalesDataGrid;
 use FacturaScripts\Dinamic\Lib\POS\SalesProcessor;
@@ -186,12 +187,11 @@ class POS extends Controller
         $salesProcessor = new SalesProcessor($modelName, $data);
         if ($salesProcessor->saveDocument()) {
             $document = $salesProcessor->getDocument();
-            $payments = $salesProcessor->getPaymentsData();
+            $payments[] = $salesProcessor->getPaymentsData();
 
             $this->session->recordOperation($document);
-            $this->session->updateCashCount($payments);
+            $this->session->savePayments($payments);
             $this->printTicket($document);
-            //$this->toolBox()->log()->info(print_r($payments, true));
         }
     }
 

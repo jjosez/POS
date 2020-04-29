@@ -9,6 +9,7 @@
     "cashup": "Corte de caja",
     "cashup-money-counted": "Dinero contado en caja: %amount%",
     "charge": "Cobrar",
+    "change-amount": "Importe del cambio",
     "currency-denomination": "Denominación",
     "default-payment-method": "Método de pago predefinido",
     "default-business-document" : "Documento predefinido",
@@ -23,6 +24,7 @@
     "till-session-closed": "Arqueo cerrado por %userNickname%.",
     "till-session-opened": "Arqueo iniciado en %terminalName%, por %userNickname%.",
     "till-session-operations": "Operaciones del arqueo",
+    "till-session-payments": "Pagos del arqueo",
     "till-sessions": "Arqueos",
     "total-counted": "Total contado",
     "total-expected": "Total esperado"

@@ -186,9 +186,9 @@ function showCheckoutModal() {
     modal.modal();
     $('#savePaymentButton').on('click', function (event) {
         var paymentData = {};
-        paymentData['amount'] = $('#checkoutPaymentAmount').val();
-        paymentData['method'] = $('#checkoutPaymentMethod').val();
-        paymentData['change'] = $('#checkoutPaymentChange').val();
+        paymentData.amount = $('#checkoutPaymentAmount').val();
+        paymentData.method = $('#checkoutPaymentMethod').val();
+        paymentData.change = $('#checkoutPaymentChange').val();
         document.getElementById("action").value = "save-document";
         document.getElementById("lines").value = JSON.stringify(getCartData());
         document.getElementById("payments").value = JSON.stringify(paymentData);

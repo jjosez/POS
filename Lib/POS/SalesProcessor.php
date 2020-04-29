@@ -189,7 +189,6 @@ class SalesProcessor
                 $newLine = $this->document->getNewLine($line);
 
                 if (false === $newLine->save()) {
-                    //$miniLog->info( print_r($line, true));
                     $this->document->delete();
                     return false;
                 }

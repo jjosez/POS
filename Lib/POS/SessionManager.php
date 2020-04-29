@@ -10,6 +10,7 @@ use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Model\Base\BusinessDocument;
 use FacturaScripts\Dinamic\Model\OperacionPOS;
+use FacturaScripts\Dinamic\Model\PagoPOS;
 use FacturaScripts\Dinamic\Model\SesionPOS;
 use FacturaScripts\Dinamic\Model\TerminalPOS;
 use FacturaScripts\Dinamic\Model\User;
@@ -17,10 +18,11 @@ use FacturaScripts\Dinamic\Model\User;
 class SessionManager
 {
     private $arqueo;
+    private $cart;
+    private $lastOperation;
     private $opened;
     private $terminal;
     private $user;
-    private $cart;
 
     /**
      * TillSessionHelper constructor.
@@ -30,7 +32,6 @@ class SessionManager
         $this->arqueo = new SesionPOS();
         $this->terminal = new TerminalPOS();
         $this->user = $user;
-
         $this->opened = true;
 
         if (!$this->arqueo->isOpen('user', $this->user->nick)) {
@@ -160,7 +161,8 @@ class SessionManager
         $operation->tipodoc = $document->modelClassName();
         $operation->total = $document->total;
 
-        return $operation->save();
+        $operation->save();
+        $this->lastOperation = $operation;
     }
 
     public function loadHistory()
@@ -172,13 +174,12 @@ class SessionManager
         return json_encode($result);
     }
 
-    public function updateCashCount(array $payments)
+    public function savePayments(array $payments)
     {
-        $cashPaymentMethod  = ToolBox::appSettings()->get('pointofsale', 'fpagoefectivo');
+        $processor = new PaymentsProcessor($payments);
+        $processor->savePayments($this->lastOperation, $this->arqueo);
 
-        if ($payments['method'] == $cashPaymentMethod) {
-            $this->arqueo->saldoesperado += $payments['amount'] - $payments['change'] ;
-            $this->arqueo->save();
-        }
+        $this->arqueo->saldoesperado += $processor->getCashPaymentAmount();
+        $this->arqueo->save();
     }
 }

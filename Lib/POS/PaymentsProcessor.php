@@ -6,6 +6,10 @@
 
 namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
 
+use FacturaScripts\Core\App\App;
+use FacturaScripts\Core\App\AppSettings;
+use FacturaScripts\Plugins\EasyPOS\Model\OperacionPOS;
+use FacturaScripts\Plugins\EasyPOS\Model\PagoPOS;
 use FacturaScripts\Plugins\EasyPOS\Model\SesionPOS;
 
 /**
@@ -17,20 +21,23 @@ class PaymentsProcessor
 {
     private $cashPaymentAmount;
     private $cashPaymentMethod;
+    private $operation;
     private $paymentsData;
     private $session;
     private $totalPaymentAmount;
 
     /**
      * PaymentsProcessor constructor.
-     * 
-     * @param string $cashPaymentMethod
-     * @param SesionPOS $session
+     *
+     * @param array $payments
      */
-    public function __construct(string $cashPaymentMethod, SesionPOS $session)
+    public function __construct(array $payments)
     {
-        $this->cashPaymentMethod = $cashPaymentMethod;
-        $this->session = $session;
+        $this->cashPaymentMethod = AppSettings::get('pointofsale', 'fpagoefectivo');
+        $this->cashPaymentAmount = 0;
+        $this->totalPaymentAmount = 0;
+
+        $this->setPayments($payments);
     }
 
     /**
@@ -38,8 +45,14 @@ class PaymentsProcessor
      */
     private function setPayments(array $payments)
     {
-        foreach ($payments as $payment)
-        {
+        $this->paymentsData = $payments;
+        foreach ($payments as $payment) {
+            if ($payment['method'] == $this->cashPaymentMethod) {
+                $this->cashPaymentAmount += $payment['amount'] - $payment['change'];
+                $this->totalPaymentAmount += $this->cashPaymentAmount;
+            } else {
+                $this->totalPaymentAmount += $payment['amount'];
+            }
         }
     }
 
@@ -48,8 +61,9 @@ class PaymentsProcessor
      *
      * @return float
      */
-    public function getCashPaymentAmount() : float
+    public function getCashPaymentAmount(): float
     {
+        return $this->cashPaymentAmount;
     }
 
     /**
@@ -57,12 +71,22 @@ class PaymentsProcessor
      *
      * @return float
      */
-    public function getTotalPaymentAmount() : float
+    public function getTotalPaymentAmount(): float
     {
+        return $this->totalPaymentAmount;
     }
 
-    public function savePayments(array $paymentsData)
+    public function savePayments(OperacionPOS $operation, SesionPOS $session)
     {
-        ;
+        foreach ($this->paymentsData as $p) {
+            $payment = new PagoPOS();
+            $payment->cantidad = $p['amount'];
+            $payment->cambio = $p['change'];
+            $payment->codpago = $p['method'];
+            $payment->idoperacion = $operation->idoperacion;
+            $payment->idsesion = $session->idsesion;
+
+            $payment->save();
+        }
     }
 }

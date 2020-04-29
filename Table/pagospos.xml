@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+*    This file is part of EasyPOS plugin for FacturaScripts
+*    Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+*
+*    Document   : pagospos.xml
+*    Description:
+*         Estructura de la tabla pagospos.
+-->
+<table>
+    <column>
+        <name>codpago</name>
+        <type>character varying(10)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>idoperacion</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>idsesion</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>idpago</name>
+        <type>serial</type>
+        <null>NO</null>
+        <default>nextval('pagospos_idpago_seq'::regclass)</default>
+    </column>
+    <column>
+        <name>cantidad</name>
+        <type>double precision</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>cambio</name>
+        <type>double precision</type>
+        <null>NO</null>
+    </column>
+    <constraint>
+        <name>pagospos_pkey</name>
+        <type>PRIMARY KEY (idpago)</type>
+    </constraint>
+    <constraint>
+        <name>ca_pagospos_operacionespos</name>
+        <type>FOREIGN KEY (idoperacion) REFERENCES operacionespos (idoperacion) ON DELETE CASCADE ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_pagospos_formaspago</name>
+        <type>FOREIGN KEY (codpago) REFERENCES formaspago (codpago) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_pagospos_sesionpos</name>
+        <type>FOREIGN KEY (idsesion) REFERENCES sesionespos (idsesion) ON DELETE CASCADE ON UPDATE CASCADE</type>
+    </constraint>
+</table>
