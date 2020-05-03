@@ -25,11 +25,9 @@
         <table class="table">
             <thead>
             <tr>
-                <th class="w-60" scope="col">Producto</th>
-                <th scope="col">Cantidad</th>
-                <th scope="col">Precio</th>
-                <th scope="col">Total</th>
-                <th scope="col"><i class="fas fa-times"></i></th>
+                {% for header in grid.headers %}
+                    <th scope="col">{{ header }}</th>
+                {% endfor %}
             </tr>
             </thead>
             <tbody id="cartItemsContainer">

@@ -2,28 +2,17 @@
  * This file is part of EasyPOS plugin for FacturaScripts
  * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-var cartItemsList = [];
+var cart = new Cart({doc:{}});
 var cartItemsContainer = $('#cartItemsContainer');
 var cartTemplateSource = $('#cart-item-template').html();
 var cartTemplate = Sqrl.Compile(cartTemplateSource);
 var ajaxTemplateSource = $('#ajax-search-template').html();
 var ajaxTemplate = Sqrl.Compile(ajaxTemplateSource);
 
-function getCartData() {
-    var lines = [];
-    var n = 0;
-    for (var key in cartItemsList) {
-        lines[n] = cartItemsList[key].newLineData();
-        n++;
-    }
-    return lines;
-}
-
 function onCartDelete(e) {
     let index = e.data('index');
 
-    cartItemsList.splice( index, 1 );
-    console.log('Index deleting:', index);
+    cart.deleteCartItem(index);
     onCartUpdate();
 }
 
@@ -31,8 +20,8 @@ function onCartEdit(e) {
     let field = e.data('field');
     let index = e.data('index');
 
-    cartItemsList[index][field] = e.val();
-    console.log('Index editing:', index);
+    cart.cartItems[index][field] = e.val();
+    console.log('index/field editing:', index + '/' + field);
     onCartUpdate();
 }
 
@@ -42,7 +31,7 @@ function onCartUpdate() {
         data[value.name] = value.value;
     });
     data.action = "recalculate-document";
-    data.lines = getCartData();
+    data.lines = cart.getCartLinesData();
     $.ajax({
         type: "POST",
         url: UrlAccess,
@@ -51,16 +40,8 @@ function onCartUpdate() {
         startTime: performance.now(),
         success: function (results) {
             console.log("Request results: ", results);
-            updateCartItemList(results.lines);
-            $('#cartTotalDisplay').val(results.doc.total);
-            $('#cartTaxesDisplay').val(results.doc.totaliva);
-            $('#cartNetoDisplay').val(results.doc.netosindto);
-            $('#total').val(results.doc.total);
-            $('#neto').val(results.doc.neto);
-            $('#totalsuplidos').val(results.doc.totalsuplidos);
-            $('#totaliva').val(results.doc.totaliva);
-            $('#totalirpf').val(results.doc.totalirpf);
-            $('#totalrecargo').val(results.doc.totalrecargo);
+            cart = new Cart(results);
+            updateCartView(results);
             testResponseTime(this.startTime, 'Request exec time:');
         },
         error: function (xhr, status, error) {
@@ -69,16 +50,21 @@ function onCartUpdate() {
     });
 }
 
-function updateCartItemList(items) {
-    cartItemsList = [];
-    for (let item of items) {
-        //cartItemsList[item.referencia] = new CartItem(item);
-        cartItemsList.push(new CartItem(item));
-    }
-    /// Hide search modal
+function updateCartView(results) {
+    // Hide search modal
     $('#ajaxSearchModal').modal('hide');
-    /// Update cart view
-    var html = cartTemplate({lines: items}, Sqrl);
+    // Update totals
+    $('#cartTotalDisplay').val(results.doc.total);
+    $('#cartTaxesDisplay').val(results.doc.totaliva);
+    $('#cartNetoDisplay').val(results.doc.netosindto);
+    $('#total').val(results.doc.total);
+    $('#neto').val(results.doc.neto);
+    $('#totalsuplidos').val(results.doc.totalsuplidos);
+    $('#totaliva').val(results.doc.totaliva);
+    $('#totalirpf').val(results.doc.totalirpf);
+    $('#totalrecargo').val(results.doc.totalrecargo);
+    // Update cart view
+    var html = cartTemplate({lines: results.lines}, Sqrl);
     cartItemsContainer.html(html);
 }
 
@@ -133,16 +119,7 @@ function ajaxBarcodeSearch(query) {
 }
 
 function setProduct(code, description) {
-    for (let i = 0; i < cartItemsList.length; i++) {
-        if (cartItemsList[i].referencia === code) {
-            cartItemsList[i].cantidad +=1;
-            onCartUpdate();
-            return;
-        }
-    }
-
-    var cartItem = new CartItem({referencia: code, descripcion: description});
-    cartItemsList.push(cartItem);
+    cart.addCartItem(code, description);
 
     onCartUpdate();
 }
@@ -190,7 +167,7 @@ function showCheckoutModal() {
         paymentData.method = $('#checkoutPaymentMethod').val();
         paymentData.change = $('#checkoutPaymentChange').val();
         document.getElementById("action").value = "save-document";
-        document.getElementById("lines").value = JSON.stringify(getCartData());
+        document.getElementById("lines").value = JSON.stringify(cart.getCartLinesData());
         document.getElementById("payments").value = JSON.stringify(paymentData);
         document.salesDocumentForm.submit()
     });

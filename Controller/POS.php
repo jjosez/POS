@@ -6,7 +6,6 @@
 namespace FacturaScripts\Plugins\EasyPOS\Controller;
 
 use FacturaScripts\Core\Base\Controller;
-use FacturaScripts\Dinamic\Lib\POS\PaymentsProcessor;
 use FacturaScripts\Dinamic\Lib\POS\PrintProcessor;
 use FacturaScripts\Dinamic\Lib\POS\SalesDataGrid;
 use FacturaScripts\Dinamic\Lib\POS\SalesProcessor;
@@ -60,6 +59,11 @@ class POS extends Controller
         /** Set view template*/
         $template = $this->session->isOpen() ? '\POS\SalesScreen' : '\POS\SessionScreen';
         $this->setTemplate($template);
+
+        /*$gridata = SalesDataGrid::getDataGridHeaders($this->user);
+        $this->toolBox()->log()->info(print_r($gridata, true));
+        $gridata = SalesDataGrid::getGridData($this->user);
+        $this->toolBox()->log()->warning(print_r($gridata, true));*/
     }
 
     /**
@@ -279,9 +283,9 @@ class POS extends Controller
      *
      * @return string
      */
-    public function getDataGridHeaders()
+    public function getGridHeaders()
     {
-        return SalesDataGrid::getDataGridHeaders($this->user);
+        return json_decode(SalesDataGrid::getGridData($this->user), true);
     }
 
     /**

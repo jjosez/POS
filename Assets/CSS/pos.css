@@ -12,7 +12,7 @@
 
 .table > tbody > tr > td,
 .table > thead > tr > th {
-    padding: 0 10px !important;
+    padding: 0 5px !important;
 }
 
 .table > tbody > tr > td {

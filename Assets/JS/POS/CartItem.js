@@ -4,7 +4,6 @@
  */
 class CartItem {
     constructor(args = {}) {
-
         this._cantidad = args.cantidad;
         this._descripcion = args.descripcion;
         this._dtopor = args.dtopor;
@@ -116,12 +115,12 @@ class CartItem {
         }
     }
 
-    newLineData() {
+    getObjectData() {
         return {
             cantidad: this._cantidad,
             descripcion: this._descripcion,
-            dtpor: this._dtopor,
-            dtpor2: this._dtopor2,
+            dtopor: this._dtopor,
+            dtopor2: this._dtopor2,
             irpf: this._irpf,
             iva: this._iva,
             pvpsindto: this._pvpsindto,
