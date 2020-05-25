@@ -1,12 +1,12 @@
 {#
 /**
- * This file is part of EasyPOS plugin for FacturaScripts
- * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ *  This file is part of EasyPOS plugin for FacturaScripts
+ *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
 <div class="modal fade" id="cashupModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
-        <form method="POST">
+        <form id="cashupForm" name="cashupForm" method="POST">
             <input type="hidden" name="action" value="close-session">
             <div class="modal-content">
                 <div class="modal-header">
@@ -34,8 +34,8 @@
                     {% endfor %}
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ i18n.trans('cancel') }}</button>
-                    <button type="submit" class="btn btn-primary" id="btn-close-till">{{ i18n.trans('continue') }}</button>
+                    <button type="button" class="btn btn-secondary btn-round" data-dismiss="modal">{{ i18n.trans('cancel') }}</button>
+                    <button type="button" class="btn btn-warning btn-round" id="saveCashupButton">{{ i18n.trans('continue') }}</button>
                 </div>
             </div>
         </form>

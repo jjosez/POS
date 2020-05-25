@@ -16,14 +16,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
 
 use FacturaScripts\Core\Base\ToolBox;
-use FacturaScripts\Core\Lib\Widget\VisualItemLoadEngine;
-use FacturaScripts\Core\Model\PageOption;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Model\User;
+use FacturaScripts\Dinamic\Model\PageOption;
+use FacturaScripts\Dinamic\Model\User;
+use FacturaScripts\Dinamic\Lib\AssetManager;
+use FacturaScripts\Dinamic\Lib\Widget\VisualItemLoadEngine;
 
 /**
  * A set of tools to manage sessions and user acces.
@@ -37,18 +37,21 @@ class SalesDataGrid
      * Returns the columns available by user acces.
      *
      * @param User $user
-     * @return string
+     * @return array
      */
-    public static function getGridData(User $user)
+    public static function getDataGrid(User $user)
     {
         $data = [
             'headers' => [],
             'columns' => []
         ];
-
         $columns = self::loadPageOptions($user);
 
         foreach (self::getColumns($columns) as $col) {
+            if ($col->hidden()) {
+                continue;
+            }
+
             $item = [
                 'data' => $col->widget->fieldname,
                 'type' => $col->widget->getType(),
@@ -62,13 +65,12 @@ class SalesDataGrid
                 $item['type'] = 'text';
             }
 
-            if (!$col->hidden()) {
-                $data['columns'][] = $item;
-                $data['headers'][] = ToolBox::i18n()->trans($col->title);
-            }
+            $data['columns'][] = $item;
+            $data['headers'][] = ToolBox::i18n()->trans($col->title);
         }
 
-        return json_encode($data);
+        AssetManager::clear();
+        return $data;
     }
 
     /**

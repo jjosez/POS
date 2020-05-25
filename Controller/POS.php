@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of EasyPOS plugin for FacturaScripts
- * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 namespace FacturaScripts\Plugins\EasyPOS\Controller;
 
@@ -25,7 +25,6 @@ class POS extends Controller
 {
     public $cliente;
     public $formaPago;
-    public $terminal;
     public $session;
 
     /**
@@ -51,7 +50,6 @@ class POS extends Controller
         /** Init necesary stuff*/
         $this->cliente = new Cliente();
         $this->formaPago = new FormaPago();
-        $this->terminal = $this->session->getTerminal();
 
         /** Run operations after load all data */
         $this->execAfterAction($action);
@@ -59,11 +57,6 @@ class POS extends Controller
         /** Set view template*/
         $template = $this->session->isOpen() ? '\POS\SalesScreen' : '\POS\SessionScreen';
         $this->setTemplate($template);
-
-        /*$gridata = SalesDataGrid::getDataGridHeaders($this->user);
-        $this->toolBox()->log()->info(print_r($gridata, true));
-        $gridata = SalesDataGrid::getGridData($this->user);
-        $this->toolBox()->log()->warning(print_r($gridata, true));*/
     }
 
     /**
@@ -79,11 +72,6 @@ class POS extends Controller
 
             case 'barcode-search':
                 $this->searchbyBarcode();
-                return false;
-
-            case 'load-hostory':
-                $result = $this->session->loadHistory();
-                $this->response->setContent($result);
                 return false;
 
             case 'recalculate-document':
@@ -152,7 +140,11 @@ class POS extends Controller
 
             case 'open-terminal':
                 $idterminal = $this->request->request->get('terminal', '');
-                $this->terminal = $this->session->getTerminal($idterminal);
+                $this->session->getTerminal($idterminal);
+                break;
+
+            case 'pause-document':
+                $this->pauseDocument();
                 break;
 
             case 'print-cashup':
@@ -174,6 +166,24 @@ class POS extends Controller
         $this->session->closeSession($cash);
 
         $this->printCashup();
+    }
+
+    /**
+     * Process sales.
+     *
+     * @return void
+     */
+    private function pauseDocument()
+    {
+        $data = $this->request->request->all();
+        $modelName = 'OperacionPausada';
+
+        if (false === $this->validateSaveRequest($data)) return;
+
+        $salesProcessor = new SalesProcessor($modelName, $data);
+        if ($salesProcessor->saveDocument()) {
+            $this->toolBox()->i18nLog()->info('operation-is-paused');
+        }
     }
 
     /**
@@ -281,11 +291,11 @@ class POS extends Controller
     /**
      * Returns headers and columns available by user permissions.
      *
-     * @return string
+     * @return array
      */
     public function getGridHeaders()
     {
-        return json_decode(SalesDataGrid::getGridData($this->user), true);
+        return SalesDataGrid::getDataGrid($this->user);
     }
 
     /**

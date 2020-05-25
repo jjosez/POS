@@ -46,6 +46,7 @@ class SesionPOS extends Base\ModelClass
     public function install()
     {
         new TerminalPOS();
+        new PagoPOS();
         return parent::install();
     }
 

@@ -8,15 +8,15 @@
     <columns>
         <group name="data" numcolumns="12">
             <column name="code" numcolumns="4" order="100">
-                <widget type="text" fieldname="clave" icon="fas fa-hashtag" required="true" />
+                <widget type="text" fieldname="clave" icon="fas fa-hashtag" required="true"/>
             </column>
             <column name='currency' numcolumns='4' order='100'>
                 <widget type='autocomplete' fieldname='coddivisa' onclick='EditDivisa'>
-                    <values source='divisas' fieldcode='coddivisa' fieldtitle='descripcion'></values>
+                    <values source='divisas' fieldcode='coddivisa' fieldtitle='descripcion'/>
                 </widget>
             </column>          
             <column name="value" numcolumns="4" order="100">
-                <widget type="number" decimal="0" fieldname="valor" required="true" />
+                <widget type="number" decimal="0" fieldname="valor" required="true"/>
             </column>
         </group>
     </columns>

@@ -4,7 +4,7 @@
  *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
-<div class="modal fade" id="historyModal" tabindex="-1" role="dialog">
+<div class="modal fade" id="pausedOpsModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -12,12 +12,6 @@
                     <div class="pr-2 flex-grow-1">
                         <h5 class="modal-title">{{ i18n.trans('till-session-operations') }}</h5>
                     </div>
-                    <form method="post">
-                        <input type="hidden" name="action" value="print-cashup">
-                        <button type="submit" class="mr-2 btn btn-icon btn-round btn-primary" title="{{ i18n.trans('print-z') }}">
-                            <i class="fa fa-print"></i>
-                        </button>
-                    </form>
                     <button type="button" class="btn btn-icon btn-round btn-danger" data-dismiss="modal">
                         <i class="fa fa-times"></i>
                     </button>
@@ -25,23 +19,35 @@
             </div>
             <div class="modal-body">
                 <table class="table search-table table-striped">
+                    <colgroup>
+                        <col class="w-15">
+                        <col>
+                        <col class="w-15">
+                        <col class="w-15">
+                        <col class="w-15">
+                        <col>
+                    </colgroup>
                     <thead>
                     <tr>
-                        <th scope="col" class="w-20">{{ i18n.trans('code') }}</th>
+                        <th scope="col">{{ i18n.trans('code') }}</th>
                         <th scope="col">{{ i18n.trans('doc-type') }}</th>
-                        <th scope="col" class="w-20">{{ i18n.trans('date') }}</th>
-                        <th scope="col" class="w-20">{{ i18n.trans('time') }}</th>
-                        <th scope="col" class="w-20">{{ i18n.trans('total') }}</th>
+                        <th scope="col">{{ i18n.trans('date') }}</th>
+                        <th scope="col">{{ i18n.trans('time') }}</th>
+                        <th scope="col">{{ i18n.trans('total') }}</th>
+                        <th scope="col"><i class="fas fa-chevron-circle-right"></i></th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for operation in fsc.session.loadHistory() %}
+                    {% for operation in fsc.session.loadPausedOps() %}
                         <tr>
                             <td>{{ operation.codigo }}</td>
-                            <td>{{ i18n.trans(operation.tipodoc) }}</td>
+                            <td>{{ i18n.trans(operation.nombrecliente) }}</td>
                             <td>{{ operation.fecha }}</td>
                             <td>{{ operation.hora }}</td>
-                            <td class="text-right">{{ fsc.toolBox().coins().format(operation.total) }}</td>
+                            <td>{{ fsc.toolBox().coins().format(operation.total) }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-success item-add-button" type="button"><i class="fas fa-pen"></i></button>
+                            </td>
                         </tr>
                     {% else %}
                         <div class="alert alert-info" role="alert">

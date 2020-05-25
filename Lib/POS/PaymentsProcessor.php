@@ -3,7 +3,6 @@
  * This file is part of EasyPOS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-
 namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
 
 use FacturaScripts\Core\App\App;

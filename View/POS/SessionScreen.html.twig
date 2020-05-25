@@ -1,34 +1,21 @@
 {#
 /**
-* This file is part of POS plugin for FacturaScripts
-* Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License as
-* published by the Free Software Foundation, either version 3 of the
-* License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ *  This file is part of EasyPOS plugin for FacturaScripts
+ *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
 #}
 {% extends 'POS/Layout/Base.html.twig' %}
 {% block body %}
     <div class="container-fluid">
-        {% if fsc.terminal.idterminal %}
+        {% if terminal.idterminal %}
             <form autocomplete="off" id="new-till-session-form" method="post">
                 <input name="action" type="hidden" value="open-session">
-                <input name="terminal" type="hidden" value="{{ fsc.terminal.idterminal }}">
+                <input name="terminal" type="hidden" value="{{ terminal.idterminal }}">
                 <div class="row justify-content-md-center">
                     <div class="col col-lg-6">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title text-center">{{ fsc.terminal.nombre }}</h5>
+                                <h5 class="card-title text-center">{{ terminal.nombre }}</h5>
                                 <p class="card-text text-center">Ingresa el efectivo en caja para iniciar.</p>
                                 <div class="form-row">
                                     <div class="form-group col">
@@ -36,7 +23,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-money-bill-alt"></i></span>
                                             </div>
-                                            <input type="number" class="form-control" name="saldoinicial" placeholder="0">
+                                            <input type="number" class="form-control" name="saldoinicial" value="0">
                                         </div>
                                     </div>
                                 </div>
@@ -62,7 +49,7 @@
                             <p class="card-text text-center">Selecciona una terminal para comenzar.</p>
                             <form method="post">
                                 <input type="hidden" name="action" value="open-terminal"/>
-                                {% for terminal in fsc.terminal.allAvailable() %}
+                                {% for terminal in terminal.allAvailable() %}
                                     <div class="form-row">
                                         <div class="col">
                                             <button class="btn btn-primary btn-block" name="terminal"

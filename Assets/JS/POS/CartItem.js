@@ -1,6 +1,6 @@
 /**
  * This file is part of EasyPOS plugin for FacturaScripts
- * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 class CartItem {
     constructor(args = {}) {
@@ -104,17 +104,6 @@ class CartItem {
         this._referencia = value;
     }
 
-    validateTypeOf(param , type) {
-        switch (type) {
-            case 'string':
-                if (param.lenght < 1) {return ""}
-                break;
-            case 'number':
-                if (param.lenght < 1) {return 0}
-                break;
-        }
-    }
-
     getObjectData() {
         return {
             cantidad: this._cantidad,
@@ -129,5 +118,15 @@ class CartItem {
             recargo: this._recargo,
             referencia: this._referencia,
         };
+    }
+
+    toArray(){
+        var json = {};
+        for (let name in this) {
+            if (this.hasOwnProperty(name)) {
+                json[name.substr(1)] = this[name];
+            }
+        }
+        return json;
     }
 }

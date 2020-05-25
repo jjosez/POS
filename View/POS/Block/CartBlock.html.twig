@@ -1,7 +1,7 @@
 {#
 /**
- * This file is part of EasyPOS plugin for FacturaScripts
- * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ *  This file is part of EasyPOS plugin for FacturaScripts
+ *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
 <div class="form-row mb-1">
@@ -25,13 +25,14 @@
         <table class="table">
             <thead>
             <tr>
-                {% for header in grid.headers %}
+                {%- for header in grid.headers %}
                     <th scope="col">{{ header }}</th>
-                {% endfor %}
+                {% endfor -%}
+                <th scope="col"><i class="fas fa-times"></i></th>
             </tr>
             </thead>
             <tbody id="cartItemsContainer">
-                <tr><td colspan="6"><span>Ningun producto agregado.</span></td></tr>
+                <tr><td colspan="14"><span>Ningun producto agregado.</span></td></tr>
             </tbody>
         </table>
     </div>

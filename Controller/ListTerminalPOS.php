@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of EasyPOS plugin for FacturaScripts
- * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 namespace FacturaScripts\Plugins\EasyPOS\Controller;
 

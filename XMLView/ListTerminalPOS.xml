@@ -7,14 +7,14 @@
 <view>
     <columns>
         <column name="ID" order="100">
-            <widget type="text" fieldname="idterminal" onclick="EditTerminalPOS" />
+            <widget type="text" fieldname="idterminal" onclick="EditTerminalPOS"/>
         </column>
         <column name="name" order="100">
             <widget type="text" fieldname="nombre"/>
         </column>
         <column name="default-customer" order="100">
             <widget type="select" fieldname="codcliente">
-                <values source="clientes" fieldcode="codcliente" fieldtitle="nombre"></values>
+                <values source="clientes" fieldcode="codcliente" fieldtitle="nombre"/>
             </widget>
         </column>
         <column name="default-warehouse" order="100">
@@ -22,14 +22,14 @@
         </column>
         <column name="default-warehouse" order="100">
             <widget type="select" fieldname="codalmacen">
-                <values source="almacenes" fieldcode="codalmacen" fieldtitle="nombre"></values>
+                <values source="almacenes" fieldcode="codalmacen" fieldtitle="nombre"/>
             </widget>
         </column>
         <column name='Numero tickets' order='100' display='right'>
-            <widget type='number' decimal="0" fieldname='numerotickets' />
+            <widget type='number' decimal="0" fieldname='numerotickets'/>
         </column>
         <column name='Disponible' order='100' display='right'>
-            <widget type="checkbox" fieldname='disponible' />
+            <widget type="checkbox" fieldname='disponible'/>
         </column>        
     </columns>
     <rows>

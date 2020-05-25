@@ -3,14 +3,13 @@
  * This file is part of EasyPOS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-
 namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Model\Base\BusinessDocument;
+use FacturaScripts\Dinamic\Model\OperacionPausada;
 use FacturaScripts\Dinamic\Model\OperacionPOS;
-use FacturaScripts\Dinamic\Model\PagoPOS;
 use FacturaScripts\Dinamic\Model\SesionPOS;
 use FacturaScripts\Dinamic\Model\TerminalPOS;
 use FacturaScripts\Dinamic\Model\User;
@@ -118,7 +117,8 @@ class SessionManager
     public function openSession(string $idterminal, float $amount)
     {
         if (true === $this->opened) {
-            ToolBox::i18nLog()->info('till-session-allready-opened');
+            $params = ['%userNickname%' => $this->user->nick];
+            ToolBox::i18nLog()->info('till-session-allready-opened', $params);
             return false;
         }
 
@@ -171,7 +171,16 @@ class SessionManager
         $where = [new DataBaseWhere('idsesion', $this->arqueo->idsesion)];
         $result = $operation->all($where);
 
-        return json_encode($result);
+        return $result;
+    }
+
+    public function loadPausedOps()
+    {
+        $pausedops = new OperacionPausada();
+        $where = [new DataBaseWhere('nick', $this->user->nick)];
+        $result = $pausedops->all();
+
+        return $result;
     }
 
     public function savePayments(array $payments)

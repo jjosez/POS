@@ -1,3 +1,7 @@
+/**
+ * This file is part of EasyPOS plugin for FacturaScripts
+ * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
 class Cart {
 
     constructor(args = {}) {
@@ -111,10 +115,15 @@ class Cart {
         console.log('Deleting index:', index);
     }
 
-    getCartLinesData() {
+    editCartItem(index, field, value) {
+        this.cartItems[index][field] = value;
+        console.log('index/field editing:', index + '/' + field);
+    }
+
+    getCartItems() {
         var lines = [];
         for (let item of this.cartItems) {
-            lines.push(item.getObjectData());
+            lines.push(item.toArray());
         }
         return lines;
     }

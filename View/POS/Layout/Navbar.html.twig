@@ -1,3 +1,9 @@
+{#
+/**
+ *  This file is part of EasyPOS plugin for FacturaScripts
+ *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
+#}
 <nav class="navbar navbar-expand-md fixed-top navbar-dark bg-primary">
     <a class="navbar-brand" href="index.php" data-background-color="dark2">{{ fsc.empresa.nombrecorto }}</a>
     <button class="navbar-toggler p-0 border-0" type="button" data-toggle="offcanvas">
@@ -9,16 +15,21 @@
                 <a href="#" class="nav-link dropdown-toggle" id="dropdown1" data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false"><i class="fa fa-cash-register"></i> POS</a>
                 <div class="dropdown-menu dropdown-menu-right hidden-caret" aria-labelledby="dropdown1">
-                        <span class="dropdown-item-btn">
-                            <button id="cashupButton" class="btn btn-block btn-danger">
-                                <i class="fas fa-cash-register"></i>&nbsp;{{ i18n.trans('cashup') }}
-                            </button>
-                        </span>
                     <span class="dropdown-item-btn">
-                            <button class="btn btn-block btn-secondary" data-toggle="modal" data-target="#historyModal">
-                                <i class="fas fa-history"></i>&nbsp;{{ i18n.trans('till-session-operations') }}
-                            </button>
-                        </span>
+                        <button class="btn btn-block btn-danger" data-toggle="modal" data-target="#cashupModal">
+                            <i class="fas fa-cash-register"></i>&nbsp;{{ i18n.trans('cashup') }}
+                        </button>
+                    </span>
+                    <span class="dropdown-item-btn">
+                        <button class="btn btn-block btn-secondary" data-toggle="modal" data-target="#historyModal">
+                            <i class="fas fa-history"></i>&nbsp;{{ i18n.trans('till-session-operations') }}
+                        </button>
+                    </span>
+                    <span class="dropdown-item-btn">
+                        <button class="btn btn-block btn-warning" data-toggle="modal" data-target="#pausedOpsModal">
+                            <i class="fas fa-history"></i>&nbsp;{{ i18n.trans('till-session-pausedops') }}
+                        </button>
+                    </span>
                 </div>
             </li>
             <li class="nav-item dropdown hidden-caret">

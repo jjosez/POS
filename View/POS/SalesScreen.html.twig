@@ -1,17 +1,17 @@
 {#
 /**
- * This file is part of EasyPOS plugin for FacturaScripts
- * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ *  This file is part of EasyPOS plugin for FacturaScripts
+ *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
 {% extends 'POS/Layout/Base.html.twig' %}
 {% set grid = fsc.getGridHeaders() %}
 
 {% block body %}
-    <div class="col-sm-12 col-md-8 col-lg-9 mh-100">
+    <div class="col-sm-12 col-md-7 col-lg-9 mh-100">
         {{ include('POS/Block/CartBlock.html.twig') }}
     </div>
-    <div class="col-sm-12 col-md-4 col-lg-3">
+    <div class="col-sm-12 col-md-5 col-lg-3 pl-md-0">
         <div class="p-3 bg-white rounded box-shadow h-100">
             {{ include('POS/Block/FormBlock.html.twig') }}
         </div>
@@ -19,47 +19,19 @@
 {% endblock %}
 
 {% block modals %}
-    {{ include('POS/Modal/AjaxSearchModal.html.twig') }}
-    {{ include('POS/Modal/CheckoutModal.html.twig') }}
-    {{ include('POS/Modal/CashupModal.html.twig') }}
-    {{ include('POS/Modal/HistoryModal.html.twig') }}
-    {{ include('POS/Modal/ResetDataModal.html.twig') }}
+    {{- include('POS/Modal/AjaxSearchModal.html.twig') -}}
+    {{- include('POS/Modal/CheckoutModal.html.twig') -}}
+    {{- include('POS/Modal/CashupModal.html.twig') -}}
+    {{- include('POS/Modal/HistoryModal.html.twig') -}}
+    {{- include('POS/Modal/PausedOpsModal.html.twig') -}}
+    {{- include('POS/Modal/ResetDataModal.html.twig') -}}
 {% endblock %}
 {% block js %}
     <script id="cart-item-template" type="text/template">
-    {{ '{{foreach(options.lines)}}' }}
-        <tr>
-        {{ _self.cartTemplate(grid.columns) }}
-        </tr>
-    {{ '{{/foreach}}' }}
+        {{ _self.getCartTemplate(grid.columns) }}
     </script>
     <script id="ajax-search-template" type="text/template">
-        {% verbatim %}
-          {{foreach(options.list)}}
-          <tr>
-            <td><span class="font-weight-bold">ID: {{@this.code}}</span><br>{{@this.description}}</td>
-            <td>
-                <button class="btn btn-sm btn-success item-add-button" type="button" data-code="{{ @this.code }}"
-                        data-description="{{@this.description}}" data-target="{{target}}">
-                    <i class="fas fa-plus"></i>
-                </button>
-            </td>
-          </tr>
-        {{/foreach}}
-        {% endverbatim %}
-    </script>
-    <script id="history-template" type="text/template">
-        {% verbatim %}
-          {{foreach(options.list)}}
-          <tr>
-            <td>{{@this.codigo}}</td>
-            <td>{{@this.tipodoc}}</td>
-            <td>{{@this.fecha}}</td>
-            <td>{{@this.hora}}</td>
-            <td>{{@this.total}}</td>
-          </tr>
-        {{/foreach}}
-        {% endverbatim %}
+        {{ _self.getAjaxSearchTemplate() }}
     </script>
     <script type="text/javascript">
         const CashPaymentMethod = "{{ fsc.getCashPaymentMethod() }}";
@@ -76,10 +48,26 @@
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.app.js') }}"></script>
 {% endblock %}
 
-{% macro cartTemplate(columns) %}
+{% macro getAjaxSearchTemplate() %}
+    {{- '{{foreach(options.list)}}' }}
+    <tr>
+        <td><span class="font-weight-bold">ID: {{ '{{@this.code}}' }}</span><br>{{ '{{@this.description}}' }}</td>
+        <td>
+            <button class="btn btn-sm btn-success item-add-button" type="button" data-code="{{ '{{@this.code}}' }}"
+                    data-description="{{ '{{@this.description}}' }}" data-target="{{ '{{target}}' }}">
+                <i class="fas fa-plus"></i>
+            </button>
+        </td>
+    </tr>
+    {{ '{{/foreach}}' -}}
+{% endmacro %}
+
+{% macro getCartTemplate(columns) %}
+    {{- '{{foreach(options.lines)}}' }}
+    <tr>
     {% for column in columns %}
         {% set name = _self.getTemplateKey(column.data) %}
-        {%- if column.data == 'referencia' %}
+        {%- if column.data == 'referencia' -%}
             <td>
                 <input class="form-control cart-item" type="{{ column.type }}" value="{{name}}" readonly>
             </td>
@@ -94,6 +82,8 @@
         {% endif -%}
     {% endfor %}
     <td><a href="#" class="cart-item-del" data-index="{{ '{{@key}}' }}"><i class="fas fa-trash text-danger"></i></a></td>
+    </tr>
+    {{ '{{/foreach}}' -}}
 {% endmacro %}
 
 {% macro getTemplateKey(name) %}

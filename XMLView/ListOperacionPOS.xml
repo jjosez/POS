@@ -10,7 +10,7 @@
             <widget type="text" fieldname="idoperacion"/>
         </column>
          <column name="code" order="100">
-            <widget type="text" fieldname="codigo" />
+            <widget type="text" fieldname="codigo"/>
         </column>
         <column name="doc-type" order="100">
             <widget type="select" fieldname="tipodoc" translate="true">
@@ -27,17 +27,17 @@
         </column>
         <column name="customer" order="100">
             <widget type="select" fieldname="codcliente">
-                <values source="clientes" fieldcode="codcliente" fieldtitle="nombre"></values>
+                <values source="clientes" fieldcode="codcliente" fieldtitle="nombre"/>
             </widget>
         </column>
         <column name='date' order='100' display='right'>
-            <widget type='date' fieldname='fecha' />
+            <widget type='date' fieldname='fecha'/>
         </column>
         <column name='time' order='100' display='right'>
-            <widget type='time' fieldname='hora' />
+            <widget type='time' fieldname='hora'/>
         </column>
         <column name="total" display="right" order="100">
-            <widget type="money" decimal="2" fieldname="total" />
+            <widget type="money" decimal="2" fieldname="total"/>
         </column>
     </columns>
 </view>

@@ -3,7 +3,6 @@
  * This file is part of EasyPOS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-
 namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
 
 use FacturaScripts\Core\Lib\BusinessDocumentFormTools;
@@ -21,6 +20,7 @@ class SalesProcessor
 
     private $data;
     private $document;
+    private $tools;
     private $cart;
 
     /**
@@ -33,6 +33,7 @@ class SalesProcessor
     {
         $this->setDocument($modelName);
         $this->setDocumentData($data);
+        $this->tools = new BusinessDocumentFormTools();
     }
 
     /**
@@ -42,7 +43,7 @@ class SalesProcessor
      */
     private function setDocument(string $modelName)
     {
-        $modelName = (empty($modelName)) ? 'FacturaCliente' : $modelName;
+        $modelName = empty($modelName) ? 'FacturaCliente' : $modelName;
 
         $className = self::MODEL_NAMESPACE . $modelName;
         $this->document = class_exists($className) ? new $className : false;
@@ -55,7 +56,7 @@ class SalesProcessor
      */
     private function setDocumentData(array $data)
     {
-        if ($data['action'] === 'save-document') {
+        if ($data['action'] !== ('recalculate-document')) {
             $this->data['lines'] = json_decode($data['lines'], true);
             $this->data['payments'] = json_decode($data['payments'], true);
 
@@ -159,7 +160,7 @@ class SalesProcessor
         $this->document->updateSubject();
 
         /*recalculate*/
-        return (new BusinessDocumentFormTools())->recalculateForm($this->document, $this->data['lines']);
+        return $this->tools->recalculateForm($this->document, $this->data['lines']);
     }
 
     /**
@@ -182,7 +183,9 @@ class SalesProcessor
     {
         $this->loadFromData($this->document, $this->data['doc']);
 
-        if (false === $this->document->updateSubject()) return false;
+        if (false === $this->document->updateSubject()) {
+            return false;
+        }
 
         if ($this->document->save()) {
             foreach ($this->data['lines'] as $line) {
@@ -193,9 +196,11 @@ class SalesProcessor
                     return false;
                 }
             }
-            (new BusinessDocumentFormTools())->recalculate($this->document);
+            $this->tools->recalculate($this->document);
 
-            if ($this->document->save()) return true;
+            if ($this->document->save()) {
+                return true;
+            }
 
             $this->document->delete();
         }

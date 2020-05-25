@@ -25,6 +25,7 @@
     "till-session-opened": "Arqueo iniciado en %terminalName%, por %userNickname%.",
     "till-session-operations": "Operaciones del arqueo",
     "till-session-payments": "Pagos del arqueo",
+    "till-session-pausedops": "Operaciones pausadas",
     "till-sessions": "Arqueos",
     "total-counted": "Total contado",
     "total-expected": "Total esperado"

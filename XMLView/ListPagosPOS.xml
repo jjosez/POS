@@ -11,14 +11,14 @@
         </column>
         <column name="payment-method" order="100">
             <widget type="select" fieldname="codpago">
-                <values source="formaspago" fieldcode="codpago" fieldtitle="descripcion"></values>
+                <values source="formaspago" fieldcode="codpago" fieldtitle="descripcion"/>
             </widget>
         </column>
         <column name="amount" display="right" order="100">
-            <widget type="money" decimal="2" fieldname="cantidad" />
+            <widget type="money" decimal="2" fieldname="cantidad"/>
         </column>
         <column name="change-amount" display="right" order="100">
-            <widget type="money" decimal="2" fieldname="cambio" />
+            <widget type="money" decimal="2" fieldname="cambio"/>
         </column>
     </columns>
 </view>
