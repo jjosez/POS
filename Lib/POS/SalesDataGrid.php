@@ -47,26 +47,26 @@ class SalesDataGrid
         ];
         $columns = self::loadPageOptions($user);
 
-        foreach (self::getColumns($columns) as $col) {
-            if ($col->hidden()) {
+        foreach (self::getColumns($columns) as $column) {
+            if ($column->hidden()) {
                 continue;
             }
 
             $item = [
-                'data' => $col->widget->fieldname,
-                'type' => $col->widget->getType(),
-                'readonly' => ($col->widget->readonly == 'true') ? 'readonly' : ''
+                'data' => $column->widget->fieldname,
+                'type' => $column->widget->getType(),
+                'readonly' => ($column->widget->readonly == 'true') ? 'readonly' : ''
             ];
 
             if ($item['type'] === 'number' || $item['type'] === 'money') {
                 $item['type'] = 'number';
-                $item['numericFormat'] = ToolBox::coins()::gridMoneyFormat();
+                $item['numericFormat'] = $column->widget->gridFormat();;
             } else {
                 $item['type'] = 'text';
             }
 
             $data['columns'][] = $item;
-            $data['headers'][] = ToolBox::i18n()->trans($col->title);
+            $data['headers'][] = ToolBox::i18n()->trans($column->title);
         }
 
         AssetManager::clear();

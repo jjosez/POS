@@ -14,17 +14,17 @@
     <input type="hidden" id="codserie" name="codserie" value="{{ terminal.codserie }}">
     <input type="hidden" id="documentdate" name="documentdate" value="{{ "now"|date("d-m-Y") }}">
     <input type="hidden" id="lines" name="lines"/>
+    <input type="hidden" id="neto" name="neto" value="0">
     <input type="hidden" id="payments" name="payments"/>
     <input type="hidden" id="token" name="token" value="{{ fsc.getRandomToken() }}">
     <input type="hidden" id="total" name="total" value="0">
-    <input type="hidden" id="neto" name="neto" value="0">
     <input type="hidden" id="totalsuplidos" name="totalsuplidos" value="0">
     <input type="hidden" id="totaliva" name="totaliva" value="0">
     <input type="hidden" id="totalirpf" name="totalirpf" value="0">
     <input type="hidden" id="totalrecargo" name="totalrecargo" value="0">
+    <input type="hidden" id="idpausada" name="idpausada" value="false">
 
     <div class="form-row">
-        {#{{ form.customerSelect(i18n, 'codcliente', 'codcliente', customer, fsc.cliente.url('new')) }}#}
         <div class="form-group col-12">
             <div class="input-group">
             <span class="input-group-prepend">
@@ -38,7 +38,6 @@
             </div>
         </div>
         <div class="form-group col-12">
-            {#{{ form.documentSelect(i18n, defaultDocument, documentList) }}#}
             <select class="form-control custom-select" id="tipoDocumento" name="tipo-documento">
                 {% for document in documentList %}
                     <option value="{{ document }}" {% if document == defaultDocument %} selected="selected" {% endif %}>
@@ -54,10 +53,6 @@
             <input type="number" class="form-control" id="cartNetoDisplay" placeholder="0.00" readonly>
         </div>
         <div class="form-group col-12">
-            <label for="password">{{ i18n.trans("discount") }}</label>
-            <input type="number" class="form-control" id="password" placeholder="0.00" readonly>
-        </div>
-        <div class="form-group col-12">
             <label for="cartTaxesDisplay">{{ i18n.trans("taxes") }}</label>
             <input type="number" class="form-control" id="cartTaxesDisplay" placeholder="0.00" readonly>
         </div>
@@ -67,16 +62,16 @@
         </div>
     </div>
     <hr class="divider">
-    <div class="form-row">
-        <div class="form-group col-12">
-            <button type="button" class="btn btn-block btn-round btn-primary" data-toggle="modal" data-target="#checkoutModal">
-                <i class="fas fa-money-bill-alt" aria-hidden="true"></i>&nbsp;{{ i18n.trans("charge") }}
-            </button>
-        </div>
-        <div class="form-group col">
-            <button type="button" class="btn btn-block btn-danger btn-round" data-toggle="modal" data-target="#resetModal">
-                <i class="fas fa-broom" aria-hidden="true"></i>&nbsp;Limpiar
-            </button>
-        </div>
-    </div>
 </form>
+<div class="form-row mt-auto">
+    <div class="form-group col-12">
+        <button type="button" class="btn btn-block btn-round btn-primary" data-toggle="modal" data-target="#checkoutModal">
+            <i class="fas fa-money-bill-alt" aria-hidden="true"></i>&nbsp;{{ i18n.trans("charge") }}
+        </button>
+    </div>
+    <div class="form-group col">
+        <button type="button" class="btn btn-block btn-danger btn-round" data-toggle="modal" data-target="#resetModal">
+            <i class="fas fa-broom" aria-hidden="true"></i>&nbsp;Limpiar
+        </button>
+    </div>
+</div>

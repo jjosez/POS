@@ -45,7 +45,7 @@ class POS extends Controller
         $action = $this->request->request->get('action', '');
 
         /** Run operations before load all data and stop exceution if not nedeed*/
-        if ($this->execPreviusAction($action) === false) return;
+        if (false === $this->execPreviusAction($action)) return;
 
         /** Init necesary stuff*/
         $this->cliente = new Cliente();
@@ -76,6 +76,10 @@ class POS extends Controller
 
             case 'recalculate-document':
                 $this->recalculateDocument();
+                return false;
+
+            case 'resume-document':
+                $this->resumeDocument();
                 return false;
 
             default:
@@ -195,6 +199,7 @@ class POS extends Controller
     {
         $data = $this->request->request->all();
         $modelName = $data['tipo-documento'];
+        $pausada = $data['idpausada'];
 
         if (false === $this->validateSaveRequest($data)) return;
 
@@ -205,6 +210,7 @@ class POS extends Controller
 
             $this->session->recordOperation($document);
             $this->session->savePayments($payments);
+            $this->session->updatePausedOperation($pausada);
             $this->printTicket($document);
         }
     }
@@ -305,7 +311,7 @@ class POS extends Controller
      */
     public function getDenominations()
     {
-        return (new DenominacionMoneda)->all([], ['valor' => 'ASC']);
+        return (new DenominacionMoneda())->all([], ['valor' => 'ASC']);
     }
 
     /**
@@ -316,5 +322,13 @@ class POS extends Controller
     public function getRandomToken()
     {
         return $this->multiRequestProtection->newToken();
+    }
+
+    private function resumeDocument()
+    {
+        $code = $this->request->request->get('code', '');
+        $result = $this->session->loadPausedOperation($code);
+
+        $this->response->setContent($result);
     }
 }

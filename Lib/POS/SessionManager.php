@@ -177,10 +177,34 @@ class SessionManager
     public function loadPausedOps()
     {
         $pausedops = new OperacionPausada();
-        $where = [new DataBaseWhere('nick', $this->user->nick)];
-        $result = $pausedops->all();
+        $where = [new DataBaseWhere('editable', true)];
+        $result = $pausedops->all($where);
 
         return $result;
+    }
+
+    public function loadPausedOperation(string $code)
+    {
+        $result = [];
+
+        $pausedop = new OperacionPausada();
+        $pausedop->loadFromCode($code);
+
+        $result['doc'] = $pausedop->toArray();
+        $result['lines'] = $pausedop->getLines();
+
+        return json_encode($result);
+    }
+
+    public function updatePausedOperation(string $code)
+    {
+        $pausedop = new OperacionPausada();
+
+        if ($code && $pausedop->loadFromCode($code)) {
+            $pausedop->idestado = 3;
+
+            $pausedop->save();
+        }
     }
 
     public function savePayments(array $payments)

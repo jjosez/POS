@@ -34,10 +34,10 @@ class PrintProcessor
 
     public static function printDocument(BusinessDocument $document)
     {
-        $documentTicket = new BusinessDocumentTicket($document);
-        $ticket = new Ticket();
         $printID = $document->modelClassName();
+        $documentTicket = new BusinessDocumentTicket($document, $printID);
 
+        $ticket = new Ticket();
         $ticket->coddocument = $printID;
         $ticket->text = $documentTicket->getTicket();
 

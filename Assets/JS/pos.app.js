@@ -4,9 +4,9 @@
  */
 var cart = new Cart({doc:{}});
 var cartItemsContainer = $('#cartItemsContainer');
-var cartTemplateSource = $('#cart-item-template').html();
+var cartTemplateSource = $('#cartItemTemplate').html();
 var cartTemplate = Sqrl.Compile(cartTemplateSource);
-var ajaxTemplateSource = $('#ajax-search-template').html();
+var ajaxTemplateSource = $('#ajaxSearchTemplate').html();
 var ajaxTemplate = Sqrl.Compile(ajaxTemplateSource);
 
 function onCartUpdate() {
@@ -24,7 +24,8 @@ function onCartUpdate() {
         startTime: performance.now(),
         success: function (results) {
             cart = new Cart(results);
-            console.log(cart.cartItems);
+            console.log('Items on cart:', cart.cartItems);
+            console.log('Results:', results);
             updateCartView(results);
             testResponseTime(this.startTime, 'Request exec time:');
         },
@@ -57,6 +58,7 @@ function updateCartView(results) {
     $('#cartTotalDisplay').val(cart.total);
     $('#cartTaxesDisplay').val(cart.totaliva);
     $('#cartNetoDisplay').val(cart.netosindto);
+    $('#total2').text(cart.total);
     $('#total').val(cart.total);
     $('#neto').val(cart.neto);
     $('#totaliva').val(cart.totaliva);
@@ -184,6 +186,29 @@ function onPauseOperation() {
     document.salesDocumentForm.submit();
 }
 
+function resumeOperation(code) {
+    var data = {};
+    data.action = "resume-document";
+    data.code = code;
+    $.ajax({
+        type: "POST",
+        url: UrlAccess,
+        dataType: "json",
+        data: data,
+        startTime: performance.now(),
+        success: function (results) {
+            cart = new Cart(results);
+            $('#idpausada').val(results.doc.idpausada);
+            updateCartView(results);
+            $('#pausedOpsModal').modal('hide');
+            testResponseTime(this.startTime, 'Request exec time:');
+        },
+        error: function (xhr, status, error) {
+            //  console.log('Error:', xhr.responseText)
+        }
+    });
+}
+
 // Helper functions
 function formatNumber(val) {
     return parseFloat(val).toFixed(2);
@@ -262,5 +287,10 @@ $(document).ready(function () {
     });
     cartItemsContainer.on('click', '.cart-item-del', function () {
         onCartDelete($(this));
+    });
+    $('#pausedOperations').on('click', '.resume-button', function () {
+        let code = $(this).data('code');
+
+        resumeOperation(code);
     });
 });

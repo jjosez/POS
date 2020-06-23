@@ -13,6 +13,7 @@ class CartItem {
         this._pvpsindto = args.pvpsindto;
         this._pvptotal = args.pvptotal;
         this._pvpunitario = args.pvpunitario;
+        this._pvpvatin = args.pvpvatin;
         this._recargo = args.recargo;
         this._referencia = args.referencia;
     }
@@ -88,6 +89,14 @@ class CartItem {
         this._pvpunitario = value;
     }
 
+    get pvpvatin() {
+        return this._pvpvatin;
+    }
+
+    set pvpvatin(value) {
+        this._pvpvatinc = value;
+    }
+
     get recargo() {
         return this._recargo;
     }
@@ -115,6 +124,7 @@ class CartItem {
             pvpsindto: this._pvpsindto,
             pvptotal: this._pvptotal,
             pvpunitario: this._pvpunitario,
+            pvpvatin: this._pvpvatin,
             recargo: this._recargo,
             referencia: this._referencia,
         };

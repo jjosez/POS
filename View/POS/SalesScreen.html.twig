@@ -12,25 +12,21 @@
         {{ include('POS/Block/CartBlock.html.twig') }}
     </div>
     <div class="col-sm-12 col-md-5 col-lg-3 pl-md-0">
-        <div class="p-3 bg-white rounded box-shadow h-100">
+        <div class="p-3 bg-white rounded box-shadow h-100 d-flex flex-column">
             {{ include('POS/Block/FormBlock.html.twig') }}
         </div>
     </div>
 {% endblock %}
 
 {% block modals %}
-    {{- include('POS/Modal/AjaxSearchModal.html.twig') -}}
-    {{- include('POS/Modal/CheckoutModal.html.twig') -}}
-    {{- include('POS/Modal/CashupModal.html.twig') -}}
-    {{- include('POS/Modal/HistoryModal.html.twig') -}}
-    {{- include('POS/Modal/PausedOpsModal.html.twig') -}}
-    {{- include('POS/Modal/ResetDataModal.html.twig') -}}
+    {{- include('POS/Block/Modals.html.twig') -}}
 {% endblock %}
+
 {% block js %}
-    <script id="cart-item-template" type="text/template">
+    <script id="cartItemTemplate" type="text/template">
         {{ _self.getCartTemplate(grid.columns) }}
     </script>
-    <script id="ajax-search-template" type="text/template">
+    <script id="ajaxSearchTemplate" type="text/template">
         {{ _self.getAjaxSearchTemplate() }}
     </script>
     <script type="text/javascript">
@@ -81,7 +77,11 @@
             </td>
         {% endif -%}
     {% endfor %}
-    <td><a href="#" class="cart-item-del" data-index="{{ '{{@key}}' }}"><i class="fas fa-trash text-danger"></i></a></td>
+    <td>
+        <button type="button" class="btn btn-icon btn-link cart-item-del" data-index="{{ '{{@key}}' }}">
+            <i class="fas fa-trash text-danger"></i>
+        </button>
+    </td>
     </tr>
     {{ '{{/foreach}}' -}}
 {% endmacro %}
