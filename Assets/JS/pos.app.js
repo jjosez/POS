@@ -55,15 +55,14 @@ function updateCartView(results) {
     $('#ajaxSearchModal').modal('hide');
 
     // Update totals
-    $('#cartTotalDisplay').val(cart.total);
-    $('#cartTaxesDisplay').val(cart.totaliva);
-    $('#cartNetoDisplay').val(cart.netosindto);
-    $('#total2').text(cart.total);
-    $('#total').val(cart.total);
-    $('#neto').val(cart.neto);
-    $('#totaliva').val(cart.totaliva);
-    $('#totalirpf').val(cart.totalirpf);
-    $('#totalrecargo').val(cart.totalrecargo);
+    document.getElementById('cartTotalDisplay').value = cart.total;
+    document.getElementById('cartTaxesDisplay').value = cart.totaliva;
+    document.getElementById('cartNetoDisplay').value = cart.netosindto;
+    document.getElementById('total').value = cart.total;
+    document.getElementById('neto').value = cart.neto;
+    document.getElementById('totaliva').value = cart.totaliva;
+    document.getElementById('totalirpf').value = cart.totalirpf;
+    document.getElementById('totalrecargo').value = cart.totalrecargo;
 
     // Update cart view
     var html = cartTemplate({lines: results.lines}, Sqrl);
@@ -125,45 +124,50 @@ function setProduct(code, description) {
 }
 
 function setCustomer(code, description) {
-    $('#codcliente').val(code);
-    $('#searchCustomer').val(description);
+    document.getElementById('codcliente').value = code;
+    document.getElementById('searchCustomer').value = description;
+
     $('#ajaxSearchModal').modal('hide');
     $('#ajaxSearchResult').html('');
 }
 
 // Payment calc
 function recalculatePaymentAmount() {
-    total = parseFloat($('#total').val());
-    paymentAmountInput = $('#checkoutPaymentAmount');
-    paymentAmount = paymentAmountInput.val();
-    paymentMethod = $('#checkoutPaymentMethod').children('option:selected').val();
+    var checkoutButton = document.getElementById('checkoutButton');
+    var checkoutPaymentAmount = document.getElementById('checkoutPaymentAmount');
+    var checkoutPaymentChange = document.getElementById('checkoutPaymentChange');
+    var checkoutPaymentMethod = document.getElementById("checkoutPaymentMethod");
+    var total = parseFloat($('#total').val());
+
+    paymentAmount = checkoutPaymentAmount.value;
     paymentReturn = paymentAmount - total;
     paymentReturn = paymentReturn || 0;
-    if (paymentMethod !== CashPaymentMethod) {
+    if (checkoutPaymentMethod.value !== CashPaymentMethod) {
         if (paymentReturn > 0) {
             paymentReturn = 0;
             paymentAmount = total;
-            paymentAmountInput.val(formatNumber(paymentAmount));
+            checkoutPaymentAmount.value = formatNumber(paymentAmount);
         }
     }
-    $('#checkoutPaymentChange').val(formatNumber(paymentReturn));
+    checkoutPaymentChange.value = formatNumber(paymentReturn);
     if (paymentReturn >= 0) {
         //console.log('Cambio : ' + paymentReturn);
-        $('#checkoutButton').prop('disabled', false);
+        checkoutButton.removeAttribute('disabled')
     } else {
         //console.log('Falta : ' + paymentReturn);
-        $('#checkoutButton').prop('disabled', true);
+        checkoutButton.setAttribute('disabled', 'disabled')
     }
 }
 
 function onCheckoutConfirm() {
     var paymentData = {};
-    paymentData.amount = $('#checkoutPaymentAmount').val();
-    paymentData.method = $('#checkoutPaymentMethod').val();
-    paymentData.change = $('#checkoutPaymentChange').val();
-    $('#action').val('save-document');
-    $('#lines').val(JSON.stringify(cart.getCartItems()));
-    $('#payments').val(JSON.stringify(paymentData));
+    paymentData.amount = document.getElementById('checkoutPaymentAmount').value;
+    paymentData.change = document.getElementById('checkoutPaymentChange').value;
+    paymentData.method = document.getElementById("checkoutPaymentMethod").value;
+
+    document.getElementById("action").value = 'save-document';
+    document.getElementById("lines").value = JSON.stringify(cart.getCartItems());
+    document.getElementById("payments").value = JSON.stringify(paymentData);
     document.salesDocumentForm.submit();
 }
 

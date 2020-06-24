@@ -238,7 +238,8 @@ class POS extends Controller
      */
     private function printCashup()
     {
-        if (PrintProcessor::printCashup($this->session->getArqueo(), $this->empresa)) {
+        $ticketWidth = $this->session->getTerminal()->anchopapel;
+        if (PrintProcessor::printCashup($this->session->getArqueo(), $this->empresa, $ticketWidth)) {
             $values = [
                 '%ticket%' => 'Cierre caja',
                 '%code%'=>'cashup'
@@ -256,7 +257,8 @@ class POS extends Controller
      */
     private function printTicket($document)
     {
-        if (PrintProcessor::printDocument($document)) {
+        $ticketWidth = $this->session->getTerminal()->anchopapel;
+        if (PrintProcessor::printDocument($document, $ticketWidth)) {
             $values = [
                 '%ticket%' => $document->codigo,
                 '%code%'=>$document->modelClassName()

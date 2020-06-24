@@ -5,6 +5,7 @@
  */
 namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
 
+use FacturaScripts\Core\App\AppSettings;
 use FacturaScripts\Core\Model\Base\BusinessDocument;
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTicket;
 use FacturaScripts\Dinamic\Lib\CashupTicket;
@@ -18,9 +19,9 @@ use FacturaScripts\Dinamic\Model\Ticket;
  */
 class PrintProcessor
 {
-    public static function printCashup(SesionPOS $session, $company)
+    public static function printCashup(SesionPOS $session, $company, float $anchopapel)
     {
-        $cashupTicket = new CashupTicket($session, $company);
+        $cashupTicket = new CashupTicket($session, $company, $anchopapel);
         $ticket = new Ticket();
         $printID = 'cashup';
 
@@ -32,10 +33,10 @@ class PrintProcessor
         return false;
     }
 
-    public static function printDocument(BusinessDocument $document)
+    public static function printDocument(BusinessDocument $document, float $anchopapel)
     {
         $printID = $document->modelClassName();
-        $documentTicket = new BusinessDocumentTicket($document, $printID);
+        $documentTicket = new BusinessDocumentTicket($document, $printID, $anchopapel);
 
         $ticket = new Ticket();
         $ticket->coddocument = $printID;

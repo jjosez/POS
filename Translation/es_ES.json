@@ -4,6 +4,7 @@
     "available-custumer-doctypes" : "Tipos de documentos disponibles",
     "available-payment-methods" : "Formas de pago disponibles",
     "cash-payment-method" : "Forma de pago para efectivo",
+    "cash-register": "Terminal",
     "cash-registers": "Terminales",
     "cash-register-not-found" : "No se encontró la terminal",
     "cashup": "Corte de caja",
