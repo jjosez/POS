@@ -183,8 +183,51 @@ class SalesProcessor
     {
         $this->loadFromData($this->document, $this->data['doc']);
 
+        print_r($this->data['lines']);
+
         if (false === $this->document->updateSubject()) {
             return false;
+        }
+
+        if ($this->document->save()) {
+            foreach ($this->data['lines'] as $line) {
+                $newLine = $this->document->getNewLine($line);
+
+                if (false === $newLine->save()) {
+                    $this->document->delete();
+                    return false;
+                }
+            }
+            $this->tools->recalculate($this->document);
+
+            if ($this->document->save()) {
+                return true;
+            }
+
+            $this->document->delete();
+        }
+
+        return false;
+    }
+
+    /**
+     * Saves the document.
+     *
+     * @return bool
+     */
+    public function pauseDocument()
+    {
+        $this->loadFromData($this->document, $this->data['doc']);
+
+        if (false === $this->document->updateSubject()) {
+            return false;
+        }
+
+        $previusLines = $this->document->getLines();
+        if (false === empty($previusLines)) {
+            foreach ($previusLines as $line) {
+                $line->delete();
+            }
         }
 
         if ($this->document->save()) {

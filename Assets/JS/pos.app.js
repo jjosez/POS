@@ -2,11 +2,14 @@
  * This file is part of EasyPOS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-var cart = new Cart({doc:{}});
+const cartTemplateSource = document.getElementById('cartItemTemplate').innerHTML;
+const ajaxTemplateSource = document.getElementById('ajaxSearchTemplate').innerHTML;
+
+var ajaxSearchContainer = document.getElementById('ajaxSearchResult');
 var cartItemsContainer = $('#cartItemsContainer');
-var cartTemplateSource = $('#cartItemTemplate').html();
+
+var cart = new Cart({doc:{}});
 var cartTemplate = Sqrl.Compile(cartTemplateSource);
-var ajaxTemplateSource = $('#ajaxSearchTemplate').html();
 var ajaxTemplate = Sqrl.Compile(ajaxTemplateSource);
 
 function onCartUpdate() {
@@ -83,8 +86,7 @@ function ajaxCustomSearch(query, target) {
         dataType: "json",
         startTime: performance.now(),
         success: function (data) {
-            let html = ajaxTemplate({list: data, target: target}, Sqrl);
-            $('#ajaxSearchResult').html(html);
+            ajaxSearchContainer.innerHTML = ajaxTemplate({list: data, target: target}, Sqrl);
         },
         error: function (xhr, status) {
             //console.log('Error', xhr.responseText);
@@ -109,7 +111,7 @@ function ajaxBarcodeSearch(query) {
             } else {
                 console.log('No encontrado');
             }
-            $('#searchByCode').val('');
+            document.getElementById('searchByCode').value = '';
         },
         error: function (xhr, status) {
             //console.log('Error:', xhr.responseText);
@@ -128,7 +130,7 @@ function setCustomer(code, description) {
     document.getElementById('searchCustomer').value = description;
 
     $('#ajaxSearchModal').modal('hide');
-    $('#ajaxSearchResult').html('');
+    ajaxSearchContainer.innerHTML = '';
 }
 
 // Payment calc
@@ -137,7 +139,7 @@ function recalculatePaymentAmount() {
     var checkoutPaymentAmount = document.getElementById('checkoutPaymentAmount');
     var checkoutPaymentChange = document.getElementById('checkoutPaymentChange');
     var checkoutPaymentMethod = document.getElementById("checkoutPaymentMethod");
-    var total = parseFloat($('#total').val());
+    var total = parseFloat(document.getElementById('total').value);
 
     paymentAmount = checkoutPaymentAmount.value;
     paymentReturn = paymentAmount - total;
@@ -172,28 +174,27 @@ function onCheckoutConfirm() {
 }
 
 function onCheckoutModalShow() {
-    var total = $('#total').val();
-    var modal = $('#checkoutModal');
-
-    modal.find('.modal-title').text(total);
+    var modalTitle = document.getElementById('dueAmount');
+    modalTitle.textContent = document.getElementById('total').value;
 }
 
 function onPauseOperation() {
-    var cartItems = cart.getCartItems();
-    if (cartItems.length <= 0) {
+    if (cart.getCartItems().length <= 0) {
         $('#checkoutModal').modal('hide');
         return;
     }
 
-    $('#action').val('pause-document');
-    $('#lines').val(JSON.stringify(cartItems));
+    document.getElementById('action').value = 'pause-document';
+    document.getElementById('lines').value = JSON.stringify(cart.getCartItems());
     document.salesDocumentForm.submit();
 }
 
 function resumeOperation(code) {
-    var data = {};
-    data.action = "resume-document";
-    data.code = code;
+    var data = {
+        action: "resume-document",
+        code: code
+    };
+
     $.ajax({
         type: "POST",
         url: UrlAccess,
@@ -202,7 +203,7 @@ function resumeOperation(code) {
         startTime: performance.now(),
         success: function (results) {
             cart = new Cart(results);
-            $('#idpausada').val(results.doc.idpausada);
+            document.getElementById('idpausada').value = results.doc.idpausada;
             updateCartView(results);
             $('#pausedOpsModal').modal('hide');
             testResponseTime(this.startTime, 'Request exec time:');
@@ -257,7 +258,7 @@ $(document).ready(function () {
 
     // Ajax Search Events
     $('#searchCustomer').focus(function () {
-        $('#ajaxSearchResult').html('');
+        ajaxSearchContainer.innerHTML = '';
         $('#ajaxSearchInput').data('target', 'customer');
         $('#ajaxSearchModal').modal('show');
     });
@@ -297,4 +298,16 @@ $(document).ready(function () {
 
         resumeOperation(code);
     });
+
+    // itemsContainer.addEventListener('click', function(e) {
+    //     if (!e.target) return;
+    //
+    //     if(e.target.classList.contains('cart-item')) {
+    //         alert('edit');
+    //     }
+    //
+    //     if(e.target.classList.contains('cart-item-del')) {
+    //         alert('Del button clicked');
+    //     }
+    // });
 });

@@ -38,23 +38,23 @@ class POS extends Controller
         parent::privateCore($response, $user, $permissions);
         $this->setTemplate(false);
 
-        /** Init till session */
+        // Init till session
         $this->session = new SessionManager($this->user);
 
         // Get any operations that have to be performed
         $action = $this->request->request->get('action', '');
 
-        /** Run operations before load all data and stop exceution if not nedeed*/
+        // Run operations before load all data and stop exceution if not nedeed
         if (false === $this->execPreviusAction($action)) return;
 
-        /** Init necesary stuff*/
+        // Init necesary stuff
         $this->cliente = new Cliente();
         $this->formaPago = new FormaPago();
 
-        /** Run operations after load all data */
+        // Run operations after load all data
         $this->execAfterAction($action);
 
-        /** Set view template*/
+        // Set view template
         $template = $this->session->isOpen() ? '\POS\SalesScreen' : '\POS\SessionScreen';
         $this->setTemplate($template);
     }
@@ -185,7 +185,7 @@ class POS extends Controller
         if (false === $this->validateSaveRequest($data)) return;
 
         $salesProcessor = new SalesProcessor($modelName, $data);
-        if ($salesProcessor->saveDocument()) {
+        if ($salesProcessor->pauseDocument()) {
             $this->toolBox()->i18nLog()->info('operation-is-paused');
         }
     }
@@ -326,6 +326,9 @@ class POS extends Controller
         return $this->multiRequestProtection->newToken();
     }
 
+    /**
+     * Load a paused document
+     */
     private function resumeDocument()
     {
         $code = $this->request->request->get('code', '');
