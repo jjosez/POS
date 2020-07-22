@@ -18,9 +18,9 @@ class SalesProcessor
 {
     const MODEL_NAMESPACE = '\\FacturaScripts\\Dinamic\\Model\\';
 
-    private $data;
-    private $document;
-    private $tools;
+    protected $data;
+    protected $document;
+    protected $tools;
     private $cart;
 
     /**
@@ -169,7 +169,7 @@ class SalesProcessor
      * @param BusinessDocument $model
      * @param array $data
      */
-    private function loadFromData(BusinessDocument &$model, array &$data)
+    protected function loadFromData(BusinessDocument &$model, array &$data)
     {
         $model->loadFromData($data, ['action']);
     }
@@ -182,8 +182,6 @@ class SalesProcessor
     public function saveDocument()
     {
         $this->loadFromData($this->document, $this->data['doc']);
-
-        print_r($this->data['lines']);
 
         if (false === $this->document->updateSubject()) {
             return false;

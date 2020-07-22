@@ -15,6 +15,8 @@
   "default-payment-method": "Método de pago predefinido",
   "default-business-document": "Documento predefinido",
   "due-amount": "Total a pagar",
+  "initial-amount": "Saldo inicial",
+  "operation-is-paused": "Operacion pausada correctamente",
   "payment-amount": "Cantidad pagada",
   "payment-change": "Cambio",
   "point-of-sale": "Punto de venta",

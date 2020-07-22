@@ -21,7 +21,7 @@ class PaymentsProcessor
     private $cashPaymentAmount;
     private $cashPaymentMethod;
     private $operation;
-    private $paymentsData;
+    private $payments;
     private $session;
     private $totalPaymentAmount;
 
@@ -35,6 +35,7 @@ class PaymentsProcessor
         $this->cashPaymentMethod = AppSettings::get('pointofsale', 'fpagoefectivo');
         $this->cashPaymentAmount = 0;
         $this->totalPaymentAmount = 0;
+        $this->payments = $payments;
 
         $this->setPayments($payments);
     }
@@ -77,15 +78,15 @@ class PaymentsProcessor
 
     public function savePayments(OperacionPOS $operation, SesionPOS $session)
     {
-        foreach ($this->paymentsData as $p) {
-            $payment = new PagoPOS();
-            $payment->cantidad = $p['amount'];
-            $payment->cambio = $p['change'];
-            $payment->codpago = $p['method'];
-            $payment->idoperacion = $operation->idoperacion;
-            $payment->idsesion = $session->idsesion;
+        foreach ($this->payments as $payment) {
+            $pago = new PagoPOS();
+            $pago->cantidad = $payment['amount'];
+            $pago->cambio = $payment['change'];
+            $pago->codpago = $payment['method'];
+            $pago->idoperacion = $operation->idoperacion;
+            $pago->idsesion = $session->idsesion;
 
-            $payment->save();
+            $pago->save();
         }
     }
 }

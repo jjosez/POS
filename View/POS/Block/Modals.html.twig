@@ -144,32 +144,34 @@
                 </div>
             </div>
             <div class="modal-body">
-                <table class="table search-table table-striped">
-                    <thead>
-                    <tr>
-                        <th scope="col" class="w-20">{{ i18n.trans('code') }}</th>
-                        <th scope="col">{{ i18n.trans('doc-type') }}</th>
-                        <th scope="col" class="w-20">{{ i18n.trans('date') }}</th>
-                        <th scope="col" class="w-20">{{ i18n.trans('time') }}</th>
-                        <th scope="col" class="w-20">{{ i18n.trans('total') }}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for operation in fsc.session.loadHistory() %}
+                <div class="table-responsive">
+                    <table class="table search-table table-striped">
+                        <thead>
                         <tr>
-                            <td>{{ operation.codigo }}</td>
-                            <td>{{ i18n.trans(operation.tipodoc) }}</td>
-                            <td>{{ operation.fecha }}</td>
-                            <td>{{ operation.hora }}</td>
-                            <td class="text-right">{{ fsc.toolBox().coins().format(operation.total) }}</td>
+                            <th scope="col" class="w-20">{{ i18n.trans('code') }}</th>
+                            <th scope="col">{{ i18n.trans('doc-type') }}</th>
+                            <th scope="col" class="w-20">{{ i18n.trans('date') }}</th>
+                            <th scope="col" class="w-20">{{ i18n.trans('time') }}</th>
+                            <th scope="col" class="w-20">{{ i18n.trans('total') }}</th>
                         </tr>
-                    {% else %}
-                        <div class="alert alert-info" role="alert">
-                            Ninguna operacion registrada
-                        </div>
-                    {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {% for operation in fsc.session.loadHistory() %}
+                            <tr>
+                                <td>{{ operation.codigo }}</td>
+                                <td>{{ i18n.trans(operation.tipodoc) }}</td>
+                                <td>{{ operation.fecha }}</td>
+                                <td>{{ operation.hora }}</td>
+                                <td class="text-right">{{ fsc.toolBox().coins().format(operation.total) }}</td>
+                            </tr>
+                        {% else %}
+                            <div class="alert alert-info" role="alert">
+                                Ninguna operacion registrada
+                            </div>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -189,46 +191,48 @@
                 </div>
             </div>
             <div class="modal-body">
-                <table class="table search-table table-striped" id="pausedOperations">
-                    <colgroup>
-                        <col class="w-15">
-                        <col>
-                        <col class="w-15">
-                        <col class="w-15">
-                        <col class="w-15">
-                        <col>
-                    </colgroup>
-                    <thead>
-                    <tr>
-                        <th scope="col">{{ i18n.trans('code') }}</th>
-                        <th scope="col">{{ i18n.trans('doc-type') }}</th>
-                        <th scope="col">{{ i18n.trans('date') }}</th>
-                        <th scope="col">{{ i18n.trans('time') }}</th>
-                        <th scope="col">{{ i18n.trans('total') }}</th>
-                        <th scope="col"><i class="fas fa-chevron-circle-right"></i></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for operation in fsc.session.loadPausedOps() %}
+                <div class="table-responsive">
+                    <table class="table search-table table-striped" id="pausedOperations">
+                        <colgroup>
+                            <col class="w-15">
+                            <col>
+                            <col class="w-15">
+                            <col class="w-15">
+                            <col class="w-15">
+                            <col>
+                        </colgroup>
+                        <thead>
                         <tr>
-                            <td>{{ operation.codigo }}</td>
-                            <td>{{ i18n.trans(operation.nombrecliente) }}</td>
-                            <td>{{ operation.fecha }}</td>
-                            <td>{{ operation.hora }}</td>
-                            <td>{{ fsc.toolBox().coins().format(operation.total) }}</td>
-                            <td>
-                                <button type="button" class="btn btn-link resume-button px-0" data-code="{{operation.idpausada}}">
-                                    <i class="fas fa-file-download fa-lg text-info"></i>
-                                </button>
-                            </td>
+                            <th scope="col">{{ i18n.trans('code') }}</th>
+                            <th scope="col">{{ i18n.trans('doc-type') }}</th>
+                            <th scope="col">{{ i18n.trans('date') }}</th>
+                            <th scope="col">{{ i18n.trans('time') }}</th>
+                            <th scope="col">{{ i18n.trans('total') }}</th>
+                            <th scope="col"><i class="fas fa-chevron-circle-right"></i></th>
                         </tr>
-                    {% else %}
-                        <div class="alert alert-info" role="alert">
-                            Ninguna operacion registrada
-                        </div>
-                    {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {% for operation in fsc.session.loadPausedOps() %}
+                            <tr>
+                                <td>{{ operation.codigo }}</td>
+                                <td>{{ i18n.trans(operation.nombrecliente) }}</td>
+                                <td>{{ operation.fecha }}</td>
+                                <td>{{ operation.hora }}</td>
+                                <td>{{ fsc.toolBox().coins().format(operation.total) }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-link resume-button px-0" data-code="{{ operation.idpausada }}">
+                                        <i class="fas fa-file-download fa-lg text-info"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <div class="alert alert-info" role="alert">
+                                Ninguna operacion registrada
+                            </div>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

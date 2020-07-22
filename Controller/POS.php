@@ -195,7 +195,7 @@ class POS extends Controller
      *
      * @return void
      */
-    private function processDocument()
+    protected function processDocument()
     {
         $data = $this->request->request->all();
         $modelName = $data['tipo-documento'];
@@ -219,7 +219,7 @@ class POS extends Controller
      * @param $data
      * @return bool
      */
-    private function validateSaveRequest($data)
+    protected function validateSaveRequest($data)
     {
         if (!$this->permissions->allowUpdate) {
             $this->toolBox()->i18nLog()->warning('not-allowed-modify');
@@ -255,7 +255,7 @@ class POS extends Controller
      * @param $document
      * @return void;
      */
-    private function printTicket($document)
+    protected function printTicket($document)
     {
         $ticketWidth = $this->session->getTerminal()->anchopapel;
         if (PrintProcessor::printDocument($document, $ticketWidth)) {

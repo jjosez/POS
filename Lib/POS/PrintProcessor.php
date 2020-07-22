@@ -5,7 +5,6 @@
  */
 namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
 
-use FacturaScripts\Core\App\AppSettings;
 use FacturaScripts\Core\Model\Base\BusinessDocument;
 use FacturaScripts\Dinamic\Lib\BusinessDocumentTicket;
 use FacturaScripts\Dinamic\Lib\CashupTicket;

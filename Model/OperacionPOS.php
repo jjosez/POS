@@ -5,7 +5,6 @@
  */
 namespace FacturaScripts\Plugins\EasyPOS\Model;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
 
 /**
@@ -31,13 +30,6 @@ class OperacionPOS extends Base\ModelClass
         parent::clear();
         $this->fecha = date(self::DATE_STYLE);
         $this->hora = date(self::HOUR_STYLE);
-    }  
-
-
-    public function install()
-    {
-        new SesionPOS();
-        return parent::install();
     }
 
     public static function primaryColumn()

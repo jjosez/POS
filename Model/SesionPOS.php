@@ -46,7 +46,6 @@ class SesionPOS extends Base\ModelClass
     public function install()
     {
         new TerminalPOS();
-        new PagoPOS();
         return parent::install();
     }
 
@@ -87,6 +86,29 @@ class SesionPOS extends Base\ModelClass
         $order = ['idsesion' => 'ASC'];
 
         return $operacion->all($where, $order, 0, 0);
+    }
+
+    public function getPagos()
+    {
+        $pago = new PagoPOS();
+        $where = [new DataBaseWhere('idsesion', $this->idsesion)];
+
+        return $pago->all($where, [], 0, 0);
+    }
+
+    public function getPagosTotales()
+    {
+        $result = [];
+        foreach ($this->getPagos() as $pago) {
+            if (array_key_exists($pago->codpago, $result)) {
+                $result[$pago->codpago]['total'] += $pago->pagoNeto();
+            } else {
+                $result[$pago->codpago]['total'] = $pago->pagoNeto();
+                $result[$pago->codpago]['descripcion'] = $pago->descripcion();
+            }
+        }
+
+        return $result;
     }
 
     public static function primaryColumn()

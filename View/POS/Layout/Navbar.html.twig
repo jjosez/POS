@@ -11,26 +11,17 @@
     </button>
     <div class="navbar-collapse offcanvas-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav ml-auto">
-            <li class="nav-item dropdown hidden-caret">
-                <a href="#" class="nav-link dropdown-toggle" id="dropdown1" data-toggle="dropdown"
-                   aria-haspopup="true" aria-expanded="false"><i class="fa fa-cash-register"></i> POS</a>
-                <div class="dropdown-menu dropdown-menu-right hidden-caret" aria-labelledby="dropdown1">
-                    <span class="dropdown-item-btn">
-                        <button class="btn btn-block btn-danger" data-toggle="modal" data-target="#cashupModal">
-                            <i class="fas fa-cash-register"></i>&nbsp;{{ i18n.trans('cashup') }}
-                        </button>
-                    </span>
-                    <span class="dropdown-item-btn">
-                        <button class="btn btn-block btn-secondary" data-toggle="modal" data-target="#historyModal">
-                            <i class="fas fa-history"></i>&nbsp;{{ i18n.trans('till-session-operations') }}
-                        </button>
-                    </span>
-                    <span class="dropdown-item-btn">
-                        <button class="btn btn-block btn-warning" data-toggle="modal" data-target="#pausedOpsModal">
-                            <i class="fas fa-pause"></i>&nbsp;{{ i18n.trans('till-session-pausedops') }}
-                        </button>
-                    </span>
-                </div>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-toggle="modal" data-target="#cashupModal">
+                    <i class="fas fa-cash-register"></i>&nbsp;{{ i18n.trans('cashup') }}</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-toggle="modal" data-target="#historyModal">
+                    <i class="fas fa-history"></i>&nbsp;{{ i18n.trans('till-session-operations') }}</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-toggle="modal" data-target="#pausedOpsModal">
+                    <i class="fas fa-pause"></i>&nbsp;{{ i18n.trans('till-session-pausedops') }}</a>
             </li>
             <li class="nav-item dropdown hidden-caret">
                 <a href="#" class="nav-link dropdown-toggle" id="dropdown2" data-toggle="dropdown"

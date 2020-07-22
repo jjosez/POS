@@ -1,0 +1,62 @@
+<!-- Paused Operations Modal -->
+<div class="modal fade" id="pausedOpsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="d-flex w-100">
+                    <div class="pr-2 flex-grow-1">
+                        <h5 class="modal-title">{{ i18n.trans('till-session-pausedops') }}</h5>
+                    </div>
+                    <button type="button" class="btn btn-icon btn-round btn-danger" data-dismiss="modal">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table search-table table-striped" id="pausedOperations">
+                        <colgroup>
+                            <col class="w-15">
+                            <col>
+                            <col class="w-15">
+                            <col class="w-15">
+                            <col class="w-15">
+                            <col>
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th scope="col">{{ i18n.trans('code') }}</th>
+                            <th scope="col">{{ i18n.trans('customer') }}</th>
+                            <th scope="col">{{ i18n.trans('date') }}</th>
+                            <th scope="col">{{ i18n.trans('time') }}</th>
+                            <th scope="col">{{ i18n.trans('total') }}</th>
+                            <th scope="col"><i class="fas fa-chevron-circle-right"></i></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for operation in fsc.session.loadPausedOps() %}
+                            {% set rowbg = operation.dtooculto ? 'table-danger' : '' %}
+                            <tr class="{{ rowbg }}">
+                                <td>{{ operation.codigo }}</td>
+                                <td>{{ i18n.trans(operation.nombrecliente) }}</td>
+                                <td>{{ operation.fecha }}</td>
+                                <td>{{ operation.hora }}</td>
+                                <td>{{ fsc.toolBox().coins().format(operation.total) }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-link resume-button px-0" data-code="{{operation.idpausada}}">
+                                        <i class="fas fa-file-download fa-lg text-info"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <div class="alert alert-info" role="alert">
+                                Ninguna operacion registrada
+                            </div>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -112,12 +112,12 @@ class Cart {
 
     deleteCartItem(index) {
         this._cartItems.splice( index, 1 );
-        console.log('Deleting index:', index);
+        //console.log('Deleting index:', index);
     }
 
     editCartItem(index, field, value) {
         this.cartItems[index][field] = value;
-        console.log('index/field editing:', index + '/' + field);
+        //console.log('index/field editing:', index + '/' + field);
     }
 
     getCartItems() {

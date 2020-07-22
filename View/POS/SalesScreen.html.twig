@@ -19,7 +19,12 @@
 {% endblock %}
 
 {% block modals %}
-    {{- include('POS/Block/Modals.html.twig') -}}
+    {{ include('POS/Modal/AjaxSearch.html.twig') }}
+    {{ include('POS/Modal/Cashup.html.twig') }}
+    {{ include('POS/Modal/Checkout.html.twig') }}
+    {{ include('POS/Modal/History.html.twig') }}
+    {{ include('POS/Modal/PausedOperations.html.twig') }}
+    {{ include('POS/Modal/ResetData.html.twig') }}
 {% endblock %}
 
 {% block js %}
@@ -78,8 +83,8 @@
         {% endif -%}
     {% endfor %}
     <td>
-        <button type="button" class="btn btn-icon btn-link cart-item-del" data-index="{{ '{{@key}}' }}">
-            <i class="fas fa-trash text-danger"></i>
+        <button type="button" class="btn btn-icon btn-link">
+            <i class="fas fa-trash text-danger cart-item-remove" data-index="{{ '{{@key}}' }}"></i>
         </button>
     </td>
     </tr>

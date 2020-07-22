@@ -5,12 +5,12 @@
 const cartTemplateSource = document.getElementById('cartItemTemplate').innerHTML;
 const ajaxTemplateSource = document.getElementById('ajaxSearchTemplate').innerHTML;
 
-var ajaxSearchContainer = document.getElementById('ajaxSearchResult');
-var cartItemsContainer = $('#cartItemsContainer');
+const cartItemsContainer = document.getElementById('cartItemsContainer');
+const ajaxSearchContainer = document.getElementById('ajaxSearchResult');
 
+const cartTemplate = Sqrl.Compile(cartTemplateSource);
+const ajaxTemplate = Sqrl.Compile(ajaxTemplateSource);
 var cart = new Cart({doc:{}});
-var cartTemplate = Sqrl.Compile(cartTemplateSource);
-var ajaxTemplate = Sqrl.Compile(ajaxTemplateSource);
 
 function onCartUpdate() {
     var data = {};
@@ -27,29 +27,29 @@ function onCartUpdate() {
         startTime: performance.now(),
         success: function (results) {
             cart = new Cart(results);
-            console.log('Items on cart:', cart.cartItems);
-            console.log('Results:', results);
             updateCartView(results);
+            //console.log('Items on cart:', cart.cartItems);
+            //console.log('Results:', results);
             testResponseTime(this.startTime, 'Request exec time:');
         },
         error: function (xhr, status, error) {
-            //  console.log('Error:', xhr.responseText)
+            //console.log('Error:', xhr.responseText)
         }
     });
 }
 
 function onCartDelete(e) {
-    let index = e.data('index');
+    let index = e.getAttribute('data-index');
 
     cart.deleteCartItem(index);
     onCartUpdate();
 }
 
 function onCartEdit(e) {
-    let field = e.data('field');
-    let index = e.data('index');
+    let field = e.getAttribute('data-field');
+    let index = e.getAttribute('data-index');
 
-    cart.editCartItem(index, field, e.val());
+    cart.editCartItem(index, field, e.value);
     onCartUpdate();
 }
 
@@ -68,8 +68,7 @@ function updateCartView(results) {
     document.getElementById('totalrecargo').value = cart.totalrecargo;
 
     // Update cart view
-    var html = cartTemplate({lines: results.lines}, Sqrl);
-    cartItemsContainer.html(html);
+    cartItemsContainer.innerHTML = cartTemplate({lines: results.lines}, Sqrl);
 }
 
 // Search actions
@@ -206,7 +205,7 @@ function resumeOperation(code) {
             document.getElementById('idpausada').value = results.doc.idpausada;
             updateCartView(results);
             $('#pausedOpsModal').modal('hide');
-            testResponseTime(this.startTime, 'Request exec time:');
+            //testResponseTime(this.startTime, 'Request exec time:');
         },
         error: function (xhr, status, error) {
             //  console.log('Error:', xhr.responseText)
@@ -224,7 +223,7 @@ function testResponseTime(startTime, label = 'Exec time:') {
     var time = performance.now() - startTime;
 
     //Convert milliseconds to seconds.
-    var seconds = time / 1000;
+    var seconds = time / 100;
     console.log(label, seconds.toFixed(3));
 }
 
@@ -287,27 +286,22 @@ $(document).ready(function () {
     });
 
     // Cart Items Events
-    cartItemsContainer.on('focusout', '.cart-item', function () {
-        onCartEdit($(this));
-    });
-    cartItemsContainer.on('click', '.cart-item-del', function () {
-        onCartDelete($(this));
-    });
     $('#pausedOperations').on('click', '.resume-button', function () {
         let code = $(this).data('code');
 
         resumeOperation(code);
     });
+});
 
-    // itemsContainer.addEventListener('click', function(e) {
-    //     if (!e.target) return;
-    //
-    //     if(e.target.classList.contains('cart-item')) {
-    //         alert('edit');
-    //     }
-    //
-    //     if(e.target.classList.contains('cart-item-del')) {
-    //         alert('Del button clicked');
-    //     }
-    // });
+// Cart Items Events
+cartItemsContainer.addEventListener('click', ({target}) => {
+    if(target.classList.contains('cart-item-remove')) {
+        onCartDelete(target);
+    }
+});
+
+cartItemsContainer.addEventListener('focusout', ({target}) => {
+    if(target.classList.contains('cart-item')) {
+        onCartEdit(target);
+    }
 });

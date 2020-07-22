@@ -4,6 +4,7 @@
  *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
+<!-- Cashup Modal -->
 <div class="modal fade" id="cashupModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <form id="cashupForm" name="cashupForm" method="POST">
@@ -12,7 +13,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title">{{ i18n.trans('cashup') }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                        <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -23,19 +24,23 @@
                     {% for denominacion in fsc.getDenominations() %}
                         <div class="form-group row">
                             <div class="col-sm-8">
-                                <input type="number" class="form-control" name="cash[{{ denominacion.valor }}]" placeholder="0">
+                                <input type="number" class="form-control" name="cash[{{ denominacion.valor }}]"
+                                       placeholder="0">
                             </div>
                             <label class="col-sm-4 col-form-label"> x {{ denominacion.valor }}</label>
                         </div>
                     {% else %}
                         <div class="alert alert-warning" role="alert">
-                            No hay denominaciones registradas, registralas en. <a href="{{ i18n.trans('EditConfiguracionPOS') }}">{{ i18n.trans('pos-settings') }}</a>
+                            No hay denominaciones registradas, registralas en.
+                            <a href="{{ i18n.trans('EditConfiguracionPOS') }}">{{ i18n.trans('pos-settings') }}</a>
                         </div>
                     {% endfor %}
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-round" data-dismiss="modal">{{ i18n.trans('cancel') }}</button>
-                    <button type="button" class="btn btn-warning btn-round" id="saveCashupButton">{{ i18n.trans('continue') }}</button>
+                    <button type="button" class="btn btn-secondary btn-round"
+                            data-dismiss="modal">{{ i18n.trans('cancel') }}</button>
+                    <button type="button" class="btn btn-warning btn-round"
+                            id="saveCashupButton">{{ i18n.trans('continue') }}</button>
                 </div>
             </div>
         </form>
