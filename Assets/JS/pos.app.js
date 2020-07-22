@@ -203,6 +203,7 @@ function resumeOperation(code) {
         success: function (results) {
             cart = new Cart(results);
             document.getElementById('idpausada').value = results.doc.idpausada;
+            setCustomer(results.doc.codcliente, results.doc.nombrecliente);
             updateCartView(results);
             $('#pausedOpsModal').modal('hide');
             //testResponseTime(this.startTime, 'Request exec time:');
