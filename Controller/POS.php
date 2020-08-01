@@ -9,7 +9,7 @@ use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Dinamic\Lib\POS\PrintProcessor;
 use FacturaScripts\Dinamic\Lib\POS\SalesDataGrid;
 use FacturaScripts\Dinamic\Lib\POS\SalesProcessor;
-use FacturaScripts\Dinamic\Lib\POS\SessionManager;
+use FacturaScripts\Dinamic\Lib\POS\SalesSession;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\FormaPago;
@@ -39,7 +39,7 @@ class POS extends Controller
         $this->setTemplate(false);
 
         // Init till session
-        $this->session = new SessionManager($this->user);
+        $this->session = new SalesSession($this->user);
 
         // Get any operations that have to be performed
         $action = $this->request->request->get('action', '');

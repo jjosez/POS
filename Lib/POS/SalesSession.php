@@ -14,7 +14,7 @@ use FacturaScripts\Dinamic\Model\SesionPOS;
 use FacturaScripts\Dinamic\Model\TerminalPOS;
 use FacturaScripts\Dinamic\Model\User;
 
-class SessionManager
+class SalesSession
 {
     private $arqueo;
     private $cart;

@@ -5,7 +5,7 @@
  */
 namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
 
-use FacturaScripts\Core\Lib\BusinessDocumentFormTools;
+use FacturaScripts\Dinamic\Lib\BusinessDocumentFormTools;
 use FacturaScripts\Core\Model\Base\BusinessDocument;
 use function json_decode;
 
