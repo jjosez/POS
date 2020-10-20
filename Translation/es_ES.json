@@ -30,6 +30,7 @@
   "till-session-operations": "Operaciones arqueo",
   "till-session-payments": "Pagos del arqueo",
   "till-sessions": "Arqueos",
+  "till-session-pausedops": "Pendientes",
   "total-counted": "Total contado",
   "total-expected": "Total esperado"
 }

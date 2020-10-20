@@ -5,6 +5,7 @@
  */
 #}
 <!-- Checkout Modal -->
+{% set paymentEnabled = terminal.aceptapagos ? '' : 'disabled' %}
 <div class="modal fade" id="checkoutModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -32,7 +33,7 @@
                     <div class="form-row">
                         <div class="form-group col">
                             <label for="checkoutPaymentAmount" class="col-form-label">{{ i18n.trans('payment-amount') }}:</label>
-                            <input type="number" class="form-control" id="checkoutPaymentAmount">
+                            <input type="number" class="form-control" id="checkoutPaymentAmount" {{ paymentEnabled }}>
                         </div>
                     </div>
                     <div class="form-row">

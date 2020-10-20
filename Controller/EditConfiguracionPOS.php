@@ -101,7 +101,7 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
 
             $formaspago = $this->request->get('paymentmethod');
             if ($formaspago) {                
-                $appSettings->set('pointofsale', 'formaspago',join('|', $formaspago));
+                $appSettings->set('pointofsale', 'formaspago', join('|', $formaspago));
             }
 
             $fpagoefectivo = $this->request->request->get('cash-payment');

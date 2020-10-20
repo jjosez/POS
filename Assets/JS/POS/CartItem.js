@@ -9,6 +9,7 @@ class CartItem {
         this._dtopor = args.dtopor;
         this._dtopor2 = args.dtopor2;
         this._irpf = args.irpf;
+        this._idproducto = args.idproducto;
         this._iva = args.iva;
         this._pvpsindto = args.pvpsindto;
         this._pvptotal = args.pvptotal;
@@ -55,6 +56,14 @@ class CartItem {
 
     set irpf(value) {
         this._irpf = value;
+    }
+
+    get idproducto() {
+        return this._iva;
+    }
+
+    set idproducto(value) {
+        this._iva = value;
     }
 
     get iva() {
@@ -120,6 +129,7 @@ class CartItem {
             dtopor: this._dtopor,
             dtopor2: this._dtopor2,
             irpf: this._irpf,
+            idproducto: this._idproducto,
             iva: this._iva,
             pvpsindto: this._pvpsindto,
             pvptotal: this._pvptotal,

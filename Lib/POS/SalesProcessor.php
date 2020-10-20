@@ -37,7 +37,7 @@ class SalesProcessor
     }
 
     /**
-     * Initialize BusinessDocumnet with model name passed or FacturaCliente if not exists.
+     * Initialize BusinessDocument with model name passed or FacturaCliente if not exists.
      *
      * @param string $modelName
      */

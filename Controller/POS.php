@@ -6,6 +6,7 @@
 namespace FacturaScripts\Plugins\EasyPOS\Controller;
 
 use FacturaScripts\Core\Base\Controller;
+use FacturaScripts\Core\Model\Serie;
 use FacturaScripts\Dinamic\Lib\POS\PrintProcessor;
 use FacturaScripts\Dinamic\Lib\POS\SalesDataGrid;
 use FacturaScripts\Dinamic\Lib\POS\SalesProcessor;
@@ -26,6 +27,7 @@ class POS extends Controller
     public $cliente;
     public $formaPago;
     public $session;
+    public $serie;
 
     /**
      * @param Response $response
@@ -50,6 +52,7 @@ class POS extends Controller
         // Init necesary stuff
         $this->cliente = new Cliente();
         $this->formaPago = new FormaPago();
+        $this->serie = new Serie();
 
         // Run operations after load all data
         $this->execAfterAction($action);
@@ -324,6 +327,12 @@ class POS extends Controller
     public function getRandomToken()
     {
         return $this->multiRequestProtection->newToken();
+    }
+
+    public function getCustomField()
+    {
+        $dir = FS_FOLDER . '/Dinamic/View/POS/Block/CustomField/';
+        return array_diff(scandir($dir), array('..', '.'));
     }
 
     /**

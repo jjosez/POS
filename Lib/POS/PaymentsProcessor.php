@@ -35,7 +35,6 @@ class PaymentsProcessor
         $this->cashPaymentMethod = AppSettings::get('pointofsale', 'fpagoefectivo');
         $this->cashPaymentAmount = 0;
         $this->totalPaymentAmount = 0;
-        $this->payments = $payments;
 
         $this->setPayments($payments);
     }
@@ -45,7 +44,7 @@ class PaymentsProcessor
      */
     private function setPayments(array $payments)
     {
-        $this->paymentsData = $payments;
+        $this->payments = $payments;
         foreach ($payments as $payment) {
             if ($payment['method'] == $this->cashPaymentMethod) {
                 $this->cashPaymentAmount += $payment['amount'] - $payment['change'];
