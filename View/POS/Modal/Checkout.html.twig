@@ -7,7 +7,7 @@
 <!-- Checkout Modal -->
 {% set paymentEnabled = terminal.aceptapagos ? '' : 'disabled' %}
 <div class="modal fade" id="checkoutModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">{{ i18n.trans('due-amount') }}:&nbsp;<span id="dueAmount"

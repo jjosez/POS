@@ -5,6 +5,8 @@
  */
 #}
 {% extends 'POS/Layout/Base.html.twig' %}
+{% import 'POS/Macro/POS.html.twig' as pos %}
+
 {% set grid = fsc.getGridHeaders() %}
 
 {% block body %}
@@ -29,10 +31,10 @@
 
 {% block js %}
     <script id="cartItemTemplate" type="text/template">
-        {{ _self.getCartTemplate(grid.columns) }}
+        {{ pos.getCartTemplate(grid.columns) }}
     </script>
     <script id="ajaxSearchTemplate" type="text/template">
-        {{ _self.getAjaxSearchTemplate() }}
+        {{ pos.getAjaxSearchTemplate() }}
     </script>
     <script type="text/javascript">
         const CashPaymentMethod = "{{ fsc.getCashPaymentMethod() }}";
@@ -48,49 +50,3 @@
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/POS/Cart.js') }}"></script>
     <script src="{{ asset('Plugins/EasyPOS/Assets/JS/pos.app.js') }}"></script>
 {% endblock %}
-
-{% macro getAjaxSearchTemplate() %}
-    {{- '{{foreach(options.list)}}' }}
-    <tr>
-        <td><span class="font-weight-bold">ID: {{ '{{@this.code}}' }}</span><br>{{ '{{@this.description}}' }}</td>
-        <td>
-            <button class="btn btn-sm btn-success item-add-button" type="button" data-code="{{ '{{@this.code}}' }}"
-                    data-description="{{ '{{@this.description}}' }}" data-target="{{ '{{target}}' }}">
-                <i class="fas fa-plus"></i>
-            </button>
-        </td>
-    </tr>
-    {{ '{{/foreach}}' -}}
-{% endmacro %}
-
-{% macro getCartTemplate(columns) %}
-    {{- '{{foreach(options.lines)}}' }}
-    <tr>
-    {% for column in columns %}
-        {% set name = _self.getTemplateKey(column.data) %}
-        {%- if column.data == 'referencia' -%}
-            <td>
-                <input class="form-control cart-item" type="{{ column.type }}" value="{{name}}" readonly>
-            </td>
-        {%- elseif column.data == 'descripcion' %}
-            <td class="cart-product-row">
-                <input class="form-control cart-item" type="{{ column.type }}" value="{{name}}" data-index="{{ '{{@key}}' }}" data-field="{{ column.data }}" {{ column.readonly }}>
-            </td>
-        {% else -%}
-            <td>
-                <input class="form-control cart-item" type="{{ column.type }}" value="{{name}}" data-index="{{ '{{@key}}' }}" data-field="{{ column.data }}" {{ column.readonly }}>
-            </td>
-        {% endif -%}
-    {% endfor %}
-    <td>
-        <button type="button" class="btn btn-icon btn-link">
-            <i class="fas fa-trash text-danger cart-item-remove" data-index="{{ '{{@key}}' }}"></i>
-        </button>
-    </td>
-    </tr>
-    {{ '{{/foreach}}' -}}
-{% endmacro %}
-
-{% macro getTemplateKey(name) %}
-    {{- '{{@this.' }}{{ name }}{{ '}}' -}}
-{% endmacro %}

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('Dinamic/Assets/CSS/atlantis.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('Plugins/EasyPOS/Assets/CSS/offcanvas.css') }}" />
     <link rel="stylesheet" href="{{ asset('Plugins/EasyPOS/Assets/CSS/pos.app.css') }}" />
+    <link rel="stylesheet" href="{{ asset('Plugins/EasyPOS/Assets/CSS/bootstrap4-modal-fullscreen.min.css') }}" />
 {% endblock %}
 {% block fullBody %}
     {% set terminal = fsc.session.getTerminal() %}
@@ -45,7 +46,7 @@
             </script>
         {% endblock %}
 
-        {{ debugBarRender.render() | raw }}
+{#        {{ debugBarRender.render() | raw }}#}
     </body>
 {% endblock %}
 
