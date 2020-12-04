@@ -1,15 +1,15 @@
 <?php
 /**
- * This file is part of EasyPOS plugin for FacturaScripts
+ * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
+namespace FacturaScripts\Plugins\POS\Lib\POS;
 
 use FacturaScripts\Core\App\App;
 use FacturaScripts\Core\App\AppSettings;
-use FacturaScripts\Plugins\EasyPOS\Model\OperacionPOS;
-use FacturaScripts\Plugins\EasyPOS\Model\PagoPOS;
-use FacturaScripts\Plugins\EasyPOS\Model\SesionPOS;
+use FacturaScripts\Plugins\POS\Model\OperacionPOS;
+use FacturaScripts\Plugins\POS\Model\PagoPOS;
+use FacturaScripts\Plugins\POS\Model\SesionPOS;
 
 /**
  * Class to manage POS payments.

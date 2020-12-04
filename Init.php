@@ -1,5 +1,5 @@
 <?php
-namespace FacturaScripts\Plugins\EasyPOS;
+namespace FacturaScripts\Plugins\POS;
 
 use FacturaScripts\Core\Base\InitClass;
 

@@ -1,5 +1,5 @@
 <?php
-namespace FacturaScripts\Plugins\EasyPOS\Lib;
+namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Dinamic\Lib\Ticket\Data\Cashup;
 use FacturaScripts\Dinamic\Lib\Ticket\Template\CashupTemplate;

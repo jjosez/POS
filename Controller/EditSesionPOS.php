@@ -1,9 +1,9 @@
 <?php
 /**
- * This file is part of EasyPOS plugin for FacturaScripts
+ * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-namespace FacturaScripts\Plugins\EasyPOS\Controller;
+namespace FacturaScripts\Plugins\POS\Controller;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController;

@@ -1,6 +1,6 @@
 {#
 /**
- *  This file is part of EasyPOS plugin for FacturaScripts
+ *  This file is part of POS plugin for FacturaScripts
  *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
@@ -11,6 +11,7 @@
 <form id="salesDocumentForm" name="salesDocumentForm" method="post" autocomplete="off">
     <input type="hidden" id="action" name="action"/>
     <input type="hidden" id="codalmacen" name="codalmacen" value="{{ terminal.codalmacen }}">
+    <input type="hidden" id="codpago" name="codpago" value="">
     <input type="hidden" id="documentdate" name="documentdate" value="{{ "now"|date("d-m-Y") }}">
     <input type="hidden" id="lines" name="lines"/>
     <input type="hidden" id="neto" name="neto" value="0">

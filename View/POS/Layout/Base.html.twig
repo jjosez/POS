@@ -1,6 +1,6 @@
 {#
 /**
- *  This file is part of EasyPOS plugin for FacturaScripts
+ *  This file is part of POS plugin for FacturaScripts
  *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
@@ -8,9 +8,9 @@
 {% block css %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('Dinamic/Assets/CSS/atlantis.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('Plugins/EasyPOS/Assets/CSS/offcanvas.css') }}" />
-    <link rel="stylesheet" href="{{ asset('Plugins/EasyPOS/Assets/CSS/pos.app.css') }}" />
-    <link rel="stylesheet" href="{{ asset('Plugins/EasyPOS/Assets/CSS/bootstrap4-modal-fullscreen.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('Plugins/POS/Assets/CSS/offcanvas.css') }}" />
+    <link rel="stylesheet" href="{{ asset('Plugins/POS/Assets/CSS/pos.app.css') }}" />
+    <link rel="stylesheet" href="{{ asset('Plugins/POS/Assets/CSS/bootstrap4-modal-fullscreen.min.css') }}" />
 {% endblock %}
 {% block fullBody %}
     {% set terminal = fsc.session.getTerminal() %}

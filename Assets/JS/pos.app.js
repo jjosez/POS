@@ -1,5 +1,5 @@
 /**
- * This file is part of EasyPOS plugin for FacturaScripts
+ * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 const cartTemplateSource = document.getElementById('cartItemTemplate').innerHTML;
@@ -169,6 +169,7 @@ function onCheckoutConfirm() {
     document.getElementById("action").value = 'save-document';
     document.getElementById("lines").value = JSON.stringify(cart.getCartItems());
     document.getElementById("payments").value = JSON.stringify(paymentData);
+    document.getElementById("codpago").value = JSON.stringify(paymentData.method);
     document.salesDocumentForm.submit();
 }
 

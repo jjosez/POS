@@ -1,9 +1,9 @@
 <?php
 /**
- * This file is part of EasyPOS plugin for FacturaScripts
+ * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-namespace FacturaScripts\Plugins\EasyPOS\Lib\POS;
+namespace FacturaScripts\Plugins\POS\Lib\POS;
 
 use FacturaScripts\Core\Model\Base\BusinessDocument;
 use FacturaScripts\Dinamic\Lib\SalesDocumentTicket;

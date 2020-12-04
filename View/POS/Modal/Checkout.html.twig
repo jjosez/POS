@@ -1,6 +1,6 @@
 {#
 /**
- *  This file is part of EasyPOS plugin for FacturaScripts
+ *  This file is part of POS plugin for FacturaScripts
  *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
@@ -21,7 +21,7 @@
                     <div class="form-row">
                         <div class="form-group col">
                             <label for="checkoutPaymentMethod">{{ i18n.trans('payment-method') }}</label>
-                            <select class="form-control" id="checkoutPaymentMethod" name="payment-method">
+                            <select class="form-control" id="checkoutPaymentMethod" name="codpago">
                                 {% for formapago in fsc.formaPago.all() %}
                                     <option value="{{ formapago.codpago }}">
                                         {{ formapago.descripcion }}
