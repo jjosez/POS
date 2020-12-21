@@ -16,7 +16,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title text-center">{{ terminal.nombre }}</h5>
-                                <p class="card-text text-center">Ingresa el efectivo en caja para iniciar.</p>
+                                <p class="card-text text-center">{{ i18n.trans('cash-initial-amount-input') }}</p>
                                 <div class="form-row">
                                     <div class="form-group col">
                                         <div class="input-group">
@@ -32,7 +32,7 @@
                                         <a href="{{ asset('POS') }}">Ver todas</a>
                                     </div>
                                     <div class="col text-right">
-                                        <button class="btn btn-primary" type="submit">Continuar</button>
+                                        <button class="btn btn-primary" type="submit">{{ i18n.trans('continue') }}</button>
                                     </div>
                                 </div>
                             </div>
@@ -46,7 +46,7 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title text-center">{{ i18n.trans('available-cash-registers') }}</h5>
-                            <p class="card-text text-center">Selecciona una terminal para comenzar.</p>
+                            <p class="card-text text-center">{{ i18n.trans('select-cash-register') }}</p>
                             <form method="post">
                                 <input type="hidden" name="action" value="open-terminal"/>
                                 {% for terminal in terminal.allAvailable() %}
@@ -61,7 +61,7 @@
                                 {% else %}
                                     <div class="form-row">
                                         <div class="col">
-                                            <a href="{{ asset('ListTerminalPOS') }}" class="btn btn-success btn-block">Agregar</a>
+                                            <a href="{{ asset('ListTerminalPOS') }}" class="btn btn-success btn-block">{{ i18n.trans('add') }}</a>
                                         </div>
                                     </div>
                                 {% endfor %}
