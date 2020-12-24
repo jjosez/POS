@@ -2,9 +2,15 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class Cart {
+import { CartItem } from './CartItem.js';
+
+export class Cart {
 
     constructor(args = {}) {
+        if (args.doc === undefined) {
+            args.doc = {};
+        }
+
         this._dtopor1 = args.doc.dtopor1;
         this._dtopor2 = args.doc.dtopor2;
         this._irpf =  args.doc.irpf;
@@ -16,7 +22,6 @@ class Cart {
         this._totalrecargo = args.doc.totalrecargo;
         this.setCartItems(args.lines);
     }
-
 
     get cartItems() {
         return this._cartItems;
@@ -121,7 +126,7 @@ class Cart {
     }
 
     getCartItems() {
-        var lines = [];
+        let lines = [];
         for (let item of this.cartItems) {
             lines.push(item.toArray());
         }

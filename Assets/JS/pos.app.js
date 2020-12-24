@@ -2,6 +2,8 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
+import { Cart } from './POS/Cart.js';
+
 const cartTemplateSource = document.getElementById('cartItemTemplate').innerHTML;
 const ajaxTemplateSource = document.getElementById('ajaxSearchTemplate').innerHTML;
 
@@ -10,10 +12,10 @@ const ajaxSearchContainer = document.getElementById('ajaxSearchResult');
 
 const cartTemplate = Sqrl.Compile(cartTemplateSource);
 const ajaxTemplate = Sqrl.Compile(ajaxTemplateSource);
-var cart = new Cart({doc:{}});
+let cart = new Cart();
 
 function onCartUpdate() {
-    var data = {};
+    let data = {};
     $.each($("#" + FormName).serializeArray(), function (key, value) {
         data[value.name] = value.value;
     });
@@ -73,7 +75,7 @@ function updateCartView(results) {
 
 // Search actions
 function ajaxCustomSearch(query, target) {
-    var data = {
+    let data = {
         action: "custom-search",
         query: query,
         target: target
@@ -94,7 +96,7 @@ function ajaxCustomSearch(query, target) {
 }
 
 function ajaxBarcodeSearch(query) {
-    var data = {
+    let data = {
         action: "barcode-search",
         query: query
     };
@@ -134,14 +136,14 @@ function setCustomer(code, description) {
 
 // Payment calc
 function recalculatePaymentAmount() {
-    var checkoutButton = document.getElementById('checkoutButton');
-    var checkoutPaymentAmount = document.getElementById('checkoutPaymentAmount');
-    var checkoutPaymentChange = document.getElementById('checkoutPaymentChange');
-    var checkoutPaymentMethod = document.getElementById("checkoutPaymentMethod");
-    var total = parseFloat(document.getElementById('total').value);
+    let checkoutButton = document.getElementById('checkoutButton');
+    let checkoutPaymentAmount = document.getElementById('checkoutPaymentAmount');
+    let checkoutPaymentChange = document.getElementById('checkoutPaymentChange');
+    let checkoutPaymentMethod = document.getElementById("checkoutPaymentMethod");
+    let total = parseFloat(document.getElementById('total').value);
 
-    paymentAmount = checkoutPaymentAmount.value;
-    paymentReturn = paymentAmount - total;
+    let paymentAmount = checkoutPaymentAmount.value;
+    let paymentReturn = paymentAmount - total;
     paymentReturn = paymentReturn || 0;
     if (checkoutPaymentMethod.value !== CashPaymentMethod) {
         if (paymentReturn > 0) {
@@ -153,15 +155,15 @@ function recalculatePaymentAmount() {
     checkoutPaymentChange.value = formatNumber(paymentReturn);
     if (paymentReturn >= 0) {
         //console.log('Cambio : ' + paymentReturn);
-        checkoutButton.removeAttribute('disabled')
+        checkoutButton.removeAttribute('disabled');
     } else {
         //console.log('Falta : ' + paymentReturn);
-        checkoutButton.setAttribute('disabled', 'disabled')
+        checkoutButton.setAttribute('disabled', 'disabled');
     }
 }
 
 function onCheckoutConfirm() {
-    var paymentData = {};
+    let paymentData = {};
     paymentData.amount = document.getElementById('checkoutPaymentAmount').value;
     paymentData.change = document.getElementById('checkoutPaymentChange').value;
     paymentData.method = document.getElementById("checkoutPaymentMethod").value;
@@ -174,7 +176,7 @@ function onCheckoutConfirm() {
 }
 
 function onCheckoutModalShow() {
-    var modalTitle = document.getElementById('dueAmount');
+    let modalTitle = document.getElementById('dueAmount');
     modalTitle.textContent = document.getElementById('total').value;
 }
 
@@ -190,7 +192,7 @@ function onPauseOperation() {
 }
 
 function resumeOperation(code) {
-    var data = {
+    let data = {
         action: "resume-document",
         code: code
     };
@@ -222,21 +224,21 @@ function formatNumber(val) {
 
 function testResponseTime(startTime, label = 'Exec time:') {
     //Calculate the difference in milliseconds.
-    var time = performance.now() - startTime;
+    let time = performance.now() - startTime;
 
     //Convert milliseconds to seconds.
-    var seconds = time / 100;
+    let seconds = time / 100;
     console.log(label, seconds.toFixed(3));
 }
 
 $(document).ready(function () {
-    var barcodeInput = document.getElementById("searchByCode");
+    let barcodeInput = document.getElementById("searchByCode");
     onScan.attachTo(barcodeInput, {
-        onScan: function(code) { ajaxBarcodeSearch(code) }
+        onScan: function(code) { ajaxBarcodeSearch(code); }
     });
 
     $('[data-toggle="offcanvas"]').on('click', function () {
-        $('.offcanvas-collapse').toggleClass('open')
+        $('.offcanvas-collapse').toggleClass('open');
     });
     $('#checkoutButton').click(function () {
         onCheckoutConfirm();
@@ -244,17 +246,17 @@ $(document).ready(function () {
     $('#pauseButton').click(function () {
         onPauseOperation();
     });
-    $('#checkoutPaymentAmount').keyup(function (e) {
+    $('#checkoutPaymentAmount').keyup(function () {
         recalculatePaymentAmount();
     });
-    $('#checkoutPaymentMethod').change(function (e) {
+    $('#checkoutPaymentMethod').change(function () {
         recalculatePaymentAmount();
     });
     $('#checkoutModal').on('shown.bs.modal', function () {
         onCheckoutModalShow();
     });
-    $('#saveCashupButton').on('click', function (event) {
-        document.cashupForm.submit()
+    $('#saveCashupButton').on('click', function () {
+        document.cashupForm.submit();
     });
 
     // Ajax Search Events

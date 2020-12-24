@@ -46,7 +46,5 @@
     {{ parent() }}
     <script src="{{ asset('Plugins/POS/Assets/JS/squirrelly.min.js') }}"></script>
     <script src="{{ asset('Plugins/POS/Assets/JS/onscan.min.js') }}"></script>
-    <script src="{{ asset('Plugins/POS/Assets/JS/POS/CartItem.js') }}"></script>
-    <script src="{{ asset('Plugins/POS/Assets/JS/POS/Cart.js') }}"></script>
-    <script src="{{ asset('Plugins/POS/Assets/JS/pos.app.js') }}"></script>
+    <script type="module" src="{{ asset('Plugins/POS/Assets/JS/pos.app.js') }}"></script>
 {% endblock %}
