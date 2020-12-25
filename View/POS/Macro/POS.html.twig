@@ -12,6 +12,12 @@
     {{ '{{/foreach}}' -}}
 {% endmacro %}
 
+{% macro getAjaxSearchTemplateB() %}
+    <% it.items.forEach(function(item){ %>
+    <% console.log(item.code) %>
+    <% }) %>
+{% endmacro %}
+
 {% macro getCartTemplate(columns) %}
     {{- '{{foreach(options.lines)}}' }}
     <tr>

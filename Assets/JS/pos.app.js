@@ -4,8 +4,12 @@
  */
 import { Cart } from './POS/Cart.js';
 
+const FormName = "salesDocumentForm";
+const UrlAccess = "POS";
+
 const cartTemplateSource = document.getElementById('cartItemTemplate').innerHTML;
 const ajaxTemplateSource = document.getElementById('ajaxSearchTemplate').innerHTML;
+const ajaxTemplateSourceB = document.getElementById('ajaxSearchTemplateB').innerHTML;
 
 const cartItemsContainer = document.getElementById('cartItemsContainer');
 const ajaxSearchContainer = document.getElementById('ajaxSearchResult');
@@ -88,6 +92,7 @@ function ajaxCustomSearch(query, target) {
         startTime: performance.now(),
         success: function (data) {
             ajaxSearchContainer.innerHTML = ajaxTemplate({list: data, target: target}, Sqrl);
+            console.log(Eta.render(ajaxTemplateSourceB, {items: data}));
         },
         error: function (xhr, status) {
             //console.log('Error', xhr.responseText);

@@ -36,15 +36,17 @@
     <script id="ajaxSearchTemplate" type="text/template">
         {{ pos.getAjaxSearchTemplate() }}
     </script>
+    <script id="ajaxSearchTemplateB" type="text/template">
+        {{ pos.getAjaxSearchTemplateB() }}
+    </script>
     <script type="text/javascript">
         const CashPaymentMethod = "{{ fsc.getCashPaymentMethod() }}";
-        const FormName = "salesDocumentForm";
-        const UrlAccess = "POS";
     </script>
 
     {#TODO: Change to dynamic for release #}
     {{ parent() }}
     <script src="{{ asset('Plugins/POS/Assets/JS/squirrelly.min.js') }}"></script>
+    <script src="{{ asset('Plugins/POS/Assets/JS/modules/eta.dev.js') }}"></script>
     <script src="{{ asset('Plugins/POS/Assets/JS/onscan.min.js') }}"></script>
     <script type="module" src="{{ asset('Plugins/POS/Assets/JS/pos.app.js') }}"></script>
 {% endblock %}
