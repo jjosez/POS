@@ -1,51 +1,54 @@
-{% macro getAjaxSearchTemplate() %}
-    {{- '{{foreach(options.list)}}' }}
+{% macro productTemplateSource() %}
+    <% it.items.forEach(function(item){ %>
     <tr>
-        <td><span class="font-weight-bold">ID: {{ '{{@this.code}}' }}</span><br>{{ '{{@this.description}}' }}</td>
+        <td><span class="font-weight-bold">ID: <%= item.code %> </span><br><%= item.description %></td>
         <td>
-            <button class="btn btn-sm btn-success item-add-button" type="button" data-code="{{ '{{@this.code}}' }}"
-                    data-description="{{ '{{@this.description}}' }}" data-target="{{ '{{target}}' }}">
+            <button class="btn btn-sm btn-success item-add-button" type="button" data-code="<%= item.code %>"
+                    data-description="<%= item.description %>">
                 <i class="fas fa-plus"></i>
             </button>
         </td>
     </tr>
-    {{ '{{/foreach}}' -}}
-{% endmacro %}
-
-{% macro getAjaxSearchTemplateB() %}
-    <% it.items.forEach(function(item){ %>
-    <% console.log(item.code) %>
     <% }) %>
 {% endmacro %}
 
-{% macro getCartTemplate(columns) %}
-    {{- '{{foreach(options.lines)}}' }}
+{% macro customerTemplateSource() %}
+    <% it.items.forEach(function(customer){ %>
+    <tr>
+        <td><span class="font-weight-bold">ID: <%= customer.code %> </span><br><%= customer.description %></td>
+        <td>
+            <button class="btn btn-sm btn-success item-add-button" type="button" data-code="<%= customer.code %>"
+                    data-description="<%= customer.description %>">
+                <i class="fas fa-plus"></i>
+            </button>
+        </td>
+    </tr>
+    <% }) %>
+{% endmacro %}
+
+{% macro cartTemplateSource(columns) %}
+    <% it.lines.forEach(function(value, index) { %>
     <tr>
         {% for column in columns %}
-            {% set name = _self.getTemplateKey(column.data) %}
             {%- if column.data == 'referencia' -%}
                 <td>
-                    <input class="form-control cart-item" type="{{ column.type }}" value="{{name}}" readonly>
+                    <input class="form-control cart-item" type="{{ column.type }}" value="<%= value.referencia %>" readonly>
                 </td>
             {%- elseif column.data == 'descripcion' %}
                 <td class="cart-product-row">
-                    <input class="form-control cart-item" type="{{ column.type }}" value="{{name}}" data-index="{{ '{{@key}}' }}" data-field="{{ column.data }}" {{ column.readonly }}>
+                    <input class="form-control cart-item" type="{{ column.type }}" value="<%= value.descripcion %>" data-index="<%= index %>" data-field="{{ column.data }}" {{ column.readonly }}>
                 </td>
             {% else -%}
                 <td>
-                    <input class="form-control cart-item" type="{{ column.type }}" value="{{name}}" data-index="{{ '{{@key}}' }}" data-field="{{ column.data }}" {{ column.readonly }}>
+                    <input class="form-control cart-item" type="{{ column.type }}" value="<%= value.{{ column.data }} %>" data-index="<%= index %>" data-field="{{ column.data }}" {{ column.readonly }}>
                 </td>
             {% endif -%}
         {% endfor %}
         <td>
             <button type="button" class="btn btn-icon btn-link">
-                <i class="fas fa-trash text-danger cart-item-remove" data-index="{{ '{{@key}}' }}"></i>
+                <i class="fas fa-trash text-danger cart-item-remove" data-index="<%= index %>"></i>
             </button>
         </td>
     </tr>
-    {{ '{{/foreach}}' -}}
-{% endmacro %}
-
-{% macro getTemplateKey(name) %}
-    {{- '{{@this.' }}{{ name }}{{ '}}' -}}
+    <% }) %>
 {% endmacro %}

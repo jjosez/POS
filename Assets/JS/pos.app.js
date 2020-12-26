@@ -3,52 +3,27 @@
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 import { Cart } from './POS/Cart.js';
+import * as Tools from './POS/tools.js';
 
 const FormName = "salesDocumentForm";
 const UrlAccess = "POS";
 
-const cartTemplateSource = document.getElementById('cartItemTemplate').innerHTML;
-const ajaxTemplateSource = document.getElementById('ajaxSearchTemplate').innerHTML;
-const ajaxTemplateSourceB = document.getElementById('ajaxSearchTemplateB').innerHTML;
+const cartTemplate = Eta.compile(document.getElementById('cartTemplateSource').innerHTML);
+const customerTemplate = Eta.compile(document.getElementById('customerTemplateSource').innerHTML);
+const productTemplate = Eta.compile(document.getElementById('productTemplateSource').innerHTML);
 
-const cartItemsContainer = document.getElementById('cartItemsContainer');
-const ajaxSearchContainer = document.getElementById('ajaxSearchResult');
+const cartContainer = document.getElementById('cartContainer');
+const productSearchResult = document.getElementById('productSearchResult');
+const customerSearchResult = document.getElementById('customerSearchResult');
 
-const cartTemplate = Sqrl.Compile(cartTemplateSource);
-const ajaxTemplate = Sqrl.Compile(ajaxTemplateSource);
+const etaConfig = Eta.config;
 let cart = new Cart();
-
-function onCartUpdate() {
-    let data = {};
-    $.each($("#" + FormName).serializeArray(), function (key, value) {
-        data[value.name] = value.value;
-    });
-    data.action = "recalculate-document";
-    data.lines = cart.getCartItems();
-    $.ajax({
-        type: "POST",
-        url: UrlAccess,
-        dataType: "json",
-        data: data,
-        startTime: performance.now(),
-        success: function (results) {
-            cart = new Cart(results);
-            updateCartView(results);
-            //console.log('Items on cart:', cart.cartItems);
-            //console.log('Results:', results);
-            testResponseTime(this.startTime, 'Request exec time:');
-        },
-        error: function (xhr, status, error) {
-            //console.log('Error:', xhr.responseText)
-        }
-    });
-}
 
 function onCartDelete(e) {
     let index = e.getAttribute('data-index');
 
     cart.deleteCartItem(index);
-    onCartUpdate();
+    updateCart();
 }
 
 function onCartEdit(e) {
@@ -56,7 +31,16 @@ function onCartEdit(e) {
     let index = e.getAttribute('data-index');
 
     cart.editCartItem(index, field, e.value);
-    onCartUpdate();
+    updateCart();
+}
+
+function updateCart() {
+    function recalculateLines(result) {
+        cart = new Cart(result);
+        updateCartView(result);
+    }
+
+    Tools.recalculateCartLines(recalculateLines, UrlAccess, cart.getCartItems(), FormName);
 }
 
 function updateCartView(results) {
@@ -74,69 +58,47 @@ function updateCartView(results) {
     document.getElementById('totalrecargo').value = cart.totalrecargo;
 
     // Update cart view
-    cartItemsContainer.innerHTML = cartTemplate({lines: results.lines}, Sqrl);
+    cartContainer.innerHTML = cartTemplate(results, etaConfig);
 }
 
-// Search actions
-function ajaxCustomSearch(query, target) {
-    let data = {
-        action: "custom-search",
-        query: query,
-        target: target
-    };
-    $.ajax({
-        url: UrlAccess,
-        data: data,
-        type: "POST",
-        dataType: "json",
-        startTime: performance.now(),
-        success: function (data) {
-            ajaxSearchContainer.innerHTML = ajaxTemplate({list: data, target: target}, Sqrl);
-            console.log(Eta.render(ajaxTemplateSourceB, {items: data}));
-        },
-        error: function (xhr, status) {
-            //console.log('Error', xhr.responseText);
-        }
-    });
+function searchCustomer(query) {
+    function drawTemplate(result) {
+        customerSearchResult.innerHTML = customerTemplate({items: result}, etaConfig);
+    }
+
+    Tools.search(drawTemplate, UrlAccess, query, 'customer');
 }
 
-function ajaxBarcodeSearch(query) {
-    let data = {
-        action: "barcode-search",
-        query: query
-    };
-    $.ajax({
-        url: UrlAccess,
-        data: data,
-        type: "POST",
-        dataType: "json",
-        startTime: performance.now(),
-        success: function (data) {
-            if (data.length > 0) {
-                setProduct(data[0].code, data[0].description);
-            } else {
-                console.log('No encontrado');
-            }
-            document.getElementById('searchByCode').value = '';
-        },
-        error: function (xhr, status) {
-            //console.log('Error:', xhr.responseText);
+function searchProduct(query) {
+    function drawTemplate(result) {
+        productSearchResult.innerHTML = productTemplate({items: result}, etaConfig);
+    }
+
+    Tools.search(drawTemplate, UrlAccess, query, 'product');
+}
+
+function searchProductBarcode(query) {
+    function searchBarcode(result) {
+        if (result.length > 0) {
+            setProduct(result[0].code, result[0].description);
         }
-    });
+        document.getElementById('productBarcodeInput').value = '';
+    }
+
+    Tools.searchBarcode(searchBarcode(), UrlAccess, query);
 }
 
 function setProduct(code, description) {
     cart.addCartItem(code, description);
 
-    onCartUpdate();
+    updateCart();
 }
 
 function setCustomer(code, description) {
     document.getElementById('codcliente').value = code;
-    document.getElementById('searchCustomer').value = description;
+    document.getElementById('customerSearchBox').value = description;
 
-    $('#ajaxSearchModal').modal('hide');
-    ajaxSearchContainer.innerHTML = '';
+    $('#customerSearchModal').modal('hide');
 }
 
 // Payment calc
@@ -154,10 +116,10 @@ function recalculatePaymentAmount() {
         if (paymentReturn > 0) {
             paymentReturn = 0;
             paymentAmount = total;
-            checkoutPaymentAmount.value = formatNumber(paymentAmount);
+            checkoutPaymentAmount.value = Tools.formatNumber(paymentAmount);
         }
     }
-    checkoutPaymentChange.value = formatNumber(paymentReturn);
+    checkoutPaymentChange.value = Tools.formatNumber(paymentReturn);
     if (paymentReturn >= 0) {
         //console.log('Cambio : ' + paymentReturn);
         checkoutButton.removeAttribute('disabled');
@@ -222,24 +184,10 @@ function resumeOperation(code) {
     });
 }
 
-// Helper functions
-function formatNumber(val) {
-    return parseFloat(val).toFixed(2);
-}
-
-function testResponseTime(startTime, label = 'Exec time:') {
-    //Calculate the difference in milliseconds.
-    let time = performance.now() - startTime;
-
-    //Convert milliseconds to seconds.
-    let seconds = time / 100;
-    console.log(label, seconds.toFixed(3));
-}
-
 $(document).ready(function () {
-    let barcodeInput = document.getElementById("searchByCode");
+    let barcodeInput = document.getElementById("productBarcodeInput");
     onScan.attachTo(barcodeInput, {
-        onScan: function(code) { ajaxBarcodeSearch(code); }
+        onScan: function(code) { searchProductBarcode(code); }
     });
 
     $('[data-toggle="offcanvas"]').on('click', function () {
@@ -265,33 +213,36 @@ $(document).ready(function () {
     });
 
     // Ajax Search Events
-    $('#searchCustomer').focus(function () {
-        ajaxSearchContainer.innerHTML = '';
-        $('#ajaxSearchInput').data('target', 'customer');
-        $('#ajaxSearchModal').modal('show');
+    $('#customerSearchBox').focus(function () {
+        $('#customerSearchModal').modal('show');
     });
-    $('#searchProduct').focus(function () {
-        $('#ajaxSearchInput').data('target', 'product');
-        $('#ajaxSearchModal').modal('show');
+    $('#customerSearchModal').on('shown.bs.modal', function () {
+        $('#customerSerachInput').focus();
     });
-    $('#ajaxSearchModal').on('shown.bs.modal', function () {
-        $('#ajaxSearchInput').focus();
+    $('#customerSerachInput').keyup(function () {
+        searchCustomer($(this).val());
     });
-    $('#ajaxSearchInput').keyup(function () {
-        ajaxCustomSearch($(this).val(), $(this).data('target'));
-    });
-    $('#ajaxSearchResult').on('click', '.item-add-button', function () {
-        let target = $(this).data('target');
+    $('#customerSearchResult').on('click', '.item-add-button', function () {
         let code = $(this).data('code');
         let description = $(this).data('description');
-        switch (target) {
-            case 'product':
-                setProduct(code, description);
-                break;
-            case 'customer':
-                setCustomer(code, description);
-                break;
-        }
+
+        setCustomer(code, description);
+    });
+
+    $('#productSearchBox').focus(function () {
+        $('#productSearchModal').modal('show');
+    });
+    $('#productSearchModal').on('shown.bs.modal', function () {
+        $('#productSerachInput').focus();
+    });
+    $('#productSerachInput').keyup(function () {
+        searchProduct($(this).val());
+    });
+    $('#productSearchResult').on('click', '.item-add-button', function () {
+        let code = $(this).data('code');
+        let description = $(this).data('description');
+
+        setProduct(code, description);
     });
 
     // Cart Items Events
@@ -303,13 +254,13 @@ $(document).ready(function () {
 });
 
 // Cart Items Events
-cartItemsContainer.addEventListener('click', ({target}) => {
+cartContainer.addEventListener('click', ({target}) => {
     if(target.classList.contains('cart-item-remove')) {
         onCartDelete(target);
     }
 });
 
-cartItemsContainer.addEventListener('focusout', ({target}) => {
+cartContainer.addEventListener('focusout', ({target}) => {
     if(target.classList.contains('cart-item')) {
         onCartEdit(target);
     }

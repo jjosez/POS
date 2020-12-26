@@ -21,23 +21,24 @@
 {% endblock %}
 
 {% block modals %}
-    {{ include('POS/Modal/AjaxSearch.html.twig') }}
     {{ include('POS/Modal/Cashup.html.twig') }}
     {{ include('POS/Modal/Checkout.html.twig') }}
+    {{ include('POS/Modal/CustomerSearch.html.twig') }}
     {{ include('POS/Modal/History.html.twig') }}
     {{ include('POS/Modal/PausedOperations.html.twig') }}
+    {{ include('POS/Modal/ProductSearch.html.twig') }}
     {{ include('POS/Modal/ResetData.html.twig') }}
 {% endblock %}
 
 {% block js %}
-    <script id="cartItemTemplate" type="text/template">
-        {{ pos.getCartTemplate(grid.columns) }}
+    <script id="cartTemplateSource" type="text/template">
+        {{ pos.cartTemplateSource(grid.columns) }}
     </script>
-    <script id="ajaxSearchTemplate" type="text/template">
-        {{ pos.getAjaxSearchTemplate() }}
+    <script id="productTemplateSource" type="text/template">
+        {{ pos.productTemplateSource() }}
     </script>
-    <script id="ajaxSearchTemplateB" type="text/template">
-        {{ pos.getAjaxSearchTemplateB() }}
+    <script id="customerTemplateSource" type="text/template">
+        {{ pos.customerTemplateSource() }}
     </script>
     <script type="text/javascript">
         const CashPaymentMethod = "{{ fsc.getCashPaymentMethod() }}";
@@ -45,8 +46,7 @@
 
     {#TODO: Change to dynamic for release #}
     {{ parent() }}
-    <script src="{{ asset('Plugins/POS/Assets/JS/squirrelly.min.js') }}"></script>
     <script src="{{ asset('Plugins/POS/Assets/JS/modules/eta.dev.js') }}"></script>
-    <script src="{{ asset('Plugins/POS/Assets/JS/onscan.min.js') }}"></script>
+    <script src="{{ asset('Plugins/POS/Assets/JS/modules/onscan.min.js') }}"></script>
     <script type="module" src="{{ asset('Plugins/POS/Assets/JS/pos.app.js') }}"></script>
 {% endblock %}

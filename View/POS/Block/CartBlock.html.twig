@@ -7,14 +7,14 @@
 <div class="form-row mb-1">
     <div class="form-group col-12 col-md-4 pt-0">
         <div class="input-icon">
-            <input class="form-control" id="searchByCode" type="search"
+            <input class="form-control" id="productBarcodeInput" type="search"
                    placeholder="Codigo de barras" autocomplete="off">
             <span class="input-icon-addon"><i class="fas fa-barcode"></i></span>
         </div>
     </div>
     <div class="form-group col pt-0">
         <div class="input-icon">
-            <input class="form-control" id="searchProduct" type="text"
+            <input class="form-control" id="productSearchBox" type="text"
                    placeholder="Buscar por texto" autocomplete="off">
             <span class="input-icon-addon"><i class="fas fa-search"></i></span>
         </div>
@@ -31,7 +31,7 @@
                 <th scope="col"><i class="fas fa-times"></i></th>
             </tr>
             </thead>
-            <tbody id="cartItemsContainer">
+            <tbody id="cartContainer">
                 <tr><td colspan="14"><span>{{ i18n.trans('empty-cart-list') }}</span></td></tr>
             </tbody>
         </table>
