@@ -161,29 +161,16 @@ function onPauseOperation() {
 }
 
 function resumeOperation(code) {
-    let data = {
-        action: "resume-document",
-        code: code
-    };
+    function loadPausedOperation(result) {
+        cart = new Cart(result);
+        document.getElementById('idpausada').value = result.doc.idpausada;
 
-    $.ajax({
-        type: "POST",
-        url: UrlAccess,
-        dataType: "json",
-        data: data,
-        startTime: performance.now(),
-        success: function (results) {
-            cart = new Cart(results);
-            document.getElementById('idpausada').value = results.doc.idpausada;
-            setCustomer(results.doc.codcliente, results.doc.nombrecliente);
-            updateCartView(results);
-            $('#pausedOpsModal').modal('hide');
-            //testResponseTime(this.startTime, 'Request exec time:');
-        },
-        error: function (xhr, status, error) {
-            //  console.log('Error:', xhr.responseText)
-        }
-    });
+        setCustomer(result.doc.codcliente, result.doc.nombrecliente);
+        updateCartView(result);
+        $('#pausedOpsModal').modal('hide');
+    }
+
+    Tools.loadOperation(loadPausedOperation, UrlAccess, code);
 }
 
 $(document).ready(function () {

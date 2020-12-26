@@ -1,3 +1,21 @@
+export function loadOperation(callback, url, code) {
+    let data = {
+        action: "resume-document",
+        code: code
+    };
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        dataType: "json",
+        data: data,
+        success: callback,
+        error: function (xhr, status, error) {
+            console.error('Error al cargar la venta', xhr.responseText);
+        }
+    });
+}
+
 export function recalculateCartLines(callback, url, lines, formName) {
     let data = {};
     $.each($("#" + formName).serializeArray(), function (key, value) {
