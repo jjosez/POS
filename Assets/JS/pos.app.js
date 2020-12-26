@@ -92,6 +92,8 @@ function setProduct(code, description) {
     cart.addCartItem(code, description);
 
     updateCart();
+
+    $('#productSearchModal').modal('hide');
 }
 
 function setCustomer(code, description) {
