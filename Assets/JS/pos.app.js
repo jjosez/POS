@@ -2,9 +2,9 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-import { Cart } from './POS/Cart.js';
-import * as Tools from './POS/tools.js';
-import { ShoppingCart } from "./POS/ShoppingCart.js";
+
+import * as POS from './POS/ShoppingCartTools.js';
+import ShoppingCart from "./POS/ShoppingCart.js";
 
 const FormName = "salesDocumentForm";
 const barcodeInputBox = document.getElementById("productBarcodeInput");
@@ -18,14 +18,12 @@ const productSearchResult = document.getElementById('productSearchResult');
 const customerSearchResult = document.getElementById('customerSearchResult');
 
 const etaConfig = Eta.config;
-let cart = new Cart();
-let shoppingCart = new ShoppingCart();
+let Cart = new ShoppingCart();
 
 function onCartDelete(e) {
     let index = e.getAttribute('data-index');
 
-    cart.deleteCartItem(index);
-    shoppingCart.removeItem(index);
+    Cart.remove(index);
     updateCart();
 }
 
@@ -33,7 +31,7 @@ function onCartEdit(e) {
     let field = e.getAttribute('data-field');
     let index = e.getAttribute('data-index');
 
-    cart.editCartItem(index, field, e.value);
+    Cart.edit(index, field, e.value)
     updateCart();
 }
 
@@ -42,7 +40,7 @@ function searchCustomer(query) {
         customerSearchResult.innerHTML = customerTemplate({items: response}, etaConfig);
     }
 
-    Tools.search(updateSearchResult, query, 'customer');
+    POS.search(updateSearchResult, query, 'customer');
 }
 
 function searchProduct(query) {
@@ -50,7 +48,7 @@ function searchProduct(query) {
         productSearchResult.innerHTML = productTemplate({items: response}, etaConfig);
     }
 
-    Tools.search(updateSearchResult, query, 'product');
+    POS.search(updateSearchResult, query, 'product');
 }
 
 function searchProductBarcode(query) {
@@ -61,48 +59,42 @@ function searchProductBarcode(query) {
         barcodeInputBox.value = '';
     }
 
-    Tools.searchBarcode(searchBarcode(), query);
+    POS.searchBarcode(searchBarcode(), query);
 }
 
 function setProduct(code, description) {
-    cart.addCartItem(code, description);
-    shoppingCart.addItem(code, description);
-    console.log(shoppingCart);
+    Cart.add(code, description);
+
     updateCart();
 }
 
 function setCustomer(code, description) {
     document.getElementById('codcliente').value = code;
     document.getElementById('customerSearchBox').value = description;
-
-    updateCart();
 }
 
 function updateCart() {
-    function updateCartData(response) {
-        cart = new Cart(response);
-        shoppingCart = new ShoppingCart(response);
-        updateCartView(response);
+    function updateCartData(data) {
+        Cart = new ShoppingCart(data);
+        updateCartView(data);
     }
 
-    Tools.recalculateCartData(updateCartData, cart.getCartItems(), FormName);
+    POS.recalculate(updateCartData, Cart.data.lines, FormName);
 }
 
-function updateCartView(results) {
+function updateCartView(data) {
     // Update totals
-    document.getElementById('cartTotalDisplay').value = cart.total;
-    document.getElementById('cartTaxesDisplay').value = cart.totaliva;
-    document.getElementById('cartNetoDisplay').value = cart.netosindto;
-    document.getElementById('total').value = cart.total;
-    document.getElementById('neto').value = cart.neto;
-    document.getElementById('totaliva').value = cart.totaliva;
-    document.getElementById('totalirpf').value = cart.totalirpf;
-    document.getElementById('totalrecargo').value = cart.totalrecargo;
+    document.getElementById('cartTotalDisplay').value = data.doc.total;
+    document.getElementById('cartTaxesDisplay').value = data.doc.totaliva;
+    document.getElementById('cartNetoDisplay').value = data.doc.netosindto;
+    document.getElementById('total').value = data.doc.total;
+    document.getElementById('neto').value = data.doc.neto;
+    document.getElementById('totaliva').value = data.doc.totaliva;
+    document.getElementById('totalirpf').value = data.doc.totalirpf;
+    document.getElementById('totalrecargo').value = data.doc.totalrecargo;
 
     // Update cart view
-    cartContainer.innerHTML = cartTemplate(results, etaConfig);
-    console.info("ShoppingCart Data", shoppingCart);
-    console.info("Cart Data", cart);
+    cartContainer.innerHTML = cartTemplate(data, etaConfig);
 
     //hide all open modals
     $('.modal').modal('hide');
@@ -123,10 +115,10 @@ function recalculatePaymentAmount() {
         if (paymentReturn > 0) {
             paymentReturn = 0;
             paymentAmount = total;
-            checkoutPaymentAmount.value = Tools.formatNumber(paymentAmount);
+            checkoutPaymentAmount.value = POS.formatNumber(paymentAmount);
         }
     }
-    checkoutPaymentChange.value = Tools.formatNumber(paymentReturn);
+    checkoutPaymentChange.value = POS.formatNumber(paymentReturn);
     if (paymentReturn >= 0) {
         //console.log('Cambio : ' + paymentReturn);
         checkoutButton.removeAttribute('disabled');
@@ -155,25 +147,25 @@ function onCheckoutModalShow() {
 }
 
 function onPauseOperation() {
-    if (cart.getCartItems().length <= 0) {
+    if (Cart.data.lines.length <= 0) {
         $('#checkoutModal').modal('hide');
         return;
     }
 
     document.getElementById('action').value = 'pause-document';
-    document.getElementById('lines').value = JSON.stringify(cart.getCartItems());
+    document.getElementById('lines').value = JSON.stringify(Cart.data.lines);
     document.salesDocumentForm.submit();
 }
 
-function resumeOperation(code) {
-    function loadPausedOperation(response) {
+function resumePausedDocument(code) {
+    function resumeDocument(response) {
         document.getElementById('idpausada').value = response.doc.idpausada;
         setCustomer(response.doc.codcliente, response.doc.nombrecliente);
-        cart = new Cart(response);
+        Cart = new ShoppingCart(response);
         updateCartView(response);
     }
 
-    Tools.loadOperation(loadPausedOperation, code);
+    POS.resumeDocument(resumeDocument, code);
 }
 
 $(document).ready(function () {
@@ -240,7 +232,7 @@ $(document).ready(function () {
     $('#pausedOperations').on('click', '.resume-button', function () {
         let code = $(this).data('code');
 
-        resumeOperation(code);
+        resumePausedDocument(code);
     });
 });
 

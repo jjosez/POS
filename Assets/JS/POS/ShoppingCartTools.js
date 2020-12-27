@@ -4,7 +4,7 @@
  */
 const AjaxRequestUrl = "POS";
 
-export function loadOperation(callback, code) {
+export function resumeDocument(callback, code) {
     let data = {
         action: "resume-document",
         code: code
@@ -22,7 +22,7 @@ export function loadOperation(callback, code) {
     });
 }
 
-export function recalculateCartData(callback, lines, formName) {
+export function recalculate(callback, lines, formName) {
     let data = {};
     $.each($("#" + formName).serializeArray(), function (key, value) {
         data[value.name] = value.value;
