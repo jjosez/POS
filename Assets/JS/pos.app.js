@@ -4,9 +4,10 @@
  */
 import { Cart } from './POS/Cart.js';
 import * as Tools from './POS/tools.js';
+import { ShoppingCart } from "./POS/ShoppingCart.js";
 
 const FormName = "salesDocumentForm";
-const UrlAccess = "POS";
+const barcodeInputBox = document.getElementById("productBarcodeInput");
 
 const cartTemplate = Eta.compile(document.getElementById('cartTemplateSource').innerHTML);
 const customerTemplate = Eta.compile(document.getElementById('customerTemplateSource').innerHTML);
@@ -18,11 +19,13 @@ const customerSearchResult = document.getElementById('customerSearchResult');
 
 const etaConfig = Eta.config;
 let cart = new Cart();
+let shoppingCart = new ShoppingCart();
 
 function onCartDelete(e) {
     let index = e.getAttribute('data-index');
 
     cart.deleteCartItem(index);
+    shoppingCart.removeItem(index);
     updateCart();
 }
 
@@ -34,19 +37,58 @@ function onCartEdit(e) {
     updateCart();
 }
 
-function updateCart() {
-    function recalculateLines(result) {
-        cart = new Cart(result);
-        updateCartView(result);
+function searchCustomer(query) {
+    function updateSearchResult(response) {
+        customerSearchResult.innerHTML = customerTemplate({items: response}, etaConfig);
     }
 
-    Tools.recalculateCartLines(recalculateLines, UrlAccess, cart.getCartItems(), FormName);
+    Tools.search(updateSearchResult, query, 'customer');
+}
+
+function searchProduct(query) {
+    function updateSearchResult(response) {
+        productSearchResult.innerHTML = productTemplate({items: response}, etaConfig);
+    }
+
+    Tools.search(updateSearchResult, query, 'product');
+}
+
+function searchProductBarcode(query) {
+    function searchBarcode(response) {
+        if (response.length > 0) {
+            setProduct(response[0].code, response[0].description);
+        }
+        barcodeInputBox.value = '';
+    }
+
+    Tools.searchBarcode(searchBarcode(), query);
+}
+
+function setProduct(code, description) {
+    cart.addCartItem(code, description);
+    shoppingCart.addItem(code, description);
+    console.log(shoppingCart);
+    updateCart();
+}
+
+function setCustomer(code, description) {
+    document.getElementById('codcliente').value = code;
+    document.getElementById('customerSearchBox').value = description;
+
+    updateCart();
+}
+
+function updateCart() {
+    function updateCartData(response) {
+        cart = new Cart(response);
+        shoppingCart = new ShoppingCart(response);
+        updateCartView(response);
+    }
+
+    Tools.recalculateCartData(updateCartData, cart.getCartItems(), FormName);
 }
 
 function updateCartView(results) {
-    // Hide search modal
-    $('#ajaxSearchModal').modal('hide');
-
     // Update totals
     document.getElementById('cartTotalDisplay').value = cart.total;
     document.getElementById('cartTaxesDisplay').value = cart.totaliva;
@@ -59,48 +101,11 @@ function updateCartView(results) {
 
     // Update cart view
     cartContainer.innerHTML = cartTemplate(results, etaConfig);
-}
+    console.info("ShoppingCart Data", shoppingCart);
+    console.info("Cart Data", cart);
 
-function searchCustomer(query) {
-    function drawTemplate(result) {
-        customerSearchResult.innerHTML = customerTemplate({items: result}, etaConfig);
-    }
-
-    Tools.search(drawTemplate, UrlAccess, query, 'customer');
-}
-
-function searchProduct(query) {
-    function drawTemplate(result) {
-        productSearchResult.innerHTML = productTemplate({items: result}, etaConfig);
-    }
-
-    Tools.search(drawTemplate, UrlAccess, query, 'product');
-}
-
-function searchProductBarcode(query) {
-    function searchBarcode(result) {
-        if (result.length > 0) {
-            setProduct(result[0].code, result[0].description);
-        }
-        document.getElementById('productBarcodeInput').value = '';
-    }
-
-    Tools.searchBarcode(searchBarcode(), UrlAccess, query);
-}
-
-function setProduct(code, description) {
-    cart.addCartItem(code, description);
-
-    updateCart();
-
-    $('#productSearchModal').modal('hide');
-}
-
-function setCustomer(code, description) {
-    document.getElementById('codcliente').value = code;
-    document.getElementById('customerSearchBox').value = description;
-
-    $('#customerSearchModal').modal('hide');
+    //hide all open modals
+    $('.modal').modal('hide');
 }
 
 // Payment calc
@@ -161,21 +166,18 @@ function onPauseOperation() {
 }
 
 function resumeOperation(code) {
-    function loadPausedOperation(result) {
-        cart = new Cart(result);
-        document.getElementById('idpausada').value = result.doc.idpausada;
-
-        setCustomer(result.doc.codcliente, result.doc.nombrecliente);
-        updateCartView(result);
-        $('#pausedOpsModal').modal('hide');
+    function loadPausedOperation(response) {
+        document.getElementById('idpausada').value = response.doc.idpausada;
+        setCustomer(response.doc.codcliente, response.doc.nombrecliente);
+        cart = new Cart(response);
+        updateCartView(response);
     }
 
-    Tools.loadOperation(loadPausedOperation, UrlAccess, code);
+    Tools.loadOperation(loadPausedOperation, code);
 }
 
 $(document).ready(function () {
-    let barcodeInput = document.getElementById("productBarcodeInput");
-    onScan.attachTo(barcodeInput, {
+    onScan.attachTo(barcodeInputBox, {
         onScan: function(code) { searchProductBarcode(code); }
     });
 

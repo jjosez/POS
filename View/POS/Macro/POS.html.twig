@@ -1,7 +1,7 @@
 {% macro productTemplateSource() %}
     <% it.items.forEach(function(item){ %>
     <tr>
-        <td><span class="font-weight-bold">ID: <%= item.code %> </span><br><%= item.description %></td>
+        <td><span class="font-weight-bold">Codigo: <%= item.code %> </span><br><%= item.description %></td>
         <td>
             <button class="btn btn-sm btn-success item-add-button" type="button" data-code="<%= item.code %>"
                     data-description="<%= item.description %>">
@@ -15,7 +15,7 @@
 {% macro customerTemplateSource() %}
     <% it.items.forEach(function(customer){ %>
     <tr>
-        <td><span class="font-weight-bold">ID: <%= customer.code %> </span><br><%= customer.description %></td>
+        <td><span class="font-weight-bold">No. Cliente: <%= customer.code %> </span><br><%= customer.description %></td>
         <td>
             <button class="btn btn-sm btn-success item-add-button" type="button" data-code="<%= customer.code %>"
                     data-description="<%= customer.description %>">

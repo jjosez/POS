@@ -1,4 +1,10 @@
-export function loadOperation(callback, url, code) {
+/**
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
+const AjaxRequestUrl = "POS";
+
+export function loadOperation(callback, code) {
     let data = {
         action: "resume-document",
         code: code
@@ -6,7 +12,7 @@ export function loadOperation(callback, url, code) {
 
     $.ajax({
         type: "POST",
-        url: url,
+        url: AjaxRequestUrl,
         dataType: "json",
         data: data,
         success: callback,
@@ -16,7 +22,7 @@ export function loadOperation(callback, url, code) {
     });
 }
 
-export function recalculateCartLines(callback, url, lines, formName) {
+export function recalculateCartData(callback, lines, formName) {
     let data = {};
     $.each($("#" + formName).serializeArray(), function (key, value) {
         data[value.name] = value.value;
@@ -26,7 +32,7 @@ export function recalculateCartLines(callback, url, lines, formName) {
 
     $.ajax({
         type: "POST",
-        url: url,
+        url: AjaxRequestUrl,
         dataType: "json",
         data: data,
         success: callback,
@@ -36,17 +42,17 @@ export function recalculateCartLines(callback, url, lines, formName) {
     });
 }
 
-export function search(callback, url, query, target) {
+export function search(callback, query, target) {
     let data = {
         action: "custom-search",
         query: query,
         target: target
     };
     $.ajax({
-        url: url,
-        data: data,
         type: "POST",
+        url: AjaxRequestUrl,
         dataType: "json",
+        data: data,
         success: callback,
         error: function (xhr, status) {
             console.error('Error en la busqueda', xhr.responseText);
@@ -55,16 +61,16 @@ export function search(callback, url, query, target) {
     });
 }
 
-export function searchBarcode(callback, url, query) {
+export function searchBarcode(callback, query) {
     let data = {
         action: "barcode-search",
         query: query
     };
     $.ajax({
-        url: url,
-        data: data,
         type: "POST",
+        url: AjaxRequestUrl,
         dataType: "json",
+        data: data,
         success: callback,
         error: function (xhr, status) {
             console.error('Error searching by code', xhr.responseText);

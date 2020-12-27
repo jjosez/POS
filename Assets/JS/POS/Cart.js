@@ -3,6 +3,7 @@
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 import { CartItem } from './CartItem.js';
+import {DocumentLine} from "./DocumentLine.js";
 
 export class Cart {
 
@@ -21,6 +22,7 @@ export class Cart {
         this._totaliva = args.doc.totaliva;
         this._totalrecargo = args.doc.totalrecargo;
         this.setCartItems(args.lines);
+        //this.setCartItemsB(args.lines);
     }
 
     get cartItems() {
@@ -28,6 +30,14 @@ export class Cart {
     }
 
     set cartItems(cartItem) {
+        this._cartItems = cartItem;
+    }
+
+    get cartItemsB() {
+        return this._cartItems;
+    }
+
+    set cartItemsB(cartItem) {
         this._cartItems = cartItem;
     }
 
@@ -117,12 +127,10 @@ export class Cart {
 
     deleteCartItem(index) {
         this._cartItems.splice( index, 1 );
-        //console.log('Deleting index:', index);
     }
 
     editCartItem(index, field, value) {
         this.cartItems[index][field] = value;
-        //console.log('index/field editing:', index + '/' + field);
     }
 
     getCartItems() {
