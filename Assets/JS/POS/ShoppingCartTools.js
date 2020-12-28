@@ -16,7 +16,7 @@ export function resumeDocument(callback, code) {
         dataType: "json",
         data: data,
         success: callback,
-        error: function (xhr, status, error) {
+        error: function (xhr) {
             console.error('Error al cargar la venta', xhr.responseText);
         }
     });
@@ -27,6 +27,7 @@ export function recalculate(callback, lines, formName) {
     $.each($("#" + formName).serializeArray(), function (key, value) {
         data[value.name] = value.value;
     });
+
     data.action = "recalculate-document";
     data.lines = lines;
 
@@ -36,7 +37,7 @@ export function recalculate(callback, lines, formName) {
         dataType: "json",
         data: data,
         success: callback,
-        error: function (xhr, status, error) {
+        error: function (xhr) {
             console.error('Error al recalcular las lineas', xhr.responseText);
         }
     });
@@ -54,7 +55,7 @@ export function search(callback, query, target) {
         dataType: "json",
         data: data,
         success: callback,
-        error: function (xhr, status) {
+        error: function (xhr) {
             console.error('Error en la busqueda', xhr.responseText);
             return false;
         }
@@ -72,7 +73,7 @@ export function searchBarcode(callback, query) {
         dataType: "json",
         data: data,
         success: callback,
-        error: function (xhr, status) {
+        error: function (xhr) {
             console.error('Error searching by code', xhr.responseText);
         }
     });

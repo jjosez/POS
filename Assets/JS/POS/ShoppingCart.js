@@ -16,6 +16,10 @@ export default function ShoppingCart(data = {}) {
         updateLine(line);
     }
 
+    let setCustomer = function (code) {
+        data.doc.codcliente = code;
+    };
+
     let add = function (code, description) {
         for (let line of data.lines) {
             if (line.referencia === code) {
@@ -36,12 +40,16 @@ export default function ShoppingCart(data = {}) {
         data.lines.splice(index, 1);
     };
 
-    return { data, add, edit, remove };
-};
+    return { data, add, edit, remove, setCustomer };
+}
 
 function updateLine(line = {}) {
-    line.pvptotaliva = formatPrice(line.pvptotal * (1 + line.iva / 100));
+    line.pvptotaliva = priceWithTax(line.pvptotal, line.iva);
     line.pvpunitarioiva = line.pvptotaliva / line.cantidad;
+}
+
+function priceWithTax(base, rate) {
+    return formatPrice(base * (1 + rate / 100));
 }
 
 function formatPrice(amount, factor = 2) {

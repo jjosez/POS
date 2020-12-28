@@ -31,7 +31,7 @@ function onCartEdit(e) {
     let field = e.getAttribute('data-field');
     let index = e.getAttribute('data-index');
 
-    Cart.edit(index, field, e.value)
+    Cart.edit(index, field, e.value);
     updateCart();
 }
 
@@ -71,6 +71,8 @@ function setProduct(code, description) {
 function setCustomer(code, description) {
     document.getElementById('codcliente').value = code;
     document.getElementById('customerSearchBox').value = description;
+
+    $('.modal').modal('hide');
 }
 
 function updateCart() {
@@ -135,7 +137,7 @@ function onCheckoutConfirm() {
     paymentData.method = document.getElementById("checkoutPaymentMethod").value;
 
     document.getElementById("action").value = 'save-document';
-    document.getElementById("lines").value = JSON.stringify(cart.getCartItems());
+    document.getElementById("lines").value = JSON.stringify(Cart.data.lines);
     document.getElementById("payments").value = JSON.stringify(paymentData);
     document.getElementById("codpago").value = JSON.stringify(paymentData.method);
     document.salesDocumentForm.submit();
