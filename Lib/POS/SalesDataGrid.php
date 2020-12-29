@@ -80,7 +80,7 @@ class SalesDataGrid
      */
     private static function loadPageOptions($user)
     {
-        $viewName = 'SalesDocumentLine';
+        $viewName = 'EditConfiguracionPOS';
         $columns = [];
         $pageOption = new PageOption();
 

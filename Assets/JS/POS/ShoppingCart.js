@@ -33,6 +33,9 @@ export default function ShoppingCart(data = {}) {
     };
 
     let edit = function (index, field, value) {
+        if ('pvpunitarioiva' === field) {
+            data.lines[index].pvpunitario = value / 1.16;
+        }
         data.lines[index][field] = value;
     };
 

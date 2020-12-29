@@ -37,7 +37,7 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
         $this->setTemplate('EditConfiguracionPOS');
 
         $this->addHtmlView('GeneralSettingsPOS', 'GeneralSettingsPOS', 'FormaPago', 'general', 'fas fa-cogs');
-        $this->addListView('ListDenominacionMoneda', 'DenominacionMoneda', 'currency-denomination');     
+        $this->addListView('ListDenominacionMoneda', 'DenominacionMoneda', 'currency-denomination');
     }
 
     protected function loadData($viewName, $view)
