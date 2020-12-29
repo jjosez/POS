@@ -2,6 +2,7 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
+import * as Money from "./Money.js";
 
 export default function ShoppingCart(data = {}) {
     if (undefined === data.doc) {
@@ -28,13 +29,13 @@ export default function ShoppingCart(data = {}) {
             }
         }
 
-        data.lines.push({ referencia: code, descripcion: description });
+        data.lines.unshift({ referencia: code, descripcion: description });
         return false;
     };
 
     let edit = function (index, field, value) {
         if ('pvpunitarioiva' === field) {
-            data.lines[index].pvpunitario = value / 1.16;
+            data.lines[index].pvpunitario = Money.priceWithoutTax(value, data.lines[index].iva);
         }
         data.lines[index][field] = value;
     };
@@ -47,14 +48,6 @@ export default function ShoppingCart(data = {}) {
 }
 
 function updateLine(line = {}) {
-    line.pvptotaliva = priceWithTax(line.pvptotal, line.iva);
+    line.pvptotaliva = Money.priceWithTax(line.pvptotal, line.iva);
     line.pvpunitarioiva = line.pvptotaliva / line.cantidad;
-}
-
-function priceWithTax(base, rate) {
-    return formatPrice(base * (1 + rate / 100));
-}
-
-function formatPrice(amount, factor = 2) {
-    return parseFloat(amount).toFixed(factor);
 }

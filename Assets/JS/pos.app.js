@@ -6,19 +6,21 @@
 import * as POS from './POS/ShoppingCartTools.js';
 import ShoppingCart from "./POS/ShoppingCart.js";
 
-const FormName = "salesDocumentForm";
-const barcodeInputBox = document.getElementById("productBarcodeInput");
+const MAIN_FORM_NAME = "salesDocumentForm";
 
-const cartTemplate = Eta.compile(document.getElementById('cartTemplateSource').innerHTML);
-const customerTemplate = Eta.compile(document.getElementById('customerTemplateSource').innerHTML);
-const productTemplate = Eta.compile(document.getElementById('productTemplateSource').innerHTML);
+// Template variables
+const EtaTemplate = Eta;
+const cartTemplate = EtaTemplate.compile(document.getElementById('cartTemplateSource').innerHTML);
+const customerTemplate = EtaTemplate.compile(document.getElementById('customerTemplateSource').innerHTML);
+const productTemplate = EtaTemplate.compile(document.getElementById('productTemplateSource').innerHTML);
 
 const cartContainer = document.getElementById('cartContainer');
 const productSearchResult = document.getElementById('productSearchResult');
 const customerSearchResult = document.getElementById('customerSearchResult');
+const barcodeInputBox = document.getElementById("productBarcodeInput");
 
-const etaConfig = Eta.config;
-let Cart = new ShoppingCart();
+const templateConfig = EtaTemplate.config;
+var Cart = new ShoppingCart();
 
 function onCartDelete(e) {
     let index = e.getAttribute('data-index');
@@ -37,7 +39,7 @@ function onCartEdit(e) {
 
 function searchCustomer(query) {
     function updateSearchResult(response) {
-        customerSearchResult.innerHTML = customerTemplate({items: response}, etaConfig);
+        customerSearchResult.innerHTML = customerTemplate({items: response}, templateConfig);
     }
 
     POS.search(updateSearchResult, query, 'customer');
@@ -45,7 +47,7 @@ function searchCustomer(query) {
 
 function searchProduct(query) {
     function updateSearchResult(response) {
-        productSearchResult.innerHTML = productTemplate({items: response}, etaConfig);
+        productSearchResult.innerHTML = productTemplate({items: response}, templateConfig);
     }
 
     POS.search(updateSearchResult, query, 'product');
@@ -81,7 +83,7 @@ function updateCart() {
         updateCartView(data);
     }
 
-    POS.recalculate(updateCartData, Cart.data.lines, FormName);
+    POS.recalculate(updateCartData, Cart.data.lines, MAIN_FORM_NAME);
 }
 
 function updateCartView(data) {
@@ -96,7 +98,7 @@ function updateCartView(data) {
     document.getElementById('totalrecargo').value = data.doc.totalrecargo;
 
     // Update cart view
-    cartContainer.innerHTML = cartTemplate(data, etaConfig);
+    cartContainer.innerHTML = cartTemplate(data, templateConfig);
 
     //hide all open modals
     $('.modal').modal('hide');
@@ -113,7 +115,7 @@ function recalculatePaymentAmount() {
     let paymentAmount = checkoutPaymentAmount.value;
     let paymentReturn = paymentAmount - total;
     paymentReturn = paymentReturn || 0;
-    if (checkoutPaymentMethod.value !== CashPaymentMethod) {
+    if (checkoutPaymentMethod.value !== CASH_PAYMENT_METHOD) {
         if (paymentReturn > 0) {
             paymentReturn = 0;
             paymentAmount = total;
