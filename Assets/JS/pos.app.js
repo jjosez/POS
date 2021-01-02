@@ -13,13 +13,14 @@ const EtaTemplate = Eta;
 const cartTemplate = EtaTemplate.compile(document.getElementById('cartTemplateSource').innerHTML);
 const customerTemplate = EtaTemplate.compile(document.getElementById('customerTemplateSource').innerHTML);
 const productTemplate = EtaTemplate.compile(document.getElementById('productTemplateSource').innerHTML);
-
-const cartContainer = document.getElementById('cartContainer');
-const productSearchResult = document.getElementById('productSearchResult');
-const customerSearchResult = document.getElementById('customerSearchResult');
-const barcodeInputBox = document.getElementById("productBarcodeInput");
-
 const templateConfig = EtaTemplate.config;
+
+const barcodeInputBox = document.getElementById("productBarcodeInput");
+const cartContainer = document.getElementById('cartContainer');
+const customerSearchResult = document.getElementById('customerSearchResult');
+const productSearchResult = document.getElementById('productSearchResult');
+const mainForm = document.getElementById(MAIN_FORM_NAME);
+
 var Cart = new ShoppingCart();
 
 function onCartDelete(e) {
@@ -87,10 +88,10 @@ function updateCart() {
 }
 
 function updateCartView(data) {
-    var elements = document.getElementById(MAIN_FORM_NAME).elements;
+    const elements = mainForm.elements;
 
-    for(var i = 0; i < elements.length; i++) {
-        var element = elements[i];
+    for(let i = 0; i < elements.length; i++) {
+        const element = elements[i];
         if (element.name ) {
             element.value = data.doc[element.name];
         }
