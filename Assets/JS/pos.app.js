@@ -166,7 +166,6 @@ function onPauseOperation() {
 
 function resumePausedDocument(code) {
     function resumeDocument(response) {
-        document.getElementById('idpausada').value = response.doc.idpausada;
         setCustomer(response.doc.codcliente, response.doc.nombrecliente);
         Cart = new ShoppingCart(response);
         updateCartView(response);
