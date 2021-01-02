@@ -84,7 +84,7 @@ function updateCart() {
         updateCartView(data);
     }
 
-    POS.recalculate(updateCartData, Cart.data.lines, MAIN_FORM_NAME);
+    POS.recalculate(updateCartData, Cart.data.lines, mainForm);
 }
 
 function updateCartView(data) {
@@ -146,7 +146,7 @@ function onCheckoutConfirm() {
     document.getElementById("lines").value = JSON.stringify(Cart.data.lines);
     document.getElementById("payments").value = JSON.stringify(paymentData);
     document.getElementById("codpago").value = JSON.stringify(paymentData.method);
-    document.salesDocumentForm.submit();
+    mainForm.submit();
 }
 
 function onCheckoutModalShow() {
@@ -155,14 +155,9 @@ function onCheckoutModalShow() {
 }
 
 function onPauseOperation() {
-    if (Cart.data.lines.length <= 0) {
+    if (false === POS.pauseDocument(Cart.data.lines, mainForm)) {
         $('#checkoutModal').modal('hide');
-        return;
     }
-
-    document.getElementById('action').value = 'pause-document';
-    document.getElementById('lines').value = JSON.stringify(Cart.data.lines);
-    document.salesDocumentForm.submit();
 }
 
 function resumePausedDocument(code) {
@@ -235,7 +230,6 @@ $(document).ready(function () {
         setProduct(code, description);
     });
 
-    // Cart Items Events
     $('#pausedOperations').on('click', '.resume-button', function () {
         let code = $(this).data('code');
 

@@ -4,6 +4,18 @@
  */
 const AjaxRequestUrl = "POS";
 
+export function pauseDocument(lines, form) {
+    if (lines.length <= 0) {
+        return false;
+    }
+
+    const elements = form.elements;
+
+    elements.action.value = 'pause-document';
+    elements.lines.value = JSON.stringify(lines);
+    form.submit();
+}
+
 export function resumeDocument(callback, code) {
     let data = {
         action: "resume-document",
@@ -22,8 +34,8 @@ export function resumeDocument(callback, code) {
     });
 }
 
-export function recalculate(callback, lines, formName) {
-    const formData = new FormData(document.getElementById(formName));
+export function recalculate(callback, lines, form) {
+    const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
 
     data.action = "recalculate-document";
