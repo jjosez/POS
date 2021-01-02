@@ -23,13 +23,32 @@ export function resumeDocument(callback, code) {
 }
 
 export function recalculate(callback, lines, formName) {
+    const formData = new FormData(document.getElementById(formName));
+    const data = Object.fromEntries(formData.entries());
+
+    data.action = "recalculate-document";
+    data.lines = lines;
+
+    $.ajax({
+        type: "POST",
+        url: AjaxRequestUrl,
+        dataType: "json",
+        data: data,
+        success: callback,
+        error: function (xhr) {
+            console.error('Error al recalcular las lineas', xhr.responseText);
+        }
+    });
+}
+
+export function recalculateOld(callback, lines, formName) {
     let data = {};
     $.each($("#" + formName).serializeArray(), function (key, value) {
         data[value.name] = value.value;
     });
 
     data.action = "recalculate-document";
-    data.lines = lines;
+    data.lines = lines; 
 
     $.ajax({
         type: "POST",

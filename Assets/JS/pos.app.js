@@ -87,6 +87,27 @@ function updateCart() {
 }
 
 function updateCartView(data) {
+    var elements = document.getElementById(MAIN_FORM_NAME).elements;
+
+    for(var i = 0; i < elements.length; i++) {
+        var element = elements[i];
+        if (element.name ) {
+            element.value = data.doc[element.name];
+        }
+    }
+
+    document.getElementById('cartTotalDisplay').value = data.doc.total;
+    document.getElementById('cartTaxesDisplay').value = data.doc.totaliva;
+    document.getElementById('cartNetoDisplay').value = data.doc.netosindto;
+
+    // Update cart view
+    cartContainer.innerHTML = cartTemplate(data, templateConfig);
+
+    //hide all open modals
+    $('.modal').modal('hide');
+}
+
+function updateCartViewOld(data) {
     // Update totals
     document.getElementById('cartTotalDisplay').value = data.doc.total;
     document.getElementById('cartTaxesDisplay').value = data.doc.totaliva;
@@ -103,6 +124,24 @@ function updateCartView(data) {
     //hide all open modals
     $('.modal').modal('hide');
 }
+
+/*function updateCartView(data) {
+    var elements = document.getElementById(MAIN_FORM_NAME).elements;
+
+    Array.from(elements).forEach((input) => {
+        console.log(input);
+    });
+
+    for(var i = 0; i < elements.length; i++) {
+        console.info(elements[i].type, elements[i].name);
+    }
+
+    // Update cart view
+    cartContainer.innerHTML = cartTemplate(data, templateConfig);
+
+    //hide all open modals
+    $('.modal').modal('hide');
+}*/
 
 // Payment calc
 function recalculatePaymentAmount() {
