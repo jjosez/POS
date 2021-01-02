@@ -41,27 +41,6 @@ export function recalculate(callback, lines, formName) {
     });
 }
 
-export function recalculateOld(callback, lines, formName) {
-    let data = {};
-    $.each($("#" + formName).serializeArray(), function (key, value) {
-        data[value.name] = value.value;
-    });
-
-    data.action = "recalculate-document";
-    data.lines = lines; 
-
-    $.ajax({
-        type: "POST",
-        url: AjaxRequestUrl,
-        dataType: "json",
-        data: data,
-        success: callback,
-        error: function (xhr) {
-            console.error('Error al recalcular las lineas', xhr.responseText);
-        }
-    });
-}
-
 export function search(callback, query, target) {
     let data = {
         action: "custom-search",

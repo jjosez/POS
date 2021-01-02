@@ -107,42 +107,6 @@ function updateCartView(data) {
     $('.modal').modal('hide');
 }
 
-function updateCartViewOld(data) {
-    // Update totals
-    document.getElementById('cartTotalDisplay').value = data.doc.total;
-    document.getElementById('cartTaxesDisplay').value = data.doc.totaliva;
-    document.getElementById('cartNetoDisplay').value = data.doc.netosindto;
-    document.getElementById('total').value = data.doc.total;
-    document.getElementById('neto').value = data.doc.neto;
-    document.getElementById('totaliva').value = data.doc.totaliva;
-    document.getElementById('totalirpf').value = data.doc.totalirpf;
-    document.getElementById('totalrecargo').value = data.doc.totalrecargo;
-
-    // Update cart view
-    cartContainer.innerHTML = cartTemplate(data, templateConfig);
-
-    //hide all open modals
-    $('.modal').modal('hide');
-}
-
-/*function updateCartView(data) {
-    var elements = document.getElementById(MAIN_FORM_NAME).elements;
-
-    Array.from(elements).forEach((input) => {
-        console.log(input);
-    });
-
-    for(var i = 0; i < elements.length; i++) {
-        console.info(elements[i].type, elements[i].name);
-    }
-
-    // Update cart view
-    cartContainer.innerHTML = cartTemplate(data, templateConfig);
-
-    //hide all open modals
-    $('.modal').modal('hide');
-}*/
-
 // Payment calc
 function recalculatePaymentAmount() {
     let checkoutButton = document.getElementById('checkoutButton');
