@@ -20,8 +20,8 @@
                 <form>
                     <div class="form-row">
                         <div class="form-group col">
-                            <label for="checkoutPaymentMethod">{{ i18n.trans('payment-method') }}</label>
-                            <select class="form-control" id="checkoutPaymentMethod" name="codpago">
+                            <label for="paymentMethod">{{ i18n.trans('payment-method') }}</label>
+                            <select class="form-control" id="paymentMethod" name="codpago">
                                 {% for formapago in fsc.formaPago.all() %}
                                     <option value="{{ formapago.codpago }}">
                                         {{ formapago.descripcion }}
@@ -32,14 +32,14 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group col">
-                            <label for="checkoutPaymentAmount" class="col-form-label">{{ i18n.trans('payment-amount') }}:</label>
-                            <input type="number" class="form-control" id="checkoutPaymentAmount" {{ paymentEnabled }}>
+                            <label for="paymentAmount" class="col-form-label">{{ i18n.trans('payment-amount') }}:</label>
+                            <input type="number" class="form-control" id="paymentAmount" {{ paymentEnabled }}>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col">
-                            <label for="checkoutPaymentChange" class="col-form-label">{{ i18n.trans('payment-change') }}:</label>
-                            <input type="number" class="form-control" id="checkoutPaymentChange" readonly="readonly">
+                            <label for="paymentChange" class="col-form-label">{{ i18n.trans('payment-change') }}:</label>
+                            <input type="number" class="form-control" id="paymentChange" readonly="readonly">
                         </div>
                     </div>
                 </form>

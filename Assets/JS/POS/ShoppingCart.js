@@ -44,7 +44,7 @@ export default function ShoppingCart(data = {}) {
         data.lines.splice(index, 1);
     };
 
-    return { data, add, edit, remove, setCustomer };
+    return { lines: data.lines, add, doc: data.doc, edit, remove, setCustomer };
 }
 
 function updateLine(line = {}) {

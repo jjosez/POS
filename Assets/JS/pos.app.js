@@ -6,8 +6,6 @@
 import * as POS from './POS/ShoppingCartTools.js';
 import ShoppingCart from "./POS/ShoppingCart.js";
 
-const MAIN_FORM_NAME = "salesDocumentForm";
-
 // Template variables
 const EtaTemplate = Eta;
 const cartTemplate = EtaTemplate.compile(document.getElementById('cartTemplateSource').innerHTML);
@@ -19,7 +17,7 @@ const barcodeInputBox = document.getElementById("productBarcodeInput");
 const cartContainer = document.getElementById('cartContainer');
 const customerSearchResult = document.getElementById('customerSearchResult');
 const productSearchResult = document.getElementById('productSearchResult');
-const mainForm = document.getElementById(MAIN_FORM_NAME);
+const salesForm = document.getElementById("salesDocumentForm");
 
 var Cart = new ShoppingCart();
 
@@ -67,7 +65,6 @@ function searchProductBarcode(query) {
 
 function setProduct(code, description) {
     Cart.add(code, description);
-
     updateCart();
 }
 
@@ -84,69 +81,70 @@ function updateCart() {
         updateCartView(data);
     }
 
-    POS.recalculate(updateCartData, Cart.data.lines, mainForm);
+    POS.recalculate(updateCartData, Cart.lines, salesForm);
 }
 
 function updateCartView(data) {
-    const elements = mainForm.elements;
+    const elements = salesForm.elements;
 
     for(let i = 0; i < elements.length; i++) {
         const element = elements[i];
+
         if (element.name ) {
-            element.value = data.doc[element.name];
+            const value = data.doc[element.name];
+            switch (element.type) {
+                case "checkbox" :
+                    //element.checked = value;
+                    break;
+                default :
+                    element.value = value;
+            }
         }
     }
 
-    document.getElementById('cartTotalDisplay').value = data.doc.total;
-    document.getElementById('cartTaxesDisplay').value = data.doc.totaliva;
-    document.getElementById('cartNetoDisplay').value = data.doc.netosindto;
+    salesForm.cartTotalDisplay.value = data.doc.total;
+    salesForm.cartTaxesDisplay.value = data.doc.totaliva;
+    salesForm.cartNetoDisplay.value = data.doc.netosindto;
 
-    // Update cart view
     cartContainer.innerHTML = cartTemplate(data, templateConfig);
 
-    //hide all open modals
     $('.modal').modal('hide');
 }
 
-// Payment calc
 function recalculatePaymentAmount() {
-    let checkoutButton = document.getElementById('checkoutButton');
-    let checkoutPaymentAmount = document.getElementById('checkoutPaymentAmount');
-    let checkoutPaymentChange = document.getElementById('checkoutPaymentChange');
-    let checkoutPaymentMethod = document.getElementById("checkoutPaymentMethod");
+    const checkoutButton = document.getElementById('checkoutButton');
+    let paymentAmount = document.getElementById('paymentAmount');
+    let paymentChange = document.getElementById('paymentChange');
+    let paymentMethod = document.getElementById("paymentMethod");
     let total = parseFloat(document.getElementById('total').value);
 
-    let paymentAmount = checkoutPaymentAmount.value;
-    let paymentReturn = paymentAmount - total;
-    paymentReturn = paymentReturn || 0;
-    if (checkoutPaymentMethod.value !== CASH_PAYMENT_METHOD) {
+    let paymentReturn = (paymentAmount.value - total) || 0;
+
+    if (paymentMethod.value !== CASH_PAYMENT_METHOD) {
         if (paymentReturn > 0) {
             paymentReturn = 0;
-            paymentAmount = total;
-            checkoutPaymentAmount.value = POS.formatNumber(paymentAmount);
+            paymentAmount.value = POS.formatNumber(total);
         }
     }
-    checkoutPaymentChange.value = POS.formatNumber(paymentReturn);
+    paymentChange.value = POS.formatNumber(paymentReturn);
     if (paymentReturn >= 0) {
-        //console.log('Cambio : ' + paymentReturn);
         checkoutButton.removeAttribute('disabled');
     } else {
-        //console.log('Falta : ' + paymentReturn);
         checkoutButton.setAttribute('disabled', 'disabled');
     }
 }
 
 function onCheckoutConfirm() {
     let paymentData = {};
-    paymentData.amount = document.getElementById('checkoutPaymentAmount').value;
-    paymentData.change = document.getElementById('checkoutPaymentChange').value;
-    paymentData.method = document.getElementById("checkoutPaymentMethod").value;
+    paymentData.amount = document.getElementById('paymentAmount').value;
+    paymentData.change = document.getElementById('paymentChange').value;
+    paymentData.method = document.getElementById("paymentMethod").value;
 
     document.getElementById("action").value = 'save-document';
-    document.getElementById("lines").value = JSON.stringify(Cart.data.lines);
+    document.getElementById("lines").value = JSON.stringify(Cart.lines);
     document.getElementById("payments").value = JSON.stringify(paymentData);
     document.getElementById("codpago").value = JSON.stringify(paymentData.method);
-    mainForm.submit();
+    salesForm.submit();
 }
 
 function onCheckoutModalShow() {
@@ -155,7 +153,7 @@ function onCheckoutModalShow() {
 }
 
 function onPauseOperation() {
-    if (false === POS.pauseDocument(Cart.data.lines, mainForm)) {
+    if (false === POS.pauseDocument(Cart.lines, salesForm)) {
         $('#checkoutModal').modal('hide');
     }
 }
@@ -184,10 +182,10 @@ $(document).ready(function () {
     $('#pauseButton').click(function () {
         onPauseOperation();
     });
-    $('#checkoutPaymentAmount').keyup(function () {
+    $('#paymentAmount').keyup(function () {
         recalculatePaymentAmount();
     });
-    $('#checkoutPaymentMethod').change(function () {
+    $('#paymentMethod').change(function () {
         recalculatePaymentAmount();
     });
     $('#checkoutModal').on('shown.bs.modal', function () {
@@ -237,15 +235,14 @@ $(document).ready(function () {
     });
 });
 
-// Cart Items Events
-cartContainer.addEventListener('click', ({target}) => {
-    if(target.classList.contains('cart-item-remove')) {
-        onCartDelete(target);
+cartContainer.addEventListener('focusout', function(e) {
+    if(e.target.classList.contains('cart-item')) {
+        onCartEdit(e.target);
     }
-});
+}, true);
 
-cartContainer.addEventListener('focusout', ({target}) => {
-    if(target.classList.contains('cart-item')) {
-        onCartEdit(target);
+cartContainer.addEventListener('click', function(e) {
+    if(e.target.classList.contains('cart-item-remove')) {
+        onCartDelete(e.target);
     }
-});
+}, true);
