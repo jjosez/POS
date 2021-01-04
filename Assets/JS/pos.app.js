@@ -246,3 +246,8 @@ cartContainer.addEventListener('click', function(e) {
         onCartDelete(e.target);
     }
 }, true);
+
+document.addEventListener('DOMContentLoaded', function () {
+    var stepper = new Stepper(document.querySelector('.bs-stepper'))
+    stepper.next()
+})
