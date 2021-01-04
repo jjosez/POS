@@ -94,7 +94,7 @@ function updateCartView(data) {
             const value = data.doc[element.name];
             switch (element.type) {
                 case "checkbox" :
-                    //element.checked = value;
+                    element.checked = value;
                     break;
                 default :
                     element.value = value;
