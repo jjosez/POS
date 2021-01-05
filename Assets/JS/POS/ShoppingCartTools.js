@@ -41,6 +41,8 @@ export function recalculate(callback, lines, form) {
     data.action = "recalculate-document";
     data.lines = lines;
 
+    console.log(data);
+
     $.ajax({
         type: "POST",
         url: AjaxRequestUrl,

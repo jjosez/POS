@@ -18,6 +18,7 @@ const cartContainer = document.getElementById('cartContainer');
 const customerSearchResult = document.getElementById('customerSearchResult');
 const productSearchResult = document.getElementById('productSearchResult');
 const salesForm = document.getElementById("salesDocumentForm");
+const stepper = new Stepper(document.querySelector('.bs-stepper'));
 
 var Cart = new ShoppingCart();
 
@@ -106,6 +107,10 @@ function updateCartView(data) {
     salesForm.cartTaxesDisplay.value = data.doc.totaliva;
     salesForm.cartNetoDisplay.value = data.doc.netosindto;
 
+    document.getElementById('cartNeto').value = data.doc.netosindto;
+    document.getElementById('cartTaxes').value = data.doc.totaliva;
+    document.getElementById('cartTotal').value = data.doc.total;
+
     cartContainer.innerHTML = cartTemplate(data, templateConfig);
 
     $('.modal').modal('hide');
@@ -148,8 +153,8 @@ function onCheckoutConfirm() {
 }
 
 function onCheckoutModalShow() {
-    let modalTitle = document.getElementById('dueAmount');
-    modalTitle.textContent = document.getElementById('total').value;
+    /*let modalTitle = document.getElementById('dueAmount');
+    modalTitle.textContent = document.getElementById('total').value;*/
 }
 
 function onPauseOperation() {
@@ -239,7 +244,7 @@ cartContainer.addEventListener('focusout', function(e) {
     if(e.target.classList.contains('cart-item')) {
         onCartEdit(e.target);
     }
-}, true);
+});
 
 cartContainer.addEventListener('click', function(e) {
     if(e.target.classList.contains('cart-item-remove')) {
@@ -247,7 +252,14 @@ cartContainer.addEventListener('click', function(e) {
     }
 }, true);
 
-document.addEventListener('DOMContentLoaded', function () {
-    var stepper = new Stepper(document.querySelector('.bs-stepper'))
-    stepper.next()
-})
+document.querySelectorAll('.btn-next').forEach(item => {
+    item.addEventListener('click', event => {
+        stepper.next();
+    });
+});
+
+document.querySelectorAll('.btn-previus').forEach(item => {
+    item.addEventListener('click', event => {
+        stepper.previous();
+    });
+});

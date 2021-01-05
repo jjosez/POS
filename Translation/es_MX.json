@@ -26,6 +26,8 @@
   "print-z": "Imprimir cierre",
   "printing-ticket": "Imprimiendo ticket %ticket%.<img class='d-none' src='http://localhost:10080?documento=%code%'/>",
   "select-cash-register": "Selecciona una terminal para comenzar.",
+  "ticket-on-hold": "Pausar Ticket",
+  "ticket-holding": "Tickets pendientes",
   "till-session": "Arqueo",
   "till-session-allready-opened": "%userNickname%, ya cuenta con un arqueo abierto",
   "till-session-closed": "Arqueo cerrado por %userNickname%.",
