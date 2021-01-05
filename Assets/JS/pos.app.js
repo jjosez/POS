@@ -4,6 +4,7 @@
  */
 
 import * as POS from './POS/ShoppingCartTools.js';
+import * as Checkout from './POS/Checkout.js';
 import ShoppingCart from "./POS/ShoppingCart.js";
 
 // Template variables
@@ -21,6 +22,7 @@ const salesForm = document.getElementById("salesDocumentForm");
 const stepper = new Stepper(document.querySelector('.bs-stepper'));
 
 var Cart = new ShoppingCart();
+var payments = {};
 
 function onCartDelete(e) {
     let index = e.getAttribute('data-index');
@@ -112,6 +114,8 @@ function updateCartView(data) {
     document.getElementById('cartTotal').value = data.doc.total;
 
     cartContainer.innerHTML = cartTemplate(data, templateConfig);
+    Checkout.setPayment(100,"Efectivo");
+    console.log(Checkout.payments);
 
     $('.modal').modal('hide');
 }
