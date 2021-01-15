@@ -1,8 +1,7 @@
 /**
  * This file is part of POS plugin for FacturaScripts
- * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ * Copyright (C) 2018-2021 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-
 import * as POS from './POS/ShoppingCartTools.js';
 import * as Checkout from './POS/Checkout.js';
 import ShoppingCart from "./POS/ShoppingCart.js";
@@ -74,13 +73,16 @@ function setProduct(code, description) {
 function setCustomer(code, description) {
     document.getElementById('codcliente').value = code;
     document.getElementById('customerSearchBox').value = description;
+    Cart.setCustomer(code);
 
     $('.modal').modal('hide');
 }
 
 function updateCart() {
+    console.info('Cart Before', Cart);
     function updateCartData(data) {
         Cart = new ShoppingCart(data);
+        console.log(Cart);
         updateCartView(data);
     }
 
@@ -112,11 +114,9 @@ function updateCartView(data) {
     document.getElementById('cartNeto').value = data.doc.netosindto;
     document.getElementById('cartTaxes').value = data.doc.totaliva;
     document.getElementById('cartTotal').value = data.doc.total;
+    document.getElementById('checkoutTotal').textContent = data.doc.total;
 
     cartContainer.innerHTML = cartTemplate(data, templateConfig);
-    Checkout.setPayment(100,"Efectivo");
-    console.log(Checkout.payments);
-
     $('.modal').modal('hide');
 }
 
@@ -136,6 +136,8 @@ function recalculatePaymentAmount() {
         }
     }
     paymentChange.value = POS.formatNumber(paymentReturn);
+    document.getElementById('paymentReturn').textContent = paymentReturn;
+    document.getElementById('paymentOnHand').textContent = paymentAmount.value;
     if (paymentReturn >= 0) {
         checkoutButton.removeAttribute('disabled');
     } else {
