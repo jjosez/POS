@@ -5,21 +5,22 @@
 export default class Checkout {
     constructor(total = 0, cashMethod = "") {
         this.cashMethod = cashMethod;
+        this.change = 0;
         this.total = total;
         this.payments = [];
     }
 
     setPayment(amount, method) {
-        let change = (amount - this.total) || 0;
-        if (method !== cashMethod) {
-            if (change > 0) {
-                change = 0;
+        this.change = (amount - this.total) || 0;
+        if (method !== this.cashMethod) {
+            if (this.change > 0) {
+                this.change = 0;
                 amount = this.total;
             }
         }
 
         this.payments.push({amount: amount, method:method});
-        return change;
+        return this.change;
     }
 
     getPaymentAmount(method) {
@@ -33,55 +34,14 @@ export default class Checkout {
 
         return total;
     }
-}
 
+    getPaymentsTotal() {
+        let total = 0;
 
-export var payments = [];
-export var total = 0;
-export var cashMethod = false;
+        this.payments.forEach(element => function () {
+            total += element.amount;
+        });
 
-export function setPayment(amount, method) {
-    if (false === isSetCashMethod() || false === isSetTotal()) {
-        return false;
+        return total;
     }
-
-    let change = (amount - total) || 0;
-    if (method !== cashMethod) {
-        if (change > 0) {
-            change = 0;
-            amount = total;
-        }
-    }
-
-    payments.push({amount: amount, method:method});
-    return change;
-}
-
-
-function getPaymentsTotal() {
-    let total = 0;
-
-    payments.forEach(element => function () {
-        total += element.amount;
-    });
-
-    return total;
-}
-
-/*function getPaymentsTotal() {
-    $scope.sum = function(items, prop){
-        return items.reduce( function(a, b){
-            return a + b[prop];
-        }, 0);
-    };
-
-    $scope.travelerTotal = $scope.sum($scope.traveler, 'Amount');
-}*/
-
-function isSetCashMethod() {
-    return false !== cashMethod;
-}
-
-function isSetTotal() {
-    return total > 0;
 }

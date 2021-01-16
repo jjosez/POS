@@ -21,7 +21,6 @@ class SalesProcessor
     protected $data;
     protected $document;
     protected $tools;
-    private $cart;
 
     /**
      * SalesLinesProcessor constructor.
@@ -86,7 +85,8 @@ class SalesProcessor
                     break;
 
                 case 'lines':
-                    $data['lines'] = $this->processFormLines($value);
+                    $data['lines'] = $value;
+                    //$data['lines'] = $this->processFormLines($value);
                     break;
 
                 case 'codcliente':
@@ -110,6 +110,27 @@ class SalesProcessor
      * @return array
      */
     private function processFormLines(array $formLines)
+    {
+        $order = count($formLines);
+        foreach($formLines as $key => &$line){
+            if (is_array($line)) {
+                $line['orden'] = $order;
+                $order--;
+                continue;
+            }
+        }
+        return $formLines;
+    }
+
+    /**
+     * Process form lines to add missing data from data form.
+     * Also adds order column.
+     *
+     * @param array $formLines
+     *
+     * @return array
+     */
+    private function processFormLinesOld(array $formLines)
     {
         $newLines = [];
         $order = count($formLines);

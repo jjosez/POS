@@ -3,7 +3,7 @@
  * Copyright (C) 2018-2021 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 import * as POS from './POS/ShoppingCartTools.js';
-import * as Checkout from './POS/Checkout.js';
+import Checkout from './POS/Checkout.js';
 import ShoppingCart from "./POS/ShoppingCart.js";
 
 // Template variables
@@ -21,7 +21,7 @@ const salesForm = document.getElementById("salesDocumentForm");
 const stepper = new Stepper(document.querySelector('.bs-stepper'));
 
 var Cart = new ShoppingCart();
-var payments = {};
+var CartCheckout = new Checkout(0, CASH_PAYMENT_METHOD);
 
 function onCartDelete(e) {
     let index = e.getAttribute('data-index');
@@ -79,14 +79,23 @@ function setCustomer(code, description) {
 }
 
 function updateCart() {
-    console.info('Cart Before', Cart);
     function updateCartData(data) {
         Cart = new ShoppingCart(data);
-        console.log(Cart);
         updateCartView(data);
     }
 
     POS.recalculate(updateCartData, Cart.lines, salesForm);
+}
+
+function updateCartTotals() {
+    salesForm.cartTotalDisplay.value = Cart.doc.total;
+    salesForm.cartTaxesDisplay.value = Cart.doc.totaliva;
+    salesForm.cartNetoDisplay.value = Cart.doc.netosindto;
+
+    document.getElementById('cartNeto').value = Cart.doc.netosindto;
+    document.getElementById('cartTaxes').value = Cart.doc.totaliva;
+    document.getElementById('cartTotal').value = Cart.doc.total;
+    document.getElementById('checkoutTotal').textContent = Cart.doc.total;
 }
 
 function updateCartView(data) {
@@ -106,17 +115,8 @@ function updateCartView(data) {
             }
         }
     }
-
-    salesForm.cartTotalDisplay.value = data.doc.total;
-    salesForm.cartTaxesDisplay.value = data.doc.totaliva;
-    salesForm.cartNetoDisplay.value = data.doc.netosindto;
-
-    document.getElementById('cartNeto').value = data.doc.netosindto;
-    document.getElementById('cartTaxes').value = data.doc.totaliva;
-    document.getElementById('cartTotal').value = data.doc.total;
-    document.getElementById('checkoutTotal').textContent = data.doc.total;
-
     cartContainer.innerHTML = cartTemplate(data, templateConfig);
+    updateCartTotals();
     $('.modal').modal('hide');
 }
 
@@ -143,6 +143,37 @@ function recalculatePaymentAmount() {
     } else {
         checkoutButton.setAttribute('disabled', 'disabled');
     }
+
+    CartCheckout.setPayment(paymentAmount.value, paymentMethod.value);
+    console.log(CartCheckout);
+}
+
+function recalculatePaymentAmountOld() {
+    const checkoutButton = document.getElementById('checkoutButton');
+    let paymentAmount = document.getElementById('paymentAmount');
+    let paymentChange = document.getElementById('paymentChange');
+    let paymentMethod = document.getElementById("paymentMethod");
+    let total = parseFloat(document.getElementById('total').value);
+
+    let paymentReturn = (paymentAmount.value - total) || 0;
+
+    if (paymentMethod.value !== CASH_PAYMENT_METHOD) {
+        if (paymentReturn > 0) {
+            paymentReturn = 0;
+            paymentAmount.value = POS.formatNumber(total);
+        }
+    }
+    paymentChange.value = POS.formatNumber(paymentReturn);
+    document.getElementById('paymentReturn').textContent = paymentReturn;
+    document.getElementById('paymentOnHand').textContent = paymentAmount.value;
+    if (paymentReturn >= 0) {
+        checkoutButton.removeAttribute('disabled');
+    } else {
+        checkoutButton.setAttribute('disabled', 'disabled');
+    }
+
+    CartCheckout.setPayment(paymentAmount.value, paymentMethod.value);
+    console.log(CartCheckout);
 }
 
 function onCheckoutConfirm() {
@@ -159,8 +190,8 @@ function onCheckoutConfirm() {
 }
 
 function onCheckoutModalShow() {
-    /*let modalTitle = document.getElementById('dueAmount');
-    modalTitle.textContent = document.getElementById('total').value;*/
+    CartCheckout.total = Cart.doc.total;
+    console.log(CartCheckout);
 }
 
 function onPauseOperation() {
