@@ -2,12 +2,29 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2018-2021 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
+import * as Money from "./Money.js";
+
 export default class Checkout {
     constructor(total = 0, cashMethod = "") {
         this.cashMethod = cashMethod;
         this.change = 0;
         this.total = total;
         this.payments = [];
+        this.payment = 0;
+    }
+
+    recalculatePayment(amount, method) {
+        this.change = (amount - this.total) || 0;
+        this.payment = Money.roundDecimals(amount);
+
+        if (method !== this.cashMethod) {
+            if (this.change > 0) {
+                this.change = 0;
+                this.payment = Money.roundDecimals(this.total);
+            }
+        }
+
+        return this.change;
     }
 
     setPayment(amount, method) {

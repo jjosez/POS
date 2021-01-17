@@ -189,7 +189,7 @@ class POS extends Controller
         if (false === $this->validateSaveRequest($data)) return;
 
         $salesProcessor = new SalesProcessor($modelName, $data);
-        if ($salesProcessor->pauseDocument()) {
+        if ($salesProcessor->saveDocument(true)) {
             $this->toolBox()->i18nLog()->info('operation-is-paused');
         }
     }
@@ -210,7 +210,7 @@ class POS extends Controller
         $salesProcessor = new SalesProcessor($modelName, $data);
         if ($salesProcessor->saveDocument()) {
             $document = $salesProcessor->getDocument();
-            $payments[] = $salesProcessor->getPaymentsData();
+            $payments[] = $salesProcessor->getPayments();
 
             $this->session->recordOperation($document);
             $this->session->savePayments($payments);

@@ -82,6 +82,7 @@ function updateCart() {
     function updateCartData(data) {
         Cart = new ShoppingCart(data);
         updateCartView(data);
+        console.log(Cart);
     }
 
     POS.recalculate(updateCartData, Cart.lines, salesForm);
@@ -104,7 +105,7 @@ function updateCartView(data) {
     for(let i = 0; i < elements.length; i++) {
         const element = elements[i];
 
-        if (element.name ) {
+        if (element.name && element.name !== 'token') {
             const value = data.doc[element.name];
             switch (element.type) {
                 case "checkbox" :
@@ -122,38 +123,29 @@ function updateCartView(data) {
 
 function recalculatePaymentAmount() {
     const checkoutButton = document.getElementById('checkoutButton');
-    let paymentAmount = document.getElementById('paymentAmount');
-    let paymentChange = document.getElementById('paymentChange');
-    let paymentMethod = document.getElementById("paymentMethod");
-    let total = parseFloat(document.getElementById('total').value);
+    const paymentAmount = document.getElementById('paymentAmount');
+    const paymentMethod = document.getElementById("paymentMethod");
 
-    let paymentReturn = (paymentAmount.value - total) || 0;
+    CartCheckout.recalculatePayment(paymentAmount.value, paymentMethod.value);
+    console.log('Cambio:', CartCheckout);
 
-    if (paymentMethod.value !== CASH_PAYMENT_METHOD) {
-        if (paymentReturn > 0) {
-            paymentReturn = 0;
-            paymentAmount.value = POS.formatNumber(total);
-        }
-    }
-    paymentChange.value = POS.formatNumber(paymentReturn);
-    document.getElementById('paymentReturn').textContent = paymentReturn;
-    document.getElementById('paymentOnHand').textContent = paymentAmount.value;
-    if (paymentReturn >= 0) {
+    if (CartCheckout.change >= 0) {
+        paymentAmount.value = POS.formatNumber(CartCheckout.payment);
         checkoutButton.removeAttribute('disabled');
     } else {
         checkoutButton.setAttribute('disabled', 'disabled');
     }
 
-    CartCheckout.setPayment(paymentAmount.value, paymentMethod.value);
-    console.log(CartCheckout);
+    document.getElementById('paymentReturn').textContent = CartCheckout.change;
+    document.getElementById('paymentOnHand').textContent = CartCheckout.payment;
 }
 
 function recalculatePaymentAmountOld() {
     const checkoutButton = document.getElementById('checkoutButton');
-    let paymentAmount = document.getElementById('paymentAmount');
-    let paymentChange = document.getElementById('paymentChange');
-    let paymentMethod = document.getElementById("paymentMethod");
-    let total = parseFloat(document.getElementById('total').value);
+    const paymentAmount = document.getElementById('paymentAmount');
+    const paymentChange = document.getElementById('paymentChange');
+    const paymentMethod = document.getElementById("paymentMethod");
+    const total = parseFloat(document.getElementById('total').value);
 
     let paymentReturn = (paymentAmount.value - total) || 0;
 

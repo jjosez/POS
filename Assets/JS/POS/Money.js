@@ -12,6 +12,6 @@ export function priceWithoutTax(base, rate) {
     return roundDecimals(base / (1 + rate / 100));
 }
 
-function roundDecimals(amount, decimals) {
+export function roundDecimals(amount, decimals) {
     return Math.round(amount * ROUND_RATE) / ROUND_RATE;
 }
