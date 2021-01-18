@@ -41,8 +41,6 @@ export function recalculate(callback, lines, form) {
     data.action = "recalculate-document";
     data.lines = lines;
 
-    console.log(data);
-
     $.ajax({
         type: "POST",
         url: AjaxRequestUrl,
@@ -94,6 +92,10 @@ export function searchBarcode(callback, query) {
 // Helper functions
 export function formatNumber(val) {
     return parseFloat(val).toFixed(2);
+}
+
+export function roundDecimals(amount, roundRate = 1000) {
+    return Math.round(amount * roundRate) / roundRate;
 }
 
 export function testResponseTime(startTime, label = 'Exec time:') {

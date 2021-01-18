@@ -18,7 +18,7 @@ const cartContainer = document.getElementById('cartContainer');
 const customerSearchResult = document.getElementById('customerSearchResult');
 const productSearchResult = document.getElementById('productSearchResult');
 const salesForm = document.getElementById("salesDocumentForm");
-const stepper = new Stepper(document.querySelector('.bs-stepper'));
+//const stepper = new Stepper(document.querySelector('.bs-stepper'));
 
 var Cart = new ShoppingCart();
 var CartCheckout = new Checkout(0, CASH_PAYMENT_METHOD);
@@ -82,7 +82,6 @@ function updateCart() {
     function updateCartData(data) {
         Cart = new ShoppingCart(data);
         updateCartView(data);
-        console.log(Cart);
     }
 
     POS.recalculate(updateCartData, Cart.lines, salesForm);
@@ -95,7 +94,6 @@ function updateCartTotals() {
 
     document.getElementById('cartNeto').value = Cart.doc.netosindto;
     document.getElementById('cartTaxes').value = Cart.doc.totaliva;
-    document.getElementById('cartTotal').value = Cart.doc.total;
     document.getElementById('checkoutTotal').textContent = Cart.doc.total;
 }
 
@@ -127,63 +125,33 @@ function recalculatePaymentAmount() {
     const paymentMethod = document.getElementById("paymentMethod");
 
     CartCheckout.recalculatePayment(paymentAmount.value, paymentMethod.value);
-    console.log('Cambio:', CartCheckout);
 
     if (CartCheckout.change >= 0) {
-        paymentAmount.value = POS.formatNumber(CartCheckout.payment);
+        paymentAmount.value = CartCheckout.payment;
         checkoutButton.removeAttribute('disabled');
     } else {
         checkoutButton.setAttribute('disabled', 'disabled');
     }
 
-    document.getElementById('paymentReturn').textContent = CartCheckout.change;
-    document.getElementById('paymentOnHand').textContent = CartCheckout.payment;
-}
-
-function recalculatePaymentAmountOld() {
-    const checkoutButton = document.getElementById('checkoutButton');
-    const paymentAmount = document.getElementById('paymentAmount');
-    const paymentChange = document.getElementById('paymentChange');
-    const paymentMethod = document.getElementById("paymentMethod");
-    const total = parseFloat(document.getElementById('total').value);
-
-    let paymentReturn = (paymentAmount.value - total) || 0;
-
-    if (paymentMethod.value !== CASH_PAYMENT_METHOD) {
-        if (paymentReturn > 0) {
-            paymentReturn = 0;
-            paymentAmount.value = POS.formatNumber(total);
-        }
-    }
-    paymentChange.value = POS.formatNumber(paymentReturn);
-    document.getElementById('paymentReturn').textContent = paymentReturn;
-    document.getElementById('paymentOnHand').textContent = paymentAmount.value;
-    if (paymentReturn >= 0) {
-        checkoutButton.removeAttribute('disabled');
-    } else {
-        checkoutButton.setAttribute('disabled', 'disabled');
-    }
-
-    CartCheckout.setPayment(paymentAmount.value, paymentMethod.value);
-    console.log(CartCheckout);
+    document.getElementById('paymentReturn').textContent = POS.roundDecimals(CartCheckout.change);
+    document.getElementById('paymentOnHand').textContent = POS.roundDecimals(CartCheckout.payment);
 }
 
 function onCheckoutConfirm() {
     let paymentData = {};
     paymentData.amount = document.getElementById('paymentAmount').value;
-    paymentData.change = document.getElementById('paymentChange').value;
+    paymentData.change = CartCheckout.change || 0;
     paymentData.method = document.getElementById("paymentMethod").value;
 
     document.getElementById("action").value = 'save-document';
     document.getElementById("lines").value = JSON.stringify(Cart.lines);
     document.getElementById("payments").value = JSON.stringify(paymentData);
-    document.getElementById("codpago").value = JSON.stringify(paymentData.method);
+    document.getElementById("codpago").value = paymentData.method;
     salesForm.submit();
 }
 
 function onCheckoutModalShow() {
     CartCheckout.total = Cart.doc.total;
-    console.log(CartCheckout);
 }
 
 function onPauseOperation() {
@@ -281,6 +249,7 @@ cartContainer.addEventListener('click', function(e) {
     }
 }, true);
 
+/*
 document.querySelectorAll('.btn-next').forEach(item => {
     item.addEventListener('click', event => {
         stepper.next();
@@ -291,4 +260,4 @@ document.querySelectorAll('.btn-previus').forEach(item => {
     item.addEventListener('click', event => {
         stepper.previous();
     });
-});
+});*/

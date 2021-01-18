@@ -7,7 +7,6 @@ namespace FacturaScripts\Plugins\POS\Controller;
 
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Model\Serie;
-use FacturaScripts\Dinamic\Lib\AssetManager;
 use FacturaScripts\Dinamic\Lib\POS\PrintProcessor;
 use FacturaScripts\Dinamic\Lib\POS\SalesDataGrid;
 use FacturaScripts\Dinamic\Lib\POS\SalesProcessor;
@@ -25,9 +24,26 @@ use function json_encode;
  */
 class POS extends Controller
 {
+
+    /**
+     * @var Cliente
+     */
     public $cliente;
+
+    /**
+     * @var FormaPago
+     */
     public $formaPago;
+
+    /**
+     * @var SalesSession
+     */
     public $session;
+
+
+    /**
+     * @var Serie
+     */
     public $serie;
 
     /**

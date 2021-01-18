@@ -82,7 +82,7 @@ class SalesProcessor
 
             unset($data['total'], $data['totaliva'], $data['totalirpf'], $data['neto']);
         } else {
-            $this->linesData = $data['lines'];
+            $this->linesData = $data['lines'] ?? [];
         }
 
         unset($data['action'], $data['lines'], $data['payments']);
@@ -93,7 +93,7 @@ class SalesProcessor
     /**
      * @return BusinessDocument document
      */
-    public function getDocument()
+    public function getDocument(): BusinessDocument
     {
         return $this->document;
     }
@@ -109,10 +109,9 @@ class SalesProcessor
     /**
      * Recalculate the document total based on lines.
      *
-     * @param array $request
      * @return string
      */
-    public function recalculateDocument()
+    public function recalculateDocument(): string
     {
         //Load document data
         $this->document->loadFromData($this->documentData);
@@ -127,10 +126,10 @@ class SalesProcessor
     /**
      * Saves the document.
      *
-     * @param bool $holdDocument
+     * @param bool $holdTicket
      * @return bool
      */
-    public function saveDocument($holdTicket = false)
+    public function saveDocument($holdTicket = false): bool
     {
         $this->document->loadFromData($this->documentData);
 
