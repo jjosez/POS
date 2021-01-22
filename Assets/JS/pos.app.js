@@ -55,14 +55,14 @@ function searchProduct(query) {
 }
 
 function searchProductBarcode(query) {
-    function searchBarcode(response) {
-        if (response.length > 0) {
+    function setProductByBarcode(response = false) {
+        if (false !== response) {
             setProduct(response[0].code, response[0].description);
         }
         barcodeInputBox.value = '';
     }
 
-    POS.searchBarcode(searchBarcode(), query);
+    POS.searchBarcode(setProductByBarcode(), query);
 }
 
 function setProduct(code, description) {
