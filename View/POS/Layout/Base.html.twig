@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="{{ asset('Plugins/POS/Assets/CSS/modules/bs-stepper.min.css') }}" />
 {% endblock %}
 {% block fullBody %}
-    {% set terminal = fsc.session.getTerminal() %}
+    {% set terminal = fsc.session.terminal() %}
     <body class="app">
         <!-- Header -->
         {{ include('POS/Layout/Navbar.html.twig') }}

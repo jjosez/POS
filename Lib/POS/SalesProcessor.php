@@ -111,7 +111,7 @@ class SalesProcessor
      *
      * @return string
      */
-    public function recalculateDocument(): string
+    public function recalculate(): string
     {
         //Load document data
         $this->document->loadFromData($this->documentData);
@@ -126,10 +126,10 @@ class SalesProcessor
     /**
      * Saves the document.
      *
-     * @param bool $holdTicket
+     * @param bool $pause
      * @return bool
      */
-    public function saveDocument($holdTicket = false): bool
+    public function saveDocument($pause = false): bool
     {
         $this->document->loadFromData($this->documentData);
 
@@ -137,7 +137,7 @@ class SalesProcessor
             return false;
         }
 
-        if (true === $holdTicket) {
+        if (true === $pause) {
             $previusLines = $this->document->getLines();
             if (false === empty($previusLines)) {
                 foreach ($previusLines as $line) {

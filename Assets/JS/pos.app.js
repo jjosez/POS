@@ -54,15 +54,15 @@ function searchProduct(query) {
     POS.search(updateSearchResult, query, 'product');
 }
 
-function searchProductBarcode(query) {
-    function setProductByBarcode(response = false) {
-        if (false !== response) {
-            setProduct(response[0].code, response[0].description);
+function searchBarcode(query) {
+    function setProductByBarcode(response) {
+        if (undefined !== response && false !== response) {
+            setProduct(response.code, response.description);
         }
         barcodeInputBox.value = '';
     }
 
-    POS.searchBarcode(setProductByBarcode(), query);
+    POS.searchBarcode(setProductByBarcode, query);
 }
 
 function setProduct(code, description) {
@@ -102,8 +102,9 @@ function updateCartView(data) {
 
     for(let i = 0; i < elements.length; i++) {
         const element = elements[i];
+        const excludedElements = ['token', 'codcliente', 'customerSearchBox'];
 
-        if (element.name && element.name !== 'token') {
+        if (element.name && false === excludedElements.includes(element.name)) {
             const value = data.doc[element.name];
             switch (element.type) {
                 case "checkbox" :
@@ -172,7 +173,7 @@ function resumePausedDocument(code) {
 
 $(document).ready(function () {
     onScan.attachTo(barcodeInputBox, {
-        onScan: function(code) { searchProductBarcode(code); }
+        onScan: function(code) { searchBarcode(code); }
     });
 
     $('[data-toggle="offcanvas"]').on('click', function () {

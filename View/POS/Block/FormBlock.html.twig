@@ -4,7 +4,7 @@
  *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
-{% set customer = fsc.cliente.get(terminal.codcliente) %}
+{% set customer = fsc.customer.get(terminal.codcliente) %}
 {% set documentList = appSettings.get('pointofsale','tiposdocumento')|split('|') %}
 {% set defaultDocument = appSettings.get('pointofsale','defaultdoc') %}
 
@@ -15,7 +15,7 @@
     <input type="hidden" id="lines" name="lines"/>
     <input type="hidden" id="neto" name="neto" value="0">
     <input type="hidden" id="payments" name="payments"/>
-    <input type="hidden" id="token" name="token" value="{{ fsc.getRandomToken() }}">
+    <input type="hidden" id="token" name="token" value="{{ fsc.requestToken() }}">
     <input type="hidden" id="total" name="total" value="0">
     <input type="hidden" id="totalsuplidos" name="totalsuplidos" value="0">
     <input type="hidden" id="totaliva" name="totaliva" value="0">
@@ -27,7 +27,7 @@
         <div class="form-group col-12">
             <div class="input-group">
             <span class="input-group-prepend">
-                <a href="{{ fsc.cliente.url('new') }}" target="_blank" class="btn btn-success" title="{{ i18n.trans('new-customer') }}">
+                <a href="{{ fsc.customer.url('new') }}" target="_blank" class="btn btn-success" title="{{ i18n.trans('new-customer') }}">
                     <i class="fas fa-user-plus fa-fw" aria-hidden="true"></i>
                 </a>
             </span>

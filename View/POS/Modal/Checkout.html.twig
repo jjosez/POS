@@ -5,7 +5,8 @@
  */
 #}
 <!-- Checkout Modal -->
-{% set paymentEnabled = terminal.aceptapagos ? '' : 'disabled' %}
+{% set paymentsEnabled = terminal.aceptapagos ? '' : 'disabled' %}
+
 <div class="modal fade" id="checkoutModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -53,9 +54,9 @@
                                     <div class="form-group col">
                                         <label for="paymentMethod">{{ i18n.trans('payment-method') }}</label>
                                         <select class="form-control" id="paymentMethod" name="codpago">
-                                            {% for formapago in fsc.formaPago.all() %}
-                                                <option value="{{ formapago.codpago }}">
-                                                    {{ formapago.descripcion }}
+                                            {% for paymentMethod in fsc.availablePaymentMethods() %}
+                                                <option value="{{ paymentMethod.codpago }}">
+                                                    {{ paymentMethod.descripcion }}
                                                 </option>
                                             {% endfor %}
                                         </select>
@@ -64,7 +65,7 @@
                                 <div class="form-row">
                                     <div class="form-group col">
                                         <label for="paymentAmount" class="col-form-label">{{ i18n.trans('payment-amount') }}:</label>
-                                        <input type="number" class="form-control" id="paymentAmount" {{ paymentEnabled }}>
+                                        <input type="number" class="form-control" id="paymentAmount" {{ paymentsEnabled }}>
                                     </div>
                                 </div>
                             </div>

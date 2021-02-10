@@ -33,6 +33,20 @@ class PrintProcessor
         return false;
     }
 
+    public static function printCashupNew(SesionPOS $session, Empresa $empresa, float $anchopapel)
+    {
+        $cashupTicket = new CashupTicket($session, $empresa, $anchopapel);
+        $ticket = new Ticket();
+        $printID = 'cashup';
+
+        $ticket->coddocument = $printID;
+        $ticket->text = $cashupTicket->getTicket();
+
+        if ($ticket->save()) return true;
+
+        return false;
+    }
+
     public static function printDocument(BusinessDocument $document, float $anchopapel)
     {
         $printID = $document->modelClassName();

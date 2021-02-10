@@ -66,7 +66,7 @@ export function search(callback, query, target) {
         data: data,
         success: callback,
         error: function (xhr) {
-            console.error('Error en la busqueda', xhr.responseText);
+            console.error('Error searching', xhr.responseText);
             return false;
         }
     });
@@ -77,6 +77,8 @@ export function searchBarcode(callback, query) {
         action: "barcode-search",
         query: query
     };
+
+    console.log(query);
     $.ajax({
         type: "POST",
         url: AjaxRequestUrl,
@@ -84,7 +86,36 @@ export function searchBarcode(callback, query) {
         data: data,
         success: callback,
         error: function (xhr) {
-            console.error('Error searching by code', xhr.responseText);
+            console.error('Error searching by barcode', xhr.responseText);
+        }
+    });
+}
+
+export function searchBarcode2(callback, query) {
+    let data = {
+        action: "barcode-search",
+        query: query
+    };
+
+    console.log(query);
+    $.ajax({
+        type: "POST",
+        url: AjaxRequestUrl,
+        dataType: "json",
+        data: data,
+        success: function (response) {
+            if (false === response.length) {
+                callback = false;
+                return;
+            }
+
+            callback = {
+                code: response[0].code,
+                description: response[0].description
+            };
+        },
+        error: function (xhr) {
+            console.error('Error searching by barcode', xhr.responseText);
         }
     });
 }

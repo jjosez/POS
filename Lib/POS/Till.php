@@ -14,29 +14,51 @@ use FacturaScripts\Dinamic\Model\SesionPOS;
 use FacturaScripts\Dinamic\Model\TerminalPOS;
 use FacturaScripts\Dinamic\Model\User;
 
-class SalesSession
+class Till
 {
-    private $arqueo;
-    private $lastOperation;
+    /**
+     * @var SesionPOS
+     */
+    private $session;
+
+    /**
+     * @var OperacionPOS
+     */
+    private $currentTransaction;
+
+
+    /**
+     * @var bool
+     */
     private $opened;
+
+    /**
+     * @var TerminalPOS
+     */
     private $terminal;
+
+
+    /**
+     * @var User
+     */
     private $user;
 
     /**
-     * TillSessionHelper constructor.
+     * POS session constructor.
+     *
      */
     public function __construct(User $user)
     {
-        $this->arqueo = new SesionPOS();
+        $this->session = new SesionPOS();
         $this->terminal = new TerminalPOS();
         $this->user = $user;
         $this->opened = true;
 
-        if (!$this->arqueo->isOpen('user', $this->user->nick)) {
+        if (!$this->session->isOpen('user', $this->user->nick)) {
             $this->opened = false;
         }
 
-        if (!$this->terminal->loadFromCode($this->arqueo->idterminal)) {
+        if (!$this->terminal->loadFromCode($this->session->idterminal)) {
             $this->opened = false;
         }
     }
@@ -53,9 +75,9 @@ class SalesSession
             return;
         }
 
-        $this->arqueo->abierto = false;
-        $this->arqueo->fechafin = date('d-m-Y');
-        $this->arqueo->horafin = date('H:i:s');
+        $this->session->abierto = false;
+        $this->session->fechafin = date('d-m-Y');
+        $this->session->horafin = date('H:i:s');
 
         $total = 0.0;
         foreach ($cash as $value => $count) {
@@ -63,10 +85,10 @@ class SalesSession
         }
 
         ToolBox::i18nLog()->info('cashup-total', ['%amount%' => $total]);
-        $this->arqueo->saldocontado = $total;
-        $this->arqueo->conteo = json_encode($cash);
+        $this->session->saldocontado = $total;
+        $this->session->conteo = json_encode($cash);
 
-        if ($this->arqueo->save()) {
+        if ($this->session->save()) {
             $this->terminal->disponible = true;
             $this->terminal->save();
             $this->opened = false;
@@ -76,15 +98,15 @@ class SalesSession
     /**
      * @return SesionPOS
      */
-    public function getArqueo()
+    public function getSession()
     {
-        return $this->arqueo;
+        return $this->session;
     }
 
     /**
      * @return TerminalPOS
      */
-    public function terminal($idterminal = false)
+    public function getTerminal($idterminal = false)
     {
         if ($this->opened) return $this->terminal;
 
@@ -121,13 +143,13 @@ class SalesSession
             return false;
         }
 
-        $this->arqueo->abierto = true;
-        $this->arqueo->idterminal = $this->terminal->idterminal;
-        $this->arqueo->nickusuario = $this->user->nick;
-        $this->arqueo->saldoinicial = $amount;
-        $this->arqueo->saldoesperado = $amount;
+        $this->session->abierto = true;
+        $this->session->idterminal = $this->terminal->idterminal;
+        $this->session->nickusuario = $this->user->nick;
+        $this->session->saldoinicial = $amount;
+        $this->session->saldoesperado = $amount;
 
-        if ($this->arqueo->save()) {
+        if ($this->session->save()) {
             $params = [
                 '%terminalName%' => $this->terminal->nombre,
                 '%userNickname%' => $this->user->nick,
@@ -144,69 +166,86 @@ class SalesSession
         return false;
     }
 
-    public function storeOperation(BusinessDocument $document)
+    public function transactionRecord(BusinessDocument $document)
     {
         $operation = new OperacionPOS();
         $operation->codigo = $document->codigo;
         $operation->codcliente = $document->codcliente;
         $operation->fecha = $document->fecha;
         $operation->iddocumento = $document->primaryColumnValue();
-        $operation->idsesion = $this->arqueo->idsesion;
+        $operation->idsesion = $this->session->idsesion;
         $operation->tipodoc = $document->modelClassName();
         $operation->total = $document->total;
 
         $operation->save();
-        $this->lastOperation = $operation;
+        $this->currentTransaction = $operation;
     }
 
-    public function loadHistory()
+    /**
+     * Returns all OperacionPOS that for current till.
+     *
+     * @return OperacionPOS[]
+     */
+    public function transactionList(): array
     {
         $operation = new OperacionPOS();
-        $where = [new DataBaseWhere('idsesion', $this->arqueo->idsesion)];
-        $result = $operation->all($where);
+        $where = [new DataBaseWhere('idsesion', $this->session->idsesion)];
 
-        return $result;
+        return $operation->all($where);
     }
 
-    public function loadPausedOps()
+    /**
+     * Return all OperacionPausada that is not yet completed.
+     *
+     * @return OperacionPausada[]
+     */
+    public function pausedTransactionList(): array
     {
-        $pausedops = new OperacionPausada();
+        $operation = new OperacionPausada();
         $where = [new DataBaseWhere('editable', true)];
-        $result = $pausedops->all($where);
 
-        return $result;
+        return $operation->all($where);
     }
 
-    public function loadPausedTransaction(string $code)
+    /**
+     * Return OperacionPausada by code.
+     *
+     * @param string $code
+     * @return false|string
+     */
+    public function pausedTransaction(string $code)
     {
-        $result = [];
+        $transaction = new OperacionPausada();
 
-        $pausedop = new OperacionPausada();
-        $pausedop->loadFromCode($code);
+        if ($transaction->loadFromCode($code)) {
+            return json_encode(
+                [
+                    'doc' => $transaction->toArray(),
+                    'lines' => $transaction->getLines()
+                ]
+            );
+        }
 
-        $result['doc'] = $pausedop->toArray();
-        $result['lines'] = $pausedop->getLines();
-
-        return json_encode($result);
+        return false;
     }
 
-    public function updatePausedTransaction(string $code)
+    public function pausedTransactionComplete(string $code)
     {
-        $pausedop = new OperacionPausada();
+        $transaction = new OperacionPausada();
 
-        if ($code && $pausedop->loadFromCode($code)) {
-            $pausedop->idestado = 3;
+        if ($code && $transaction->loadFromCode($code)) {
+            $transaction->idestado = 3;
 
-            $pausedop->save();
+            $transaction->save();
         }
     }
 
     public function savePayments(array $payments)
     {
         $processor = new PaymentsProcessor($payments);
-        $processor->savePayments($this->lastOperation, $this->arqueo);
+        $processor->savePayments($this->currentTransaction, $this->session);
 
-        $this->arqueo->saldoesperado += $processor->getCashPaymentAmount();
-        $this->arqueo->save();
+        $this->session->saldoesperado += $processor->getCashPaymentAmount();
+        $this->session->save();
     }
 }
