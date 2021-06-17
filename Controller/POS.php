@@ -14,8 +14,8 @@ use FacturaScripts\Dinamic\Lib\POS\SalesSession;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\FormaPago;
-use FacturaScripts\Dinamic\Model\Variante;
-use function json_encode;
+use FacturaScripts\Plugins\POS\Lib\POS\Sales\Customer;
+use FacturaScripts\Plugins\POS\Lib\POS\Sales\Product;
 
 /**
  * Controller to process Point of Sale Operations
@@ -98,6 +98,14 @@ class POS extends Controller
                 $this->recalculateTransaction();
                 return false;
 
+            case 'search-customer':
+                $this->searchCustomer();
+                return false;
+
+            case 'search-product':
+                $this->searchProduct();
+                return false;
+
             case 'resume-document':
                 $this->resumeTransaction();
                 return false;
@@ -107,32 +115,32 @@ class POS extends Controller
         }
     }
 
-    private function searchText()
+    private function searchCustomer()
     {
+        $customer = new Customer();
+
         $query = $this->request->request->get('query');
-        $target = $this->request->request->get('target');
+        $result = $customer->searchCustomer($query);
 
-        switch ($target) {
-            case 'customer':
-                $result = (new Cliente())->codeModelSearch($query);
-                break;
-
-            case 'product':
-                $query = str_replace(" ", "%", $query);
-                $result = (new Variante())->codeModelSearch($query, 'referencia');
-                break;
-        }
-        $this->response->setContent(json_encode($result));
+        $this->response->setContent($result);
     }
 
     private function searchBarcode()
     {
+        $producto = new Product();
+        $barcode = $this->request->request->get('query');
+
+        $this->response->setContent($producto->searchBarcode($barcode));
+    }
+
+    private function searchProduct()
+    {
+        $product = new Product();
+
         $query = $this->request->request->get('query');
-        $result = (new Variante())->codeModelSearch($query, 'referencia');
+        $result = $product->searchByText($query);
 
-        $response = $result ? $result[0] : false;
-
-        $this->response->setContent(json_encode($response));
+        $this->response->setContent($result);
     }
 
     private function recalculateTransaction()
@@ -316,7 +324,7 @@ class POS extends Controller
      *
      * @return string
      */
-    public function cashPaymentMethod(): string
+    public function cashPaymentMethod(): ?string
     {
         return $this->toolBox()->appSettings()->get('pointofsale', 'fpagoefectivo');
     }
@@ -344,7 +352,7 @@ class POS extends Controller
      *
      * @return array
      */
-    public function getGridHeaders()
+    public function getGridHeaders(): array
     {
         return SalesDataGrid::getDataGrid($this->user);
     }
@@ -354,7 +362,7 @@ class POS extends Controller
      *
      * @return array
      */
-    public function getDenominations()
+    public function getDenominations(): array
     {
         return (new DenominacionMoneda())->all([], ['valor' => 'ASC']);
     }
@@ -364,7 +372,7 @@ class POS extends Controller
      *
      * @return string
      */
-    public function requestToken()
+    public function requestToken(): string
     {
         return $this->multiRequestProtection->newToken();
     }

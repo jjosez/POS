@@ -43,7 +43,7 @@ function searchCustomer(query) {
         customerSearchResult.innerHTML = customerTemplate({items: response}, templateConfig);
     }
 
-    POS.search(updateSearchResult, query, 'customer');
+    POS.searchCustomer(updateSearchResult, query);
 }
 
 function searchProduct(query) {
@@ -51,7 +51,7 @@ function searchProduct(query) {
         productSearchResult.innerHTML = productTemplate({items: response}, templateConfig);
     }
 
-    POS.search(updateSearchResult, query, 'product');
+    POS.searchProduct(updateSearchResult, query);
 }
 
 function searchBarcode(query) {
@@ -102,7 +102,7 @@ function updateCartView(data) {
 
     for(let i = 0; i < elements.length; i++) {
         const element = elements[i];
-        const excludedElements = ['token', 'codcliente', 'customerSearchBox'];
+        const excludedElements = ['token', 'codcliente', 'customerSearchBox', 'tipoDocumento'];
 
         if (element.name && false === excludedElements.includes(element.name)) {
             const value = data.doc[element.name];
@@ -161,7 +161,7 @@ function onPauseOperation() {
     }
 }
 
-function resumePausedDocument(code) {
+function onResumePausedOperation(code) {
     function resumeDocument(response) {
         setCustomer(response.doc.codcliente, response.doc.nombrecliente);
         Cart = new ShoppingCart(response);
@@ -234,7 +234,7 @@ $(document).ready(function () {
     $('#pausedOperations').on('click', '.resume-button', function () {
         let code = $(this).data('code');
 
-        resumePausedDocument(code);
+        onResumePausedOperation(code);
     });
 });
 

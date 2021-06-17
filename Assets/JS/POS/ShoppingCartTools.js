@@ -53,42 +53,16 @@ export function recalculate(callback, lines, form) {
     });
 }
 
-export function search(callback, query, target) {
-    let data = {
-        action: "custom-search",
-        query: query,
-        target: target
-    };
-    $.ajax({
-        type: "POST",
-        url: AjaxRequestUrl,
-        dataType: "json",
-        data: data,
-        success: callback,
-        error: function (xhr) {
-            console.error('Error searching', xhr.responseText);
-            return false;
-        }
-    });
+export function searchBarcode(callback, query) {
+    baseSearch(callback, query, 'search-barcode');
 }
 
-export function searchBarcode(callback, query) {
-    let data = {
-        action: "barcode-search",
-        query: query
-    };
+export function searchCustomer(callback, query) {
+    baseSearch(callback, query, 'search-customer');
+}
 
-    console.log(query);
-    $.ajax({
-        type: "POST",
-        url: AjaxRequestUrl,
-        dataType: "json",
-        data: data,
-        success: callback,
-        error: function (xhr) {
-            console.error('Error searching by barcode', xhr.responseText);
-        }
-    });
+export function searchProduct(callback, query) {
+    baseSearch(callback, query, 'search-product');
 }
 
 export function searchBarcode2(callback, query) {
@@ -136,4 +110,22 @@ export function testResponseTime(startTime, label = 'Exec time:') {
     //Convert milliseconds to seconds.
     let seconds = time / 100;
     console.log(label, seconds.toFixed(3));
+}
+
+function baseSearch(callback, query, target) {
+    let data = {
+        action: target,
+        query: query
+    };
+    $.ajax({
+        type: "POST",
+        url: AjaxRequestUrl,
+        dataType: "json",
+        data: data,
+        success: callback,
+        error: function (xhr) {
+            console.error('Error searching', xhr.responseText);
+            return false;
+        }
+    });
 }
