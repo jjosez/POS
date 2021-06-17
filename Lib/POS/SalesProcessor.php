@@ -76,7 +76,7 @@ class SalesProcessor
      */
     protected function setDocumentData(array $data)
     {
-        if ('recalculate-document' !== $data['action']) {
+        if ('transaction-recalculate' !== $data['action']) {
             $this->linesData = json_decode($data['lines'], true);
             $this->paymentsData = json_decode($data['payments'], true);
 

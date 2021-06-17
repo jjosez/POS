@@ -33,7 +33,7 @@ export default class ShoppingCart {
         this.lines[index][field] = value;
     }
 
-    remove(index) {
+    delete(index) {
         this.lines.splice(index, 1);
     }
 

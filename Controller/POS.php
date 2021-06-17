@@ -24,8 +24,8 @@ use FacturaScripts\Plugins\POS\Lib\POS\Sales\Product;
  */
 class POS extends Controller
 {
-
-    /**
+    const DEFAULT_POS_TRANSACTION = 'FacturaCliente';
+     /**
      * @var Cliente
      */
     public $customer;
@@ -111,16 +111,6 @@ class POS extends Controller
         }
     }
 
-    private function searchCustomer()
-    {
-        $customer = new Customer();
-
-        $query = $this->request->request->get('query');
-        $result = $customer->searchCustomer($query);
-
-        $this->response->setContent($result);
-    }
-
     private function searchBarcode()
     {
         $producto = new Product();
@@ -129,20 +119,26 @@ class POS extends Controller
         $this->response->setContent($producto->searchBarcode($barcode));
     }
 
+    private function searchCustomer()
+    {
+        $customer = new Customer();
+        $query = $this->request->request->get('query');
+
+        $this->response->setContent($customer->searchCustomer($query));
+    }
+
     private function searchProduct()
     {
         $product = new Product();
-
         $query = $this->request->request->get('query');
-        $result = $product->searchByText($query);
 
-        $this->response->setContent($result);
+        $this->response->setContent($product->searchByText($query));
     }
 
     private function recalculateTransaction()
     {
         $data = $this->request->request->all();
-        $modelName = 'FacturaCliente';
+        $modelName = self::DEFAULT_POS_TRANSACTION;
 
         $salesProcessor = new SalesProcessor($modelName, $data);
         $result = $salesProcessor->recalculate();

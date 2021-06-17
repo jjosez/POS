@@ -24,7 +24,7 @@
   "point-of-sale": "Punto de venta",
   "pos-settings": "Configuración del punto de venta",
   "print-z": "Imprimir cierre",
-  "printing-ticket": "Imprimiendo ticket %ticket%.<img class='d-none' src='http://localhost:10080?documento=%code%'/>",
+  "printing-ticket": "Imprimiendo ticket %ticket%.<img class='d-none' src='http://localhost:8089?documento=%code%'/>",
   "select-cash-register": "Selecciona una terminal para comenzar.",
   "ticket-line-lenght": "Número de caracteres por linea",
   "ticket-on-hold": "Pausar Ticket",

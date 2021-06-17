@@ -2,9 +2,9 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2018-2021 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-import * as POS from './POS/ShoppingCartTools.js';
-import Checkout from './POS/Checkout.js';
-import ShoppingCart from "./POS/ShoppingCart.js";
+import * as POS from './ShoppingCartTools.js';
+import Checkout from './Checkout.js';
+import ShoppingCart from "./ShoppingCart.js";
 
 // Template variables
 const EtaTemplate = Eta;
@@ -23,14 +23,14 @@ const salesForm = document.getElementById("salesDocumentForm");
 var Cart = new ShoppingCart();
 var CartCheckout = new Checkout(0, CASH_PAYMENT_METHOD);
 
-function onCartDelete(e) {
+function deleteCartItem(e) {
     let index = e.getAttribute('data-index');
 
-    Cart.remove(index);
+    Cart.delete(index);
     updateCart();
 }
 
-function onCartEdit(e) {
+function editCartItem(e) {
     let field = e.getAttribute('data-field');
     let index = e.getAttribute('data-index');
 
@@ -240,13 +240,13 @@ $(document).ready(function () {
 
 cartContainer.addEventListener('focusout', function(e) {
     if(e.target.classList.contains('cart-item')) {
-        onCartEdit(e.target);
+        editCartItem(e.target);
     }
 });
 
 cartContainer.addEventListener('click', function(e) {
     if(e.target.classList.contains('cart-item-remove')) {
-        onCartDelete(e.target);
+        deleteCartItem(e.target);
     }
 }, true);
 

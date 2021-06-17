@@ -16,7 +16,7 @@ export function pauseDocument(lines, form) {
     form.submit();
 }
 
-export function resumeDocument(callback, code) {
+export function resumeTransaction(callback, code) {
     let data = {
         action: "transaction-resume",
         code: code
@@ -65,9 +65,9 @@ export function testResponseTime(startTime, label = 'Exec time:') {
     console.log(label, seconds.toFixed(3));
 }
 
-function baseSearch(callback, query, target) {
+function baseSearch(callback, query, action) {
     let data = {
-        action: target,
+        action: action,
         query: query
     };
     $.ajax({

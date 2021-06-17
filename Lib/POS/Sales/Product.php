@@ -43,7 +43,8 @@ class Product
      */
     public function searchBarcode(string $text): string
     {
-        $result = $this->queryProduct($text) ?? false;
+        $queryResult = $this->queryProduct($text);
+        $result = empty($queryResult) ? false : $queryResult[0];
 
         return json_encode($result);
     }
