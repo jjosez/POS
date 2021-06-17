@@ -86,16 +86,8 @@ class POS extends Controller
     private function execPreviusAction(string $action)
     {
         switch ($action) {
-            case 'custom-search':
-                $this->searchText();
-                return false;
-
-            case 'barcode-search':
+            case 'search-barcode':
                 $this->searchBarcode();
-                return false;
-
-            case 'recalculate-document':
-                $this->recalculateTransaction();
                 return false;
 
             case 'search-customer':
@@ -106,8 +98,12 @@ class POS extends Controller
                 $this->searchProduct();
                 return false;
 
-            case 'resume-document':
+            case 'transaction-resume':
                 $this->resumeTransaction();
+                return false;
+
+            case 'transaction-recalculate':
+                $this->recalculateTransaction();
                 return false;
 
             default:

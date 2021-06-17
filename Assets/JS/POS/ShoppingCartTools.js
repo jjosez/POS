@@ -18,39 +18,21 @@ export function pauseDocument(lines, form) {
 
 export function resumeDocument(callback, code) {
     let data = {
-        action: "resume-document",
+        action: "transaction-resume",
         code: code
     };
 
-    $.ajax({
-        type: "POST",
-        url: AjaxRequestUrl,
-        dataType: "json",
-        data: data,
-        success: callback,
-        error: function (xhr) {
-            console.error('Error al cargar la venta', xhr.responseText);
-        }
-    });
+    baseAjaxRequest(callback, data, 'Error al cargar la venta');
 }
 
 export function recalculate(callback, lines, form) {
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
 
-    data.action = "recalculate-document";
+    data.action = "transaction-recalculate";
     data.lines = lines;
 
-    $.ajax({
-        type: "POST",
-        url: AjaxRequestUrl,
-        dataType: "json",
-        data: data,
-        success: callback,
-        error: function (xhr) {
-            console.error('Error al recalcular las lineas', xhr.responseText);
-        }
-    });
+    baseAjaxRequest(callback, data, 'Error al recalcular las lineas');
 }
 
 export function searchBarcode(callback, query) {
@@ -63,35 +45,6 @@ export function searchCustomer(callback, query) {
 
 export function searchProduct(callback, query) {
     baseSearch(callback, query, 'search-product');
-}
-
-export function searchBarcode2(callback, query) {
-    let data = {
-        action: "barcode-search",
-        query: query
-    };
-
-    console.log(query);
-    $.ajax({
-        type: "POST",
-        url: AjaxRequestUrl,
-        dataType: "json",
-        data: data,
-        success: function (response) {
-            if (false === response.length) {
-                callback = false;
-                return;
-            }
-
-            callback = {
-                code: response[0].code,
-                description: response[0].description
-            };
-        },
-        error: function (xhr) {
-            console.error('Error searching by barcode', xhr.responseText);
-        }
-    });
 }
 
 // Helper functions
@@ -126,6 +79,19 @@ function baseSearch(callback, query, target) {
         error: function (xhr) {
             console.error('Error searching', xhr.responseText);
             return false;
+        }
+    });
+}
+
+function baseAjaxRequest(callback, data, emessage) {
+    $.ajax({
+        type: "POST",
+        url: AjaxRequestUrl,
+        dataType: "json",
+        data: data,
+        success: callback,
+        error: function (xhr) {
+            console.error(emessage, xhr.responseText);
         }
     });
 }
