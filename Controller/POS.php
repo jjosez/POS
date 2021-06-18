@@ -16,6 +16,8 @@ use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\Customer;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\Product;
+use FacturaScripts\Plugins\POS\Lib\POS\Sales\Transaction;
+use FacturaScripts\Plugins\POS\Lib\POS\Sales\TransactionRequest;
 
 /**
  * Controller to process Point of Sale Operations
@@ -137,6 +139,17 @@ class POS extends Controller
 
     private function recalculateTransaction()
     {
+        $transactionRequest = new TransactionRequest($this->request);
+        print_r($transactionRequest->getLines());
+        //$transaction = new Transaction($transactionRequest, self::DEFAULT_POS_TRANSACTION);
+
+        //$result = $transaction->recalculate();
+
+        //$this->response->setContent($result);
+    }
+
+    /*private function recalculateTransaction()
+    {
         $data = $this->request->request->all();
         $modelName = self::DEFAULT_POS_TRANSACTION;
 
@@ -144,7 +157,7 @@ class POS extends Controller
         $result = $salesProcessor->recalculate();
 
         $this->response->setContent($result);
-    }
+    }*/
 
     /**
      * Exect action before load data.
