@@ -34,6 +34,17 @@ class Transaction
         $this->transactionLines = $request->getLinesData();
     }
 
+    public function hold()
+    {
+        $previusLines = $this->document->getLines() ?? [];
+
+        foreach ($previusLines as $line) {
+            $line->delete();
+        }
+
+        return $this->save();
+    }
+
     /**
      * @return BusinessDocument
      */

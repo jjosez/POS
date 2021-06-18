@@ -2,6 +2,7 @@
 
 namespace FacturaScripts\Plugins\POS\Lib\POS\Sales;
 
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
 class TransactionRequest
@@ -14,7 +15,7 @@ class TransactionRequest
     /**
      * @var array
      */
-    protected $lines;
+    protected $linesData;
 
     /**
      * @var array
@@ -22,19 +23,17 @@ class TransactionRequest
     protected $paymentsData;
 
     /**
-     * @var \Symfony\Component\HttpFoundation\ParameterBag
+     * @var ParameterBag
      */
     protected $request;
 
-    public function __construct($request)
+    public function __construct(Request $request)
     {
         $this->request = $request->request;
 
         $this->setLinesData();
         $this->setDocumentData();
         $this->setPaymentsData();
-
-        print_r($this->getLines());
     }
 
     protected function setLinesData(): void
@@ -43,11 +42,11 @@ class TransactionRequest
         $lines = $this->request->get('lines', []);
 
         if ('transaction-recalculate' !== $action) {
-            $this->lines = json_decode($lines, true);
+            $this->linesData = json_decode($lines, true);
             return;
         }
 
-        $this->lines = $lines;
+        $this->linesData = $lines;
     }
 
     protected function setDocumentData(): void
@@ -69,7 +68,7 @@ class TransactionRequest
             return;
         }
 
-        $this->linesData = $paymentsData ?? [];
+        $this->paymentsData = $paymentsData ?? [];
     }
 
     /**
@@ -83,9 +82,9 @@ class TransactionRequest
     /**
      * @return array
      */
-    public function getLines(): array
+    public function getLinesData(): array
     {
-        return $this->lines;
+        return $this->linesData;
     }
 
     /**

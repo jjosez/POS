@@ -16,7 +16,7 @@ class CashupTicket
         $this->template = $template ?: new CashupTemplate($empresa, $width);
     }
 
-    public function getTicket()
+    public function getTicket(): string
     {
         $cashup = new Cashup(
             $this->session->idsesion,

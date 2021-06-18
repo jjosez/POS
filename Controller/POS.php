@@ -6,18 +6,21 @@
 namespace FacturaScripts\Plugins\POS\Controller;
 
 use FacturaScripts\Core\Base\Controller;
+use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\Model\Serie;
 use FacturaScripts\Dinamic\Lib\POS\PrintProcessor;
 use FacturaScripts\Dinamic\Lib\POS\SalesDataGrid;
-use FacturaScripts\Dinamic\Lib\POS\SalesProcessor;
 use FacturaScripts\Dinamic\Lib\POS\SalesSession;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\FormaPago;
+use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\Customer;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\Product;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\Transaction;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\TransactionRequest;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Controller to process Point of Sale Operations
@@ -27,6 +30,7 @@ use FacturaScripts\Plugins\POS\Lib\POS\Sales\TransactionRequest;
 class POS extends Controller
 {
     const DEFAULT_POS_TRANSACTION = 'FacturaCliente';
+    const PAUSED_POS_TRANSACTION = 'OperacionPausada';
      /**
      * @var Cliente
      */
@@ -55,7 +59,6 @@ class POS extends Controller
      */
     public function privateCore(&$response, $user, $permissions)
     {
-        /** @noinspection PhpParamsInspection */
         parent::privateCore($response, $user, $permissions);
         $this->setTemplate(false);
 
@@ -85,7 +88,7 @@ class POS extends Controller
      * @param string $action
      * @return bool
      */
-    private function execPreviusAction(string $action)
+    private function execPreviusAction(string $action): bool
     {
         switch ($action) {
             case 'search-barcode':
@@ -140,24 +143,12 @@ class POS extends Controller
     private function recalculateTransaction()
     {
         $transactionRequest = new TransactionRequest($this->request);
-        print_r($transactionRequest->getLines());
-        //$transaction = new Transaction($transactionRequest, self::DEFAULT_POS_TRANSACTION);
+        $transaction = new Transaction($transactionRequest, self::DEFAULT_POS_TRANSACTION);
 
-        //$result = $transaction->recalculate();
-
-        //$this->response->setContent($result);
-    }
-
-    /*private function recalculateTransaction()
-    {
-        $data = $this->request->request->all();
-        $modelName = self::DEFAULT_POS_TRANSACTION;
-
-        $salesProcessor = new SalesProcessor($modelName, $data);
-        $result = $salesProcessor->recalculate();
+        $result = $transaction->recalculate();
 
         $this->response->setContent($result);
-    }*/
+    }
 
     /**
      * Exect action before load data.
@@ -214,13 +205,12 @@ class POS extends Controller
      */
     private function holdTransaction()
     {
-        $data = $this->request->request->all();
-        $modelName = 'OperacionPausada';
+        if (false === $this->validateSaveRequest($this->request)) return;
 
-        if (false === $this->validateSaveRequest($data)) return;
+        $transactionRequest = new TransactionRequest($this->request);
+        $transaction = new Transaction($transactionRequest, self::PAUSED_POS_TRANSACTION);
 
-        $salesProcessor = new SalesProcessor($modelName, $data);
-        if ($salesProcessor->saveDocument(true)) {
+        if ($transaction->hold()) {
             $this->toolBox()->i18nLog()->info('operation-is-paused');
         }
     }
@@ -232,38 +222,38 @@ class POS extends Controller
      */
     protected function saveTransaction()
     {
-        $data = $this->request->request->all();
-        $modelName = $data['tipo-documento'];
-        $pausada = $data['idpausada'];
+        if (false === $this->validateSaveRequest($this->request)) return;
 
-        $transactionModel = $this->request->request->get('tipo-documento', 'FacturaCliente');
+        $transactionModelName = $this->request->request->get('tipo-documento', self::DEFAULT_POS_TRANSACTION);
+        $transactionRequest = new TransactionRequest($this->request);
+        $transaction = new Transaction($transactionRequest, $transactionModelName);
 
-        if (false === $this->validateSaveRequest($data)) return;
+        $pausedTransaction = $this->request->request->get('idpausada');
 
-        $salesProcessor = new SalesProcessor($transactionModel, $data);
-        if ($salesProcessor->saveDocument()) {
-            $document = $salesProcessor->getDocument();
-            $payments[] = $salesProcessor->getPayments();
+        if ($transaction->save()) {
+            $document = $transaction->getDocument();
+            $payments[] = $transactionRequest->getPaymentsData();
 
             $this->session->storeOperation($document);
             $this->session->savePayments($payments);
-            $this->session->updatePausedTransaction($pausada);
+            $this->session->updatePausedTransaction($pausedTransaction);
             $this->printTicket($document);
         }
     }
 
     /**
-     * @param $data
+     * @param Request $request
      * @return bool
      */
-    protected function validateSaveRequest($data)
+    protected function validateSaveRequest(Request $request): bool
     {
         if (false === $this->permissions->allowUpdate) {
             $this->toolBox()->i18nLog()->warning('not-allowed-modify');
             return false;
         }
 
-        $token = $data['token'];
+        $token = $request->request->get('token');
+
         if (!empty($token) && $this->multiRequestProtection->tokenExist($token)) {
             $this->toolBox()->i18nLog()->warning('duplicated-request');
             return false;
@@ -313,7 +303,7 @@ class POS extends Controller
      *
      * @return array
      */
-    public function getPageData()
+    public function getPageData(): array
     {
         $pagedata = parent::getPageData();
         $pagedata['title'] = 'point-of-sale';
