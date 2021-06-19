@@ -13,6 +13,7 @@ use FacturaScripts\Dinamic\Model\OperacionPOS;
 use FacturaScripts\Dinamic\Model\SesionPOS;
 use FacturaScripts\Dinamic\Model\TerminalPOS;
 use FacturaScripts\Dinamic\Model\User;
+use FacturaScripts\Plugins\POS\Lib\POS\Sales\Transaction;
 
 class SalesSession
 {
@@ -190,7 +191,7 @@ class SalesSession
         return json_encode($result);
     }
 
-    public function updatePausedTransaction(string $code)
+    protected function updatePausedTransaction(string $code)
     {
         $pausedop = new OperacionPausada();
 
@@ -201,12 +202,35 @@ class SalesSession
         }
     }
 
-    public function savePayments(array $payments)
+    protected function savePayments(array $payments)
     {
         $processor = new PaymentsProcessor($payments);
         $processor->savePayments($this->lastOperation, $this->arqueo);
 
         $this->arqueo->saldoesperado += $processor->getCashPaymentAmount();
         $this->arqueo->save();
+    }
+
+    public function storeTransaction(Transaction $transaction)
+    {
+        $document = $transaction->getDocument();
+
+        $sessionTransaction = new OperacionPOS();
+        $sessionTransaction->codigo = $document->codigo;
+        $sessionTransaction->codcliente = $document->codcliente;
+        $sessionTransaction->fecha = $document->fecha;
+        $sessionTransaction->iddocumento = $document->primaryColumnValue();
+        $sessionTransaction->idsesion = $this->arqueo->idsesion;
+        $sessionTransaction->tipodoc = $document->modelClassName();
+        $sessionTransaction->total = $document->total;
+
+        $sessionTransaction->save();
+
+        //$this->savePayments($transaction->getPayments());
+        print_r($transaction->getPayments());
+
+        if ($document->idpausada) {
+            $this->updatePausedTransaction($document->idpausada);
+        }
     }
 }

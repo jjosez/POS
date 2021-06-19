@@ -24,6 +24,11 @@ class Transaction
     protected $transactionLines;
 
     /**
+     * @var array
+     */
+    protected $transactionPayments;
+
+    /**
      * Transaction constructor.
      * @param TransactionRequest $request
      * @param String $transactionModelName
@@ -32,6 +37,23 @@ class Transaction
     {
         $this->initDocument($request->getDocumentData(), $transactionModelName);
         $this->transactionLines = $request->getLinesData();
+        $this->transactionPayments = $request->getPaymentsData();
+    }
+
+    /**
+     * @return BusinessDocument
+     */
+    public function getDocument(): BusinessDocument
+    {
+        return $this->document;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPayments(): array
+    {
+        return $this->transactionPayments;
     }
 
     public function hold()
@@ -43,14 +65,6 @@ class Transaction
         }
 
         return $this->save();
-    }
-
-    /**
-     * @return BusinessDocument
-     */
-    public function getDocument(): BusinessDocument
-    {
-        return $this->document;
     }
 
     /**

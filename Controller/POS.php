@@ -228,16 +228,9 @@ class POS extends Controller
         $transactionRequest = new TransactionRequest($this->request);
         $transaction = new Transaction($transactionRequest, $transactionModelName);
 
-        $pausedTransaction = $this->request->request->get('idpausada');
-
         if ($transaction->save()) {
-            $document = $transaction->getDocument();
-            $payments[] = $transactionRequest->getPaymentsData();
-
-            $this->session->storeOperation($document);
-            $this->session->savePayments($payments);
-            $this->session->updatePausedTransaction($pausedTransaction);
-            $this->printTicket($document);
+            $this->session->storeTransaction($transaction);
+            $this->printTicket($transaction->getDocument());
         }
     }
 
