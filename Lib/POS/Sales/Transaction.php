@@ -10,8 +10,9 @@ use UnexpectedValueException;
 
 class Transaction
 {
-    const MODEL_NAMESPACE = '\\FacturaScripts\\Dinamic\\Model\\';
     const BASE_BUSINESS_DOCUMENT_CLASS = '\\FacturaScripts\\Core\\Model\\Base\\BusinessDocument';
+    const MODEL_NAMESPACE = '\\FacturaScripts\\Dinamic\\Model\\';
+    const DEFAULT_TRANSACTION = 'FacturaCliente';
 
     /**
      * @var BusinessDocument
@@ -31,13 +32,15 @@ class Transaction
     /**
      * Transaction constructor.
      * @param TransactionRequest $request
-     * @param String $transactionModelName
+     * @param String $transactionType
      */
-    public function __construct(TransactionRequest $request, String $transactionModelName)
+    public function __construct(TransactionRequest $request)
     {
-        $this->initDocument($request->getDocumentData(), $transactionModelName);
-        $this->transactionLines = $request->getLinesData();
-        $this->transactionPayments = $request->getPaymentsData();
+        $transactionType = $request->getTransactionType(self::DEFAULT_TRANSACTION);
+
+        $this->initDocument($request->getDocumentData(), $transactionType);
+        $this->transactionLines = $request->getProductList();
+        $this->transactionPayments = $request->getPaymentList();
     }
 
     /**
@@ -56,7 +59,7 @@ class Transaction
         return $this->transactionPayments;
     }
 
-    public function hold()
+    public function hold(): bool
     {
         $previusLines = $this->document->getLines() ?? [];
 
@@ -107,7 +110,7 @@ class Transaction
         return true;
     }
 
-    protected function initDocument(array $data, $modelName)
+    protected function initDocument(array $data, string $modelName)
     {
         $className = self::MODEL_NAMESPACE . $modelName;
 

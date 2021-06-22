@@ -15,38 +15,43 @@ class TransactionRequest
     /**
      * @var array
      */
-    protected $linesData;
+    protected $productList;
 
     /**
      * @var array
      */
-    protected $paymentsData;
+    protected $paymentList;
 
     /**
      * @var ParameterBag
      */
     protected $request;
 
+    /**
+     * @var string
+     */
+    protected $transactionType;
+
     public function __construct(Request $request)
     {
         $this->request = $request->request;
 
-        $this->setLinesData();
+        $this->setProductList();
         $this->setDocumentData();
-        $this->setPaymentsData();
+        $this->setPaymentList();
     }
 
-    protected function setLinesData(): void
+    protected function setProductList(): void
     {
         $action = $this->request->get('action');
         $lines = $this->request->get('lines', []);
 
         if ('transaction-recalculate' !== $action) {
-            $this->linesData = json_decode($lines, true);
+            $this->productList = json_decode($lines, true);
             return;
         }
 
-        $this->linesData = $lines;
+        $this->productList = $lines;
     }
 
     protected function setDocumentData(): void
@@ -56,19 +61,20 @@ class TransactionRequest
         unset($data['action'], $data['lines'], $data['payments']);
 
         $this->documentData = $data;
+        $this->transactionType = $this->request->get('tipo-documento', '');
     }
 
-    protected function setPaymentsData(): void
+    protected function setPaymentList(): void
     {
         $action = $this->request->get('action');
         $payments = $this->request->get('payments');
 
         if ('transaction-recalculate' !== $action) {
-            $this->paymentsData = json_decode($payments, true);
+            $this->paymentList[] = json_decode($payments, true);
             return;
         }
 
-        $this->paymentsData = $paymentsData ?? [];
+        $this->paymentList[] = $payments ?? [];
     }
 
     /**
@@ -82,16 +88,24 @@ class TransactionRequest
     /**
      * @return array
      */
-    public function getLinesData(): array
+    public function getProductList(): array
     {
-        return $this->linesData;
+        return $this->productList;
     }
 
     /**
      * @return array
      */
-    public function getPaymentsData(): array
+    public function getPaymentList(): array
     {
-        return $this->paymentsData;
+        return $this->paymentList;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTransactionType(string $default): string
+    {
+        return empty($this->transactionType) ? $default : $this->transactionType;
     }
 }

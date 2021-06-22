@@ -5,7 +5,6 @@
  */
 namespace FacturaScripts\Plugins\POS\Lib\POS;
 
-use FacturaScripts\Core\App\App;
 use FacturaScripts\Core\App\AppSettings;
 use FacturaScripts\Plugins\POS\Model\OperacionPOS;
 use FacturaScripts\Plugins\POS\Model\PagoPOS;

@@ -3,6 +3,7 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
+
 namespace FacturaScripts\Plugins\POS\Controller;
 
 use FacturaScripts\Core\Base\Controller;
@@ -29,9 +30,10 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class POS extends Controller
 {
-    const DEFAULT_POS_TRANSACTION = 'FacturaCliente';
-    const PAUSED_POS_TRANSACTION = 'OperacionPausada';
-     /**
+    const DEFAULT_TRANSACTION = 'FacturaCliente';
+    const PAUSED_TRANSACTION = 'OperacionPausada';
+
+    /**
      * @var Cliente
      */
     public $customer;
@@ -116,7 +118,7 @@ class POS extends Controller
         }
     }
 
-    private function searchBarcode()
+    protected function searchBarcode()
     {
         $producto = new Product();
         $barcode = $this->request->request->get('query');
@@ -124,7 +126,7 @@ class POS extends Controller
         $this->response->setContent($producto->searchBarcode($barcode));
     }
 
-    private function searchCustomer()
+    protected function searchCustomer()
     {
         $customer = new Customer();
         $query = $this->request->request->get('query');
@@ -132,7 +134,7 @@ class POS extends Controller
         $this->response->setContent($customer->searchCustomer($query));
     }
 
-    private function searchProduct()
+    protected function searchProduct()
     {
         $product = new Product();
         $query = $this->request->request->get('query');
@@ -140,10 +142,21 @@ class POS extends Controller
         $this->response->setContent($product->searchByText($query));
     }
 
-    private function recalculateTransaction()
+    /**
+     * Load a paused document
+     */
+    protected function resumeTransaction()
     {
-        $transactionRequest = new TransactionRequest($this->request);
-        $transaction = new Transaction($transactionRequest, self::DEFAULT_POS_TRANSACTION);
+        $code = $this->request->request->get('code', '');
+        $result = $this->session->loadPausedTransaction($code);
+
+        $this->response->setContent($result);
+    }
+
+    protected function recalculateTransaction()
+    {
+        $request = new TransactionRequest($this->request);
+        $transaction = new Transaction($request);
 
         $result = $transaction->recalculate();
 
@@ -185,6 +198,10 @@ class POS extends Controller
                 $this->saveTransaction();
                 break;
 
+            case 'delete-paused-document':
+                $this->deletePausedTransaction();
+                break;
+
             default:
                 break;
         }
@@ -199,6 +216,24 @@ class POS extends Controller
     }
 
     /**
+     * @return void;
+     */
+    protected function printCashup()
+    {
+        $ticketWidth = $this->session->terminal()->anchopapel;
+        if (PrintProcessor::printCashup($this->session->getArqueo(), $this->empresa, $ticketWidth)) {
+            $values = [
+                '%ticket%' => 'Cierre caja',
+                '%code%' => 'cashup'
+            ];
+            $this->toolBox()->i18nLog()->info('printing-ticket', $values);
+            return;
+        }
+
+        $this->toolBox()->i18nLog()->warning('error-printing-ticket');
+    }
+
+    /**
      * Process sales.
      *
      * @return void
@@ -207,30 +242,12 @@ class POS extends Controller
     {
         if (false === $this->validateSaveRequest($this->request)) return;
 
-        $transactionRequest = new TransactionRequest($this->request);
-        $transaction = new Transaction($transactionRequest, self::PAUSED_POS_TRANSACTION);
+        $this->request->request->set('tipo-documento', self::PAUSED_TRANSACTION);
+        $request = new TransactionRequest($this->request);
+        $transaction = new Transaction($request);
 
         if ($transaction->hold()) {
             $this->toolBox()->i18nLog()->info('operation-is-paused');
-        }
-    }
-
-    /**
-     * Process sales.
-     *
-     * @return void
-     */
-    protected function saveTransaction()
-    {
-        if (false === $this->validateSaveRequest($this->request)) return;
-
-        $transactionModelName = $this->request->request->get('tipo-documento', self::DEFAULT_POS_TRANSACTION);
-        $transactionRequest = new TransactionRequest($this->request);
-        $transaction = new Transaction($transactionRequest, $transactionModelName);
-
-        if ($transaction->save()) {
-            $this->session->storeTransaction($transaction);
-            $this->printTicket($transaction->getDocument());
         }
     }
 
@@ -255,21 +272,21 @@ class POS extends Controller
     }
 
     /**
-     * @return void;
+     * Process sales.
+     *
+     * @return void
      */
-    private function printCashup()
+    protected function saveTransaction()
     {
-        $ticketWidth = $this->session->terminal()->anchopapel;
-        if (PrintProcessor::printCashup($this->session->getArqueo(), $this->empresa, $ticketWidth)) {
-            $values = [
-                '%ticket%' => 'Cierre caja',
-                '%code%'=>'cashup'
-            ];
-            $this->toolBox()->i18nLog()->info('printing-ticket', $values);
-            return;
-        }
+        if (false === $this->validateSaveRequest($this->request)) return;
 
-        $this->toolBox()->i18nLog()->warning('error-printing-ticket');
+        $request = new TransactionRequest($this->request);
+        $transaction = new Transaction($request);
+
+        if ($transaction->save()) {
+            $this->session->storeTransaction($transaction);
+            $this->printTicket($transaction->getDocument());
+        }
     }
 
     /**
@@ -282,13 +299,22 @@ class POS extends Controller
         if (PrintProcessor::printDocument($document, $ticketWidth)) {
             $values = [
                 '%ticket%' => $document->codigo,
-                '%code%'=>$document->modelClassName()
+                '%code%' => $document->modelClassName()
             ];
             $this->toolBox()->i18nLog()->info('printing-ticket', $values);
             return;
         }
 
         $this->toolBox()->i18nLog()->warning('error-printing-ticket');
+    }
+
+    /**
+     * Set a paused document as complete to remove from list
+     */
+    protected function deletePausedTransaction()
+    {
+        $code = $this->request->request->get('idpausada', '');
+        $this->session->updatePausedTransaction($code);
     }
 
     /**
@@ -314,7 +340,12 @@ class POS extends Controller
      */
     public function cashPaymentMethod(): ?string
     {
-        return $this->toolBox()->appSettings()->get('pointofsale', 'fpagoefectivo');
+        return $this->getSettingValue('fpagoefectivo');
+    }
+
+    protected function getSettingValue(string $key)
+    {
+        return $this->toolBox()->appSettings()->get('pointofsale', $key);
     }
 
     /**
@@ -324,10 +355,9 @@ class POS extends Controller
      */
     public function availablePaymentMethods(): array
     {
-        $settings = $this->toolBox()->appSettings();
         $formasPago = [];
 
-        $formasPagoCodeList = explode('|', $settings->get('pointofsale', 'formaspago'));
+        $formasPagoCodeList = explode('|', $this->getSettingValue('formaspago'));
         foreach ($formasPagoCodeList as $value) {
             $formasPago[] = (new FormaPago())->get($value);
         }
@@ -365,7 +395,7 @@ class POS extends Controller
         return $this->multiRequestProtection->newToken();
     }
 
-    public function customFieldList() : array
+    public function customFieldList(): array
     {
         $path = FS_FOLDER . '/Dinamic/View/POS/Block/CustomField/';
         $list = scandir($path);
@@ -375,16 +405,5 @@ class POS extends Controller
         }
 
         return [];
-    }
-
-    /**
-     * Load a paused document
-     */
-    private function resumeTransaction()
-    {
-        $code = $this->request->request->get('code', '');
-        $result = $this->session->loadPausedTransaction($code);
-
-        $this->response->setContent($result);
     }
 }
