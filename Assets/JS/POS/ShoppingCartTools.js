@@ -4,6 +4,15 @@
  */
 const AjaxRequestUrl = "POS";
 
+export function deletePausedTransaction(code, form) {
+    const elements = form.elements;
+
+    elements.action.value = 'delete-paused-document';
+    elements.idpausada.value = code;
+
+    form.submit();
+}
+
 export function pauseDocument(lines, form) {
     if (lines.length <= 0) {
         return false;

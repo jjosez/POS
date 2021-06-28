@@ -155,6 +155,10 @@ function onCheckoutModalShow() {
     CartCheckout.total = Cart.doc.total;
 }
 
+function onDeletePausedOperation(code) {
+    POS.deletePausedTransaction(code, salesForm);
+}
+
 function onPauseOperation() {
     if (false === POS.pauseDocument(Cart.lines, salesForm)) {
         $('#checkoutModal').modal('hide');
@@ -235,6 +239,12 @@ $(document).ready(function () {
         let code = $(this).data('code');
 
         onResumePausedOperation(code);
+    });
+
+    $('#pausedOperations').on('click', '.delete-button', function () {
+        let code = $(this).data('code');
+
+        onDeletePausedOperation(code);
     });
 });
 

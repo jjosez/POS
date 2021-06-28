@@ -18,6 +18,9 @@ use FacturaScripts\Plugins\POS\Lib\POS\Sales\Transaction;
 class SalesSession
 {
     private $arqueo;
+
+    private $currentTransaction;
+
     private $lastOperation;
     private $opened;
     private $terminal;
@@ -191,7 +194,7 @@ class SalesSession
         return json_encode($result);
     }
 
-    protected function updatePausedTransaction(string $code)
+    public function updatePausedTransaction(string $code)
     {
         $pausedop = new OperacionPausada();
 
@@ -205,7 +208,7 @@ class SalesSession
     protected function savePayments(array $payments)
     {
         $processor = new PaymentsProcessor($payments);
-        $processor->savePayments($this->lastOperation, $this->arqueo);
+        $processor->savePayments($this->currentTransaction, $this->arqueo);
 
         $this->arqueo->saldoesperado += $processor->getCashPaymentAmount();
         $this->arqueo->save();
@@ -213,21 +216,20 @@ class SalesSession
 
     public function storeTransaction(Transaction $transaction)
     {
+        $this->currentTransaction = new OperacionPOS();
         $document = $transaction->getDocument();
 
-        $sessionTransaction = new OperacionPOS();
-        $sessionTransaction->codigo = $document->codigo;
-        $sessionTransaction->codcliente = $document->codcliente;
-        $sessionTransaction->fecha = $document->fecha;
-        $sessionTransaction->iddocumento = $document->primaryColumnValue();
-        $sessionTransaction->idsesion = $this->arqueo->idsesion;
-        $sessionTransaction->tipodoc = $document->modelClassName();
-        $sessionTransaction->total = $document->total;
+        $this->currentTransaction->codigo = $document->codigo;
+        $this->currentTransaction->codcliente = $document->codcliente;
+        $this->currentTransaction->fecha = $document->fecha;
+        $this->currentTransaction->iddocumento = $document->primaryColumnValue();
+        $this->currentTransaction->idsesion = $this->arqueo->idsesion;
+        $this->currentTransaction->tipodoc = $document->modelClassName();
+        $this->currentTransaction->total = $document->total;
 
-        $sessionTransaction->save();
+        $this->currentTransaction->save();
 
-        //$this->savePayments($transaction->getPayments());
-        print_r($transaction->getPayments());
+        $this->savePayments($transaction->getPayments());
 
         if ($document->idpausada) {
             $this->updatePausedTransaction($document->idpausada);
