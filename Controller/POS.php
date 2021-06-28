@@ -260,16 +260,16 @@ class POS extends Controller
     private function printCashup()
     {
         $ticketWidth = $this->session->terminal()->anchopapel;
-        if (PrintProcessor::printCashup($this->session->getArqueo(), $this->empresa, $ticketWidth)) {
+        /*if (PrintProcessor::printCashup($this->session->getArqueo(), $this->empresa, $ticketWidth)) {
             $values = [
                 '%ticket%' => 'Cierre caja',
                 '%code%'=>'cashup'
             ];
             $this->toolBox()->i18nLog()->info('printing-ticket', $values);
             return;
-        }
+        }*/
 
-        $this->toolBox()->i18nLog()->warning('error-printing-ticket');
+        $this->toolBox()->i18nLog()->warning(PrintProcessor::printCashup($this->session->getArqueo(), $this->empresa, $ticketWidth));
     }
 
     /**

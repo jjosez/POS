@@ -6,11 +6,11 @@
 namespace FacturaScripts\Plugins\POS\Lib\POS;
 
 use FacturaScripts\Core\Model\Base\BusinessDocument;
-use FacturaScripts\Dinamic\Lib\SalesDocumentTicket;
-use FacturaScripts\Dinamic\Lib\CashupTicket;
+use FacturaScripts\Dinamic\Lib\PrintingService;
 use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Dinamic\Model\SesionPOS;
-use FacturaScripts\Dinamic\Model\Ticket;
+use FacturaScripts\Plugins\PrintTicket\Lib\Ticket\Template\CashupTicketBuilder;
+use FacturaScripts\Plugins\PrintTicket\Lib\Ticket\Template\SalesTicketBuilder;
 
 /**
  * Class to help with printing sales tickets.
@@ -19,45 +19,23 @@ use FacturaScripts\Dinamic\Model\Ticket;
  */
 class PrintProcessor
 {
-    public static function printCashup(SesionPOS $session, Empresa $empresa, float $anchopapel)
+    public static function printCashup(SesionPOS $session, Empresa $company, int $width)
     {
-        $cashupTicket = new CashupTicket($session, $empresa, $anchopapel);
-        $ticket = new Ticket();
-        $printID = 'cashup';
+        $ticketBuilder = new CashupTicketBuilder($session, $company, $width);
+        $cashupTicket = new PrintingService($ticketBuilder);
 
-        $ticket->coddocument = $printID;
-        $ticket->text = $cashupTicket->getTicket();
+        $cashupTicket->savePrintJob();
 
-        if ($ticket->save()) return true;
-
-        return false;
+        return $cashupTicket->getMessage();
     }
 
-    public static function printCashupNew(SesionPOS $session, Empresa $empresa, float $anchopapel)
+    public static function printDocument(BusinessDocument $document, int $width)
     {
-        $cashupTicket = new CashupTicket($session, $empresa, $anchopapel);
-        $ticket = new Ticket();
-        $printID = 'cashup';
+        $ticketBuilder = new SalesTicketBuilder($document, $width);
 
-        $ticket->coddocument = $printID;
-        $ticket->text = $cashupTicket->getTicket();
+        $salesTicket = new PrintingService($ticketBuilder);
+        $salesTicket->savePrintJob();
 
-        if ($ticket->save()) return true;
-
-        return false;
-    }
-
-    public static function printDocument(BusinessDocument $document, float $anchopapel)
-    {
-        $printID = $document->modelClassName();
-        $documentTicket = new SalesDocumentTicket($document, $printID, $anchopapel);
-
-        $ticket = new Ticket();
-        $ticket->coddocument = $printID;
-        $ticket->text = $documentTicket->getTicket();
-
-        if ($ticket->save()) return true;
-
-        return false;
+        return $salesTicket->getMessage();
     }
 }
