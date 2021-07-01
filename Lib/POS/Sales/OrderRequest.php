@@ -5,7 +5,7 @@ namespace FacturaScripts\Plugins\POS\Lib\POS\Sales;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
-class TransactionRequest
+class OrderRequest
 {
     /**
      * @var array
@@ -30,7 +30,7 @@ class TransactionRequest
     /**
      * @var string
      */
-    protected $transactionType;
+    protected $orderType;
 
     public function __construct(Request $request)
     {
@@ -61,7 +61,7 @@ class TransactionRequest
         unset($data['action'], $data['lines'], $data['payments']);
 
         $this->documentData = $data;
-        $this->transactionType = $this->request->get('tipo-documento', '');
+        $this->orderType = $this->request->get('tipo-documento', '');
     }
 
     protected function setPaymentList(): void
@@ -104,8 +104,8 @@ class TransactionRequest
     /**
      * @return string
      */
-    public function getTransactionType(string $default): string
+    public function getOrderType(string $default): string
     {
-        return empty($this->transactionType) ? $default : $this->transactionType;
+        return empty($this->orderType) ? $default : $this->orderType;
     }
 }

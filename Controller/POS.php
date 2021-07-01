@@ -18,8 +18,8 @@ use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\Customer;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\Product;
-use FacturaScripts\Plugins\POS\Lib\POS\Sales\Transaction;
-use FacturaScripts\Plugins\POS\Lib\POS\Sales\TransactionRequest;
+use FacturaScripts\Plugins\POS\Lib\POS\Sales\Order;
+use FacturaScripts\Plugins\POS\Lib\POS\Sales\OrderRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -155,8 +155,8 @@ class POS extends Controller
 
     protected function recalculateTransaction()
     {
-        $request = new TransactionRequest($this->request);
-        $transaction = new Transaction($request);
+        $request = new OrderRequest($this->request);
+        $transaction = new Order($request);
 
         $result = $transaction->recalculate();
 
@@ -195,7 +195,7 @@ class POS extends Controller
                 break;
 
             case 'save-document':
-                $this->saveTransaction();
+                $this->saveOrder();
                 break;
 
             case 'delete-paused-document':
@@ -243,8 +243,8 @@ class POS extends Controller
         if (false === $this->validateSaveRequest($this->request)) return;
 
         $this->request->request->set('tipo-documento', self::PAUSED_TRANSACTION);
-        $request = new TransactionRequest($this->request);
-        $transaction = new Transaction($request);
+        $request = new OrderRequest($this->request);
+        $transaction = new Order($request);
 
         if ($transaction->hold()) {
             $this->toolBox()->i18nLog()->info('operation-is-paused');
@@ -276,16 +276,16 @@ class POS extends Controller
      *
      * @return void
      */
-    protected function saveTransaction()
+    protected function saveOrder()
     {
         if (false === $this->validateSaveRequest($this->request)) return;
 
-        $request = new TransactionRequest($this->request);
-        $transaction = new Transaction($request);
+        $orderRequest = new OrderRequest($this->request);
+        $order = new Order($orderRequest);
 
-        if ($transaction->save()) {
-            $this->session->storeTransaction($transaction);
-            $this->printTicket($transaction->getDocument());
+        if ($order->save()) {
+            $this->session->storeTransaction($order);
+            $this->printTicket($order->getDocument());
         }
     }
 

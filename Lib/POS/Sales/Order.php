@@ -8,7 +8,7 @@ use FacturaScripts\Dinamic\Lib\BusinessDocumentFormTools;
 use RuntimeException;
 use UnexpectedValueException;
 
-class Transaction
+class Order
 {
     const BASE_BUSINESS_DOCUMENT_CLASS = '\\FacturaScripts\\Core\\Model\\Base\\BusinessDocument';
     const MODEL_NAMESPACE = '\\FacturaScripts\\Dinamic\\Model\\';
@@ -27,20 +27,20 @@ class Transaction
     /**
      * @var array
      */
-    protected $transactionPayments;
+    protected $orderPayments;
 
     /**
      * Transaction constructor.
-     * @param TransactionRequest $request
+     * @param OrderRequest $request
      * @param String $transactionType
      */
-    public function __construct(TransactionRequest $request)
+    public function __construct(OrderRequest $request)
     {
-        $transactionType = $request->getTransactionType(self::DEFAULT_TRANSACTION);
+        $transactionType = $request->getOrderType(self::DEFAULT_TRANSACTION);
 
         $this->initDocument($request->getDocumentData(), $transactionType);
         $this->transactionLines = $request->getProductList();
-        $this->transactionPayments = $request->getPaymentList();
+        $this->orderPayments = $request->getPaymentList();
     }
 
     /**
@@ -56,7 +56,7 @@ class Transaction
      */
     public function getPayments(): array
     {
-        return $this->transactionPayments;
+        return $this->orderPayments;
     }
 
     public function hold(): bool
@@ -133,8 +133,6 @@ class Transaction
 
     protected function recalculateDocument(): void
     {
-        $documentTools = new BusinessDocumentFormTools();
-
-        $documentTools->recalculate($this->document);
+        (new BusinessDocumentFormTools())->recalculate($this->document);
     }
 }

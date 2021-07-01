@@ -13,15 +13,14 @@ use FacturaScripts\Dinamic\Model\OperacionPOS;
 use FacturaScripts\Dinamic\Model\SesionPOS;
 use FacturaScripts\Dinamic\Model\TerminalPOS;
 use FacturaScripts\Dinamic\Model\User;
-use FacturaScripts\Plugins\POS\Lib\POS\Sales\Transaction;
+use FacturaScripts\Plugins\POS\Lib\POS\Sales\Order;
 
 class SalesSession
 {
     private $arqueo;
 
-    private $currentTransaction;
+    private $currentOrder;
 
-    private $lastOperation;
     private $opened;
     private $terminal;
     private $user;
@@ -148,19 +147,29 @@ class SalesSession
         return false;
     }
 
-    public function storeOperation(BusinessDocument $document)
+    public function placeOrder(Order $order)
     {
-        $operation = new OperacionPOS();
-        $operation->codigo = $document->codigo;
-        $operation->codcliente = $document->codcliente;
-        $operation->fecha = $document->fecha;
-        $operation->iddocumento = $document->primaryColumnValue();
-        $operation->idsesion = $this->arqueo->idsesion;
-        $operation->tipodoc = $document->modelClassName();
-        $operation->total = $document->total;
+        if (false === $order->save()) return;
 
-        $operation->save();
-        $this->lastOperation = $operation;
+        $this->currentOrder = new OperacionPOS();
+        $document = $order->getDocument();
+
+        $this->currentOrder->codigo = $document->codigo;
+        $this->currentOrder->codcliente = $document->codcliente;
+        $this->currentOrder->fecha = $document->fecha;
+        $this->currentOrder->iddocumento = $document->primaryColumnValue();
+        $this->currentOrder->idsesion = $this->arqueo->idsesion;
+        $this->currentOrder->tipodoc = $document->modelClassName();
+        $this->currentOrder->total = $document->total;
+
+        $this->currentOrder->save();
+
+        $this->savePayments($order->getPayments());
+
+        if ($document->idpausada) {
+            $this->updatePausedTransaction($document->idpausada);
+        }
+
     }
 
     public function loadHistory()
@@ -208,28 +217,28 @@ class SalesSession
     protected function savePayments(array $payments)
     {
         $processor = new PaymentsProcessor($payments);
-        $processor->savePayments($this->currentTransaction, $this->arqueo);
+        $processor->savePayments($this->currentOrder, $this->arqueo);
 
         $this->arqueo->saldoesperado += $processor->getCashPaymentAmount();
         $this->arqueo->save();
     }
 
-    public function storeTransaction(Transaction $transaction)
+    public function storeTransaction(Order $order)
     {
-        $this->currentTransaction = new OperacionPOS();
-        $document = $transaction->getDocument();
+        $this->currentOrder = new OperacionPOS();
+        $document = $order->getDocument();
 
-        $this->currentTransaction->codigo = $document->codigo;
-        $this->currentTransaction->codcliente = $document->codcliente;
-        $this->currentTransaction->fecha = $document->fecha;
-        $this->currentTransaction->iddocumento = $document->primaryColumnValue();
-        $this->currentTransaction->idsesion = $this->arqueo->idsesion;
-        $this->currentTransaction->tipodoc = $document->modelClassName();
-        $this->currentTransaction->total = $document->total;
+        $this->currentOrder->codigo = $document->codigo;
+        $this->currentOrder->codcliente = $document->codcliente;
+        $this->currentOrder->fecha = $document->fecha;
+        $this->currentOrder->iddocumento = $document->primaryColumnValue();
+        $this->currentOrder->idsesion = $this->arqueo->idsesion;
+        $this->currentOrder->tipodoc = $document->modelClassName();
+        $this->currentOrder->total = $document->total;
 
-        $this->currentTransaction->save();
+        $this->currentOrder->save();
 
-        $this->savePayments($transaction->getPayments());
+        $this->savePayments($order->getPayments());
 
         if ($document->idpausada) {
             $this->updatePausedTransaction($document->idpausada);
