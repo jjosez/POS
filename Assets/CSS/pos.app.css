@@ -117,6 +117,9 @@ hr.divider {
         margin: 7px 0 0 0;
     }
 }
+.modal-content {
+    border-radius: .25rem!important;
+}
 .debugbar {
     left: 0;
     max-width: 50% !important;

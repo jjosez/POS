@@ -7,7 +7,6 @@ namespace FacturaScripts\Plugins\POS\Lib\POS;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Base\ToolBox;
-use FacturaScripts\Core\Model\Base\BusinessDocument;
 use FacturaScripts\Dinamic\Model\OperacionPausada;
 use FacturaScripts\Dinamic\Model\OperacionPOS;
 use FacturaScripts\Dinamic\Model\SesionPOS;
@@ -147,31 +146,6 @@ class SalesSession
         return false;
     }
 
-    public function placeOrder(Order $order)
-    {
-        if (false === $order->save()) return;
-
-        $this->currentOrder = new OperacionPOS();
-        $document = $order->getDocument();
-
-        $this->currentOrder->codigo = $document->codigo;
-        $this->currentOrder->codcliente = $document->codcliente;
-        $this->currentOrder->fecha = $document->fecha;
-        $this->currentOrder->iddocumento = $document->primaryColumnValue();
-        $this->currentOrder->idsesion = $this->arqueo->idsesion;
-        $this->currentOrder->tipodoc = $document->modelClassName();
-        $this->currentOrder->total = $document->total;
-
-        $this->currentOrder->save();
-
-        $this->savePayments($order->getPayments());
-
-        if ($document->idpausada) {
-            $this->updatePausedTransaction($document->idpausada);
-        }
-
-    }
-
     public function loadHistory()
     {
         $operation = new OperacionPOS();
@@ -225,6 +199,30 @@ class SalesSession
 
     public function storeTransaction(Order $order)
     {
+        $this->currentOrder = new OperacionPOS();
+        $document = $order->getDocument();
+
+        $this->currentOrder->codigo = $document->codigo;
+        $this->currentOrder->codcliente = $document->codcliente;
+        $this->currentOrder->fecha = $document->fecha;
+        $this->currentOrder->iddocumento = $document->primaryColumnValue();
+        $this->currentOrder->idsesion = $this->arqueo->idsesion;
+        $this->currentOrder->tipodoc = $document->modelClassName();
+        $this->currentOrder->total = $document->total;
+
+        $this->currentOrder->save();
+
+        $this->savePayments($order->getPayments());
+
+        if ($document->idpausada) {
+            $this->updatePausedTransaction($document->idpausada);
+        }
+    }
+
+    public function placeOrder(Order $order)
+    {
+        if (false === $order->save()) return;
+
         $this->currentOrder = new OperacionPOS();
         $document = $order->getDocument();
 

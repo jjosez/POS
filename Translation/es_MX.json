@@ -23,6 +23,7 @@
   "payment-change": "Cambio",
   "point-of-sale": "Punto de venta",
   "pos-settings": "Configuración del punto de venta",
+  "pos-orders-on-hold": "Ventas pendientes",
   "print-z": "Imprimir cierre",
   "printing-ticket": "Imprimiendo ticket %ticket%.<img class='d-none' src='http://localhost:8089?documento=%code%'/>",
   "select-cash-register": "Selecciona una terminal para comenzar.",

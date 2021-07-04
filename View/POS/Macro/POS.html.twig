@@ -1,25 +1,25 @@
-{% macro productTemplateSource() %}
+{% macro productSearchTemplate() %}
     <% it.items.forEach(function(item){ %>
     <tr>
         <td><span class="font-weight-bold">Codigo: <%= item.code %> </span><br><%= item.description %></td>
         <td>
-            <button class="btn btn-sm btn-success item-add-button" type="button" data-code="<%= item.code %>"
+            <button class="btn btn-icon btn-success item-add-button" type="button" data-code="<%= item.code %>"
                     data-description="<%= item.description %>">
-                <i class="fas fa-plus"></i>
+                <i class="fas fa-shopping-cart"></i>
             </button>
         </td>
     </tr>
     <% }) %>
 {% endmacro %}
 
-{% macro customerTemplateSource() %}
+{% macro customerSearchTemplate() %}
     <% it.items.forEach(function(customer){ %>
     <tr>
         <td><span class="font-weight-bold">No. Cliente: <%= customer.code %> </span><br><%= customer.description %></td>
         <td>
-            <button class="btn btn-sm btn-success item-add-button" type="button" data-code="<%= customer.code %>"
+            <button class="btn btn-icon btn-success item-add-button" type="button" data-code="<%= customer.code %>"
                     data-description="<%= customer.description %>">
-                <i class="fas fa-plus"></i>
+                <i class="fas fa-check"></i>
             </button>
         </td>
     </tr>

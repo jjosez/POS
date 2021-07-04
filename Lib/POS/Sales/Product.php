@@ -33,6 +33,7 @@ class Product
     public function searchByText(string $text): string
     {
         $text = str_replace(" ", "%", $text);
+        echo empty($text);
 
         return json_encode($this->queryProduct($text));
     }

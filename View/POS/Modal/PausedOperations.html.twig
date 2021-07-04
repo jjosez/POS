@@ -2,10 +2,10 @@
 <div class="modal fade" id="pausedOpsModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header" style="background-color: #f7f7f7; border-bottom: 3px solid #dee2e6">
                 <div class="d-flex w-100">
                     <div class="pr-2 flex-grow-1">
-                        <h5 class="modal-title">{{ i18n.trans('till-session-pausedops') }}</h5>
+                        <h2 class="modal-title">{{ i18n.trans('pos-orders-on-hold') }}</h2>
                     </div>
                     <button type="button" class="btn btn-icon btn-round btn-danger" data-dismiss="modal">
                         <i class="fa fa-times"></i>
@@ -30,7 +30,7 @@
                             <th scope="col">{{ i18n.trans('date') }}</th>
                             <th scope="col">{{ i18n.trans('time') }}</th>
                             <th scope="col">{{ i18n.trans('total') }}</th>
-                            <th scope="col"><i class="fas fa-chevron-circle-right"></i></th>
+                            <th scope="col"><i class="fas fa-exclamation-circle fa-lg"></i></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -43,11 +43,11 @@
                                 <td>{{ operation.hora }}</td>
                                 <td>{{ fsc.toolBox().coins().format(operation.total) }}</td>
                                 <td>
-                                    <button type="button" class="btn btn-link resume-button px-0" data-code="{{operation.idpausada}}">
-                                        <i class="fas fa-file-download fa-lg text-info"></i>
+                                    <button type="button" class="btn btn-icon btn-info resume-button mr-1" data-code="{{operation.idpausada}}">
+                                        <i class="fas fa-pen"></i>
                                     </button>
-                                    <button type="button" class="btn btn-link delete-button px-0" data-code="{{operation.idpausada}}">
-                                        <i class="fas fa-trash fa-lg text-danger"></i>
+                                    <button type="button" class="btn btn-icon btn-danger delete-button" data-code="{{operation.idpausada}}">
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
                             </tr>
