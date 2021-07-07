@@ -177,12 +177,16 @@ function onResumePausedOperation(code) {
 
 $(document).ready(function () {
     onScan.attachTo(barcodeInputBox, {
-        onScan: function(code) { searchBarcode(code); }
+        onScan: function(code) {
+            searchBarcode(code);
+        },
+        onKeyDetect: function(iKeyCode){
+            if (13 === iKeyCode) {
+                searchBarcode(barcodeInputBox.value);
+            }
+        }
     });
 
-    $('[data-toggle="offcanvas"]').on('click', function () {
-        $('.offcanvas-collapse').toggleClass('open');
-    });
     $('#checkoutButton').click(function () {
         onCheckoutConfirm();
     });

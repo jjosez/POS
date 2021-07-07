@@ -24,6 +24,15 @@
 .cart-product-row {
     min-width: 400px;
 }
+
+.log-table {
+    table-layout: auto;
+    width: 100%;
+}
+.log-table .stretch {
+    width: 100%;
+}
+
 hr.divider {
     /* border: dotted; */
     margin-top: .5rem;

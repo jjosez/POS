@@ -1,0 +1,17 @@
+<nav class="navbar navbar-dark bg-primary fixed-top">
+    <a class="navbar-brand" href="index.php" data-background-color="dark2">{{ fsc.empresa.nombrecorto }}</a>
+    {# <div class="btn-group d-sm-flex order-0"> #}
+    <div class="btn-group ml-auto">
+        <a href="#" class="btn btn-light" data-toggle="modal" data-target="#cashupModal">
+            <i class="fas fa-cash-register fa-lg"></i><span
+                    class="d-none d-lg-inline">&nbsp;{{ i18n.trans('cashup') }}</span></a>
+        <a href="#" class="btn btn-light" data-toggle="modal" data-target="#historyModal">
+            <i class="fas fa-list-alt fa-lg"></i><span
+                    class="d-none d-lg-inline">&nbsp;{{ i18n.trans('till-session-operations') }}</span></a>
+        <a href="#" class="btn btn-light" data-toggle="modal" data-target="#pausedOpsModal">
+            <i class="fas fa-tasks fa-lg"></i><span
+                    class="d-none d-lg-inline">&nbsp;{{ i18n.trans('till-session-pausedops') }}</span></a>
+        <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#userDataModal">
+            <i class="fas fa-user-lock fa-lg"></i></a>
+    </div>
+</nav>
