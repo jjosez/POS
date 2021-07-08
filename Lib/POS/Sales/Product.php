@@ -33,7 +33,6 @@ class Product
     public function searchByText(string $text): string
     {
         $text = str_replace(" ", "%", $text);
-        echo empty($text);
 
         return json_encode($this->queryProduct($text));
     }
@@ -56,6 +55,7 @@ class Product
      */
     protected function queryProduct(string $text): array
     {
-        return $this->getVariante()->codeModelSearch($text, 'referencia');
+        return empty($text) ? [] : $this->getVariante()->codeModelSearch($text, 'referencia');
+
     }
 }

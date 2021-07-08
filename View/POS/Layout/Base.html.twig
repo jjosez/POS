@@ -8,9 +8,7 @@
 {% block css %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('Dinamic/Assets/CSS/atlantis.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('Plugins/POS/Assets/CSS/offcanvas.css') }}" />
     <link rel="stylesheet" href="{{ asset('Plugins/POS/Assets/CSS/pos.app.css') }}" />
-    <link rel="stylesheet" href="{{ asset('Plugins/POS/Assets/CSS/modules/bs-stepper.min.css') }}" />
 {% endblock %}
 {% block fullBody %}
     {% set terminal = fsc.session.terminal() %}

@@ -32,7 +32,7 @@ class Customer
      */
     public function searchCustomer(string $text): string
     {
-        $result = $this->getCustomer()->codeModelSearch($text);
+        $result = empty($text) ? [] : $this->getCustomer()->codeModelSearch($text);
 
         return json_encode($result);
     }

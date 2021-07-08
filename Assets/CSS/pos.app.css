@@ -16,6 +16,11 @@
     border-bottom-width: 2px;
     border-bottom-style: dotted;
 }
+
+table tr td:last-child {
+    width: 1%;
+}
+
 .cart-item {
     height: calc(1.5em + .5rem + 2px) !important;
     min-width: 80px;

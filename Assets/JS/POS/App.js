@@ -11,14 +11,12 @@ const EtaTemplate = Eta;
 const cartTemplate = EtaTemplate.compile(document.getElementById('cartTemplateSource').innerHTML);
 const customerTemplate = EtaTemplate.compile(document.getElementById('customerTemplateSource').innerHTML);
 const productTemplate = EtaTemplate.compile(document.getElementById('productTemplateSource').innerHTML);
-const templateConfig = EtaTemplate.config;
 
 const barcodeInputBox = document.getElementById("productBarcodeInput");
 const cartContainer = document.getElementById('cartContainer');
 const customerSearchResult = document.getElementById('customerSearchResult');
 const productSearchResult = document.getElementById('productSearchResult');
 const salesForm = document.getElementById("salesDocumentForm");
-//const stepper = new Stepper(document.querySelector('.bs-stepper'));
 
 var Cart = new ShoppingCart();
 var CartCheckout = new Checkout(0, CASH_PAYMENT_METHOD);
@@ -40,7 +38,7 @@ function editCartItem(e) {
 
 function searchCustomer(query) {
     function updateSearchResult(response) {
-        customerSearchResult.innerHTML = customerTemplate({items: response}, templateConfig);
+        customerSearchResult.innerHTML = customerTemplate({items: response}, EtaTemplate.config);
     }
 
     POS.searchCustomer(updateSearchResult, query);
@@ -48,7 +46,7 @@ function searchCustomer(query) {
 
 function searchProduct(query) {
     function updateSearchResult(response) {
-        productSearchResult.innerHTML = productTemplate({items: response}, templateConfig);
+        productSearchResult.innerHTML = productTemplate({items: response}, EtaTemplate.config);
     }
 
     POS.searchProduct(updateSearchResult, query);
@@ -95,6 +93,8 @@ function updateCartTotals() {
     document.getElementById('cartNeto').value = Cart.doc.netosindto;
     document.getElementById('cartTaxes').value = Cart.doc.totaliva;
     document.getElementById('checkoutTotal').textContent = Cart.doc.total;
+
+    CartCheckout.total = Cart.doc.total;
 }
 
 function updateCartView(data) {
@@ -115,7 +115,7 @@ function updateCartView(data) {
             }
         }
     }
-    cartContainer.innerHTML = cartTemplate(data, templateConfig);
+    cartContainer.innerHTML = cartTemplate(data, EtaTemplate.config);
     updateCartTotals();
     $('.modal').modal('hide');
 }
@@ -149,10 +149,6 @@ function onCheckoutConfirm() {
     document.getElementById("payments").value = JSON.stringify(paymentData);
     document.getElementById("codpago").value = paymentData.method;
     salesForm.submit();
-}
-
-function onCheckoutModalShow() {
-    CartCheckout.total = Cart.doc.total;
 }
 
 function onDeletePausedOperation(code) {
@@ -198,9 +194,6 @@ $(document).ready(function () {
     });
     $('#paymentMethod').change(function () {
         recalculatePaymentAmount();
-    });
-    $('#checkoutModal').on('shown.bs.modal', function () {
-        onCheckoutModalShow();
     });
     $('#saveCashupButton').on('click', function () {
         document.cashupForm.submit();
@@ -263,16 +256,3 @@ cartContainer.addEventListener('click', function(e) {
         deleteCartItem(e.target);
     }
 }, true);
-
-/*
-document.querySelectorAll('.btn-next').forEach(item => {
-    item.addEventListener('click', event => {
-        stepper.next();
-    });
-});
-
-document.querySelectorAll('.btn-previus').forEach(item => {
-    item.addEventListener('click', event => {
-        stepper.previous();
-    });
-});*/
