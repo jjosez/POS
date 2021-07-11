@@ -105,12 +105,12 @@ class POS extends Controller
                 $this->searchProduct();
                 return false;
 
-            case 'transaction-resume':
-                $this->resumeTransaction();
+            case 'resume-order':
+                $this->resumeOrder();
                 return false;
 
-            case 'transaction-recalculate':
-                $this->recalculateTransaction();
+            case 'recalculate-order':
+                $this->recalculateOrder();
                 return false;
 
             default:
@@ -145,7 +145,7 @@ class POS extends Controller
     /**
      * Load a paused document
      */
-    protected function resumeTransaction()
+    protected function resumeOrder()
     {
         $code = $this->request->request->get('code', '');
         $result = $this->session->loadPausedTransaction($code);
@@ -153,7 +153,7 @@ class POS extends Controller
         $this->response->setContent($result);
     }
 
-    protected function recalculateTransaction()
+    protected function recalculateOrder()
     {
         $request = new OrderRequest($this->request);
         $transaction = new Order($request);
@@ -186,20 +186,20 @@ class POS extends Controller
                 $this->session->terminal($idterminal);
                 break;
 
-            case 'pause-document':
-                $this->holdTransaction();
+            case 'hold-order':
+                $this->holdOrder();
                 break;
 
             case 'print-cashup':
                 $this->printCashup();
                 break;
 
-            case 'save-document':
+            case 'save-order':
                 $this->saveOrder();
                 break;
 
-            case 'delete-paused-document':
-                $this->deletePausedTransaction();
+            case 'delete-order-on-hold':
+                $this->deleteOrderOnHold();
                 break;
 
             default:
@@ -238,7 +238,7 @@ class POS extends Controller
      *
      * @return void
      */
-    private function holdTransaction()
+    private function holdOrder()
     {
         if (false === $this->validateSaveRequest($this->request)) return;
 
@@ -311,10 +311,12 @@ class POS extends Controller
     /**
      * Set a paused document as complete to remove from list
      */
-    protected function deletePausedTransaction()
+    protected function deleteOrderOnHold()
     {
         $code = $this->request->request->get('idpausada', '');
         $this->session->updatePausedTransaction($code);
+
+        $this->toolBox()->i18nLog()->info('pos-order-deleted');
     }
 
     /**

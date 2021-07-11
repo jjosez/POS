@@ -144,7 +144,7 @@ function onCheckoutConfirm() {
     paymentData.change = CartCheckout.change || 0;
     paymentData.method = document.getElementById("paymentMethod").value;
 
-    document.getElementById("action").value = 'save-document';
+    document.getElementById("action").value = 'save-order';
     document.getElementById("lines").value = JSON.stringify(Cart.lines);
     document.getElementById("payments").value = JSON.stringify(paymentData);
     document.getElementById("codpago").value = paymentData.method;

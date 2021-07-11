@@ -2,12 +2,12 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-const AjaxRequestUrl = "POS";
+const TARGET_URL = "POS";
 
 export function deletePausedTransaction(code, form) {
     const elements = form.elements;
 
-    elements.action.value = 'delete-paused-document';
+    elements.action.value = 'delete-order-on-hold';
     elements.idpausada.value = code;
 
     form.submit();
@@ -20,14 +20,14 @@ export function pauseDocument(lines, form) {
 
     const elements = form.elements;
 
-    elements.action.value = 'pause-document';
+    elements.action.value = 'pause-order';
     elements.lines.value = JSON.stringify(lines);
     form.submit();
 }
 
 export function resumeTransaction(callback, code) {
     let data = {
-        action: "transaction-resume",
+        action: "resume-order",
         code: code
     };
 
@@ -38,7 +38,7 @@ export function recalculate(callback, lines, form) {
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
 
-    data.action = "transaction-recalculate";
+    data.action = "recalculate-order";
     data.lines = lines;
 
     baseAjaxRequest(callback, data, 'Error al recalcular las lineas');
@@ -81,7 +81,7 @@ function baseSearch(callback, query, action) {
     };
     $.ajax({
         type: "POST",
-        url: AjaxRequestUrl,
+        url: TARGET_URL,
         dataType: "json",
         data: data,
         success: callback,
@@ -95,7 +95,7 @@ function baseSearch(callback, query, action) {
 function baseAjaxRequest(callback, data, emessage) {
     $.ajax({
         type: "POST",
-        url: AjaxRequestUrl,
+        url: TARGET_URL,
         dataType: "json",
         data: data,
         success: callback,
