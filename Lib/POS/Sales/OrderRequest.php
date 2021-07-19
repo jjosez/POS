@@ -46,7 +46,7 @@ class OrderRequest
         $action = $this->request->get('action');
         $lines = $this->request->get('lines', []);
 
-        if ('transaction-recalculate' !== $action) {
+        if ('recalculate-order' !== $action) {
             $this->productList = json_decode($lines, true);
             return;
         }
@@ -69,7 +69,7 @@ class OrderRequest
         $action = $this->request->get('action');
         $payments = $this->request->get('payments');
 
-        if ('transaction-recalculate' !== $action) {
+        if ('recalculate-order' !== $action) {
             $this->paymentList[] = json_decode($payments, true);
             return;
         }

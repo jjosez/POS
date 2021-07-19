@@ -20,7 +20,7 @@ export function pauseDocument(lines, form) {
 
     const elements = form.elements;
 
-    elements.action.value = 'pause-order';
+    elements.action.value = 'hold-order';
     elements.lines.value = JSON.stringify(lines);
     form.submit();
 }
