@@ -12,7 +12,7 @@
   "payment-amount": "Cantidad pagada",
   "point-of-sale": "Punto de venta",
   "print-z": "Imprimir cierre z",
-  "printing-ticket": "Imprimiendo ticket %ticket%.<img class='d-none' src='http://localhost:10080?documento=%code%'/>",
+  "printing-ticket": "Imprimiendo ticket %ticket%.<img class='d-none' src='http://localhost:10089?documento=%code%'/>",
   "till-session": "Arqueo",
   "till-session-allready-opened": "%userNickname%, ya cuenta con un arqueo abierto",
   "till-session-closed": "Arqueo cerrado por %userNickname%.",
