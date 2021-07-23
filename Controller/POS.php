@@ -9,13 +9,13 @@ namespace FacturaScripts\Plugins\POS\Controller;
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\Model\Serie;
-use FacturaScripts\Dinamic\Lib\POS\PrintProcessor;
 use FacturaScripts\Dinamic\Lib\POS\SalesDataGrid;
 use FacturaScripts\Dinamic\Lib\POS\SalesSession;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\User;
+use FacturaScripts\Plugins\POS\Lib\POS\Printer;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\Customer;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\Product;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\Order;
@@ -221,16 +221,9 @@ class POS extends Controller
     protected function printCashup()
     {
         $ticketWidth = $this->session->terminal()->anchopapel;
-        if (PrintProcessor::printCashup($this->session->getArqueo(), $this->empresa, $ticketWidth)) {
-            $values = [
-                '%ticket%' => 'Cierre caja',
-                '%code%' => 'cashup'
-            ];
-            $this->toolBox()->i18nLog()->info('printing-ticket', $values);
-            return;
-        }
+        $message = Printer::cashupTicket($this->session->getArqueo(), $this->empresa, $ticketWidth);
 
-        $this->toolBox()->i18nLog()->warning('error-printing-ticket');
+        $this->toolBox()->log()->info($message);
     }
 
     /**
@@ -296,16 +289,9 @@ class POS extends Controller
     protected function printTicket($document)
     {
         $ticketWidth = $this->session->terminal()->anchopapel;
-        if (PrintProcessor::printDocument($document, $ticketWidth)) {
-            $values = [
-                '%ticket%' => $document->codigo,
-                '%code%' => $document->modelClassName()
-            ];
-            $this->toolBox()->i18nLog()->info('printing-ticket', $values);
-            return;
-        }
+        $message = Printer::salesTicket($document, $ticketWidth);
 
-        $this->toolBox()->i18nLog()->warning('error-printing-ticket');
+        $this->toolBox()->log()->info($message);
     }
 
     /**
