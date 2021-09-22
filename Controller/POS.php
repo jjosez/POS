@@ -156,15 +156,15 @@ class POS extends Controller
     protected function recalculateOrder()
     {
         $request = new OrderRequest($this->request);
-        $transaction = new Order($request);
+        $order = new Order($request);
 
-        $result = $transaction->recalculate();
+        $result = $order->recalculate();
 
         $this->response->setContent($result);
     }
 
     /**
-     * Exect action before load data.
+     * Exec action before load data.
      *
      * @param string $action
      */
@@ -191,7 +191,7 @@ class POS extends Controller
                 break;
 
             case 'print-cashup':
-                $this->printCashup();
+                $this->printClosingVoucher();
                 break;
 
             case 'save-order':
@@ -212,13 +212,13 @@ class POS extends Controller
         $cash = $this->request->request->get('cash');
         $this->session->close($cash);
 
-        $this->printCashup();
+        $this->printClosingVoucher();
     }
 
     /**
      * @return void;
      */
-    protected function printCashup()
+    protected function printClosingVoucher()
     {
         $ticketWidth = $this->session->terminal()->anchopapel;
         $message = Printer::cashupTicket($this->session->getArqueo(), $this->empresa, $ticketWidth);
@@ -233,13 +233,13 @@ class POS extends Controller
      */
     private function holdOrder()
     {
-        if (false === $this->validateSaveRequest($this->request)) return;
+        if (false === $this->validateOrderRequest($this->request)) return;
 
         $this->request->request->set('tipo-documento', self::PAUSED_TRANSACTION);
         $request = new OrderRequest($this->request);
-        $transaction = new Order($request);
+        $order = new Order($request);
 
-        if ($transaction->hold()) {
+        if ($order->hold()) {
             $this->toolBox()->i18nLog()->info('operation-is-paused');
         }
     }
@@ -248,7 +248,7 @@ class POS extends Controller
      * @param Request $request
      * @return bool
      */
-    protected function validateSaveRequest(Request $request): bool
+    protected function validateOrderRequest(Request $request): bool
     {
         if (false === $this->permissions->allowUpdate) {
             $this->toolBox()->i18nLog()->warning('not-allowed-modify');
@@ -271,7 +271,7 @@ class POS extends Controller
      */
     protected function saveOrder()
     {
-        if (false === $this->validateSaveRequest($this->request)) return;
+        if (false === $this->validateOrderRequest($this->request)) return;
 
         $orderRequest = new OrderRequest($this->request);
         $order = new Order($orderRequest);
@@ -328,10 +328,10 @@ class POS extends Controller
      */
     public function cashPaymentMethod(): ?string
     {
-        return $this->getSettingValue('fpagoefectivo');
+        return $this->getSetting('fpagoefectivo');
     }
 
-    protected function getSettingValue(string $key)
+    protected function getSetting(string $key)
     {
         return $this->toolBox()->appSettings()->get('pointofsale', $key);
     }
@@ -345,7 +345,7 @@ class POS extends Controller
     {
         $formasPago = [];
 
-        $formasPagoCodeList = explode('|', $this->getSettingValue('formaspago'));
+        $formasPagoCodeList = explode('|', $this->getSetting('formaspago'));
         foreach ($formasPagoCodeList as $value) {
             $formasPago[] = (new FormaPago())->get($value);
         }

@@ -22,7 +22,7 @@ class Order
     /**
      * @var array
      */
-    protected $transactionLines;
+    protected $orderLines;
 
     /**
      * @var array
@@ -36,10 +36,10 @@ class Order
      */
     public function __construct(OrderRequest $request)
     {
-        $transactionType = $request->getOrderType(self::DEFAULT_TRANSACTION);
+        $orderType = $request->getOrderType(self::DEFAULT_TRANSACTION);
 
-        $this->initDocument($request->getDocumentData(), $transactionType);
-        $this->transactionLines = $request->getProductList();
+        $this->initDocument($request->getDocumentData(), $orderType);
+        $this->orderLines = $request->getProductList();
         $this->orderPayments = $request->getPaymentList();
     }
 
@@ -77,7 +77,7 @@ class Order
     {
         $documentTools = new BusinessDocumentFormTools();
 
-        return $documentTools->recalculateForm($this->document, $this->transactionLines);
+        return $documentTools->recalculateForm($this->document, $this->orderLines);
     }
 
     /**
@@ -89,7 +89,7 @@ class Order
             return false;
         }
 
-        foreach ($this->transactionLines as $line) {
+        foreach ($this->orderLines as $line) {
             $newLine = $this->document->getNewLine($line);
 
             if (false === $newLine->save()) {
@@ -99,7 +99,7 @@ class Order
             }
         }
 
-        $this->recalculateDocument();
+        $this->recalculateOrder();
 
         if (false === $this->document->save()) {
             $this->document->delete();
@@ -131,7 +131,7 @@ class Order
         $this->document->updateSubject();
     }
 
-    protected function recalculateDocument(): void
+    protected function recalculateOrder(): void
     {
         (new BusinessDocumentFormTools())->recalculate($this->document);
     }
