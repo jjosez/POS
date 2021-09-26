@@ -43,6 +43,20 @@ class OperacionPOS extends Base\ModelClass
     }
 
     /**
+     * Returns all orders from given session ID.
+     *
+     * @param string $code
+     *
+     * @return OperacionPOS[]
+     */
+    public function allFromSession(string $code)
+    {
+        $where = [new DataBaseWhere('idsesion', $code)];
+
+        return $this->all($where);
+    }
+
+    /**
      * Returns the url where to see / modify the data.
      *
      * @param string $type

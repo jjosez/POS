@@ -19,16 +19,42 @@
 
 namespace FacturaScripts\Plugins\POS\Lib\POS\Sales;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Dinamic\Model\OperacionPausada;
+use FacturaScripts\Plugins\POS\Model\OperacionPausada;
+use FacturaScripts\Plugins\POS\Model\OperacionPOS;
+use FacturaScripts\Plugins\POS\Model\SesionPOS;
 
 class OrderStorage
 {
-    public function completeOrder(Order $order)
-    {
+    /**
+     * @var SesionPOS
+     */
+    private $session;
 
+    /**
+     * @var OperacionPOS
+     */
+    private $currentOrder;
+
+    public function __construct(SesionPOS $session)
+    {
+        $this->session = $session;
     }
 
+    public function completeOrder(string $code)
+    {
+        $orderOnHold = new OperacionPausada();
+
+        if ($code && $orderOnHold->loadFromCode($code)) {
+            $orderOnHold->idestado = 3;
+
+            $orderOnHold->save();
+        }
+    }
+
+    /**
+     * @param string $code
+     * @return false|string
+     */
     public function getOrderOnHold(string $code)
     {
         $order = new OperacionPausada();
@@ -42,28 +68,57 @@ class OrderStorage
         return json_encode($result);
     }
 
+    /**
+     * @return OperacionPausada[]
+     */
     public function getOrdersOnHold(): array
     {
         $order = new OperacionPausada();
-        $where = [new DataBaseWhere('editable', true)];
 
-        return $order->all($where);
+        return $order->allOpen();
     }
 
+    /**
+     * @return OperacionPOS[]
+     */
     public function getLastOrders(): array
     {
         $order = new OperacionPOS();
-        $where = [new DataBaseWhere('idsesion', $this->arqueo->idsesion)];
 
-        return $order->all($where);
+        return $order->allFromSession($this->session->idsesion);
     }
 
-    public function placeOrder(Order $order)
+    /**
+     * @param Order $order
+     *
+     * @return bool
+     */
+    public function placeOrder(Order $order): bool
     {
+        $this->currentOrder = new OperacionPOS();
+        $document = $order->getDocument();
 
+        $this->currentOrder->codigo = $document->codigo;
+        $this->currentOrder->codcliente = $document->codcliente;
+        $this->currentOrder->fecha = $document->fecha;
+        $this->currentOrder->iddocumento = $document->primaryColumnValue();
+        $this->currentOrder->idsesion = $this->session->idsesion;
+        $this->currentOrder->tipodoc = $document->modelClassName();
+        $this->currentOrder->total = $document->total;
+
+        if ($this->currentOrder->save()) {
+            $this->completeOrder($this->session->idsesion);
+        }
+
+        return $this->currentOrder->save();
     }
 
-    public function placeOrderOnHold(Order $order)
+    /**
+     * @param Order $order
+     *
+     * @return bool
+     */
+    public function placeOrderOnHold(Order $order): bool
     {
 
     }

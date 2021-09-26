@@ -218,28 +218,4 @@ class SalesSession
             $this->updatePausedTransaction($document->idpausada);
         }
     }
-
-    public function placeOrder(Order $order)
-    {
-        if (false === $order->save()) return;
-
-        $this->currentOrder = new OperacionPOS();
-        $document = $order->getDocument();
-
-        $this->currentOrder->codigo = $document->codigo;
-        $this->currentOrder->codcliente = $document->codcliente;
-        $this->currentOrder->fecha = $document->fecha;
-        $this->currentOrder->iddocumento = $document->primaryColumnValue();
-        $this->currentOrder->idsesion = $this->arqueo->idsesion;
-        $this->currentOrder->tipodoc = $document->modelClassName();
-        $this->currentOrder->total = $document->total;
-
-        $this->currentOrder->save();
-
-        $this->savePayments($order->getPayments());
-
-        if ($document->idpausada) {
-            $this->updatePausedTransaction($document->idpausada);
-        }
-    }
 }

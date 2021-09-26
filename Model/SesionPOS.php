@@ -67,7 +67,7 @@ class SesionPOS extends Base\ModelClass
                 break;
             
             default:
-                # code...
+                // code...
                 break;
         }
 

@@ -22,6 +22,16 @@ class OperacionPausada extends Base\SalesDocument
     public $idpausada;
 
     /**
+     * @return OperacionPausada[]
+     */
+    public function allOpen()
+    {
+        $where = [new DataBaseWhere('editable', true)];
+
+        return $this->all($where);
+    }
+
+    /**
      * Returns the lines associated with the paused operation.
      *
      * @return LineaOperacion[]
