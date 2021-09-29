@@ -30,7 +30,7 @@ class Customer
      * @param string $text
      * @return false|string
      */
-    public function searchCustomer(string $text): string
+    public function search(string $text): string
     {
         $result = empty($text) ? [] : $this->getCustomer()->codeModelSearch($text);
 

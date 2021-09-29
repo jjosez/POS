@@ -20,6 +20,7 @@ use FacturaScripts\Plugins\POS\Lib\POS\Sales\Customer;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\Product;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\Order;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\OrderRequest;
+use FacturaScripts\Plugins\POS\Lib\POS\Sales\SessionOrderStorage;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -30,8 +31,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class POS extends Controller
 {
-    const DEFAULT_TRANSACTION = 'FacturaCliente';
-    const PAUSED_TRANSACTION = 'OperacionPausada';
+    const DEFAULT_ORDER = 'FacturaCliente';
+    const HOLD_ORDER = 'OperacionPausada';
 
     /**
      * @var Cliente
@@ -47,7 +48,6 @@ class POS extends Controller
      * @var SalesSession
      */
     public $session;
-
 
     /**
      * @var Serie
@@ -70,7 +70,7 @@ class POS extends Controller
         // Get any operations that have to be performed
         $action = $this->request->request->get('action', '');
 
-        // Run operations before load all data and stop exceution if not nedeed
+        // Exec action before load all data and stop exceution if not nedeed
         if (false === $this->execPreviusAction($action)) return;
 
         // Init necesary stuff
@@ -87,6 +87,8 @@ class POS extends Controller
     }
 
     /**
+     * Exec action before load all data.
+     *
      * @param string $action
      * @return bool
      */
@@ -118,53 +120,8 @@ class POS extends Controller
         }
     }
 
-    protected function searchBarcode()
-    {
-        $producto = new Product();
-        $barcode = $this->request->request->get('query');
-
-        $this->response->setContent($producto->searchBarcode($barcode));
-    }
-
-    protected function searchCustomer()
-    {
-        $customer = new Customer();
-        $query = $this->request->request->get('query');
-
-        $this->response->setContent($customer->searchCustomer($query));
-    }
-
-    protected function searchProduct()
-    {
-        $product = new Product();
-        $query = $this->request->request->get('query');
-
-        $this->response->setContent($product->searchByText($query));
-    }
-
     /**
-     * Load a paused document
-     */
-    protected function resumeOrder()
-    {
-        $code = $this->request->request->get('code', '');
-        $result = $this->session->loadPausedTransaction($code);
-
-        $this->response->setContent($result);
-    }
-
-    protected function recalculateOrder()
-    {
-        $request = new OrderRequest($this->request);
-        $order = new Order($request);
-
-        $result = $order->recalculate();
-
-        $this->response->setContent($result);
-    }
-
-    /**
-     * Exec action before load data.
+     * Exec action after load all data.
      *
      * @param string $action
      */
@@ -207,6 +164,117 @@ class POS extends Controller
         }
     }
 
+    /**
+     * Search product by barcode.
+     */
+    protected function searchBarcode()
+    {
+        $producto = new Product();
+        $barcode = $this->request->request->get('query');
+
+        $this->response->setContent($producto->searchBarcode($barcode));
+    }
+
+    /**
+     * Search customer by text.
+     */
+    protected function searchCustomer()
+    {
+        $customer = new Customer();
+        $query = $this->request->request->get('query');
+
+        $this->response->setContent($customer->search($query));
+    }
+
+    /**
+     * Search product by text match on description or code.
+     */
+    protected function searchProduct()
+    {
+        $product = new Product();
+        $query = $this->request->request->get('query');
+
+        $this->response->setContent($product->searchByText($query));
+    }
+
+    /**
+     * Set a held order as complete to remove from list.
+     */
+    protected function deleteOrderOnHold()
+    {
+        $code = $this->request->request->get('idpausada', '');
+        $this->session->updatePausedTransaction($code);
+
+        $this->toolBox()->i18nLog()->info('pos-order-deleted');
+    }
+
+    /**
+     * Put order on hold.
+     *
+     * @return void
+     */
+    private function holdOrder()
+    {
+        if (false === $this->validateOrderRequest($this->request)) return;
+
+        $this->request->request->set('tipo-documento', self::HOLD_ORDER);
+        $request = new OrderRequest($this->request);
+        $order = new Order($request);
+        $orderStorage = new SessionOrderStorage($this->session);
+        $orderStorage->placeOrderOnHold($order);
+
+        if ($order->hold()) {
+            $this->toolBox()->i18nLog()->info('operation-is-paused');
+        }
+    }
+
+    /**
+     * Recalculate order data.
+     *
+     * @return void
+     */
+    protected function recalculateOrder()
+    {
+        $request = new OrderRequest($this->request);
+        $order = new Order($request);
+
+        $result = $order->recalculate();
+
+        $this->response->setContent($result);
+    }
+
+    /**
+     * Load order on hold by code.
+     */
+    protected function resumeOrder()
+    {
+        $code = $this->request->request->get('code', '');
+        $result = $this->session->loadPausedTransaction($code);
+
+        $this->response->setContent($result);
+    }
+
+    /**
+     * Save order and payments.
+     *
+     * @return void
+     */
+    protected function saveOrder()
+    {
+        if (false === $this->validateOrderRequest($this->request)) return;
+
+        $orderRequest = new OrderRequest($this->request);
+        $order = new Order($orderRequest);
+
+        if ($order->save()) {
+            $this->session->storeTransaction($order);
+            $this->printTicket($order->getDocument());
+        }
+    }
+
+    /**
+     * Close current user POS session.
+     */
     private function closeSession()
     {
         $cash = $this->request->request->get('cash');
@@ -216,6 +284,8 @@ class POS extends Controller
     }
 
     /**
+     * Print closing voucher.
+     *
      * @return void;
      */
     protected function printClosingVoucher()
@@ -227,21 +297,15 @@ class POS extends Controller
     }
 
     /**
-     * Process sales.
-     *
-     * @return void
+     * @param $document
+     * @return void;
      */
-    private function holdOrder()
+    protected function printTicket($document)
     {
-        if (false === $this->validateOrderRequest($this->request)) return;
+        $ticketWidth = $this->session->terminal()->anchopapel;
+        $message = Printer::salesTicket($document, $ticketWidth);
 
-        $this->request->request->set('tipo-documento', self::PAUSED_TRANSACTION);
-        $request = new OrderRequest($this->request);
-        $order = new Order($request);
-
-        if ($order->hold()) {
-            $this->toolBox()->i18nLog()->info('operation-is-paused');
-        }
+        $this->toolBox()->log()->info($message);
     }
 
     /**
@@ -262,47 +326,6 @@ class POS extends Controller
             return false;
         }
         return true;
-    }
-
-    /**
-     * Process sales.
-     *
-     * @return void
-     */
-    protected function saveOrder()
-    {
-        if (false === $this->validateOrderRequest($this->request)) return;
-
-        $orderRequest = new OrderRequest($this->request);
-        $order = new Order($orderRequest);
-
-        if ($order->save()) {
-            $this->session->storeTransaction($order);
-            $this->printTicket($order->getDocument());
-        }
-    }
-
-    /**
-     * @param $document
-     * @return void;
-     */
-    protected function printTicket($document)
-    {
-        $ticketWidth = $this->session->terminal()->anchopapel;
-        $message = Printer::salesTicket($document, $ticketWidth);
-
-        $this->toolBox()->log()->info($message);
-    }
-
-    /**
-     * Set a paused document as complete to remove from list
-     */
-    protected function deleteOrderOnHold()
-    {
-        $code = $this->request->request->get('idpausada', '');
-        $this->session->updatePausedTransaction($code);
-
-        $this->toolBox()->i18nLog()->info('pos-order-deleted');
     }
 
     /**
@@ -331,6 +354,12 @@ class POS extends Controller
         return $this->getSetting('fpagoefectivo');
     }
 
+    /**
+     * Return POS setting value by given key.
+     *
+     * @param string $key
+     * @return mixed
+     */
     protected function getSetting(string $key)
     {
         return $this->toolBox()->appSettings()->get('pointofsale', $key);

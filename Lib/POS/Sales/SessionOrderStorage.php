@@ -19,11 +19,12 @@
 
 namespace FacturaScripts\Plugins\POS\Lib\POS\Sales;
 
+use FacturaScripts\Dinamic\Model\SesionPOS;
 use FacturaScripts\Plugins\POS\Model\OperacionPausada;
 use FacturaScripts\Plugins\POS\Model\OperacionPOS;
-use FacturaScripts\Plugins\POS\Model\SesionPOS;
+use FacturaScripts\Dinamic\Lib\POS\SalesSession;
 
-class OrderStorage
+class SessionOrderStorage
 {
     /**
      * @var SesionPOS
@@ -35,9 +36,9 @@ class OrderStorage
      */
     private $currentOrder;
 
-    public function __construct(SesionPOS $session)
+    public function __construct(SalesSession $session)
     {
-        $this->session = $session;
+        $this->session = $session->getArqueo();
     }
 
     public function completeOrder(string $code)
@@ -120,6 +121,6 @@ class OrderStorage
      */
     public function placeOrderOnHold(Order $order): bool
     {
-
+        return $order->hold();
     }
 }
