@@ -5,6 +5,7 @@ namespace FacturaScripts\Plugins\POS\Lib\POS\Sales;
 
 use FacturaScripts\Core\Model\Base\BusinessDocument;
 use FacturaScripts\Dinamic\Lib\BusinessDocumentFormTools;
+use FacturaScripts\Dinamic\Lib\POS\Sales\OrderRequest;
 use RuntimeException;
 use UnexpectedValueException;
 
@@ -12,7 +13,6 @@ class Order
 {
     const BASE_BUSINESS_DOCUMENT_CLASS = '\\FacturaScripts\\Core\\Model\\Base\\BusinessDocument';
     const MODEL_NAMESPACE = '\\FacturaScripts\\Dinamic\\Model\\';
-    const DEFAULT_TRANSACTION = 'FacturaCliente';
 
     /**
      * @var BusinessDocument
@@ -32,13 +32,10 @@ class Order
     /**
      * Transaction constructor.
      * @param OrderRequest $request
-     * @param String $transactionType
      */
     public function __construct(OrderRequest $request)
     {
-        $orderType = $request->getOrderType(self::DEFAULT_TRANSACTION);
-
-        $this->initDocument($request->getDocumentData(), $orderType);
+        $this->initDocument($request->getDocumentData(), $request->getOrderType());
         $this->orderLines = $request->getProductList();
         $this->orderPayments = $request->getPaymentList();
     }
@@ -124,10 +121,7 @@ class Order
             throw new UnexpectedValueException("Class $className is not a valid BusinessDocument");
         }
 
-        //Load document data
         $this->document->loadFromData($data);
-
-        // Update subject
         $this->document->updateSubject();
     }
 

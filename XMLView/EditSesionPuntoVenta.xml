@@ -33,6 +33,9 @@
             <column name="end-time" numcolumns="3" order="100">
                 <widget type="time" fieldname="horafin" icon="fas fa-clock" readonly="true"/>
             </column>
+            <column name="opened" numcolumns="3" order="100">
+                <widget type="checkbox" fieldname="abierto" readonly="false"/>
+            </column>
         </group>
     </columns>
 </view>

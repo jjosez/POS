@@ -9,17 +9,17 @@ namespace FacturaScripts\Plugins\POS\Controller;
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\Model\Serie;
+use FacturaScripts\Dinamic\Lib\POS\Printer;
+use FacturaScripts\Dinamic\Lib\POS\Sales\Customer;
+use FacturaScripts\Dinamic\Lib\POS\Sales\Order;
+use FacturaScripts\Dinamic\Lib\POS\Sales\OrderRequest;
+use FacturaScripts\Dinamic\Lib\POS\Sales\Product;
 use FacturaScripts\Dinamic\Lib\POS\SalesDataGrid;
 use FacturaScripts\Dinamic\Lib\POS\SalesSession;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\User;
-use FacturaScripts\Plugins\POS\Lib\POS\Printer;
-use FacturaScripts\Plugins\POS\Lib\POS\Sales\Customer;
-use FacturaScripts\Plugins\POS\Lib\POS\Sales\Product;
-use FacturaScripts\Plugins\POS\Lib\POS\Sales\Order;
-use FacturaScripts\Plugins\POS\Lib\POS\Sales\OrderRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -66,7 +66,7 @@ class POS extends Controller
         // Init till session
         $this->session = new SalesSession($this->user);
 
-        // Get any operations that have to be performed
+        // Get any action that have to be performed
         $action = $this->request->request->get('action', '');
 
         // Exec action before load all data and stop exceution if not nedeed
@@ -91,7 +91,7 @@ class POS extends Controller
      * @param string $action
      * @return bool
      */
-    private function execPreviusAction(string $action): bool
+    protected function execPreviusAction(string $action): bool
     {
         switch ($action) {
             case 'search-barcode':
@@ -124,7 +124,7 @@ class POS extends Controller
      *
      * @param string $action
      */
-    private function execAfterAction(string $action)
+    protected function execAfterAction(string $action)
     {
         switch ($action) {
             case 'close-session':
@@ -143,7 +143,7 @@ class POS extends Controller
                 break;
 
             case 'hold-order':
-                $this->holdOrder();
+                $this->saveOrderOnHold();
                 break;
 
             case 'print-cashup':
@@ -171,7 +171,7 @@ class POS extends Controller
         $producto = new Product();
         $barcode = $this->request->request->get('query');
 
-        $this->response->setContent($producto->searchBarcode($barcode));
+        $this->setAjaxRespose($producto->searchBarcode($barcode));
     }
 
     /**
@@ -182,7 +182,7 @@ class POS extends Controller
         $customer = new Customer();
         $query = $this->request->request->get('query');
 
-        $this->response->setContent($customer->search($query));
+        $this->setAjaxRespose($customer->search($query));
     }
 
     /**
@@ -193,7 +193,7 @@ class POS extends Controller
         $product = new Product();
         $query = $this->request->request->get('query');
 
-        $this->response->setContent($product->searchByText($query));
+        $this->setAjaxRespose($product->searchByText($query));
     }
 
     /**
@@ -202,11 +202,11 @@ class POS extends Controller
     protected function deleteOrderOnHold()
     {
         $code = $this->request->request->get('idpausada', '');
+        $storage = $this->session->getStorage();
 
-        $orderStorage = $this->session->getStorage();
-        $orderStorage->completeOrder($code);
-
-        $this->toolBox()->i18nLog()->info('pos-order-deleted');
+        if ($storage->updateOrderOnHold($code)) {
+            $this->toolBox()->i18nLog()->info('pos-order-on-hold-deleted');
+        }
     }
 
     /**
@@ -214,18 +214,17 @@ class POS extends Controller
      *
      * @return void
      */
-    private function holdOrder()
+    protected function saveOrderOnHold()
     {
         if (false === $this->validateOrderRequest($this->request)) return;
 
-        $this->request->request->set('tipo-documento', self::HOLD_ORDER);
-        $request = new OrderRequest($this->request);
+        $request = new OrderRequest($this->request, true);
         $order = new Order($request);
 
-        $orderStorage = $this->session->getStorage();
+        $storage = $this->session->getStorage();
 
-        if ($orderStorage->placeOrderOnHold($order)) {
-            $this->toolBox()->i18nLog()->info('operation-is-paused');
+        if ($storage->placeOrderOnHold($order)) {
+            $this->toolBox()->i18nLog()->info('pos-order-on-hold');
         }
     }
 
@@ -240,8 +239,7 @@ class POS extends Controller
         $order = new Order($request);
 
         $result = $order->recalculate();
-
-        $this->response->setContent($result);
+        $this->setAjaxRespose($result);
     }
 
     /**
@@ -250,11 +248,10 @@ class POS extends Controller
     protected function resumeOrder()
     {
         $code = $this->request->request->get('code', '');
+        $storage = $this->session->getStorage();
 
-        $orderStorage = $this->session->getStorage();
-        $result = $orderStorage->getOrderOnHold($code);
-
-        $this->response->setContent($result);
+        $result = $storage->getOrderOnHold($code);
+        $this->setAjaxRespose($result);
     }
 
     /**
@@ -269,17 +266,18 @@ class POS extends Controller
         $orderRequest = new OrderRequest($this->request);
         $order = new Order($orderRequest);
 
-        if ($order->save()) {
-            $orderStorage = $this->session->getStorage();
-            $orderStorage->placeOrder($order);
+        $storage = $this->session->getStorage();
+
+        if ($storage->placeOrder($order)) {
             $this->printVoucher($order->getDocument());
+            $this->toolBox()->i18nLog()->info('pos-order-ok');
         }
     }
 
     /**
      * Close current user POS session.
      */
-    private function closeSession()
+    protected function closeSession()
     {
         $cash = $this->request->request->get('cash');
         $this->session->close($cash);
@@ -332,6 +330,22 @@ class POS extends Controller
         return true;
     }
 
+    protected function setAjaxRespose($content): void
+    {
+        $this->response->setContent($content);
+    }
+
+    /**
+     * Return POS setting value by given key.
+     *
+     * @param string $key
+     * @return mixed
+     */
+    protected function getSetting(string $key)
+    {
+        return $this->toolBox()->appSettings()->get('pointofsale', $key);
+    }
+
     /**
      * Returns basic page attributes
      *
@@ -356,17 +370,6 @@ class POS extends Controller
     public function cashPaymentMethod(): ?string
     {
         return $this->getSetting('fpagoefectivo');
-    }
-
-    /**
-     * Return POS setting value by given key.
-     *
-     * @param string $key
-     * @return mixed
-     */
-    protected function getSetting(string $key)
-    {
-        return $this->toolBox()->appSettings()->get('pointofsale', $key);
     }
 
     /**

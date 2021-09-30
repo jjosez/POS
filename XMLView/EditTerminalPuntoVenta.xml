@@ -26,7 +26,7 @@
                 </widget>
             </column>            
         </group>
-        <group name="extra" numcolumns="12">
+        <group name="extra" numcolumns="12" valign="bottom">
             <column name="ticket-line-lenght" numcolumns="3" order="100">
                 <widget type="number" fieldname="anchopapel"/>
             </column>

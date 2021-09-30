@@ -7,6 +7,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class OrderRequest
 {
+    const DEFAULT_ORDER = 'FacturaCliente';
+    const ORDER_ON_HOLD = 'OperacionPausada';
+
     /**
      * @var array
      */
@@ -32,9 +35,13 @@ class OrderRequest
      */
     protected $orderType;
 
-    public function __construct(Request $request)
+    public function __construct(Request $request, bool $orderHold = false)
     {
         $this->request = $request->request;
+
+        if ($orderHold) {
+            $this->request->set('tipo-documento', self::ORDER_ON_HOLD);
+        }
 
         $this->setProductList();
         $this->setDocumentData();
@@ -104,8 +111,8 @@ class OrderRequest
     /**
      * @return string
      */
-    public function getOrderType(string $default): string
+    public function getOrderType(): string
     {
-        return empty($this->orderType) ? $default : $this->orderType;
+        return empty($this->orderType) ? self::DEFAULT_ORDER : $this->orderType;
     }
 }

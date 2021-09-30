@@ -40,15 +40,20 @@ class SessionOrderStorage
         $this->session = $session;
     }
 
-    public function completeOrder(string $code)
+    /**
+     * @param string $code
+     * @return bool
+     */
+    public function updateOrderOnHold(string $code): bool
     {
         $orderOnHold = new OperacionPausada();
 
         if ($code && $orderOnHold->loadFromCode($code)) {
             $orderOnHold->idestado = 3;
 
-            $orderOnHold->save();
+            return $orderOnHold->save();
         }
+        return false;
     }
 
     /**
@@ -95,6 +100,10 @@ class SessionOrderStorage
      */
     public function placeOrder(Order $order): bool
     {
+        if (false === $order->save()) {
+            return false;
+        }
+
         $this->currentOrder = new OrdenPuntoVenta();
         $document = $order->getDocument();
 
@@ -108,7 +117,7 @@ class SessionOrderStorage
 
         if ($this->currentOrder->save()) {
             if ($document->idpausada) {
-                $this->completeOrder($document->idpausada);
+                $this->updateOrderOnHold($document->idpausada);
             }
 
             return true;
