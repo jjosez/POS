@@ -20,7 +20,6 @@ use FacturaScripts\Plugins\POS\Lib\POS\Sales\Customer;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\Product;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\Order;
 use FacturaScripts\Plugins\POS\Lib\POS\Sales\OrderRequest;
-use FacturaScripts\Plugins\POS\Lib\POS\Sales\SessionOrderStorage;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -203,7 +202,9 @@ class POS extends Controller
     protected function deleteOrderOnHold()
     {
         $code = $this->request->request->get('idpausada', '');
-        $this->session->updatePausedTransaction($code);
+
+        $orderStorage = $this->session->getStorage();
+        $orderStorage->completeOrder($code);
 
         $this->toolBox()->i18nLog()->info('pos-order-deleted');
     }
@@ -220,10 +221,10 @@ class POS extends Controller
         $this->request->request->set('tipo-documento', self::HOLD_ORDER);
         $request = new OrderRequest($this->request);
         $order = new Order($request);
-        $orderStorage = new SessionOrderStorage($this->session);
-        $orderStorage->placeOrderOnHold($order);
 
-        if ($order->hold()) {
+        $orderStorage = $this->session->getStorage();
+
+        if ($orderStorage->placeOrderOnHold($order)) {
             $this->toolBox()->i18nLog()->info('operation-is-paused');
         }
     }
@@ -249,7 +250,9 @@ class POS extends Controller
     protected function resumeOrder()
     {
         $code = $this->request->request->get('code', '');
-        $result = $this->session->loadPausedTransaction($code);
+
+        $orderStorage = $this->session->getStorage();
+        $result = $orderStorage->getOrderOnHold($code);
 
         $this->response->setContent($result);
     }
@@ -267,8 +270,9 @@ class POS extends Controller
         $order = new Order($orderRequest);
 
         if ($order->save()) {
-            $this->session->storeTransaction($order);
-            $this->printTicket($order->getDocument());
+            $orderStorage = $this->session->getStorage();
+            $orderStorage->placeOrder($order);
+            $this->printVoucher($order->getDocument());
         }
     }
 
@@ -300,7 +304,7 @@ class POS extends Controller
      * @param $document
      * @return void;
      */
-    protected function printTicket($document)
+    protected function printVoucher($document)
     {
         $ticketWidth = $this->session->terminal()->anchopapel;
         $message = Printer::salesTicket($document, $ticketWidth);

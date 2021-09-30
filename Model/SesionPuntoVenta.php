@@ -13,7 +13,7 @@ use FacturaScripts\Core\Model\Base;
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class SesionPOS extends Base\ModelClass
+class SesionPuntoVenta extends Base\ModelClass
 {
     use Base\ModelTrait;
 
@@ -45,7 +45,7 @@ class SesionPOS extends Base\ModelClass
 
     public function install()
     {
-        new TerminalPOS();
+        new TerminalPuntoVenta();
         return parent::install();
     }
 
@@ -77,11 +77,11 @@ class SesionPOS extends Base\ModelClass
     /**
      * Returns the operations associated with the sessionpos.
      *
-     * @return OperacionPOS[]
+     * @return OrdenPuntoVenta[]
      */
     public function getOperaciones()
     {
-        $operacion = new OperacionPOS();
+        $operacion = new OrdenPuntoVenta();
         $where = [new DataBaseWhere('idsesion', $this->idsesion)];
         $order = ['idsesion' => 'ASC'];
 
@@ -90,7 +90,7 @@ class SesionPOS extends Base\ModelClass
 
     public function getPagos()
     {
-        $pago = new PagoPOS();
+        $pago = new PagoPuntoVenta();
         $where = [new DataBaseWhere('idsesion', $this->idsesion)];
 
         return $pago->all($where, [], 0, 0);

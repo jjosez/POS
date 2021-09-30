@@ -8,11 +8,11 @@ namespace FacturaScripts\Plugins\POS\Controller;
 use FacturaScripts\Core\Lib\ExtendedController;
 
 /**
- * Controller to list the items in the SesionPOS model
+ * Controller to list the items in the TerminalPOS model
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class ListSesionPOS extends ExtendedController\ListController
+class ListTerminalPuntoVenta extends ExtendedController\ListController
 {
 
     /**
@@ -23,8 +23,8 @@ class ListSesionPOS extends ExtendedController\ListController
     public function getPageData()
     {
         $pagedata = parent::getPageData();
-        $pagedata['title'] = 'till-sessions';
-        $pagedata['icon'] = 'fas fa-money-bill-alt';
+        $pagedata['title'] = 'cash-registers';
+        $pagedata['icon'] = 'fas fa-cash-register';
         $pagedata['menu'] = 'point-of-sale';
 
         return $pagedata;
@@ -35,12 +35,10 @@ class ListSesionPOS extends ExtendedController\ListController
      */
     protected function createViews()
     {
-        $this->addView('ListSesionPOS', 'SesionPOS', 'till-sessions', 'fas fa-money-bill-alt');
-        $this->addSearchFields('ListSesionPOS', ['nombreagente']);
+        $this->addView('ListTerminalPuntoVenta', 'TerminalPuntoVenta', 'cash-registers', 'fas fa-cash-register');
+        $this->addSearchFields('ListTerminalPuntoVenta', ['nombre']);
 
-        $this->addOrderBy('ListSesionPOS', ['fechainicio','horainicio'], 'Fecha Inicio', 2);
-        $this->addOrderBy('ListSesionPOS', ['fechafin','horafin'], 'Fecha Fin');
-
-        $this->setSettings('ListSesionPOS', 'btnNew', false);
+        $this->addOrderBy('ListTerminalPuntoVenta', ['idterminal'], 'ID');
+        $this->addOrderBy('ListTerminalPuntoVenta', ['nombre'], 'Nombre');
     }
 }

@@ -13,7 +13,7 @@ use FacturaScripts\Dinamic\Model\FormaPago;
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class PagoPOS extends Base\ModelClass
+class PagoPuntoVenta extends Base\ModelClass
 {
     use Base\ModelTrait;
 
@@ -33,8 +33,8 @@ class PagoPOS extends Base\ModelClass
 
     public function install()
     {
-        new OperacionPOS();
-        new SesionPOS();
+        new OrdenPuntoVenta();
+        new SesionPuntoVenta();
         return parent::install();
     }
 

@@ -27,7 +27,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for operation in fsc.session.loadHistory() %}
+                        {% for operation in fsc.session.getStorage().getLastOrders() %}
                             <tr>
                                 <td>{{ operation.codigo }}</td>
                                 <td>{{ i18n.trans(operation.tipodoc) }}</td>

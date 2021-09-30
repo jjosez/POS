@@ -12,7 +12,7 @@ use FacturaScripts\Core\Lib\ExtendedController;
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class ListOperacionPOS extends ExtendedController\ListController
+class ListSesionPuntoVenta extends ExtendedController\ListController
 {
 
     /**
@@ -23,10 +23,9 @@ class ListOperacionPOS extends ExtendedController\ListController
     public function getPageData()
     {
         $pagedata = parent::getPageData();
-        $pagedata['title'] = 'till-session-operations';
+        $pagedata['title'] = 'till-sessions';
         $pagedata['icon'] = 'fas fa-money-bill-alt';
         $pagedata['menu'] = 'point-of-sale';
-        $pagedata['showonmenu'] = false;
 
         return $pagedata;
     }
@@ -36,9 +35,12 @@ class ListOperacionPOS extends ExtendedController\ListController
      */
     protected function createViews()
     {
-        $this->addView('ListOperacionPOS', 'OperacionPOS', 'till-session-operations', 'fas fa-money-bill-alt');
-        $this->addSearchFields('ListOperacionPOS', ['nombrecliente']);
+        $this->addView('ListSesionPuntoVenta', 'SesionPuntoVenta', 'till-sessions', 'fas fa-money-bill-alt');
+        $this->addSearchFields('ListSesionPuntoVenta', ['nombreagente']);
 
-        $this->setSettings('ListOperacionPOS', 'btnNew', false);
+        $this->addOrderBy('ListSesionPuntoVenta', ['fechainicio','horainicio'], 'Fecha Inicio', 2);
+        $this->addOrderBy('ListSesionPuntoVenta', ['fechafin','horafin'], 'Fecha Fin');
+
+        $this->setSettings('ListSesionPuntoVenta', 'btnNew', false);
     }
 }

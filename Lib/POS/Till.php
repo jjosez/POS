@@ -9,20 +9,20 @@ use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Model\Base\BusinessDocument;
 use FacturaScripts\Dinamic\Model\OperacionPausada;
-use FacturaScripts\Dinamic\Model\OperacionPOS;
-use FacturaScripts\Dinamic\Model\SesionPOS;
-use FacturaScripts\Dinamic\Model\TerminalPOS;
+use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
+use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
+use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 
 class Till
 {
     /**
-     * @var SesionPOS
+     * @var SesionPuntoVenta
      */
     private $session;
 
     /**
-     * @var OperacionPOS
+     * @var OrdenPuntoVenta
      */
     private $currentTransaction;
 
@@ -33,7 +33,7 @@ class Till
     private $opened;
 
     /**
-     * @var TerminalPOS
+     * @var TerminalPuntoVenta
      */
     private $terminal;
 
@@ -49,8 +49,8 @@ class Till
      */
     public function __construct(User $user)
     {
-        $this->session = new SesionPOS();
-        $this->terminal = new TerminalPOS();
+        $this->session = new SesionPuntoVenta();
+        $this->terminal = new TerminalPuntoVenta();
         $this->user = $user;
         $this->opened = true;
 
@@ -96,7 +96,7 @@ class Till
     }
 
     /**
-     * @return SesionPOS
+     * @return SesionPuntoVenta
      */
     public function getSession()
     {
@@ -104,7 +104,7 @@ class Till
     }
 
     /**
-     * @return TerminalPOS
+     * @return TerminalPuntoVenta
      */
     public function getTerminal($idterminal = false)
     {
@@ -168,7 +168,7 @@ class Till
 
     public function transactionRecord(BusinessDocument $document)
     {
-        $operation = new OperacionPOS();
+        $operation = new OrdenPuntoVenta();
         $operation->codigo = $document->codigo;
         $operation->codcliente = $document->codcliente;
         $operation->fecha = $document->fecha;
@@ -184,11 +184,11 @@ class Till
     /**
      * Returns all OperacionPOS that for current till.
      *
-     * @return OperacionPOS[]
+     * @return OrdenPuntoVenta[]
      */
     public function transactionList(): array
     {
-        $operation = new OperacionPOS();
+        $operation = new OrdenPuntoVenta();
         $where = [new DataBaseWhere('idsesion', $this->session->idsesion)];
 
         return $operation->all($where);

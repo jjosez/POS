@@ -8,20 +8,12 @@ namespace FacturaScripts\Plugins\POS\Controller;
 use FacturaScripts\Core\Lib\ExtendedController;
 
 /**
- * Controller to edit a single item from the Divisa model
+ * Controller to list the items in the SesionPOS model
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class EditTerminalPOS extends ExtendedController\EditController
+class ListOrdenPuntoVenta extends ExtendedController\ListController
 {
-
-    /**
-     * Returns the model name
-     */
-    public function getModelClassName()
-    {
-        return 'TerminalPOS';
-    }
 
     /**
      * Returns basic page attributes
@@ -31,11 +23,22 @@ class EditTerminalPOS extends ExtendedController\EditController
     public function getPageData()
     {
         $pagedata = parent::getPageData();
-        $pagedata['title'] = 'cash-register';
+        $pagedata['title'] = 'till-session-operations';
+        $pagedata['icon'] = 'fas fa-money-bill-alt';
         $pagedata['menu'] = 'point-of-sale';
-        $pagedata['icon'] = 'fas fa-cash-register';
         $pagedata['showonmenu'] = false;
 
         return $pagedata;
+    }
+
+    /**
+     * Load views
+     */
+    protected function createViews()
+    {
+        $this->addView('ListOrdenPuntoVenta', 'OrdenPuntoVenta', 'till-session-operations', 'fas fa-money-bill-alt');
+        $this->addSearchFields('ListOrdenPuntoVenta', ['nombrecliente']);
+
+        $this->setSettings('ListOrdenPuntoVenta', 'btnNew', false);
     }
 }

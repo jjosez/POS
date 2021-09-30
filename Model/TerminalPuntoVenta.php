@@ -13,7 +13,7 @@ use FacturaScripts\Core\Model\Base;
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class TerminalPOS extends Base\ModelClass
+class TerminalPuntoVenta extends Base\ModelClass
 {
     use Base\ModelTrait;
 

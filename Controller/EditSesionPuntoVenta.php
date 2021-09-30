@@ -13,7 +13,7 @@ use FacturaScripts\Core\Lib\ExtendedController;
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class EditSesionPOS extends ExtendedController\EditController
+class EditSesionPuntoVenta extends ExtendedController\EditController
 {
     /**
      * Returns basic page attributes
@@ -38,14 +38,14 @@ class EditSesionPOS extends ExtendedController\EditController
     {
         parent::createViews();
 
-        $this->addListView('ListOperacionPOS', 'OperacionPOS', 'till-session-operations', 'fas fa-list-ol');
-        $this->addListView('ListPagosPOS', 'PagoPOS', 'till-session-payments', 'fas fa-money-check-alt');
+        $this->addListView('ListOrdenPuntoVenta', 'OrdenPuntoVenta', 'till-session-operations', 'fas fa-list-ol');
+        $this->addListView('ListPagoPuntoVenta', 'PagoPuntoVenta', 'till-session-payments', 'fas fa-money-check-alt');
 
-        $this->setSettings('EditSesionPOS', 'btnNew', false);
-        $this->setSettings('ListOperacionPOS', 'btnNew', false);
-        $this->setSettings('ListOperacionPOS', 'btnDelete', false);
-        $this->setSettings('ListPagosPOS', 'btnNew', false);
-        $this->setSettings('ListPagosPOS', 'btnDelete', false);
+        $this->setSettings('EditSesionPuntoVenta', 'btnNew', false);
+        $this->setSettings('ListOrdenPuntoVenta', 'btnNew', false);
+        $this->setSettings('ListOrdenPuntoVenta', 'btnDelete', false);
+        $this->setSettings('ListPagoPuntoVenta', 'btnNew', false);
+        $this->setSettings('ListPagoPuntoVenta', 'btnDelete', false);
         $this->setTabsPosition('top');  
     }
 
@@ -54,21 +54,21 @@ class EditSesionPOS extends ExtendedController\EditController
      */
     public function getModelClassName()
     {
-        return 'SesionPOS';
+        return 'SesionPuntoVenta';
     }
 
     protected function loadData($viewName, $view)
     {
         switch ($viewName) {
-            case 'ListOperacionPOS':
-                $idsesion = $this->getViewModelValue('EditSesionPOS', 'idsesion');
+            case 'ListOrdenPuntoVenta':
+                $idsesion = $this->getViewModelValue('EditSesionPuntoVenta', 'idsesion');
                 $where = [new DataBaseWhere('idsesion', $idsesion)];
                 $view->addOrderBy(['fecha','hora'], 'Fecha',2);
                 $view->loadData('', $where);                
                 //('ListGrupoClientes', ['nombre'], 'name', 1);
                 break;
-            case 'ListPagosPOS':
-                $idsesion = $this->getViewModelValue('EditSesionPOS', 'idsesion');
+            case 'ListPagoPuntoVenta':
+                $idsesion = $this->getViewModelValue('EditSesionPuntoVenta', 'idsesion');
                 $where = [new DataBaseWhere('idsesion', $idsesion)];
                 $view->addOrderBy(['total'], 'Total',2);
                 $view->addOrderBy(['idoperacion'], 'No. operacion',2);

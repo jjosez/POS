@@ -5,6 +5,7 @@
  */
 namespace FacturaScripts\Plugins\POS\Model;
 
+use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
 
 /**
@@ -12,7 +13,7 @@ use FacturaScripts\Core\Model\Base;
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class OperacionPOS extends Base\ModelClass
+class OrdenPuntoVenta extends Base\ModelClass
 {
     use Base\ModelTrait;
 
@@ -47,7 +48,7 @@ class OperacionPOS extends Base\ModelClass
      *
      * @param string $code
      *
-     * @return OperacionPOS[]
+     * @return OrdenPuntoVenta[]
      */
     public function allFromSession(string $code)
     {

@@ -5,14 +5,14 @@ namespace FacturaScripts\Plugins\POS\Lib\POS;
 
 use FacturaScripts\Core\Model\Base\BusinessDocument;
 use FacturaScripts\Dinamic\Model\Empresa;
-use FacturaScripts\Dinamic\Model\SesionPOS;
+use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Plugins\PrintTicket\Lib\PrintingService;
 use FacturaScripts\Plugins\PrintTicket\Lib\Ticket\Builder\CashupTicketBuilder;
 use FacturaScripts\Plugins\PrintTicket\Lib\Ticket\Builder\SalesTicketBuilder;
 
 class Printer
 {
-    public static function cashupTicket(SesionPOS $session, Empresa $company, int $width)
+    public static function cashupTicket(SesionPuntoVenta $session, Empresa $company, int $width)
     {
         $ticketBuilder = new CashupTicketBuilder($session, $company, $width);
 

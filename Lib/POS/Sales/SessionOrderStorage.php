@@ -19,26 +19,25 @@
 
 namespace FacturaScripts\Plugins\POS\Lib\POS\Sales;
 
-use FacturaScripts\Dinamic\Model\SesionPOS;
+use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Plugins\POS\Model\OperacionPausada;
-use FacturaScripts\Plugins\POS\Model\OperacionPOS;
-use FacturaScripts\Dinamic\Lib\POS\SalesSession;
+use FacturaScripts\Plugins\POS\Model\OrdenPuntoVenta;
 
 class SessionOrderStorage
 {
     /**
-     * @var SesionPOS
+     * @var SesionPuntoVenta
      */
     private $session;
 
     /**
-     * @var OperacionPOS
+     * @var OrdenPuntoVenta
      */
     private $currentOrder;
 
-    public function __construct(SalesSession $session)
+    public function __construct(SesionPuntoVenta $session)
     {
-        $this->session = $session->getArqueo();
+        $this->session = $session;
     }
 
     public function completeOrder(string $code)
@@ -80,11 +79,11 @@ class SessionOrderStorage
     }
 
     /**
-     * @return OperacionPOS[]
+     * @return OrdenPuntoVenta[]
      */
     public function getLastOrders(): array
     {
-        $order = new OperacionPOS();
+        $order = new OrdenPuntoVenta();
 
         return $order->allFromSession($this->session->idsesion);
     }
@@ -96,7 +95,7 @@ class SessionOrderStorage
      */
     public function placeOrder(Order $order): bool
     {
-        $this->currentOrder = new OperacionPOS();
+        $this->currentOrder = new OrdenPuntoVenta();
         $document = $order->getDocument();
 
         $this->currentOrder->codigo = $document->codigo;
@@ -108,10 +107,14 @@ class SessionOrderStorage
         $this->currentOrder->total = $document->total;
 
         if ($this->currentOrder->save()) {
-            $this->completeOrder($this->session->idsesion);
+            if ($document->idpausada) {
+                $this->completeOrder($document->idpausada);
+            }
+
+            return true;
         }
 
-        return $this->currentOrder->save();
+        return false;
     }
 
     /**

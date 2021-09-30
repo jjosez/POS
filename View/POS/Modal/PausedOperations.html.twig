@@ -34,7 +34,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for operation in fsc.session.loadPausedOps() %}
+                        {% for operation in fsc.session.getStorage().getOrdersOnHold() %}
                             {% set rowbg = operation.dtooculto ? 'table-danger' : '' %}
                             <tr class="{{ rowbg }}">
                                 <td>{{ operation.codigo }}</td>

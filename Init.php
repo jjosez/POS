@@ -15,6 +15,6 @@ class Init extends InitClass
      */
     public function update()
     {
-        new Model\SesionPOS();
+        new Model\SesionPuntoVenta();
     }
 }

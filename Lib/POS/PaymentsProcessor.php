@@ -6,9 +6,9 @@
 namespace FacturaScripts\Plugins\POS\Lib\POS;
 
 use FacturaScripts\Core\App\AppSettings;
-use FacturaScripts\Plugins\POS\Model\OperacionPOS;
-use FacturaScripts\Plugins\POS\Model\PagoPOS;
-use FacturaScripts\Plugins\POS\Model\SesionPOS;
+use FacturaScripts\Plugins\POS\Model\OrdenPuntoVenta;
+use FacturaScripts\Plugins\POS\Model\PagoPuntoVenta;
+use FacturaScripts\Plugins\POS\Model\SesionPuntoVenta;
 
 /**
  * Class to manage POS payments.
@@ -74,10 +74,10 @@ class PaymentsProcessor
         return $this->totalPaymentAmount;
     }
 
-    public function savePayments(OperacionPOS $operation, SesionPOS $session)
+    public function savePayments(OrdenPuntoVenta $operation, SesionPuntoVenta $session)
     {
         foreach ($this->payments as $payment) {
-            $pago = new PagoPOS();
+            $pago = new PagoPuntoVenta();
             $pago->cantidad = $payment['amount'];
             $pago->cambio = $payment['change'];
             $pago->codpago = $payment['method'];
