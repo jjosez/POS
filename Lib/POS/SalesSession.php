@@ -7,7 +7,7 @@
 namespace FacturaScripts\Plugins\POS\Lib\POS;
 
 use FacturaScripts\Core\Base\ToolBox;
-use FacturaScripts\Dinamic\Lib\POS\Sales\SessionOrderStorage;
+use FacturaScripts\Dinamic\Lib\POS\Sales\OrderStorage;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
@@ -23,7 +23,7 @@ class SalesSession
     private $user;
 
     /**
-     * @var SessionOrderStorage
+     * @var OrderStorage
      */
     protected $sessionStorage;
 
@@ -35,7 +35,7 @@ class SalesSession
         $this->arqueo = new SesionPuntoVenta();
         $this->terminal = new TerminalPuntoVenta();
 
-        $this->sessionStorage = new SessionOrderStorage($this->arqueo);
+        $this->sessionStorage = new OrderStorage($this->arqueo);
 
         $this->user = $user;
         $this->open = true;
@@ -162,9 +162,9 @@ class SalesSession
     }
 
     /**
-     * @return SessionOrderStorage
+     * @return OrderStorage
      */
-    public function getStorage(): SessionOrderStorage
+    public function getStorage(): OrderStorage
     {
         return $this->sessionStorage;
     }

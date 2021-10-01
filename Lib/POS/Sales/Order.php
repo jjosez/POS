@@ -1,6 +1,5 @@
 <?php
 
-
 namespace FacturaScripts\Plugins\POS\Lib\POS\Sales;
 
 use FacturaScripts\Core\Model\Base\BusinessDocument;

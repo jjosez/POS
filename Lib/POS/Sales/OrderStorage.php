@@ -23,7 +23,7 @@ use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Plugins\POS\Model\OperacionPausada;
 use FacturaScripts\Plugins\POS\Model\OrdenPuntoVenta;
 
-class SessionOrderStorage
+class OrderStorage
 {
     /**
      * @var SesionPuntoVenta

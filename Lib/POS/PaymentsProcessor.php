@@ -19,9 +19,7 @@ class PaymentsProcessor
 {
     private $cashPaymentAmount;
     private $cashPaymentMethod;
-    private $operation;
     private $payments;
-    private $session;
     private $totalPaymentAmount;
 
     /**
