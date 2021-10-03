@@ -28,6 +28,10 @@ table tr td:last-child {
     width: 1%;
 }
 
+button > i {
+    pointer-events: none;
+}
+
 .cart-item {
     height: calc(1.5em + .5rem + 2px) !important;
     min-width: 80px;

@@ -171,6 +171,10 @@ function onResumePausedOperation(code) {
     POS.resumeTransaction(resumeDocument, code);
 }
 
+function validateTarget(target, elementClass) {
+    return (target && target.classList.contains(elementClass)) || false;
+}
+
 $(document).ready(function () {
     onScan.attachTo(barcodeInputBox, {
         onScan: function(code) {
@@ -209,13 +213,6 @@ $(document).ready(function () {
     $('#customerSerachInput').keyup(function () {
         searchCustomer($(this).val());
     });
-    $('#customerSearchResult').on('click', '.item-add-button', function () {
-        let code = $(this).data('code');
-        let description = $(this).data('description');
-
-        setCustomer(code, description);
-    });
-
     $('#productSearchBox').focus(function () {
         $('#productSearchModal').modal('show');
     });
@@ -225,13 +222,6 @@ $(document).ready(function () {
     $('#productSerachInput').keyup(function () {
         searchProduct($(this).val());
     });
-    $('#productSearchResult').on('click', '.item-add-button', function () {
-        let code = $(this).data('code');
-        let description = $(this).data('description');
-
-        setProduct(code, description);
-    });
-
     $('#pausedOperations').on('click', '.resume-button', function () {
         let code = $(this).data('code');
 
@@ -256,3 +246,21 @@ cartContainer.addEventListener('click', function(e) {
         deleteCartItem(e.target);
     }
 }, true);
+
+customerSearchResult.addEventListener('click', function (e) {
+    if (e.target && e.target.classList.contains('item-add-button')) {
+        setCustomer(e.target.dataset.code, e.target.dataset.description);
+    }
+});
+
+productSearchResult.addEventListener('click', function (e) {
+    if (e.target && e.target.classList.contains('item-add-button')) {
+        setProduct(e.target.dataset.code, e.target.dataset.description);
+    }
+});
+
+document.addEventListener("onSelectCustomer", function (e) {
+    setCustomer(e.detail.code, e.detail.description);
+}, false);
+
+
