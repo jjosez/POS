@@ -44,6 +44,16 @@ export function recalculate(callback, lines, form) {
     baseAjaxRequest(callback, data, 'Error al recalcular las lineas');
 }
 
+export function saveNewCustomer(callback, taxID, name) {
+    let data = {
+        taxID: taxID,
+        name: name,
+        action: 'save-new-customer'
+    };
+
+    baseAjaxRequest(callback, data, 'Error al guardar el nuevo usuario');
+}
+
 export function searchBarcode(callback, query) {
     baseSearch(callback, query, 'search-barcode');
 }

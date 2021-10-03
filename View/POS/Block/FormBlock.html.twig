@@ -25,15 +25,13 @@
 
     <div class="form-row">
         <div class="form-group col-12">
-            <div class="input-group">
-            <span class="input-group-prepend">
-                <a href="{{ fsc.customer.url('new') }}" target="_blank" class="btn btn-success" title="{{ i18n.trans('new-customer') }}">
-                    <i class="fas fa-user-plus fa-fw" aria-hidden="true"></i>
-                </a>
-            </span>
-                <input name="codcliente" id="codcliente" type="hidden" value="{{ customer.codcliente }}"/>
+            <div class="input-icon">
+                <span class="input-icon-addon">
+                    <i class="fa fa-user"></i>
+                </span>
                 <input type="text" id="customerSearchBox" value="{{ customer.nombre | raw }}" class="form-control"
-                       placeholder="{{ i18n.trans('customer') }}" autocomplete="off"/>
+                       placeholder="{{ i18n.trans('customer') }}" autocomplete="off">
+                <input name="codcliente" id="codcliente" type="hidden" value="{{ customer.codcliente }}"/>
             </div>
         </div>
         <div class="form-group col-12">
@@ -76,7 +74,8 @@
 </form>
 <div class="form-row mt-auto">
     <div class="form-group col-12">
-        <button type="button" class="btn btn-block btn-round btn-primary" data-toggle="modal" data-target="#checkoutModal">
+        <button type="button" class="btn btn-block btn-round btn-primary" data-toggle="modal"
+                data-target="#checkoutModal">
             <i class="fas fa-money-bill-alt" aria-hidden="true"></i>&nbsp;{{ i18n.trans("charge") }}
         </button>
     </div>

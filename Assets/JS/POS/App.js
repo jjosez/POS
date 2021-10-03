@@ -5,6 +5,7 @@
 import * as POS from './ShoppingCartTools.js';
 import Checkout from './Checkout.js';
 import ShoppingCart from "./ShoppingCart.js";
+import {saveNewCustomer} from "./ShoppingCartTools.js";
 
 // Template variables
 const EtaTemplate = Eta;
@@ -100,7 +101,7 @@ function updateCartTotals() {
 function updateCartView(data) {
     const elements = salesForm.elements;
 
-    for(let i = 0; i < elements.length; i++) {
+    for (let i = 0; i < elements.length; i++) {
         const element = elements[i];
         const excludedElements = ['token', 'codcliente', 'customerSearchBox', 'tipoDocumento'];
 
@@ -177,10 +178,10 @@ function validateTarget(target, elementClass) {
 
 $(document).ready(function () {
     onScan.attachTo(barcodeInputBox, {
-        onScan: function(code) {
+        onScan: function (code) {
             searchBarcode(code);
         },
-        onKeyDetect: function(iKeyCode){
+        onKeyDetect: function (iKeyCode) {
             if (13 === iKeyCode) {
                 searchBarcode(barcodeInputBox.value);
             }
@@ -235,14 +236,14 @@ $(document).ready(function () {
     });
 });
 
-cartContainer.addEventListener('focusout', function(e) {
-    if(e.target.classList.contains('cart-item')) {
+cartContainer.addEventListener('focusout', function (e) {
+    if (e.target.classList.contains('cart-item')) {
         editCartItem(e.target);
     }
 });
 
-cartContainer.addEventListener('click', function(e) {
-    if(e.target.classList.contains('cart-item-remove')) {
+cartContainer.addEventListener('click', function (e) {
+    if (e.target.classList.contains('cart-item-remove')) {
         deleteCartItem(e.target);
     }
 }, true);
@@ -262,5 +263,17 @@ productSearchResult.addEventListener('click', function (e) {
 document.addEventListener("onSelectCustomer", function (e) {
     setCustomer(e.detail.code, e.detail.description);
 }, false);
+
+const saveCustomerBtn = document.getElementById('saveNewCustomerBtn');
+saveCustomerBtn.addEventListener('click', function () {
+    let taxID = document.getElementById('newCustomerTaxID').value;
+    let name = document.getElementById('newCustomerName').value;
+
+    function saveCustomer(result) {
+        console.log(result);
+    }
+
+    saveNewCustomer(saveCustomer, taxID, name);
+});
 
 

@@ -114,6 +114,10 @@ class POS extends Controller
                 $this->recalculateOrder();
                 return false;
 
+            case 'save-new-customer':
+                $this->saveNewCustomer();
+                return false;
+
             default:
                 return true;
         }
@@ -429,5 +433,19 @@ class POS extends Controller
         }
 
         return [];
+    }
+
+    private function saveNewCustomer()
+    {
+        $customer = new Customer();
+
+        $taxID = $this->request->request->get('taxID');
+        $name = $this->request->request->get('name');
+
+        if ($customer->saveNew($taxID, $name)) {
+            $this->response->setContent(json_encode($customer->getCustomer()->toArray()));
+        }
+
+        $this->response->setContent(json_encode($customer->getCustomer()->toArray()));
     }
 }

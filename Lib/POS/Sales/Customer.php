@@ -26,6 +26,15 @@ class Customer
         return $this->customer;
     }
 
+    public function saveNew(string $taxID, string $name): bool
+    {
+        $this->customer->cifnif = $taxID;
+        $this->customer->nombre = $name;
+        $this->customer->razonsocial = $name;
+
+        return $this->customer->save();
+    }
+
     /**
      * @param string $text
      * @return false|string
