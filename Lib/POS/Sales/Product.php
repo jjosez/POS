@@ -3,6 +3,7 @@
 
 namespace FacturaScripts\Plugins\POS\Lib\POS\Sales;
 
+use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\Variante;
 
@@ -18,6 +19,14 @@ class Product
         $this->variante = new Variante();
     }
 
+    public function getStock(string $code)
+    {
+        $producto = $this->getVariante();
+        $producto->loadFromCode('', [new DataBaseWhere('referencia', $code)]);
+
+        return $producto->stockfis ?? 0;
+    }
+
     /**
      * @return Variante
      */
@@ -28,11 +37,11 @@ class Product
 
     /**
      * @param string $text
-     * @return false|string
+     * @return CodeModel[]
      */
-    public function searchRequest(string $text): string
+    public function searchRequest(string $text): array
     {
-        return json_encode($this->queryProduct($text));
+        return $this->queryProduct($text);
     }
 
     /**
@@ -48,14 +57,13 @@ class Product
 
     /**
      * @param string $text
-     * @return false|string
+     * @return CodeModel|false
      */
-    public function searchBarcode(string $text): string
+    public function searchBarcode(string $text)
     {
         $queryResult = $this->queryProduct($text);
-        $result = empty($queryResult) ? false : $queryResult[0];
 
-        return json_encode($result);
+        return empty($queryResult) ? false : $queryResult[0];
     }
 
     /**

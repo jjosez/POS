@@ -267,8 +267,10 @@ saveCustomerBtn.addEventListener('click', function () {
     let taxID = document.getElementById('newCustomerTaxID').value;
     let name = document.getElementById('newCustomerName').value;
 
-    function saveCustomer(result) {
+    function saveCustomer(response) {
         $("#newCustomerForm").collapse('toggle');
+        console.log(response[0]);
+        setCustomer(response[0].code, response[0].description);
     }
 
     POS.saveNewCustomer(saveCustomer, taxID, name);

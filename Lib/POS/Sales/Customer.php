@@ -4,6 +4,7 @@
 namespace FacturaScripts\Plugins\POS\Lib\POS\Sales;
 
 
+use FacturaScripts\Core\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\Cliente;
 
 class Customer
@@ -37,12 +38,10 @@ class Customer
 
     /**
      * @param string $text
-     * @return false|string
+     * @return array|CodeModel[]
      */
-    public function search(string $text): string
+    public function search(string $text)
     {
-        $result = empty($text) ? [] : $this->getCustomer()->codeModelSearch($text);
-
-        return json_encode($result);
+        return empty($text) ? [] : $this->getCustomer()->codeModelSearch($text);
     }
 }

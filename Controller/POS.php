@@ -175,7 +175,7 @@ class POS extends Controller
         $producto = new Product();
         $barcode = $this->request->request->get('query');
 
-        $this->setAjaxRespose($producto->searchBarcode($barcode));
+        $this->setAjaxResponse($producto->searchBarcode($barcode));
     }
 
     /**
@@ -186,7 +186,7 @@ class POS extends Controller
         $customer = new Customer();
         $query = $this->request->request->get('query');
 
-        $this->setAjaxRespose($customer->search($query));
+        $this->setAjaxResponse($customer->search($query));
     }
 
     /**
@@ -197,7 +197,7 @@ class POS extends Controller
         $product = new Product();
         $query = $this->request->request->get('query');
 
-        $this->setAjaxRespose($product->searchRequest($query));
+        $this->setAjaxResponse($product->search($query));
     }
 
     /**
@@ -242,8 +242,7 @@ class POS extends Controller
         $request = new OrderRequest($this->request);
         $order = new Order($request);
 
-        $result = $order->recalculate();
-        $this->setAjaxRespose($result);
+        $this->setAjaxResponse($order->recalculate(), false);
     }
 
     /**
@@ -254,8 +253,7 @@ class POS extends Controller
         $code = $this->request->request->get('code', '');
         $storage = $this->session->getStorage();
 
-        $result = $storage->getOrderOnHold($code);
-        $this->setAjaxRespose($result);
+        $this->setAjaxResponse($storage->getOrderOnHold($code));
     }
 
     /**
@@ -334,9 +332,14 @@ class POS extends Controller
         return true;
     }
 
-    protected function setAjaxRespose($content): void
+    /**
+     * @param $content
+     * @param bool $encode
+     */
+    protected function setAjaxResponse($content, bool $encode = true): void
     {
-        $this->response->setContent($content);
+        $response = $encode ? json_encode($content) : $content;
+        $this->response->setContent($response);
     }
 
     /**
@@ -443,10 +446,10 @@ class POS extends Controller
         $name = $this->request->request->get('name');
 
         if ($customer->saveNew($taxID, $name)) {
-            $this->response->setContent($customer->search($taxID));
+            $this->setAjaxResponse($customer->search($taxID));
             return;
         }
 
-        $this->response->setContent('Error al guardar el cliente');
+        $this->setAjaxResponse('Error al guardar el cliente');
     }
 }
