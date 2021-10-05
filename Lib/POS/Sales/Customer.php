@@ -40,8 +40,8 @@ class Customer
      * @param string $text
      * @return array|CodeModel[]
      */
-    public function search(string $text)
+    public function search(string $text): array
     {
-        return empty($text) ? [] : $this->getCustomer()->codeModelSearch($text);
+        return $this->getCustomer()->codeModelSearch($text);
     }
 }

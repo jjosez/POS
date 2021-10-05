@@ -57,7 +57,7 @@ class Product
 
     /**
      * @param string $text
-     * @return CodeModel|false
+     * @return false|CodeModel
      */
     public function searchBarcode(string $text)
     {
@@ -68,10 +68,10 @@ class Product
 
     /**
      * @param string $text
-     * @return CodeModel[]|array
+     * @return array|CodeModel[]
      */
     protected function queryProduct(string $text): array
     {
-        return empty($text) ? [] : $this->getVariante()->codeModelSearch($text, 'referencia');
+        return $this->getVariante()->codeModelSearch($text, 'referencia');
     }
 }
