@@ -84,6 +84,22 @@ export function testResponseTime(startTime, label = 'Exec time:') {
     console.log(label, seconds.toFixed(3));
 }
 
+export function getElement(name) {
+    return document.getElementById(name);
+}
+
+export function getCartTemplate() {
+    return document.getElementById('cartTemplateSource').innerHTML;
+}
+
+export function getCustomerTemplate() {
+    return document.getElementById('customerTemplateSource').innerHTML;
+}
+
+export function getProductTemplate() {
+    return document.getElementById('productTemplateSource').innerHTML;
+}
+
 function baseSearch(callback, query, action) {
     let data = {
         action: action,

@@ -5,19 +5,19 @@
 import * as POS from './ShoppingCartTools.js';
 import Checkout from './Checkout.js';
 import ShoppingCart from "./ShoppingCart.js";
-import {saveNewCustomer} from "./ShoppingCartTools.js";
 
 // Template variables
 const EtaTemplate = Eta;
-const cartTemplate = EtaTemplate.compile(document.getElementById('cartTemplateSource').innerHTML);
-const customerTemplate = EtaTemplate.compile(document.getElementById('customerTemplateSource').innerHTML);
-const productTemplate = EtaTemplate.compile(document.getElementById('productTemplateSource').innerHTML);
+const cartTemplate = EtaTemplate.compile(POS.getCartTemplate());
+const customerTemplate = EtaTemplate.compile(POS.getCustomerTemplate());
+const productTemplate = EtaTemplate.compile(POS.getProductTemplate());
 
-const barcodeInputBox = document.getElementById("productBarcodeInput");
-const cartContainer = document.getElementById('cartContainer');
-const customerSearchResult = document.getElementById('customerSearchResult');
-const productSearchResult = document.getElementById('productSearchResult');
-const salesForm = document.getElementById("salesDocumentForm");
+const barcodeInputBox = POS.getElement("productBarcodeInput");
+const cartContainer = POS.getElement('cartContainer');
+const customerSearchResult = POS.getElement('customerSearchResult');
+const productSearchResult = POS.getElement('productSearchResult');
+const salesForm = POS.getElement("salesDocumentForm");
+const saveCustomerBtn = POS.getElement('saveNewCustomerBtn');
 
 var Cart = new ShoppingCart();
 var CartCheckout = new Checkout(0, CASH_PAYMENT_METHOD);
@@ -203,7 +203,6 @@ $(document).ready(function () {
     $('#saveCashupButton').on('click', function () {
         document.cashupForm.submit();
     });
-
     // Ajax Search Events
     $('#customerSearchBox').focus(function () {
         $('#customerSearchModal').modal('show');
@@ -264,16 +263,15 @@ document.addEventListener("onSelectCustomer", function (e) {
     setCustomer(e.detail.code, e.detail.description);
 }, false);
 
-const saveCustomerBtn = document.getElementById('saveNewCustomerBtn');
 saveCustomerBtn.addEventListener('click', function () {
     let taxID = document.getElementById('newCustomerTaxID').value;
     let name = document.getElementById('newCustomerName').value;
 
     function saveCustomer(result) {
-        console.log(result);
+        $("#newCustomerForm").collapse('toggle');
     }
 
-    saveNewCustomer(saveCustomer, taxID, name);
+    POS.saveNewCustomer(saveCustomer, taxID, name);
 });
 
 

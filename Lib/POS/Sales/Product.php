@@ -30,11 +30,20 @@ class Product
      * @param string $text
      * @return false|string
      */
-    public function searchByText(string $text): string
+    public function searchRequest(string $text): string
+    {
+        return json_encode($this->queryProduct($text));
+    }
+
+    /**
+     * @param string $text
+     * @return CodeModel[]
+     */
+    public function search(string $text): array
     {
         $text = str_replace(" ", "%", $text);
 
-        return json_encode($this->queryProduct($text));
+        return $this->queryProduct($text);
     }
 
     /**
@@ -56,6 +65,5 @@ class Product
     protected function queryProduct(string $text): array
     {
         return empty($text) ? [] : $this->getVariante()->codeModelSearch($text, 'referencia');
-
     }
 }

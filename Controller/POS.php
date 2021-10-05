@@ -197,7 +197,7 @@ class POS extends Controller
         $product = new Product();
         $query = $this->request->request->get('query');
 
-        $this->setAjaxRespose($product->searchByText($query));
+        $this->setAjaxRespose($product->searchRequest($query));
     }
 
     /**
@@ -443,9 +443,10 @@ class POS extends Controller
         $name = $this->request->request->get('name');
 
         if ($customer->saveNew($taxID, $name)) {
-            $this->response->setContent(json_encode($customer->getCustomer()->toArray()));
+            $this->response->setContent($customer->search($taxID));
+            return;
         }
 
-        $this->response->setContent(json_encode($customer->getCustomer()->toArray()));
+        $this->response->setContent('Error al guardar el cliente');
     }
 }
