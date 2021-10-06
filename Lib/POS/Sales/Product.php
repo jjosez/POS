@@ -19,6 +19,10 @@ class Product
         $this->variante = new Variante();
     }
 
+    /**
+     * @param string $code
+     * @return float|int
+     */
     public function getStock(string $code)
     {
         $producto = $this->getVariante();
