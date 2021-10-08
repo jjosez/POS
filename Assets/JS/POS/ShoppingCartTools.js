@@ -31,7 +31,7 @@ export function resumeTransaction(callback, code) {
         code: code
     };
 
-    baseAjaxRequest(callback, data, 'Error al cargar la venta');
+    baseAjaxRequest(callback, data, 'Error al cargar la venta.');
 }
 
 export function recalculate(callback, lines, form) {
@@ -41,7 +41,7 @@ export function recalculate(callback, lines, form) {
     data.action = "recalculate-order";
     data.lines = lines;
 
-    baseAjaxRequest(callback, data, 'Error al recalcular las lineas');
+    baseAjaxRequest(callback, data, 'Error al recalcular las lineas.');
 }
 
 export function saveNewCustomer(callback, taxID, name) {
@@ -51,7 +51,7 @@ export function saveNewCustomer(callback, taxID, name) {
         action: 'save-new-customer'
     };
 
-    baseAjaxRequest(callback, data, 'Error al guardar el nuevo usuario');
+    baseAjaxRequest(callback, data, 'Error al guardar nuevo cliente');
 }
 
 export function searchBarcode(callback, query) {
@@ -118,7 +118,7 @@ function baseSearch(callback, query, action) {
     });
 }
 
-function baseAjaxRequest(callback, data, emessage) {
+function baseAjaxRequest(callback, data, eMessage) {
     $.ajax({
         type: "POST",
         url: TARGET_URL,
@@ -126,7 +126,7 @@ function baseAjaxRequest(callback, data, emessage) {
         data: data,
         success: callback,
         error: function (xhr) {
-            console.error(emessage, xhr.responseText);
+            console.error(eMessage, xhr.responseText);
         }
     });
 }

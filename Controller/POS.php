@@ -253,7 +253,7 @@ class POS extends Controller
         $code = $this->request->request->get('code', '');
         $storage = $this->session->getStorage();
 
-        $this->setAjaxResponse($storage->getOrderOnHold($code));
+        $this->setAjaxResponse($storage->getOrderOnHold($code), false);
     }
 
     /**

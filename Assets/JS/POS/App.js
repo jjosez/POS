@@ -100,22 +100,22 @@ function updateCartTotals() {
 
 function updateCartView(data) {
     const elements = salesForm.elements;
+    const excludedElements = ['token', 'codcliente', 'tipo-documento'];
 
-    for (let i = 0; i < elements.length; i++) {
-        const element = elements[i];
-        const excludedElements = ['token', 'codcliente', 'customerSearchBox', 'tipoDocumento'];
-
-        if (element.name && false === excludedElements.includes(element.name)) {
+    for (const element of elements) {
+        if (element.name && !excludedElements.includes(element.name)) {
             const value = data.doc[element.name];
             switch (element.type) {
-                case "checkbox" :
+                case 'checkbox':
                     element.checked = value;
                     break;
-                default :
+                default:
                     element.value = value;
+                    break;
             }
         }
     }
+
     cartContainer.innerHTML = cartTemplate(data, EtaTemplate.config);
     updateCartTotals();
     $('.modal').modal('hide');
@@ -268,9 +268,13 @@ saveCustomerBtn.addEventListener('click', function () {
     let name = document.getElementById('newCustomerName').value;
 
     function saveCustomer(response) {
-        $("#newCustomerForm").collapse('toggle');
-        console.log(response[0]);
-        setCustomer(response[0].code, response[0].description);
+        const customer = response[0];
+
+        if (customer.code) {
+            setCustomer(customer.code, customer.description);
+            $("#newCustomerForm").collapse('toggle');
+        }
+        console.log('No se pudo registrar el cliente.');
     }
 
     POS.saveNewCustomer(saveCustomer, taxID, name);
