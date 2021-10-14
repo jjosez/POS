@@ -5,35 +5,27 @@
 import * as Money from "./Money.js";
 
 export default class ShoppingCart {
-    constructor(data = {}) {
-        this.doc = data.doc ? data.doc : {};
-        this.lines = data.lines ? data.lines : [];
-
-        for (let line of this.lines) {
-            this.setPriceWithTax(line);
-        }
+    constructor() {
+        this.doc = {};
+        this.lines = [];
     }
 
-    add(code, description) {
-        for (let line of this.lines) {
-            if (line.referencia === code) {
-                line.cantidad++;
-                return true;
-            }
-        }
+    addLine(code, description) {
+        if (this.lines.some(element => {
+            return element.referencia === code ? element.cantidad++ : false;
+        })) return;
 
         this.lines.unshift({ referencia: code, descripcion: description });
-        return false;
     }
 
-    edit(index, field, value) {
+    editLine(index, field, value) {
         if ('pvpunitarioiva' === field) {
             this.lines[index].pvpunitario = Money.priceWithoutTax(value, this.lines[index].iva);
         }
         this.lines[index][field] = value;
     }
 
-    delete(index) {
+    deleteLine(index) {
         this.lines.splice(index, 1);
     }
 
@@ -44,5 +36,14 @@ export default class ShoppingCart {
     setPriceWithTax(line) {
         line.pvptotaliva = Money.priceWithTax(line.pvptotal, line.iva);
         line.pvpunitarioiva = line.pvptotaliva / line.cantidad;
+    }
+
+    update(data = {}) {
+        this.doc = data.doc ? data.doc : {};
+        this.lines = data.lines ? data.lines : [];
+
+        for (let line of this.lines) {
+            this.setPriceWithTax(line);
+        }
     }
 }

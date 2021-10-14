@@ -7,7 +7,7 @@
 <!-- Checkout Modal -->
 {% set paymentsEnabled = terminal.aceptapagos ? '' : 'disabled' %}
 
-<div class="modal fade" id="checkoutModal" tabindex="-1" role="dialog">
+<div class="modal fade" id="modal-checkout" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <button type="button" class="close ml-auto mr-4 mt-3" data-dismiss="modal" aria-label="Close">
@@ -72,10 +72,10 @@
                         </div>
                     </div>
                     <div class="mt-3 d-flex">
-                        <button type="button" class="btn btn-warning mr-auto" id="pauseButton">
+                        <button type="button" class="btn btn-warning mr-auto" id="button-order-hold">
                             <i class="fas fa-pause" aria-hidden="true"></i>&nbsp;{{ i18n.trans("ticket-on-hold") }}
                         </button>
-                        <button type="button" class="btn btn-primary" id="checkoutButton" disabled="disabled">
+                        <button type="button" class="btn btn-primary" id="button-checkout-save" disabled="disabled">
                             Guardar
                         </button>
                     </div>

@@ -2,30 +2,28 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2018-2021 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-import * as POS from './ShoppingCartTools.js';
+import * as Core from './AppCore.js';
+import * as UI from './AppUI.js';
 import Checkout from './Checkout.js';
-import ShoppingCart from "./ShoppingCart.js";
+import ShoppingCart from './ShoppingCart.js';
 
-// Template variables
-const EtaTemplate = Eta;
-const cartTemplate = EtaTemplate.compile(POS.getCartTemplate());
-const customerTemplate = EtaTemplate.compile(POS.getCustomerTemplate());
-const productTemplate = EtaTemplate.compile(POS.getProductTemplate());
+const cartTemplate = Eta.compile(Core.cartTemplateSource());
+const customerTemplate = Eta.compile(Core.customerTemplateSource());
+const productTemplate = Eta.compile(Core.productTemplateSource());
 
-const barcodeInputBox = POS.getElement("productBarcodeInput");
-const cartContainer = POS.getElement('cartContainer');
-const customerSearchResult = POS.getElement('customerSearchResult');
-const productSearchResult = POS.getElement('productSearchResult');
-const salesForm = POS.getElement("salesDocumentForm");
-const saveCustomerBtn = POS.getElement('saveNewCustomerBtn');
+const cartContainer = Core.getElement('cartContainer');
+const customerSearchResult = Core.getElement('customerSearchResult');
+const ordersOnHold = Core.getElement('pausedOperations');
+const productSearchResult = Core.getElement('productSearchResult');
+const salesForm = Core.getElement("salesDocumentForm");
 
-var Cart = new ShoppingCart();
+const Cart = new ShoppingCart();
 var CartCheckout = new Checkout(0, CASH_PAYMENT_METHOD);
 
 function deleteCartItem(e) {
     let index = e.getAttribute('data-index');
 
-    Cart.delete(index);
+    Cart.deleteLine(index);
     updateCart();
 }
 
@@ -33,45 +31,45 @@ function editCartItem(e) {
     let field = e.getAttribute('data-field');
     let index = e.getAttribute('data-index');
 
-    Cart.edit(index, field, e.value);
+    Cart.editLine(index, field, e.value);
     updateCart();
 }
 
 function searchCustomer(query) {
     function updateSearchResult(response) {
-        customerSearchResult.innerHTML = customerTemplate({items: response}, EtaTemplate.config);
+        customerSearchResult.innerHTML = customerTemplate({items: response}, Eta.config);
     }
 
-    POS.searchCustomer(updateSearchResult, query);
+    Core.searchCustomer(updateSearchResult, query);
 }
 
 function searchProduct(query) {
     function updateSearchResult(response) {
-        productSearchResult.innerHTML = productTemplate({items: response}, EtaTemplate.config);
+        productSearchResult.innerHTML = productTemplate({items: response}, Eta.config);
     }
 
-    POS.searchProduct(updateSearchResult, query);
+    Core.searchProduct(updateSearchResult, query);
 }
 
 function searchBarcode(query) {
-    function setProductByBarcode(response) {
+    function setProductBarcode(response) {
         if (undefined !== response && false !== response) {
             setProduct(response.code, response.description);
         }
         barcodeInputBox.value = '';
     }
 
-    POS.searchBarcode(setProductByBarcode, query);
+    Core.searchBarcode(setProductBarcode, query);
 }
 
 function setProduct(code, description) {
-    Cart.add(code, description);
+    Cart.addLine(code, description);
     updateCart();
 }
 
 function setCustomer(code, description) {
     document.getElementById('codcliente').value = code;
-    document.getElementById('customerSearchBox').value = description;
+    UI.customerNameInput.value = description;
     Cart.setCustomer(code);
 
     $('.modal').modal('hide');
@@ -79,11 +77,11 @@ function setCustomer(code, description) {
 
 function updateCart() {
     function updateCartData(data) {
-        Cart = new ShoppingCart(data);
+        Cart.update(data);
         updateCartView(data);
     }
 
-    POS.recalculate(updateCartData, Cart.lines, salesForm);
+    Core.recalculate(updateCartData, Cart.lines, salesForm);
 }
 
 function updateCartTotals() {
@@ -100,7 +98,7 @@ function updateCartTotals() {
 
 function updateCartView(data) {
     const elements = salesForm.elements;
-    const excludedElements = ['token', 'codcliente', 'tipo-documento'];
+    const excludedElements = ['token', 'tipo-documento'];
 
     for (const element of elements) {
         if (element.name && !excludedElements.includes(element.name)) {
@@ -116,34 +114,30 @@ function updateCartView(data) {
         }
     }
 
-    cartContainer.innerHTML = cartTemplate(data, EtaTemplate.config);
+    cartContainer.innerHTML = cartTemplate(data, Eta.config);
     updateCartTotals();
     $('.modal').modal('hide');
 }
 
 function recalculatePaymentAmount() {
-    const checkoutButton = document.getElementById('checkoutButton');
-    const paymentAmount = document.getElementById('paymentAmount');
-    const paymentMethod = document.getElementById("paymentMethod");
-
-    CartCheckout.recalculatePayment(paymentAmount.value, paymentMethod.value);
+    CartCheckout.recalculatePayment(UI.paymentAmountInput.value, UI.paymentMethodSelect.value);
 
     if (CartCheckout.change >= 0) {
-        paymentAmount.value = CartCheckout.payment;
-        checkoutButton.removeAttribute('disabled');
+        UI.paymentAmountInput.value = CartCheckout.payment;
+        UI.saveOrderButton.removeAttribute('disabled');
     } else {
-        checkoutButton.setAttribute('disabled', 'disabled');
+        UI.saveOrderButton.setAttribute('disabled', 'disabled');
     }
 
-    document.getElementById('paymentReturn').textContent = POS.roundDecimals(CartCheckout.change);
-    document.getElementById('paymentOnHand').textContent = POS.roundDecimals(CartCheckout.payment);
+    UI.Checkout.textChange.textContent = Core.roundDecimals(CartCheckout.change);
+    UI.Checkout.textReceived.textContent = Core.roundDecimals(CartCheckout.payment);
 }
 
 function onCheckoutConfirm() {
     let paymentData = {};
-    paymentData.amount = document.getElementById('paymentAmount').value;
+    paymentData.amount = UI.paymentAmountInput.value;
     paymentData.change = CartCheckout.change || 0;
-    paymentData.method = document.getElementById("paymentMethod").value;
+    paymentData.method = UI.paymentMethodSelect.value;
 
     document.getElementById("action").value = 'save-order';
     document.getElementById("lines").value = JSON.stringify(Cart.lines);
@@ -152,56 +146,61 @@ function onCheckoutConfirm() {
     salesForm.submit();
 }
 
-function onDeletePausedOperation(code) {
-    POS.deletePausedTransaction(code, salesForm);
+function onDeletePausedOperation(target) {
+    const code = target.getAttribute('data-code');
+    Core.deleteOrderOnHold(code, salesForm);
 }
 
-function onPauseOperation() {
-    if (false === POS.pauseDocument(Cart.lines, salesForm)) {
+function onHoldOrder() {
+    if (false === Core.holdOrder(Cart.lines, salesForm)) {
         $('#checkoutModal').modal('hide');
     }
 }
 
-function onResumePausedOperation(code) {
-    function resumeDocument(response) {
+function onResumePausedOperation(target) {
+    const code = target.getAttribute('data-code');
+
+    function resumeOrder(response) {
         setCustomer(response.doc.codcliente, response.doc.nombrecliente);
-        Cart = new ShoppingCart(response);
+        Cart.update(response);
         updateCartView(response);
+
+        console.log('Cart Resume', Cart);
     }
 
-    POS.resumeTransaction(resumeDocument, code);
+    Core.resumeOrder(resumeOrder, code);
 }
 
-function validateTarget(target, elementClass) {
-    return (target && target.classList.contains(elementClass)) || false;
+function onSaveNewCustomer() {
+    let taxID = Core.getElement('new-customer-taxid').value;
+    let name = Core.getElement('new-customer-name').value;
+
+    function saveCustomer(response) {
+        const customer = response[0];
+
+        if (customer.code) {
+            setCustomer(customer.code, customer.description);
+            $("#new-customer-form").collapse('toggle');
+        }
+    }
+
+    Core.saveNewCustomer(saveCustomer, taxID, name);
+}
+
+function validEventTarget(target, elementClass) {
+    return target && target.classList.contains(elementClass);
 }
 
 $(document).ready(function () {
-    onScan.attachTo(barcodeInputBox, {
+    onScan.attachTo(UI.barcodeInput, {
         onScan: function (code) {
             searchBarcode(code);
         },
         onKeyDetect: function (iKeyCode) {
             if (13 === iKeyCode) {
-                searchBarcode(barcodeInputBox.value);
+                searchBarcode(UI.barcodeInput.value);
             }
         }
-    });
-
-    $('#checkoutButton').click(function () {
-        onCheckoutConfirm();
-    });
-    $('#pauseButton').click(function () {
-        onPauseOperation();
-    });
-    $('#paymentAmount').keyup(function () {
-        recalculatePaymentAmount();
-    });
-    $('#paymentMethod').change(function () {
-        recalculatePaymentAmount();
-    });
-    $('#saveCashupButton').on('click', function () {
-        document.cashupForm.submit();
     });
     // Ajax Search Events
     $('#customerSearchBox').focus(function () {
@@ -210,74 +209,70 @@ $(document).ready(function () {
     $('#customerSearchModal').on('shown.bs.modal', function () {
         $('#customerSerachInput').focus();
     });
-    $('#customerSerachInput').keyup(function () {
-        searchCustomer($(this).val());
-    });
     $('#productSearchBox').focus(function () {
         $('#productSearchModal').modal('show');
     });
     $('#productSearchModal').on('shown.bs.modal', function () {
         $('#productSerachInput').focus();
     });
-    $('#productSerachInput').keyup(function () {
-        searchProduct($(this).val());
-    });
-    $('#pausedOperations').on('click', '.resume-button', function () {
-        let code = $(this).data('code');
-
-        onResumePausedOperation(code);
-    });
-
-    $('#pausedOperations').on('click', '.delete-button', function () {
-        let code = $(this).data('code');
-
-        onDeletePausedOperation(code);
-    });
 });
 
+UI.paymentAmountInput.addEventListener('keyup', function () {
+    return recalculatePaymentAmount();
+});
+UI.paymentMethodSelect.addEventListener('change', function () {
+    return recalculatePaymentAmount();
+});
+UI.saveOrderButton.addEventListener('click', function () {
+    return onCheckoutConfirm();
+});
+UI.holdOrderButton.addEventListener('click', function () {
+    return onHoldOrder();
+});
+UI.searchCustomerInput.addEventListener('keyup', function () {
+    return searchCustomer(this.value);
+});
+UI.searchProductInput.addEventListener('keyup', function () {
+    return searchProduct(this.value);
+});
+UI.saveCustomerButton.addEventListener('click', function () {
+    return onSaveNewCustomer();
+});
+UI.saveCashupButton.addEventListener('click', function () {
+    return document.cashupForm.submit();
+});
+ordersOnHold.addEventListener('click', function (e) {
+    if (validEventTarget(e.target,'delete-button')) {
+        onDeletePausedOperation(e.target);
+    }
+});
+ordersOnHold.addEventListener('click', function (e) {
+    if (validEventTarget(e.target,'resume-button')) {
+        onResumePausedOperation(e.target);
+    }
+});
 cartContainer.addEventListener('focusout', function (e) {
-    if (e.target.classList.contains('cart-item')) {
+    if (validEventTarget(e.target,'cart-item')) {
         editCartItem(e.target);
     }
 });
-
 cartContainer.addEventListener('click', function (e) {
-    if (e.target.classList.contains('cart-item-remove')) {
+    if (validEventTarget(e.target,'cart-item-remove')) {
         deleteCartItem(e.target);
     }
-}, true);
-
+});
 customerSearchResult.addEventListener('click', function (e) {
-    if (e.target && e.target.classList.contains('item-add-button')) {
+    if (validEventTarget(e.target,'item-add-button')) {
         setCustomer(e.target.dataset.code, e.target.dataset.description);
     }
 });
-
 productSearchResult.addEventListener('click', function (e) {
-    if (e.target && e.target.classList.contains('item-add-button')) {
+    if (validEventTarget(e.target,'item-add-button')) {
         setProduct(e.target.dataset.code, e.target.dataset.description);
     }
 });
-
 document.addEventListener("onSelectCustomer", function (e) {
     setCustomer(e.detail.code, e.detail.description);
-}, false);
-
-saveCustomerBtn.addEventListener('click', function () {
-    let taxID = document.getElementById('newCustomerTaxID').value;
-    let name = document.getElementById('newCustomerName').value;
-
-    function saveCustomer(response) {
-        const customer = response[0];
-
-        if (customer.code) {
-            setCustomer(customer.code, customer.description);
-            $("#newCustomerForm").collapse('toggle');
-        }
-        console.log('No se pudo registrar el cliente.');
-    }
-
-    POS.saveNewCustomer(saveCustomer, taxID, name);
 });
 
 
