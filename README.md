@@ -1,2 +1,2 @@
 # POS
-POS plugin for [Facturascripts 2018](https://www.facturascripts.com/) 
+POS plugin for [Facturascripts 2021](https://www.facturascripts.com/) 

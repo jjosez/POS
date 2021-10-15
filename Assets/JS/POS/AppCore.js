@@ -2,7 +2,7 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-const TARGET_URL = "POS";
+const SERVER_URL = "POS";
 
 export function deleteOrderOnHold(code, form) {
     const elements = form.elements;
@@ -93,7 +93,7 @@ function baseSearch(callback, query, action) {
     };
     $.ajax({
         type: "POST",
-        url: TARGET_URL,
+        url: SERVER_URL,
         dataType: "json",
         data: data,
         success: callback,
@@ -107,7 +107,7 @@ function baseSearch(callback, query, action) {
 function baseAjaxRequest(callback, data, eMessage) {
     $.ajax({
         type: "POST",
-        url: TARGET_URL,
+        url: SERVER_URL,
         dataType: "json",
         data: data,
         success: callback,
@@ -115,4 +115,25 @@ function baseAjaxRequest(callback, data, eMessage) {
             console.error(eMessage, xhr.responseText);
         }
     });
+}
+
+function baseRequest(data) {
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: data
+    };
+
+    return fetch(SERVER_URL, options).then(response => response.json());
+}
+
+export function loadOrderRequest(code) {
+    const data = new FormData();
+
+    data.set('action', 'resume-order');
+    data.set('code', code);
+
+    return baseRequest(data);
 }

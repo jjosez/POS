@@ -11,10 +11,9 @@ export default class ShoppingCart {
     }
 
     addLine(code, description) {
-        if (this.lines.some(element => {
-            return element.referencia === code ? element.cantidad++ : false;
-        })) return;
-
+        if (this.lines.some(element => {return element.referencia === code ? element.cantidad++ : false;})) {
+            return;
+        }
         this.lines.unshift({ referencia: code, descripcion: description });
     }
 

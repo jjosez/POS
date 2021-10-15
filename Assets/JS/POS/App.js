@@ -56,7 +56,7 @@ function searchBarcode(query) {
         if (undefined !== response && false !== response) {
             setProduct(response.code, response.description);
         }
-        barcodeInputBox.value = '';
+        UI.barcodeInput.value = '';
     }
 
     Core.searchBarcode(setProductBarcode, query);
@@ -146,8 +146,9 @@ function onCheckoutConfirm() {
     salesForm.submit();
 }
 
-function onDeletePausedOperation(target) {
+function deleteOrderOnHold(target) {
     const code = target.getAttribute('data-code');
+
     Core.deleteOrderOnHold(code, salesForm);
 }
 
@@ -157,29 +158,32 @@ function onHoldOrder() {
     }
 }
 
-function onResumePausedOperation(target) {
+function resumeOrderOnHold(target) {
     const code = target.getAttribute('data-code');
+
+    /*Core.resumeOrderFetch(code).then(response => {
+        setCustomer(response.doc.codcliente, response.doc.nombrecliente);
+        Cart.update(response);
+        updateCartView(response);
+    });*/
 
     function resumeOrder(response) {
         setCustomer(response.doc.codcliente, response.doc.nombrecliente);
         Cart.update(response);
         updateCartView(response);
-
-        console.log('Cart Resume', Cart);
     }
 
     Core.resumeOrder(resumeOrder, code);
+    //Core.resumeOrderFetch(code).then(resumeOrder);
 }
 
 function onSaveNewCustomer() {
-    let taxID = Core.getElement('new-customer-taxid').value;
-    let name = Core.getElement('new-customer-name').value;
+    const taxID = Core.getElement('new-customer-taxid').value;
+    const name = Core.getElement('new-customer-name').value;
 
     function saveCustomer(response) {
-        const customer = response[0];
-
-        if (customer.code) {
-            setCustomer(customer.code, customer.description);
+        if (response.codcliente) {
+            setCustomer(response.codcliente, response.razonsocial);
             $("#new-customer-form").collapse('toggle');
         }
     }
@@ -187,7 +191,7 @@ function onSaveNewCustomer() {
     Core.saveNewCustomer(saveCustomer, taxID, name);
 }
 
-function validEventTarget(target, elementClass) {
+function isEventTarget(target, elementClass) {
     return target && target.classList.contains(elementClass);
 }
 
@@ -242,32 +246,30 @@ UI.saveCashupButton.addEventListener('click', function () {
     return document.cashupForm.submit();
 });
 ordersOnHold.addEventListener('click', function (e) {
-    if (validEventTarget(e.target,'delete-button')) {
-        onDeletePausedOperation(e.target);
+    if (isEventTarget(e.target,'resume-button')) {
+        return resumeOrderOnHold(e.target);
     }
-});
-ordersOnHold.addEventListener('click', function (e) {
-    if (validEventTarget(e.target,'resume-button')) {
-        onResumePausedOperation(e.target);
+    if (isEventTarget(e.target,'delete-button')) {
+        return deleteOrderOnHold(e.target);
     }
 });
 cartContainer.addEventListener('focusout', function (e) {
-    if (validEventTarget(e.target,'cart-item')) {
-        editCartItem(e.target);
+    if (isEventTarget(e.target,'cart-item')) {
+        return editCartItem(e.target);
     }
 });
 cartContainer.addEventListener('click', function (e) {
-    if (validEventTarget(e.target,'cart-item-remove')) {
+    if (isEventTarget(e.target,'cart-item-remove')) {
         deleteCartItem(e.target);
     }
 });
 customerSearchResult.addEventListener('click', function (e) {
-    if (validEventTarget(e.target,'item-add-button')) {
+    if (isEventTarget(e.target,'item-add-button')) {
         setCustomer(e.target.dataset.code, e.target.dataset.description);
     }
 });
 productSearchResult.addEventListener('click', function (e) {
-    if (validEventTarget(e.target,'item-add-button')) {
+    if (isEventTarget(e.target,'item-add-button')) {
         setProduct(e.target.dataset.code, e.target.dataset.description);
     }
 });

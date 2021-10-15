@@ -27,6 +27,19 @@ class Customer
         return $this->customer;
     }
 
+    /**
+     * @return array
+     */
+    public function getLastCustomerCode(): array
+    {
+        return ['code' => $this->customer->codcliente, 'description' => $this->customer->nombre];
+    }
+
+    /**
+     * @param string $taxID
+     * @param string $name
+     * @return bool
+     */
     public function saveNew(string $taxID, string $name): bool
     {
         $this->customer->cifnif = $taxID;
@@ -38,7 +51,7 @@ class Customer
 
     /**
      * @param string $text
-     * @return array|CodeModel[]
+     * @return array
      */
     public function search(string $text): array
     {

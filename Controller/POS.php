@@ -446,7 +446,7 @@ class POS extends Controller
         $name = $this->request->request->get('name');
 
         if ($customer->saveNew($taxID, $name)) {
-            $this->setAjaxResponse($customer->search($taxID));
+            $this->setAjaxResponse($customer->getCustomer());
             return;
         }
 
