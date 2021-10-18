@@ -17,7 +17,7 @@ const ordersOnHold = Core.getElement('pausedOperations');
 const productSearch = Core.getElement('productSearchResult');
 
 const Cart = new ShoppingCart();
-var CartCheckout = new Checkout(0, Core.settings().cash);
+var CartCheckout = new Checkout(0, Core.settings.cash);
 
 function deleteCartItem(e) {
     let index = e.getAttribute('data-index');
@@ -129,8 +129,8 @@ function recalculatePaymentAmount() {
         UI.saveOrderButton.setAttribute('disabled', 'disabled');
     }
 
-    UI.Checkout.textChange.textContent = Core.roundDecimals(CartCheckout.change);
-    UI.Checkout.textReceived.textContent = Core.roundDecimals(CartCheckout.payment);
+    UI.checkoutChangeDisplay.textContent = Core.roundDecimals(CartCheckout.change);
+    UI.checkoutReceivedDisplay.textContent = Core.roundDecimals(CartCheckout.payment);
 }
 
 function onCheckoutConfirm() {
@@ -243,7 +243,7 @@ UI.saveCustomerButton.addEventListener('click', function () {
     return onSaveNewCustomer();
 });
 UI.saveCashupButton.addEventListener('click', function () {
-    return document.cashupForm.submit();
+    return UI.closingForm.submit();
 });
 ordersOnHold.addEventListener('click', function (e) {
     if (isEventTarget(e.target,'resume-button')) {

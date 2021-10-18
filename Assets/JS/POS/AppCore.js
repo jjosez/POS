@@ -2,8 +2,6 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-const SERVER_URL = "POS";
-
 export function deleteOrderRequest(code) {
     const data = new FormData();
 
@@ -84,10 +82,6 @@ export const getElement = id => {
     return document.getElementById(id);
 };
 
-export const settings = () => {
-    return getElement('app-settings').dataset;
-};
-
 export const token = () => {
     return getElement('token');
 };
@@ -110,7 +104,7 @@ function basePostRequest(data) {
         body: data
     };
 
-    return fetch(SERVER_URL, options).then(response => {
+    return fetch(settings.url, options).then(response => {
         if (response.ok) {
             return response.json();
         }
@@ -125,3 +119,5 @@ function baseSearchRequest(query, action) {
 
     return basePostRequest(data);
 }
+
+export const settings = getElement('app-settings').dataset;

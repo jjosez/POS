@@ -17,7 +17,7 @@
         <div class="p-3 bg-white rounded box-shadow h-100 d-flex flex-column">
             {{ include('POS/Block/FormBlock.html.twig') }}
         </div>
-        <param id="app-settings" data-cash="{{ fsc.cashPaymentMethod() }}" value="">
+        <param id="app-settings" data-cash="{{ fsc.cashPaymentMethod() }}" data-url="POS" value="">
     </div>
 {% endblock %}
 

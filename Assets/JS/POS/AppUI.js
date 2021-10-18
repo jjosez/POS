@@ -17,16 +17,8 @@
  */
 import {getElement} from "./AppCore.js";
 
-export const Checkout = {
-    holdButton: document.getElementById('button-order-hold'),
-    saveButton: document.getElementById('button-checkout-save'),
-    inputAmount: document.getElementById('paymentAmount'),
-    selectMethod: document.getElementById('paymentMethod'),
-    textChange: document.getElementById('paymentReturn'),
-    textReceived: document.getElementById('paymentOnHand')
-};
-
 export const mainForm = getElement("main-order-form");
+export const closingForm = getElement("close-session-form");
 
 export const barcodeInput = getElement("productBarcodeInput");
 
@@ -34,6 +26,8 @@ export const holdOrderButton = getElement('button-order-hold');
 export const saveOrderButton = getElement('button-checkout-save');
 export const paymentAmountInput = getElement('paymentAmount');
 export const paymentMethodSelect = getElement('paymentMethod');
+export const checkoutChangeDisplay = getElement('paymentReturn');
+export const checkoutReceivedDisplay = getElement('paymentOnHand');
 
 export const customerNameInput = getElement('customerSearchBox');
 export const searchCustomerInput = getElement('customerSerachInput');
