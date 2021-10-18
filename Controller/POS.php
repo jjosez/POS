@@ -81,7 +81,7 @@ class POS extends Controller
         $this->execAfterAction($action);
 
         // Set view template
-        $template = $this->session->isOpen() ? '\POS\SalesScreen' : '\POS\SessionScreen';
+        $template = $this->session->isOpen() ? '\POS\Layout\SalesScreen' : '\POS\Layout\SessionScreen';
         $this->setTemplate($template);
     }
 
@@ -112,6 +112,10 @@ class POS extends Controller
 
             case 'recalculate-order':
                 $this->recalculateOrder();
+                return false;
+
+            case 'delete-order-on-hold':
+                $this->deleteOrderOnHold();
                 return false;
 
             case 'save-new-customer':
@@ -205,11 +209,12 @@ class POS extends Controller
      */
     protected function deleteOrderOnHold()
     {
-        $code = $this->request->request->get('idpausada', '');
+        $code = $this->request->request->get('code', '');
         $storage = $this->session->getStorage();
 
         if ($storage->updateOrderOnHold($code)) {
             $this->toolBox()->i18nLog()->info('pos-order-on-hold-deleted');
+            $this->setAjaxResponse('OK');
         }
     }
 

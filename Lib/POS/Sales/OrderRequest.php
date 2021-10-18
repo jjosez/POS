@@ -50,15 +50,9 @@ class OrderRequest
 
     protected function setProductList(): void
     {
-        $action = $this->request->get('action');
         $lines = $this->request->get('lines', []);
 
-        if ('recalculate-order' !== $action) {
-            $this->productList = json_decode($lines, true);
-            return;
-        }
-
-        $this->productList = $lines;
+        $this->productList = json_decode($lines, true);
     }
 
     protected function setDocumentData(): void

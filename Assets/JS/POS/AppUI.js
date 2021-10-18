@@ -24,7 +24,9 @@ export const Checkout = {
     selectMethod: document.getElementById('paymentMethod'),
     textChange: document.getElementById('paymentReturn'),
     textReceived: document.getElementById('paymentOnHand')
-}
+};
+
+export const mainForm = getElement("main-order-form");
 
 export const barcodeInput = getElement("productBarcodeInput");
 

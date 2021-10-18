@@ -12,13 +12,12 @@ const customerTemplate = Eta.compile(Core.customerTemplateSource());
 const productTemplate = Eta.compile(Core.productTemplateSource());
 
 const cartContainer = Core.getElement('cartContainer');
-const customerSearchResult = Core.getElement('customerSearchResult');
+const customerSearch = Core.getElement('customerSearchResult');
 const ordersOnHold = Core.getElement('pausedOperations');
-const productSearchResult = Core.getElement('productSearchResult');
-const salesForm = Core.getElement("salesDocumentForm");
+const productSearch = Core.getElement('productSearchResult');
 
 const Cart = new ShoppingCart();
-var CartCheckout = new Checkout(0, CASH_PAYMENT_METHOD);
+var CartCheckout = new Checkout(0, Core.settings().cash);
 
 function deleteCartItem(e) {
     let index = e.getAttribute('data-index');
@@ -37,18 +36,18 @@ function editCartItem(e) {
 
 function searchCustomer(query) {
     function updateSearchResult(response) {
-        customerSearchResult.innerHTML = customerTemplate({items: response}, Eta.config);
+        customerSearch.innerHTML = customerTemplate({items: response}, Eta.config);
     }
 
-    Core.searchCustomer(updateSearchResult, query);
+    Core.searchCustomer(query).then(updateSearchResult);
 }
 
 function searchProduct(query) {
     function updateSearchResult(response) {
-        productSearchResult.innerHTML = productTemplate({items: response}, Eta.config);
+        productSearch.innerHTML = productTemplate({items: response}, Eta.config);
     }
 
-    Core.searchProduct(updateSearchResult, query);
+    Core.searchProduct(query).then(updateSearchResult);
 }
 
 function searchBarcode(query) {
@@ -59,11 +58,12 @@ function searchBarcode(query) {
         UI.barcodeInput.value = '';
     }
 
-    Core.searchBarcode(setProductBarcode, query);
+    Core.searchBarcode(query).then(setProductBarcode);
 }
 
 function setProduct(code, description) {
     Cart.addLine(code, description);
+    console.log(Cart);
     updateCart();
 }
 
@@ -76,18 +76,18 @@ function setCustomer(code, description) {
 }
 
 function updateCart() {
-    function updateCartData(data) {
-        Cart.update(data);
-        updateCartView(data);
+    function updateCartData(response) {
+        Cart.update(response);
+        updateCartView(response);
     }
 
-    Core.recalculate(updateCartData, Cart.lines, salesForm);
+    Core.recalculate(Cart, UI.mainForm).then(updateCartData);
 }
 
 function updateCartTotals() {
-    salesForm.cartTotalDisplay.value = Cart.doc.total;
-    salesForm.cartTaxesDisplay.value = Cart.doc.totaliva;
-    salesForm.cartNetoDisplay.value = Cart.doc.netosindto;
+    UI.mainForm.cartTotalDisplay.value = Cart.doc.total;
+    UI.mainForm.cartTaxesDisplay.value = Cart.doc.totaliva;
+    UI.mainForm.cartNetoDisplay.value = Cart.doc.netosindto;
 
     document.getElementById('cartNeto').value = Cart.doc.netosindto;
     document.getElementById('cartTaxes').value = Cart.doc.totaliva;
@@ -97,7 +97,7 @@ function updateCartTotals() {
 }
 
 function updateCartView(data) {
-    const elements = salesForm.elements;
+    const elements = UI.mainForm.elements;
     const excludedElements = ['token', 'tipo-documento'];
 
     for (const element of elements) {
@@ -134,26 +134,33 @@ function recalculatePaymentAmount() {
 }
 
 function onCheckoutConfirm() {
-    let paymentData = {};
-    paymentData.amount = UI.paymentAmountInput.value;
-    paymentData.change = CartCheckout.change || 0;
-    paymentData.method = UI.paymentMethodSelect.value;
+    let payments = {
+        amount: UI.paymentAmountInput.value,
+        change: CartCheckout.change || 0,
+        method: UI.paymentMethodSelect.value
+    };
 
-    document.getElementById("action").value = 'save-order';
-    document.getElementById("lines").value = JSON.stringify(Cart.lines);
-    document.getElementById("payments").value = JSON.stringify(paymentData);
-    document.getElementById("codpago").value = paymentData.method;
-    salesForm.submit();
+    Core.saveOrder(Cart, payments, UI.mainForm);
+
+    //document.getElementById("action").value = 'save-order';
+    //document.getElementById("lines").value = JSON.stringify(Cart.lines);
+    //document.getElementById("payments").value = JSON.stringify(paymentData);
+    //document.getElementById("codpago").value = paymentData.method;
+    //UI.mainForm.submit();
 }
 
 function deleteOrderOnHold(target) {
     const code = target.getAttribute('data-code');
 
-    Core.deleteOrderOnHold(code, salesForm);
+    function deleteOrder() {
+        location.href='POS';
+    }
+
+    Core.deleteOrderRequest(code).then(deleteOrder);
 }
 
 function onHoldOrder() {
-    if (false === Core.holdOrder(Cart.lines, salesForm)) {
+    if (false === Core.holdOrder(Cart.lines, UI.mainForm)) {
         $('#checkoutModal').modal('hide');
     }
 }
@@ -161,20 +168,13 @@ function onHoldOrder() {
 function resumeOrderOnHold(target) {
     const code = target.getAttribute('data-code');
 
-    /*Core.resumeOrderFetch(code).then(response => {
-        setCustomer(response.doc.codcliente, response.doc.nombrecliente);
-        Cart.update(response);
-        updateCartView(response);
-    });*/
-
     function resumeOrder(response) {
         setCustomer(response.doc.codcliente, response.doc.nombrecliente);
         Cart.update(response);
         updateCartView(response);
     }
 
-    Core.resumeOrder(resumeOrder, code);
-    //Core.resumeOrderFetch(code).then(resumeOrder);
+    Core.resumeOrder(code).then(resumeOrder);
 }
 
 function onSaveNewCustomer() {
@@ -188,7 +188,7 @@ function onSaveNewCustomer() {
         }
     }
 
-    Core.saveNewCustomer(saveCustomer, taxID, name);
+    Core.saveNewCustomer(taxID, name).then(saveCustomer);
 }
 
 function isEventTarget(target, elementClass) {
@@ -263,12 +263,12 @@ cartContainer.addEventListener('click', function (e) {
         deleteCartItem(e.target);
     }
 });
-customerSearchResult.addEventListener('click', function (e) {
+customerSearch.addEventListener('click', function (e) {
     if (isEventTarget(e.target,'item-add-button')) {
         setCustomer(e.target.dataset.code, e.target.dataset.description);
     }
 });
-productSearchResult.addEventListener('click', function (e) {
+productSearch.addEventListener('click', function (e) {
     if (isEventTarget(e.target,'item-add-button')) {
         setProduct(e.target.dataset.code, e.target.dataset.description);
     }

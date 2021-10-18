@@ -4,13 +4,13 @@
  */
 const SERVER_URL = "POS";
 
-export function deleteOrderOnHold(code, form) {
-    const elements = form.elements;
+export function deleteOrderRequest(code) {
+    const data = new FormData();
 
-    elements.action.value = 'delete-order-on-hold';
-    elements.idpausada.value = code;
+    data.set('action', 'delete-order-on-hold');
+    data.set('code', code);
 
-    form.submit();
+    return basePostRequest(data);
 }
 
 export function holdOrder(lines, form) {
@@ -22,57 +22,75 @@ export function holdOrder(lines, form) {
 
     elements.action.value = 'hold-order';
     elements.lines.value = JSON.stringify(lines);
+
     form.submit();
 }
 
-export function resumeOrder(callback, code) {
-    const data = {
-        action: "resume-order",
-        code: code
-    };
+export function recalculate(order, form) {
+    const data = new FormData(form);
 
-    baseAjaxRequest(callback, data, 'Resume order fail');
+    data.set('action',"recalculate-order");
+    data.set('lines', JSON.stringify(order.lines));
+
+    return basePostRequest(data);
 }
 
-export function recalculate(callback, lines, form) {
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
+export function resumeOrder(code) {
+    const data = new FormData();
 
-    data.action = "recalculate-order";
-    data.lines = lines;
+    data.set('action', 'resume-order');
+    data.set('code', code);
 
-    baseAjaxRequest(callback, data, 'Recalculate order fail');
+    return basePostRequest(data);
 }
 
-export function saveNewCustomer(callback, taxID, name) {
-    let data = {
-        taxID: taxID,
-        name: name,
-        action: 'save-new-customer'
-    };
+export function saveOrder(order, payments, form) {
+    const elements = form.elements;
 
-    baseAjaxRequest(callback, data, 'Save new customer fail');
+    elements.action.value = 'save-order';
+    elements.lines.value = JSON.stringify(order.lines);
+    elements.payments.value = JSON.stringify(payments);
+
+    form.submit();
 }
 
-export function searchBarcode(callback, query) {
-    baseSearch(callback, query, 'search-barcode');
+export function saveNewCustomer(taxID, name) {
+    const data = new FormData();
+
+    data.set('action', 'save-new-customer');
+    data.set('taxID', taxID);
+    data.set('name', name);
+
+    return basePostRequest(data);
 }
 
-export function searchCustomer(callback, query) {
-    baseSearch(callback, query, 'search-customer');
+export function searchBarcode(query) {
+    return baseSearchRequest(query, 'search-barcode');
 }
 
-export function searchProduct(callback, query) {
-    baseSearch(callback, query, 'search-product');
+export function searchCustomer(query) {
+    return baseSearchRequest(query, 'search-customer');
+}
+
+export function searchProduct(query) {
+    return baseSearchRequest(query, 'search-product');
 }
 
 export function roundDecimals(amount, roundRate = 1000) {
     return Math.round(amount * roundRate) / roundRate;
 }
 
-export function getElement(id) {
+export const getElement = id => {
     return document.getElementById(id);
-}
+};
+
+export const settings = () => {
+    return getElement('app-settings').dataset;
+};
+
+export const token = () => {
+    return getElement('token');
+};
 
 export const cartTemplateSource = () => {
     return getElement('cart-template').innerHTML;
@@ -86,54 +104,24 @@ export const productTemplateSource = () => {
     return getElement('product-template').innerHTML;
 };
 
-function baseSearch(callback, query, action) {
-    let data = {
-        action: action,
-        query: query
-    };
-    $.ajax({
-        type: "POST",
-        url: SERVER_URL,
-        dataType: "json",
-        data: data,
-        success: callback,
-        error: function (xhr) {
-            console.error('Error searching', xhr.responseText);
-            return false;
-        }
-    });
-}
-
-function baseAjaxRequest(callback, data, eMessage) {
-    $.ajax({
-        type: "POST",
-        url: SERVER_URL,
-        dataType: "json",
-        data: data,
-        success: callback,
-        error: function (xhr) {
-            console.error(eMessage, xhr.responseText);
-        }
-    });
-}
-
-function baseRequest(data) {
+function basePostRequest(data) {
     const options = {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
         body: data
     };
 
-    return fetch(SERVER_URL, options).then(response => response.json());
+    return fetch(SERVER_URL, options).then(response => {
+        if (response.ok) {
+            return response.json();
+        }
+    });
 }
 
-export function loadOrderRequest(code) {
+function baseSearchRequest(query, action) {
     const data = new FormData();
 
-    data.set('action', 'resume-order');
-    data.set('code', code);
+    data.set('action', action);
+    data.set('query', query);
 
-    return baseRequest(data);
+    return basePostRequest(data);
 }
