@@ -17,6 +17,7 @@
         <div class="p-3 bg-white rounded box-shadow h-100 d-flex flex-column">
             {{ include('POS/Block/FormBlock.html.twig') }}
         </div>
+        <param id="app-settings" data-cash="{{ fsc.cashPaymentMethod() }}" value="">
     </div>
 {% endblock %}
 
@@ -33,16 +34,13 @@
 
 {% block js %}
     <script id="cart-template" type="text/template">
-        {{ pos.cartTemplateSource(grid.columns) }}
+        {{ pos.cartTemplate(grid.columns) }}
     </script>
     <script id="product-template" type="text/template">
         {{ pos.productSearchTemplate() }}
     </script>
     <script id="customer-template" type="text/template">
         {{ pos.customerSearchTemplate() }}
-    </script>
-    <script type="text/javascript">
-        const CASH_PAYMENT_METHOD = "{{ fsc.cashPaymentMethod() }}";
     </script>
 
     {#TODO: Change to dynamic for release #}

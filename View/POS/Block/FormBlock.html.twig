@@ -8,19 +8,19 @@
 {% set documentList = appSettings.get('pointofsale','tiposdocumento')|split('|') %}
 {% set defaultDocument = appSettings.get('pointofsale','defaultdoc') %}
 
-<form id="salesDocumentForm" name="salesDocumentForm" method="post" autocomplete="off">
+<form id="main-order-form" name="main-order-form" method="post" autocomplete="off">
     <input type="hidden" id="action" name="action"/>
     <input type="hidden" id="codalmacen" name="codalmacen" value="{{ terminal.codalmacen }}">
-    <input type="hidden" id="codpago" name="codpago" value="">
+{#    <input type="hidden" id="codpago" name="codpago" value="">#}
     <input type="hidden" id="lines" name="lines"/>
-    <input type="hidden" id="neto" name="neto" value="0">
+{#    <input type="hidden" id="neto" name="neto" value="0">#}
     <input type="hidden" id="payments" name="payments"/>
     <input type="hidden" id="token" name="token" value="{{ fsc.requestToken() }}">
-    <input type="hidden" id="total" name="total" value="0">
+{#    <input type="hidden" id="total" name="total" value="0">
     <input type="hidden" id="totalsuplidos" name="totalsuplidos" value="0">
     <input type="hidden" id="totaliva" name="totaliva" value="0">
     <input type="hidden" id="totalirpf" name="totalirpf" value="0">
-    <input type="hidden" id="totalrecargo" name="totalrecargo" value="0">
+    <input type="hidden" id="totalrecargo" name="totalrecargo" value="0">#}
     <input type="hidden" id="idpausada" name="idpausada" value="false">
 
     <div class="form-row">
@@ -35,7 +35,7 @@
             </div>
         </div>
         <div class="form-group col-12">
-            <select class="form-control custom-select" id="tipoDocumento" name="tipo-documento">
+            <select class="form-control custom-select" id="tipo-documento" name="tipo-documento">
                 {% for document in documentList %}
                     <option value="{{ document }}" {% if document == defaultDocument %} selected="selected" {% endif %}>
                         {{ i18n.trans(document) }}</option>
@@ -43,7 +43,7 @@
             </select>
         </div>
         <div class="form-group col-12">
-            <select class="form-control custom-select" id="serieDocumento" name="codserie">
+            <select class="form-control custom-select" id="codserie" name="codserie">
                 {% for serie in fsc.serie.all() %}
                     <option value="{{ serie.codserie }}" {% if serie.codserie == terminal.codserie %} selected="selected" {% endif %}>
                         {{ serie.descripcion }}</option>

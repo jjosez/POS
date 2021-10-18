@@ -8,7 +8,7 @@
 {% block body %}
     <div class="container-fluid">
         {% if terminal.idterminal %}
-            <form autocomplete="off" id="new-till-session-form" method="post">
+            <form autocomplete="off" id="new-session-form" method="post">
                 <input name="action" type="hidden" value="open-session">
                 <input name="terminal" type="hidden" value="{{ terminal.idterminal }}">
                 <div class="row justify-content-md-center">
