@@ -8,7 +8,7 @@
 {% set documentList = appSettings.get('pointofsale','tiposdocumento')|split('|') %}
 {% set defaultDocument = appSettings.get('pointofsale','defaultdoc') %}
 
-<form id="main-order-form" name="main-order-form" method="post" autocomplete="off">
+<form id="mainOrderForm" name="mainOrderForm" method="post" autocomplete="off">
     <input type="hidden" id="action" name="action"/>
     <input type="hidden" id="codalmacen" name="codalmacen" value="{{ terminal.codalmacen }}">
 {#    <input type="hidden" id="codpago" name="codpago" value="">#}
@@ -29,7 +29,7 @@
                 <span class="input-icon-addon">
                     <i class="fa fa-user"></i>
                 </span>
-                <input type="text" id="customerSearchBox" value="{{ customer.nombre | raw }}" class="form-control"
+                <input type="text" id="customerSearch" value="{{ customer.nombre | raw }}" class="form-control"
                        placeholder="{{ i18n.trans('customer') }}" autocomplete="off">
                 <input name="codcliente" id="codcliente" type="hidden" value="{{ customer.codcliente }}"/>
             </div>

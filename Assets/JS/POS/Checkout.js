@@ -3,7 +3,7 @@
  * Copyright (C) 2018-2021 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 export default class Checkout {
-    constructor(total = 0, cashMethod = "") {
+    constructor(cashMethod = "", total = 0) {
         this.cashMethod = cashMethod;
         this.change = 0;
         this.total = total;

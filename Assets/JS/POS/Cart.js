@@ -4,7 +4,7 @@
  */
 import * as Money from "./Money.js";
 
-export default class ShoppingCart {
+export default class Cart {
     constructor() {
         this.doc = {};
         this.lines = [];

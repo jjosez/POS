@@ -17,23 +17,27 @@
  */
 import {getElement} from "./AppCore.js";
 
-export const mainForm = getElement("main-order-form");
-export const closingForm = getElement("close-session-form");
+export const mainForm = getElement("mainOrderForm");
+export const closingForm = getElement("closeSessionForm");
+export const closeSessionButton = getElement('closeSessionButton');
 
-export const barcodeInput = getElement("productBarcodeInput");
-
-export const holdOrderButton = getElement('button-order-hold');
-export const saveOrderButton = getElement('button-checkout-save');
+export const orderHoldButton = getElement('orderHoldButton');
+export const orderSaveButton = getElement('orderSaveButton');
 export const paymentAmountInput = getElement('paymentAmount');
 export const paymentMethodSelect = getElement('paymentMethod');
 export const checkoutChangeDisplay = getElement('paymentReturn');
 export const checkoutReceivedDisplay = getElement('paymentOnHand');
 
-export const customerNameInput = getElement('customerSearchBox');
-export const searchCustomerInput = getElement('customerSerachInput');
-export const saveCustomerButton = getElement('save-customer-button');
+export const cartProductsList = getElement('cartContainer');
 
-export const searchProductInput = getElement('productSerachInput');
+export const customerSearch = getElement('customerSearch');
+export const customerSearchBox = getElement('customerSearchBox');
+export const customerSearchResult = getElement('customerSearchResult');
+export const customerSaveButton = getElement('newCustomerSaveButton');
 
-export const saveCashupButton = getElement('saveCashupButton');
+export const productSearch = getElement('productSearch');
+export const productSearchBox = getElement('productSerachBox');
+export const productSearchResult = getElement('productSearchResult');
+export const productBarcodeBox = getElement("productBarcodeBox");
+
 
