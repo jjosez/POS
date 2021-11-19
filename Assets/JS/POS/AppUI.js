@@ -36,7 +36,7 @@ export const customerSearchResult = getElement('customerSearchResult');
 export const customerSaveButton = getElement('newCustomerSaveButton');
 
 export const productSearch = getElement('productSearch');
-export const productSearchBox = getElement('productSerachBox');
+export const productSearchBox = getElement('productSearchBox');
 export const productSearchResult = getElement('productSearchResult');
 export const productBarcodeBox = getElement("productBarcodeBox");
 

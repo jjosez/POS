@@ -43,15 +43,6 @@ class Product
      * @param string $text
      * @return CodeModel[]
      */
-    public function searchRequest(string $text): array
-    {
-        return $this->queryProduct($text);
-    }
-
-    /**
-     * @param string $text
-     * @return CodeModel[]
-     */
     public function search(string $text): array
     {
         $text = str_replace(" ", "%", $text);

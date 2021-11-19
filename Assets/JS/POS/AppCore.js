@@ -49,6 +49,8 @@ export function saveOrder(order, payments, form) {
     elements.lines.value = JSON.stringify(order.lines);
     elements.payments.value = JSON.stringify(payments);
 
+    //form.setAttribute('target', '_blank');
+
     form.submit();
 }
 
@@ -78,25 +80,15 @@ export function roundDecimals(amount, roundRate = 1000) {
     return Math.round(amount * roundRate) / roundRate;
 }
 
-export const getElement = id => {
+export function getElement(id) {
     return document.getElementById(id);
-};
+}
 
-export const token = () => {
-    return getElement('token');
-};
+export const token = () => getElement('token');
 
-export const cartTemplateSource = () => {
-    return getElement('cart-template').innerHTML;
-};
-
-export const customerTemplateSource = () => {
-    return getElement('customer-template').innerHTML;
-};
-
-export const productTemplateSource = () => {
-    return getElement('product-template').innerHTML;
-};
+export const cartTemplateSource = () => getElement('cart-template').innerHTML;
+export const customerTemplateSource = () => getElement('customer-template').innerHTML;
+export const productTemplateSource = () => getElement('product-template').innerHTML;
 
 function basePostRequest(data) {
     const options = {

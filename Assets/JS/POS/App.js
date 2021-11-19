@@ -186,9 +186,6 @@ function isEventTarget(target, elementClass) {
     return target && target.classList.contains(elementClass);
 }
 
-$(document).ready(function () {
-
-});
 document.addEventListener( "DOMContentLoaded", () => {
     /* global onScan*/
     onScan.attachTo(UI.productBarcodeBox, {
@@ -203,7 +200,7 @@ document.addEventListener( "DOMContentLoaded", () => {
         $('#customerSearchBox').focus();
     });
     $('#productSearchModal').on('shown.bs.modal', function () {
-        $('#productSerachBox').focus();
+        $('#productSearchBox').focus();
     });
 });
 document.addEventListener("onSelectCustomer", function (e) {

@@ -14,10 +14,9 @@ use FacturaScripts\Dinamic\Model\User;
 
 class SalesSession
 {
-    private $arqueo;
-
     protected $currentOrder;
 
+    private $arqueo;
     private $open;
     private $terminal;
     private $user;
@@ -40,11 +39,11 @@ class SalesSession
         $this->user = $user;
         $this->open = true;
 
-        if (!$this->arqueo->isOpen('user', $this->user->nick)) {
+        if (false === $this->arqueo->isOpen('user', $this->user->nick)) {
             $this->open = false;
         }
 
-        if (!$this->terminal->loadFromCode($this->arqueo->idterminal)) {
+        if (false === $this->terminal->loadFromCode($this->arqueo->idterminal)) {
             $this->open = false;
         }
     }
