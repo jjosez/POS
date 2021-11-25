@@ -225,7 +225,7 @@ class POS extends Controller
      */
     protected function saveOrderOnHold()
     {
-        if (false === $this->validateOrderRequest($this->request)) return;
+        if (false === $this->validateOrderRequest()) return;
 
         $request = new OrderRequest($this->request, true);
         $order = new Order($request);
@@ -268,7 +268,7 @@ class POS extends Controller
      */
     protected function saveOrder()
     {
-        if (false === $this->validateOrderRequest($this->request)) return;
+        if (false === $this->validateOrderRequest()) return;
 
         $orderRequest = new OrderRequest($this->request);
         $order = new Order($orderRequest);
@@ -321,19 +321,25 @@ class POS extends Controller
      * @param Request $request
      * @return bool
      */
-    protected function validateOrderRequest(Request $request): bool
+    protected function validateOrderRequest(): bool
     {
         if (false === $this->permissions->allowUpdate) {
             $this->toolBox()->i18nLog()->warning('not-allowed-modify');
             return false;
         }
 
-        $token = $request->request->get('token');
+        $token = $this->request->request->get('token');
 
-        if (!empty($token) && $this->multiRequestProtection->tokenExist($token)) {
+        if (empty($token) || false === $this->multiRequestProtection->validate($token)) {
+            $this->toolBox()->i18nLog()->warning('invalid-request');
+            return false;
+        }
+
+        if ($this->multiRequestProtection->tokenExist($token)) {
             $this->toolBox()->i18nLog()->warning('duplicated-request');
             return false;
         }
+
         return true;
     }
 
