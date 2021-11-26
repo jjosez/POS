@@ -54,6 +54,11 @@ class POS extends Controller
     public $serie;
 
     /**
+     * @var Order
+     */
+    private $order;
+
+    /**
      * @param Response $response
      * @param User $user
      * @param ControllerPermissions $permissions
@@ -261,17 +266,17 @@ class POS extends Controller
         $code = $this->request->request->get('code', '');
         $storage = $this->session->getStorage();
 
-        $this->setAjaxResponse($storage->getOrderOnHold($code), false);
+        $this->setAjaxResponse($storage->getOrderOnHold($code));
     }
 
     /**
      * Save order and payments.
      *
-     * @return void
+     * @return bool
      */
-    protected function saveOrder()
+    protected function saveOrder(): bool
     {
-        if (false === $this->validateOrderRequest()) return;
+        if (false === $this->validateOrderRequest()) return false;
 
         $orderRequest = new OrderRequest($this->request);
         $order = new Order($orderRequest);
@@ -281,7 +286,11 @@ class POS extends Controller
         if ($storage->placeOrder($order)) {
             $this->printVoucher($order->getDocument());
             $this->toolBox()->i18nLog()->info('pos-order-ok');
+
+            return true;
         }
+
+        return false;
     }
 
     /**

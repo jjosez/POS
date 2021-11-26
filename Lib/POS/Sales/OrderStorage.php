@@ -58,9 +58,9 @@ class OrderStorage
 
     /**
      * @param string $code
-     * @return false|string
+     * @return array
      */
-    public function getOrderOnHold(string $code)
+    public function getOrderOnHold(string $code): array
     {
         $order = new OperacionPausada();
         $order->loadFromCode($code);
@@ -70,7 +70,7 @@ class OrderStorage
             'lines' => $order->getLines(),
         ];
 
-        return json_encode($result);
+        return $result;
     }
 
     /**
