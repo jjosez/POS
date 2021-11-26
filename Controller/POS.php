@@ -221,11 +221,11 @@ class POS extends Controller
     /**
      * Put order on hold.
      *
-     * @return void
+     * @return bool
      */
-    protected function saveOrderOnHold()
+    protected function saveOrderOnHold(): bool
     {
-        if (false === $this->validateOrderRequest()) return;
+        if (false === $this->validateOrderRequest()) return false;
 
         $request = new OrderRequest($this->request, true);
         $order = new Order($request);
@@ -234,7 +234,10 @@ class POS extends Controller
 
         if ($storage->placeOrderOnHold($order)) {
             $this->toolBox()->i18nLog()->info('pos-order-on-hold');
+            return true;
         }
+
+        return false;
     }
 
     /**
