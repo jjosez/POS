@@ -13,6 +13,7 @@ use FacturaScripts\Dinamic\Lib\POS\Printer;
 use FacturaScripts\Dinamic\Lib\POS\Sales\Customer;
 use FacturaScripts\Dinamic\Lib\POS\Sales\Order;
 use FacturaScripts\Dinamic\Lib\POS\Sales\OrderRequest;
+use FacturaScripts\Dinamic\Lib\POS\Sales\OrderStorage;
 use FacturaScripts\Dinamic\Lib\POS\Sales\Product;
 use FacturaScripts\Dinamic\Lib\POS\SalesDataGrid;
 use FacturaScripts\Dinamic\Lib\POS\SalesSession;
@@ -215,9 +216,8 @@ class POS extends Controller
     protected function deleteOrderOnHold()
     {
         $code = $this->request->request->get('code', '');
-        $storage = $this->session->getStorage();
 
-        if ($storage->updateOrderOnHold($code)) {
+        if ($this->getStorage()->updateOrderOnHold($code)) {
             $this->toolBox()->i18nLog()->info('pos-order-on-hold-deleted');
             $this->setAjaxResponse('OK');
         }
@@ -235,9 +235,7 @@ class POS extends Controller
         $request = new OrderRequest($this->request, true);
         $order = new Order($request);
 
-        $storage = $this->session->getStorage();
-
-        if ($storage->placeOrderOnHold($order)) {
+        if ($this->getStorage()->placeOrderOnHold($order)) {
             $this->toolBox()->i18nLog()->info('pos-order-on-hold');
             return true;
         }
@@ -264,9 +262,8 @@ class POS extends Controller
     protected function resumeOrder()
     {
         $code = $this->request->request->get('code', '');
-        $storage = $this->session->getStorage();
 
-        $this->setAjaxResponse($storage->getOrderOnHold($code));
+        $this->setAjaxResponse($this->getStorage()->getOrderOnHold($code));
     }
 
     /**
@@ -281,9 +278,7 @@ class POS extends Controller
         $orderRequest = new OrderRequest($this->request);
         $order = new Order($orderRequest);
 
-        $storage = $this->session->getStorage();
-
-        if ($storage->placeOrder($order)) {
+        if ($this->getStorage()->placeOrder($order)) {
             $this->printVoucher($order->getDocument());
             $this->toolBox()->i18nLog()->info('pos-order-ok');
 
@@ -363,6 +358,14 @@ class POS extends Controller
     {
         $response = $encode ? json_encode($content) : $content;
         $this->response->setContent($response);
+    }
+
+    /**
+     * @return OrderStorage
+     */
+    protected function getStorage(): OrderStorage
+    {
+        return $this->session->getStorage();
     }
 
     /**
