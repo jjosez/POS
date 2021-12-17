@@ -307,7 +307,7 @@ class POS extends Controller
     protected function printClosingVoucher()
     {
         $ticketWidth = $this->session->terminal()->anchopapel;
-        $message = Printer::cashupTicket($this->session->getArqueo(), $this->empresa, $ticketWidth);
+        $message = Printer::cashupTicket($this->session->getSession(), $this->empresa, $ticketWidth);
 
         $this->toolBox()->log()->info($message);
     }

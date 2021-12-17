@@ -14,38 +14,56 @@ use FacturaScripts\Dinamic\Model\User;
 
 class SalesSession
 {
+    /**
+     * @var
+     */
     protected $currentOrder;
 
-    private $arqueo;
+    /**
+     * @var bool
+     */
     private $open;
-    private $terminal;
-    private $user;
+
+    /**
+     * @var SesionPuntoVenta
+     */
+    private $session;
 
     /**
      * @var OrderStorage
      */
-    protected $sessionStorage;
+    protected $storage;
+
+    /**
+     * @var TerminalPuntoVenta
+     */
+    private $terminal;
+
+    /**
+     * @var User
+     */
+    private $user;
 
     /**
      * TillSessionHelper constructor.
      */
     public function __construct(User $user)
     {
-        $this->arqueo = new SesionPuntoVenta();
+        $this->session = new SesionPuntoVenta();
         $this->terminal = new TerminalPuntoVenta();
-
-        $this->sessionStorage = new OrderStorage($this->arqueo);
 
         $this->user = $user;
         $this->open = true;
 
-        if (false === $this->arqueo->isOpen('user', $this->user->nick)) {
+        if (false === $this->session->isOpen('user', $this->user->nick)) {
             $this->open = false;
         }
 
-        if (false === $this->terminal->loadFromCode($this->arqueo->idterminal)) {
+        if (false === $this->terminal->loadFromCode($this->session->idterminal)) {
             $this->open = false;
         }
+
+        $this->storage = new OrderStorage($this->session);
     }
 
     /**
@@ -60,9 +78,9 @@ class SalesSession
             return;
         }
 
-        $this->arqueo->abierto = false;
-        $this->arqueo->fechafin = date('d-m-Y');
-        $this->arqueo->horafin = date('H:i:s');
+        $this->session->abierto = false;
+        $this->session->fechafin = date('d-m-Y');
+        $this->session->horafin = date('H:i:s');
 
         $total = 0.0;
         foreach ($cash as $value => $count) {
@@ -70,10 +88,10 @@ class SalesSession
         }
 
         ToolBox::i18nLog()->info('cashup-total', ['%amount%' => $total]);
-        $this->arqueo->saldocontado = $total;
-        $this->arqueo->conteo = json_encode($cash);
+        $this->session->saldocontado = $total;
+        $this->session->conteo = json_encode($cash);
 
-        if ($this->arqueo->save()) {
+        if ($this->session->save()) {
             $this->terminal->disponible = true;
             $this->terminal->save();
             $this->open = false;
@@ -83,9 +101,9 @@ class SalesSession
     /**
      * @return SesionPuntoVenta
      */
-    public function getArqueo()
+    public function getSession(): SesionPuntoVenta
     {
-        return $this->arqueo;
+        return $this->session;
     }
 
     /**
@@ -105,7 +123,7 @@ class SalesSession
     /**
      * @return bool
      */
-    public function isOpen()
+    public function isOpen(): bool
     {
         return $this->open;
     }
@@ -115,7 +133,7 @@ class SalesSession
      *
      * @return bool
      */
-    public function open(string $idterminal, float $amount)
+    public function open(string $idterminal, float $amount): bool
     {
         if (true === $this->open) {
             $params = ['%userNickname%' => $this->user->nick];
@@ -128,13 +146,13 @@ class SalesSession
             return false;
         }
 
-        $this->arqueo->abierto = true;
-        $this->arqueo->idterminal = $this->terminal->idterminal;
-        $this->arqueo->nickusuario = $this->user->nick;
-        $this->arqueo->saldoinicial = $amount;
-        $this->arqueo->saldoesperado = $amount;
+        $this->session->abierto = true;
+        $this->session->idterminal = $this->terminal->idterminal;
+        $this->session->nickusuario = $this->user->nick;
+        $this->session->saldoinicial = $amount;
+        $this->session->saldoesperado = $amount;
 
-        if ($this->arqueo->save()) {
+        if ($this->session->save()) {
             $params = [
                 '%terminalName%' => $this->terminal->nombre,
                 '%userNickname%' => $this->user->nick,
@@ -154,10 +172,10 @@ class SalesSession
     protected function savePayments(array $payments)
     {
         $processor = new PaymentsProcessor($payments);
-        $processor->savePayments($this->currentOrder, $this->arqueo);
+        $processor->savePayments($this->currentOrder, $this->session);
 
-        $this->arqueo->saldoesperado += $processor->getCashPaymentAmount();
-        $this->arqueo->save();
+        $this->session->saldoesperado += $processor->getCashPaymentAmount();
+        $this->session->save();
     }
 
     /**
@@ -165,6 +183,14 @@ class SalesSession
      */
     public function getStorage(): OrderStorage
     {
-        return $this->sessionStorage;
+        return $this->storage;
+    }
+
+    public function updateUser(User $user)
+    {
+        $this->user = $user;
+
+        $this->session->nickusuario = $this->user->nick;
+        $this->session->save();
     }
 }

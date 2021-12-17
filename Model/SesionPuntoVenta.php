@@ -49,7 +49,7 @@ class SesionPuntoVenta extends Base\ModelClass
         return parent::install();
     }
 
-    public function isOpen($search, $value)
+    public function isOpen($search, $value): bool
     {
         switch ($search) {
             case 'terminal':
@@ -79,7 +79,7 @@ class SesionPuntoVenta extends Base\ModelClass
      *
      * @return OrdenPuntoVenta[]
      */
-    public function getOperaciones()
+    public function getOperaciones(): array
     {
         $operacion = new OrdenPuntoVenta();
         $where = [new DataBaseWhere('idsesion', $this->idsesion)];
@@ -88,7 +88,10 @@ class SesionPuntoVenta extends Base\ModelClass
         return $operacion->all($where, $order, 0, 0);
     }
 
-    public function getPagos()
+    /**
+     * @return array
+     */
+    public function getPagos(): array
     {
         $pago = new PagoPuntoVenta();
         $where = [new DataBaseWhere('idsesion', $this->idsesion)];
@@ -96,7 +99,10 @@ class SesionPuntoVenta extends Base\ModelClass
         return $pago->all($where, [], 0, 0);
     }
 
-    public function getPagosTotales()
+    /**
+     * @return array
+     */
+    public function getPagosTotales(): array
     {
         $result = [];
         foreach ($this->getPagos() as $pago) {
@@ -111,12 +117,12 @@ class SesionPuntoVenta extends Base\ModelClass
         return $result;
     }
 
-    public static function primaryColumn()
+    public static function primaryColumn(): string
     {
         return 'idsesion';
     }
 
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'sesionespos';
     }
