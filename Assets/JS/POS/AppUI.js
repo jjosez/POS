@@ -23,6 +23,7 @@ export const closeSessionButton = getElement('closeSessionButton');
 
 export const orderHoldButton = getElement('orderHoldButton');
 export const orderSaveButton = getElement('orderSaveButton');
+export const orderSaveNoPrintButton = getElement('orderSaveNoPrintButton');
 export const paymentAmountInput = getElement('paymentAmount');
 export const paymentMethodSelect = getElement('paymentMethod');
 export const checkoutChangeDisplay = getElement('paymentReturn');
