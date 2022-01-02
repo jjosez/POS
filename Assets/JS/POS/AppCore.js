@@ -54,6 +54,19 @@ export function saveOrder(order, payments, form) {
     form.submit();
 }
 
+/* Guardar sin imprimir */
+export function saveNoPrintOrder(order, payments, form) {
+    const elements = form.elements;
+
+    elements.action.value = 'save-noprint-order';
+    elements.lines.value = JSON.stringify(order.lines);
+    elements.payments.value = JSON.stringify(payments);
+
+    //form.setAttribute('target', '_blank');
+
+    form.submit();
+}
+
 export function saveNewCustomer(taxID, name) {
     const data = new FormData();
 
