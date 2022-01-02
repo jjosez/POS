@@ -287,7 +287,25 @@ class POS extends Controller
 
         return false;
     }
+    /**
+     * Save order and payments without print boucher.
+     */
+    protected function saveNoPrintOrder(): bool
+    {
+        if (false === $this->validateOrderRequest()) return false;
 
+        $orderRequest = new OrderRequest($this->request);
+        $order = new Order($orderRequest);
+
+        if ($this->getStorage()->placeOrder($order)) {
+            $this->toolBox()->i18nLog()->info('pos-order-ok');
+
+            return true;
+        }
+
+        return false;
+    }
+    
     /**
      * Close current user POS session.
      */
