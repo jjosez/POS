@@ -68,7 +68,7 @@
 {% macro message(log, types, style) %}
     {% set messages = log.read('', types) %}
     {% if messages | length > 0 %}
-        <div class="toast mr-auto" role="alert" data-delay="2000">
+        <div class="toast mr-auto" role="alert" data-delay="20000">
             <div class="toast-header text-white bg-{{ style }} border-0">
                 <strong class="mr-auto">{{ style|capitalize }}</strong>
                 <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">

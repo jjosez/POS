@@ -122,8 +122,10 @@ function recalculatePaymentAmount() {
     if (OrderCheckout.change >= 0) {
         UI.paymentAmountInput.value = OrderCheckout.payment;
         UI.orderSaveButton.removeAttribute('disabled');
+        UI.orderSaveNoPrintButton.removeAttribute('disabled');
     } else {
         UI.orderSaveButton.setAttribute('disabled', 'disabled');
+        UI.orderSaveNoPrintButton.setAttribute('disabled', 'disabled');
     }
 
     UI.checkoutChangeDisplay.textContent = Core.roundDecimals(OrderCheckout.change);
@@ -138,6 +140,16 @@ function onCheckoutConfirm() {
     };
 
     Core.saveOrder(OrderCart, payments, UI.mainForm);
+}
+
+function onCheckoutConfirmNoPrint() {
+    let payments = {
+        amount: UI.paymentAmountInput.value,
+        change: OrderCheckout.change || 0,
+        method: UI.paymentMethodSelect.value
+    };
+
+    Core.saveNoPrintOrder(OrderCart, payments, UI.mainForm);
 }
 
 function deleteOrderOnHold(target) {
@@ -216,6 +228,9 @@ UI.paymentMethodSelect.addEventListener('change', function () {
     return recalculatePaymentAmount();
 });
 UI.orderSaveButton.addEventListener('click', function () {
+    return onCheckoutConfirm();
+});
+UI.orderSaveNoPrintButton.addEventListener('click', function () {
     return onCheckoutConfirm();
 });
 UI.orderHoldButton.addEventListener('click', function () {
