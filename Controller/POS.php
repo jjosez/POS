@@ -167,6 +167,10 @@ class POS extends Controller
             case 'save-order':
                 $this->saveOrder();
                 break;
+            
+            case 'save-noprint-order':
+            $this->saveNoPrintOrder();
+            break;
 
             case 'delete-order-on-hold':
                 $this->deleteOrderOnHold();
