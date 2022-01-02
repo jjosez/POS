@@ -40,5 +40,13 @@
   "pos": "Punto de venta",
   "pos-settings": "Configuración del punto de venta",
   "payment-change": "Cambio",
-  "payment-received": "Pago recibido"
+  "payment-received": "Pago recibido",
+  
+  "select-cash-register": "Seleccionar terminal",
+  "cash-initial-amount-input": "Efectivo de apertura inicial",
+  "cashup-total": "balance total",
+  "empty-cart-list": "Carrito de compra vacio",
+  "ticket-on-hold": "Ticket en espera",
+  "pos-order-on-hold": "Orden en espera",
+  "pos-orders-on-hold": "Ordenes en espera"
 }
