@@ -71,11 +71,11 @@ class OrderRequest
         $payments = $this->request->get('payments');
 
         if ('recalculate-order' !== $action) {
-            $this->paymentList[] = json_decode($payments, true);
+            $this->paymentList = json_decode($payments, true);
             return;
         }
 
-        $this->paymentList[] = $payments ?? [];
+        $this->paymentList = $payments ?? [];
     }
 
     /**

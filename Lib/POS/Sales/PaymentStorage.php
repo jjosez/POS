@@ -13,21 +13,35 @@ class PaymentStorage
      */
     protected $session;
 
-    public function __construct(SesionPuntoVenta $session)
+    protected $payments;
+
+    /**
+     * @var OrdenPuntoVenta
+     */
+    protected $order;
+
+    public function __construct(OrdenPuntoVenta $order)
     {
-        $this->session = $session;
+        //$this->session = $session;
+        $this->order = $order;
     }
 
-    public function saveOrderPayment($payment, OrdenPuntoVenta $order)
+    public function savePayments(array $payments = [])
+    {
+        foreach ($payments as $payment) {
+            $this->savePayment($payment);
+        }
+    }
+
+    protected function savePayment(array $payment)
     {
         $pago = new PagoPuntoVenta();
         $pago->cantidad = $payment['amount'];
-        $pago->cambio = $payment['change'];
+        $pago->cambio = 0;
         $pago->codpago = $payment['method'];
-        $pago->idoperacion = $order->idoperacion;
-        $pago->idsesion = $order->idsesion;
+        $pago->idoperacion = $this->order->idoperacion;
+        $pago->idsesion = $this->order->idsesion;
 
         $pago->save();
-
     }
 }

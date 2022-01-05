@@ -19,9 +19,9 @@
 
 namespace FacturaScripts\Plugins\POS\Lib\POS\Sales;
 
+use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Plugins\POS\Model\OperacionPausada;
-use FacturaScripts\Plugins\POS\Model\OrdenPuntoVenta;
 
 class OrderStorage
 {
@@ -81,6 +81,14 @@ class OrderStorage
         $order = new OperacionPausada();
 
         return $order->allOpen();
+    }
+
+    /**
+     * @return OrdenPuntoVenta
+     */
+    public function getCurrentOrder(): OrdenPuntoVenta
+    {
+        return $this->currentOrder;
     }
 
     /**
