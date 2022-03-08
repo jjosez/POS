@@ -75,7 +75,7 @@ class OrderRequest
             return;
         }
 
-        $this->paymentList = $payments ?? [];
+        $this->paymentList = $payments;
     }
 
     /**
@@ -99,7 +99,7 @@ class OrderRequest
      */
     public function getPaymentList(): array
     {
-        return $this->paymentList;
+        return $this->paymentList ?? [];
     }
 
     /**
