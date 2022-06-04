@@ -1,0 +1,37 @@
+<form id="mainOrderForm" name="mainOrderForm" method="post" autocomplete="off">
+    <input type="hidden" id="action" name="action"/>
+    <input type="hidden" id="codalmacen" name="codalmacen" value="{{ terminal.codalmacen }}">
+    <input type="hidden" id="lines" name="lines"/>
+    <input type="hidden" id="payments" name="payments"/>
+    <input type="hidden" id="token" name="token" value="{{ fsc.requestToken() }}">
+    <input type="hidden" id="idpausada" name="idpausada" value="false">
+    <input type="hidden" id="dtopor1" name="dtopor1" value="0">
+</form>
+
+<div class="flex flex-col h-full bg-white md:shadow-lg">
+    <div class="p-4 w-full h-auto select-none">
+        <button id="customerSearchButton" class="btn btn-primary w-full"
+                data-toggle="modal" data-target="customerSearchModal">
+            <i class="fa fa-user"></i>
+            <span id="customerNameLabel" class="mx-2">{{ fsc.getDefaultCustomer().nombre }}</span>
+            <i class="ml-auto fa fa-ellipsis-h"></i>
+        </button>
+    </div>
+    <div class="flex overflow-auto flex-col flex-1">
+        <div id="cartListView" class="overflow-auto flex-1 px-4 w-full">
+            <div class="h-full flex justify-center items-center">
+                <i class="fa fa-shopping-cart fa-5x text-slate-gray-300"></i>
+            </div>
+        </div>
+        <div class="p-4 flex flex-row h-auto select-none">
+            <button id="orderHoldButton" class="flex-1 btn btn-warning mr-4">
+                <i class="fa fa-history mr-2"></i>
+                <span class="uppercase">Suspender</span>
+            </button>
+            <button class=" flex-1 btn btn-success" data-toggle="block" data-target="checkoutView">
+                <span class="mr-auto uppercase">{{ i18n.trans('cobrar') }}</span>
+                <span id="orderTotalDisplay">0.00</span>
+            </button>
+        </div>
+    </div>
+</div>

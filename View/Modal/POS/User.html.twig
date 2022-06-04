@@ -1,0 +1,34 @@
+<div class="modal hidden" id="userModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('user') }}</h2>
+            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="userModal">
+                <i class="fa fw fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="text-center">
+                <span><i class="fa fa-user fa-3x"></i></span>
+                <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ fsc.user.nick }}</h2>
+            </div>
+            <div class="flex-1 mt-5">
+                <form method="post">
+                    <input type="hidden" name="action" value="change-user">
+                    <label class="input-icon text-gray-600">
+                        <i class="fa fa-user fa-sm"></i>
+                        <input type="text" id="userNick" name="userNick" placeholder="Usuario...">
+                    </label>
+                    <label class="input-icon text-gray-600">
+                        <i class="fa fa-user-secret fa-sm"></i>
+                        <input type="password" id="userPassword" name="userPassword" class="mt-5" placeholder="****"
+                               autocomplete="false">
+                    </label>
+                    <button id="loginButton" class="btn btn-success ml-auto mt-5">
+                        <i class="fa fa-sign-in-alt"></i>
+                        <span class="mx-2 text-center">Login</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

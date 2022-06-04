@@ -17,13 +17,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace FacturaScripts\Plugins\POS\Lib\POS\Sales;
+namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Plugins\POS\Model\OperacionPausada;
 
-class OrderStorage
+class PointOfSaleStorage
 {
     /**
      * @var SesionPuntoVenta
@@ -102,11 +102,11 @@ class OrderStorage
     }
 
     /**
-     * @param Order $order
+     * @param PointOfSaleOrder $order
      *
      * @return bool
      */
-    public function placeOrder(Order $order): bool
+    public function saveOrder(PointOfSaleOrder $order): bool
     {
         if (false === $order->save()) {
             return false;
@@ -132,15 +132,5 @@ class OrderStorage
         }
 
         return false;
-    }
-
-    /**
-     * @param Order $order
-     *
-     * @return bool
-     */
-    public function placeOrderOnHold(Order $order): bool
-    {
-        return $order->hold();
     }
 }

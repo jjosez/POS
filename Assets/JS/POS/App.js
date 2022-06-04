@@ -2,270 +2,141 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2018-2021 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-import * as Core from './AppCore.js';
+import * as Core from './Core.js';
+import * as EventHandler from './EventHandler.js';
 import * as UI from './AppUI.js';
-import Checkout from './Checkout.js';
-import Cart from './Cart.js';
+import {cartView, searchView} from "./UI.js";
+import {Checkout} from './CheckoutModule.js';
+import * as Order from "./Order.js";
+import CartClass from "./CartClass.js";
+import {settings} from "./Core.js";
 
-/* global Eta*/
-const cartTemplate = Eta.compile(Core.cartTemplateSource());
-const customerTemplate = Eta.compile(Core.customerTemplateSource());
-const productTemplate = Eta.compile(Core.productTemplateSource());
+export const Cart = new CartClass({
+    'doc': {
+        'codcliente': settings.customer,
+        'idpausada': 'false',
+        'tipo-documento': settings.document,
+        'token': settings.token
+    }
+});
 
-const ordersOnHold = Core.getElement('pausedOperations');
-
-const OrderCart = new Cart();
-const OrderCheckout = new Checkout(Core.settings.cash);
-
-function deleteCartItem(e) {
-    let index = e.getAttribute('data-index');
-
-    OrderCart.deleteLine(index);
-    updateCart();
-}
-
-function editCartItem(e) {
-    let field = e.getAttribute('data-field');
-    let index = e.getAttribute('data-index');
-
-    OrderCart.editLine(index, field, e.value);
-    updateCart();
-}
-
-function searchCustomer(query) {
-    function updateSearchResult(response) {
-        UI.customerSearchResult.innerHTML = customerTemplate({items: response}, Eta.config);
+function saveOrder() {
+    if (Cart.lines.length < 1) {
+        return;
     }
 
-    Core.searchCustomer(query).then(updateSearchResult);
+    Order.saveRequest(Cart, Checkout.payments).then(response => {
+        Cart.updateClean(response);
+        Checkout.clear();
+        searchProductHandler();
+    });
 }
 
-function searchProduct(query) {
-    function updateSearchResult(response) {
-        UI.productSearchResult.innerHTML = productTemplate({items: response}, Eta.config);
+function searchProductHandler() {
+    Core.searchProduct(this.value || '').then(response => {
+        searchView().updateListView(response);
+    });
+}
+
+/**
+ * @param {Event} event
+ */
+function addProductHandler(event) {
+    console.log('Add product', event.target.dataset.code)
+    const data = event.target.dataset;
+    if (typeof data.code === 'undefined' || data.code === null) {
+        return;
     }
-
-    Core.searchProduct(query).then(updateSearchResult);
+    Cart.addProduct(data.code, data.description);
 }
 
-function searchBarcode(query) {
-    function setProductBarcode(response) {
-        if (undefined !== response && false !== response) {
-            setProduct(response.code, response.description);
-        }
-        UI.productBarcodeBox.value = '';
+/**
+ * @param {EventTarget} target
+ */
+function deleteProductHandler(target) {
+    console.log('Delete product', target)
+    Cart.deleteProduct(target.dataset.index);
+}
+
+/**
+ * @param {EventTarget} target
+ */
+function editProductHandler(target) {
+    console.log('Edit product', target)
+    updateEditView(target.dataset.index);
+
+    if (true === cartView().editView.classList.contains('hidden')) {
+        cartView().toggleEditView();
+        searchView().toggleMainView();
     }
-
-    Core.searchBarcode(query).then(setProductBarcode);
 }
 
-function setProduct(code, description) {
-    OrderCart.addLine(code, description);
-    updateCart();
-}
+/**
+ * @param {EventTarget} target
+ */
+function editProductFieldHandler(target) {
+    console.log('Edit field handler', target)
+    const index = target.dataset.index;
+    Cart.editProduct(index, target.dataset.field, target.value);
 
-function setCustomer(code, description) {
-    document.getElementById('codcliente').value = code;
-    UI.customerSearch.value = description;
-    OrderCart.setCustomer(code);
-
-    $('.modal').modal('hide');
+    updateCart().then(() => {
+        updateEditView(index);
+    });
 }
 
 function updateCart() {
-    function updateCartData(response) {
-        OrderCart.update(response);
-        updateCartView(response);
-    }
-
-    Core.recalculate(OrderCart, UI.mainForm).then(updateCartData);
+    return Order.recalculateRequest(Cart).then(response => {
+        Cart.update(response);
+    });
 }
 
-function updateCartTotals() {
-    UI.mainForm.cartTotalDisplay.value = OrderCart.doc.total;
-    UI.mainForm.cartTaxesDisplay.value = OrderCart.doc.totaliva;
-    UI.mainForm.cartNetoDisplay.value = OrderCart.doc.netosindto;
-
-    document.getElementById('cartNeto').value = OrderCart.doc.netosindto;
-    document.getElementById('cartTaxes').value = OrderCart.doc.totaliva;
-    document.getElementById('checkoutTotal').textContent = OrderCart.doc.total;
-
-    OrderCheckout.total = OrderCart.doc.total;
-}
-
+/**
+ * @param {Array} data
+ */
 function updateCartView(data) {
-    const elements = UI.mainForm.elements;
-    const excludedElements = ['token', 'tipo-documento'];
-
-    for (const element of elements) {
-        if (element.name && !excludedElements.includes(element.name)) {
-            const value = data.doc[element.name];
-            switch (element.type) {
-                case 'checkbox':
-                    element.checked = value;
-                    break;
-                default:
-                    element.value = value;
-                    break;
-            }
-        }
-    }
-
-    UI.cartProductsList.innerHTML = cartTemplate(data, Eta.config);
-    updateCartTotals();
-    $('.modal').modal('hide');
+    cartView().updateListView(data.detail);
 }
 
-function recalculatePaymentAmount() {
-    OrderCheckout.recalculatePayment(UI.paymentAmountInput.value, UI.paymentMethodSelect.value);
-
-    if (OrderCheckout.change >= 0) {
-        UI.paymentAmountInput.value = OrderCheckout.payment;
-        UI.orderSaveButton.removeAttribute('disabled');
-    } else {
-        UI.orderSaveButton.setAttribute('disabled', 'disabled');
-    }
-
-    UI.checkoutChangeDisplay.textContent = Core.roundDecimals(OrderCheckout.change);
-    UI.checkoutReceivedDisplay.textContent = Core.roundDecimals(OrderCheckout.payment);
+/**
+ * @param index
+ */
+function updateEditView(index) {
+    let data = Cart.getProduct(index);
+    cartView().updateEditForm(data);
 }
 
-function onCheckoutConfirm() {
-    let payments = {
-        amount: UI.paymentAmountInput.value,
-        change: OrderCheckout.change || 0,
-        method: UI.paymentMethodSelect.value
-    };
+/**
+ * @param {Event} event
+ */
+function cartEventHandler(event) {
+    const target = event.target;
 
-    Core.saveOrder(OrderCart, payments, UI.mainForm);
-}
-
-function deleteOrderOnHold(target) {
-    const code = target.getAttribute('data-code');
-
-    function deleteOrder() {
-        location.href = 'POS';
-    }
-
-    Core.deleteOrderRequest(code).then(deleteOrder);
-}
-
-function onHoldOrder() {
-    if (false === Core.holdOrder(OrderCart.lines, UI.mainForm)) {
-        $('#checkoutModal').modal('hide');
+    switch (true) {
+        case target.matches('.delete-product-btn'):
+            deleteProductHandler(target);
+            return;
+        case target.matches('.edit-product-btn'):
+            editProductHandler(target);
+            return;
+        case target.matches('.edit-product-field'):
+            editProductFieldHandler(target);
+            return;
     }
 }
 
-function resumeOrderOnHold(target) {
-    const code = target.getAttribute('data-code');
+//UI.orderHoldButton.addEventListener('click', holdOrder);
+UI.orderSaveButton.addEventListener('click', saveOrder);
+//UI.pausedOrdersList.addEventListener('click', EventHandler.customEventHandler);
+//UI.customerSaveButton.addEventListener('click', EventHandler.saveNewCostumerHandler);
+//UI.customerSearchBox.addEventListener('keyup', EventHandler.searchCustomerHandler);
+//UI.customerSearchResult.addEventListener('click', EventHandler.customEventHandler);
+searchView().searchBox.addEventListener('keyup', searchProductHandler);
+searchView().listView.addEventListener('click', addProductHandler);
+cartView().listView.addEventListener('click', cartEventHandler);
+cartView().listView.addEventListener('click', cartEventHandler);
+cartView().editView.addEventListener('focusout', cartEventHandler);
+document.addEventListener('updateCartEvent', updateCart);
+document.addEventListener('updateCartViewEvent', updateCartView);
 
-    function resumeOrder(response) {
-        setCustomer(response.doc.codcliente, response.doc.nombrecliente);
-        OrderCart.update(response);
-        updateCartView(response);
-    }
-
-    Core.resumeOrder(code).then(resumeOrder);
-}
-
-function onSaveNewCustomer() {
-    const taxID = Core.getElement('newCustomerTaxID').value;
-    const name = Core.getElement('newCustomerName').value;
-
-    function saveCustomer(response) {
-        if (response.codcliente) {
-            setCustomer(response.codcliente, response.razonsocial);
-            $("#newCustomerForm").collapse('toggle');
-        }
-    }
-
-    Core.saveNewCustomer(taxID, name).then(saveCustomer);
-}
-
-function isEventTarget(target, elementClass) {
-    return target && target.classList.contains(elementClass);
-}
-
-document.addEventListener( "DOMContentLoaded", () => {
-    /* global onScan*/
-    onScan.attachTo(UI.productBarcodeBox, {
-        onScan: code => searchBarcode(code),
-        onKeyDetect: iKeyCode => {
-            if (13 === iKeyCode) {
-                searchBarcode(UI.productBarcodeBox.value);
-            }
-        }
-    });
-    $('#customerSearchModal').on('shown.bs.modal', function () {
-        $('#customerSearchBox').focus();
-    });
-    $('#productSearchModal').on('shown.bs.modal', function () {
-        $('#productSearchBox').focus();
-    });
-});
-document.addEventListener("onSelectCustomer", function (e) {
-    setCustomer(e.detail.code, e.detail.description);
-});
-UI.productBarcodeBox.addEventListener('scan', function(code) {
-    searchBarcode(code);
-});
-UI.paymentAmountInput.addEventListener('keyup', function () {
-    return recalculatePaymentAmount();
-});
-UI.paymentMethodSelect.addEventListener('change', function () {
-    return recalculatePaymentAmount();
-});
-UI.orderSaveButton.addEventListener('click', function () {
-    return onCheckoutConfirm();
-});
-UI.orderHoldButton.addEventListener('click', function () {
-    return onHoldOrder();
-});
-UI.productSearch.addEventListener('focus', function () {
-    $('#productSearchModal').modal('show');
-});
-UI.productSearchBox.addEventListener('keyup', function () {
-    return searchProduct(this.value);
-});
-UI.customerSearch.addEventListener('focus', function () {
-    $('#customerSearchModal').modal('show');
-});
-UI.customerSearchBox.addEventListener('keyup', function () {
-    return searchCustomer(this.value);
-});
-UI.customerSaveButton.addEventListener('click', function () {
-    return onSaveNewCustomer();
-});
-UI.closeSessionButton.addEventListener('click', function () {
-    return UI.closingForm.submit();
-});
-ordersOnHold.addEventListener('click', function (e) {
-    if (isEventTarget(e.target, 'resume-button')) {
-        return resumeOrderOnHold(e.target);
-    }
-    if (isEventTarget(e.target, 'delete-button')) {
-        return deleteOrderOnHold(e.target);
-    }
-});
-UI.cartProductsList.addEventListener('focusout', function (e) {
-    if (isEventTarget(e.target, 'cart-item')) {
-        return editCartItem(e.target);
-    }
-});
-UI.cartProductsList.addEventListener('click', function (e) {
-    if (isEventTarget(e.target, 'cart-item-remove')) {
-        deleteCartItem(e.target);
-    }
-});
-UI.customerSearchResult.addEventListener('click', function (e) {
-    if (isEventTarget(e.target, 'item-add-button')) {
-        setCustomer(e.target.dataset.code, e.target.dataset.description);
-    }
-});
-UI.productSearchResult.addEventListener('click', function (e) {
-    if (isEventTarget(e.target, 'item-add-button')) {
-        setProduct(e.target.dataset.code, e.target.dataset.description);
-    }
-});
 
 

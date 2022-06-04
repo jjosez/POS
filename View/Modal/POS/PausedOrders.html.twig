@@ -1,0 +1,61 @@
+<div id="pausedOrdersModal" class="modal hidden">
+    <!--content-->
+    <div class="modal-content modal-content-lg my-15">
+        <!--header-->
+        <div class="modal-header">
+            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('pos-orders-on-hold') }}</h2>
+            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="pausedOrdersModal">
+                <i class="fa fw fa-times"></i>
+            </button>
+        </div>
+        <!--body-->
+        <div class="modal-body p-0">
+            <div class="overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-blue-500">
+                    <tr>
+                        <th class="py-3 text-lg text-white" scope="col">{{ i18n.trans('code') }}</th>
+                        <th class="py-3 text-lg text-white" scope="col">{{ i18n.trans('customer') }}</th>
+                        <th class="py-3 text-lg text-white" scope="col">{{ i18n.trans('date') }}</th>
+                        <th class="py-3 text-lg text-white" scope="col">{{ i18n.trans('time') }}</th>
+                        <th class="py-3 text-lg text-white" scope="col">{{ i18n.trans('total') }}</th>
+                        <th class="py-3 text-lg text-white text-center" scope="col">
+                            <i class="fas fa-exclamation-circle fa-lg"></i>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody id="pausedOrdersList" class="font-semibold text-slate-gray-700">
+                    {% for operation in fsc.session.getStorage().getOrdersOnHold() %}
+                        <tr class="bg-blue-100 hover:bg-yellow-200">
+                            <td class="text-center">{{ operation.codigo }}</td>
+                            <td>{{ i18n.trans(operation.nombrecliente) }}</td>
+                            <td class="text-right">{{ operation.fecha }}</td>
+                            <td class="text-right">{{ operation.hora }}</td>
+                            <td class="text-right">{{ fsc.toolBox().coins().format(operation.total) }}</td>
+                            <td>
+                                <div class="flex justify-center py-1">
+                                    <button type="button" class="btn btn-icon btn-primary mr-2 resume-order-btn"
+                                            data-code="{{ operation.idpausada }}">
+                                        <i class="fas fa-file-signature fa-sm"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-icon btn-danger delete-order-btn"
+                                            data-code="{{ operation.idpausada }}">
+                                        <i class="fas fa-trash fa-sm"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <div class="alert alert-info" role="alert">
+                            Ninguna operacion registrada
+                        </div>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span>Deslice para ver mas operaciones</span>
+        </div>
+    </div>
+</div>

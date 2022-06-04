@@ -54,7 +54,10 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
         }
     }
 
-    private function getCustumerBusinessDocuments()
+    /**
+     * @return array
+     */
+    private function getSalesBusinessDocuments(): array
     {
         /*SELECT DISTINCT tipodoc FROM estados_documentos WHERE tipodoc LIKE '%Cliente'*/
         $where = [
@@ -65,12 +68,15 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
         return (new EstadoDocumento)->all($where);
     }
 
-    private function getEneabledPaymentMethod()
+    /**
+     * @return FormaPago[]
+     */
+    private function getEneabledPaymentMethod(): array
     {
         return (new FormaPago)->all();
     }
 
-    public function isPaymentMethodEneabled($codpago)
+    public function isPaymentMethodEneabled($codpago): bool
     {
         $formaspago = explode('|', AppSettings::get('pointofsale', 'formaspago'));
         if ($formaspago) {
@@ -80,7 +86,11 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
         return false;
     }
 
-    public function isBusinessDocEneabled($doc)
+    /**
+     * @param $doc
+     * @return bool
+     */
+    public function isBusinessDocEneabled($doc): bool
     {
         $tiposdocumento = explode('|', AppSettings::get('pointofsale', 'tiposdocumento'));
         if ($tiposdocumento) {
@@ -93,7 +103,7 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
     private function loadGeneralSettingsPOS()
     {
         $this->paymentMethods = $this->getEneabledPaymentMethod();
-        $this->businessDocTypes = $this->getCustumerBusinessDocuments();
+        $this->businessDocTypes = $this->getSalesBusinessDocuments();
 
         $action = $this->request->get('action');
         if ($action) {
@@ -114,9 +124,9 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
                 $appSettings->set('pointofsale', 'tiposdocumento', join('|', $tiposdocumento));
             }
 
-            $defauldocumento = $this->request->request->get('default-businessdoc');
-            if ($defauldocumento) {               
-                $appSettings->set('pointofsale', 'defaultdoc', $defauldocumento);
+            $defaultdocumento = $this->request->request->get('default-businessdoc');
+            if ($defaultdocumento) {
+                $appSettings->set('pointofsale', 'defaultdocument', $defaultdocumento);
             }
 
             $appSettings->save();  

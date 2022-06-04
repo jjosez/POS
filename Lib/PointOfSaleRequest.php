@@ -1,11 +1,11 @@
 <?php
 
-namespace FacturaScripts\Plugins\POS\Lib\POS\Sales;
+namespace FacturaScripts\Plugins\POS\Lib;
 
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
-class OrderRequest
+class PointOfSaleRequest
 {
     const DEFAULT_ORDER = 'FacturaCliente';
     const ORDER_ON_HOLD = 'OperacionPausada';
@@ -44,8 +44,8 @@ class OrderRequest
         }
 
         $this->setProductList();
-        $this->setDocumentData();
         $this->setPaymentList();
+        $this->setDocumentData();
     }
 
     protected function setProductList(): void
@@ -105,7 +105,7 @@ class OrderRequest
     /**
      * @return string
      */
-    public function getOrderType(): string
+    public function getDocumentType(): string
     {
         return empty($this->orderType) ? self::DEFAULT_ORDER : $this->orderType;
     }

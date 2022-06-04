@@ -1,0 +1,63 @@
+{#
+/**
+ *  This file is part of POS plugin for FacturaScripts
+ *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
+#}
+{% extends 'Master/POS.html.twig' %}
+{% set terminal = fsc.getSession().getTerminal() %}
+
+{% block body %}
+    <div class="flex modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="text-2xl font-semibold text-slate-700">
+                    {{ terminal.idterminal ? terminal.nombre : i18n.trans('available-cash-registers') }}
+                </h2>
+                <i class="fa fa-cash-register fa-fw fa-lg leading-8"></i>
+            </div>
+            <div class="modal-body">
+                <form autocomplete="off" method="post">
+                    {% if terminal.idterminal %}
+                        <input name="action" type="hidden" value="open-session">
+                        <input name="terminal" type="hidden" value="{{ terminal.idterminal }}">
+                        <p class="mb-3">{{ i18n.trans('cash-initial-amount-input') }}</p>
+
+                        <label class="input-icon text-slate-700">
+                            <i class="fa fa-money-bill-alt"></i>
+                            <input type="number" class="form-control" name="saldoinicial" value="0">
+                        </label>
+                        <div class="flex flex-col p-5">
+                            <div class="mx-auto py-2">
+                                <a href="{{ asset('POS') }}">{{ i18n.trans('all') }}</a>
+                            </div>
+                            <div class="mx-auto py-2">
+                                <button type="submit" class="btn btn-primary">{{ i18n.trans('continue') }}</button>
+                            </div>
+                        </div>
+                    {% else %}
+                        <input type="hidden" name="action" value="open-terminal"/>
+                        <p class="mb-3">{{ i18n.trans('select-cash-register') }}</p>
+
+                        {% for terminal in terminal.allAvailable() %}
+                            <div class="flex flex-col w-full">
+                                <div class="py-2 mx-auto">
+                                    <button class="btn btn-primary" name="terminal" value="{{ terminal.idterminal }}">
+                                        {{ terminal.nombre }}
+                                    </button>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="form-row">
+                                <div class="col">
+                                    <a href="{{ asset('ListTerminalPuntoVenta') }}"
+                                       class="btn btn-success btn-block text-center">{{ i18n.trans('add') }}</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

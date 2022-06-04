@@ -1,0 +1,40 @@
+<nav class="relative flex flex-wrap items-center justify-between py-2 bg-slate-800">
+    <div class="w-full flex flex-wrap items-center justify-between">
+        <div class="w-full relative flex justify-between lg:w-auto lg:static lg:block lg:justify-start px-4">
+            <a class="text-xl font-semibold leading-normal inline-block py-2 whitespace-nowrap uppercase text-slate-50"
+               href="{{ asset('') }}">
+                {{ fsc.empresa.nombrecorto | raw }}
+            </a>
+            <button class="cursor-pointer leading-normal text-slate-50 text-xl px-4 py-1 border border-solid rounded bg-transparent block lg:hidden outline-none focus:outline-none"
+                    type="button">
+                <div class="flex font-medium">
+                    <div><i class="fa fa-bars"></i></div>
+                </div>
+            </button>
+        </div>
+        <div class="flex lg:flex-1 items-center" id="example-navbar-info">
+            <ul class="flex flex-col lg:flex-row list-none ml-auto">
+                <li class="nav-item mr-1">
+                    <button class="btn hover:bg-slate-300 hover:text-slate-800" data-toggle="modal" data-target="pausedOrdersModal">
+                        <i class="fas fa-hourglass-half fa-fw text-lg leading-lg"></i>
+                    </button>
+                </li>
+                <li class="nav-item mr-1">
+                    <button class="btn hover:bg-slate-300 hover:text-slate-800" data-toggle="modal" data-target="closeSessionModal">
+                        <i class="fas fa-cash-register fa-fw text-lg leading-lg"></i>
+                    </button>
+                </li>
+                <li class="nav-item mr-1">
+                    <button class="btn hover:bg-slate-300 hover:text-slate-800" data-toggle="modal" data-target="userModal">
+                        <i class="fas fa-user fa-fw text-lg leading-lg"></i>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <a class="px-4 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75">
+                        <i class="fas fa-cog fa-fw text-lg leading-lg text-slate-50"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

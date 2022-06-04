@@ -38,12 +38,12 @@ class PagoPuntoVenta extends Base\ModelClass
         return parent::install();
     }
 
-    public static function primaryColumn()
+    public static function primaryColumn(): string
     {
         return 'idpago';
     }
 
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'pagospos';
     }

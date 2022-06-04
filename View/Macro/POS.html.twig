@@ -1,0 +1,174 @@
+{% macro productSearchTemplate(i18n) %}
+    <% it.items.forEach(function(item){ %>
+    <div role="listitem" class="bg-white cursor-pointer shadow-sm rounded-lg p-4 mb-4 flex"
+         data-code="<%= item.code %>" data-description="<%= item.description %>">
+        <div class="mr-4 flex items-center">
+            <span class="bg-slate-gray-200"><i class="fas fa-3x fa-box"></i></span>
+        </div>
+        <div class="flex-1">
+            <p class="text-sm uppercase font-semibold text-gray-800">{{ i18n.trans('code') }}: <%= item.code %></p>
+            <p class="text-base text-gray-600"><%= item.description %></p>
+        </div>
+        <div class="w-1/4 ml-4 flex-col items-center">
+            <div class="text-sm uppercase font-semibold px-3 py-0.5 bg-gray-200 text-gray-800 rounded-full">
+                &bullet; {{ i18n.trans('price') }}: <%= item.price %>
+            </div>
+            <div class="text-sm uppercase font-semibold mt-2 px-3 py-0.5 bg-gray-200 text-gray-800 rounded-full">
+                &bullet; {{ i18n.trans('stock') }}: <%= item.stock | 0 %>
+            </div>
+        </div>
+    </div>
+    <% }) %>
+{% endmacro %}
+
+{% macro customerSearchTemplate() %}
+    <% if(it.items.length === 0) { %>
+    <div class="flex justify-center content-center h-full">
+        <i class="fa fa-frown fa-5x text-slate-gray-300"></i>
+    </div>
+    <% } %>
+    <% it.items.forEach(function(customer){ %>
+    <tr class="bg-blue-100 cursor-pointer hover:bg-blue-500 hover:text-white">
+        <td class="p-4 font-medium add-customer-btn"
+            data-code="<%= customer.code %>" data-description="<%= customer.description %>">
+            <%= customer.description %>
+        </td>
+    </tr>
+    <% }) %>
+{% endmacro %}
+
+{% macro cartTemplate(i18n) %}
+    <% if(it.lines.length === 0) { %>
+    <div class="h-full flex justify-center items-center">
+        <i class="fa fa-shopping-cart fa-5x text-slate-gray-300"></i>
+    </div>
+    <% } %>
+    <% it.lines.forEach(function(value, index) { %>
+    <div class="flex px-2 py-2 w-full select-none text-slate-gray-700 border-b-4 border-dotted border-opacity-50">
+        <div class="edit-product-btn" data-index="<%= index %>">
+            <label class="flex items-center">
+                <input type="text"
+                       class="h-12 w-12 font-medium text-center bg-slate-gray-200 rounded-lg"
+                       value="<%= value.cantidad %>"
+                >
+            </label>
+            <div class="flex-1 mx-2">
+                <h4 class="font-semibold">
+                    <%= value.referencia %>
+                </h4>
+                <p><%= value.descripcion %></p>
+                <span class="text-blue-500 uppercase">
+                        {{ i18n.trans('pvp') }}: <%= value.pvpunitario %> / {{ i18n.trans('total') }}: <%= value.pvptotal %>
+                    </span>
+            </div>
+        </div>
+        <div class="flex items-center">
+            <button class="delete-product-btn" data-index="<%= index %>">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+    </div>
+    <% }) %>
+{% endmacro %}
+
+{% macro productEditTemplate(headers, columns) %}
+    {% for column in columns %}
+        {%- if column.data == 'referencia' -%}
+            <div class="form-group col-span-2">
+                <label class="font-semibold uppercase">{{ headers[loop.index0] }}</label>
+                <input type="{{ column.type }}" class="form-control edit-product-field" value="<%= it.referencia %>"
+                       data-index="<%= it.index %>" data-field="{{ column.data }}" readonly>
+            </div>
+        {%- elseif column.data == 'descripcion' %}
+            <div class="form-group col-span-2">
+                <label class=" font-semibold uppercase">{{ headers[loop.index0] }}</label>
+                <textarea class="form-control edit-product-field" rows="3" data-index="<%= it.index %>"
+                          data-field="{{ column.data }}" {{ column.readonly }}><%= it.descripcion %></textarea>
+            </div>
+        {% else -%}
+            <div class="form-group">
+                <label class="font-semibold uppercase">{{ headers[loop.index0] }}</label>
+                <input class="form-control edit-product-field" type="{{ column.type }}"
+                       value="<%= it.{{ column.data }} %>"
+                       step=".001" data-index="<%= it.index %>"
+                       data-field="{{ column.data }}" {{ column.readonly }}>
+            </div>
+        {% endif -%}
+    {% endfor %}
+{% endmacro %}
+
+{% macro pausedOrdersTemplate() %}
+    <% if(it.items.length === 0) { %>
+    <div class="flex justify-center content-center h-full">
+        <i class="fa fa-frown fa-5x text-slate-gray-300"></i>
+    </div>
+    <% } %>
+    <% it.items.forEach(function(order){ %>
+    <tr class="bg-blue-100 hover:bg-yellow-200">
+        <td class="text-center"><%= order.codigo %>{{ operation.codigo }}</td>
+        <td><%= order.nombrecliente %></td>
+        <td class="text-right"><%= order.fecha %></td>
+        <td class="text-right"><%= order.hora %></td>
+        <td class="text-right"><%= order.total %></td>
+        <td>
+            <div class="flex justify-center py-1">
+                <button type="button" class="btn btn-icon btn-primary mr-2 resume-order-btn"
+                        data-code="<%= order.idpausada %>">
+                    <i class="fas fa-file-signature fa-sm"></i>
+                </button>
+                <button type="button" class="btn btn-icon btn-danger delete-order-btn"
+                        data-code="<%= order.idpausada %>">
+                    <i class="fas fa-trash fa-sm"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+    <% }) %>
+{% endmacro %}
+
+{% macro paymentListTemplate(i18n) %}
+    <% it.payments.forEach(function(value, index) { %>
+    <div class="flex px-2 py-4 w-full select-none text-slate-gray-700 border-b-4 border-dotted border-opacity-50">
+        <div class="flex-1 mx-2">
+            <h4 class="font-semibold">
+                <span class="text-blue-500 uppercase">
+                    {{ i18n.trans('payment-method') }}: <%= value.method %> / {{ i18n.trans('total') }}:  <%= value.amount %>
+                </span>
+            </h4>
+        </div>
+        <div class="flex items-center">
+            <button class="delete-product-btn" data-index="<%= index %>">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+    </div>
+    <% }) %>
+{% endmacro %}
+
+{% macro message(log, types, style) %}
+    {%- set messages = log.read('', types) -%}
+    {%- if messages | length > 0 -%}
+        <div class="alert alert-{{ style }}" role="alert" data-delay="2000">
+            {# <div>
+                <button type="button" class="text-{{ style }}-800 ml-auto close" data-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div> #}
+            <div>
+                {% for msg in messages %}
+                    <div>{{ msg.message | raw }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    {%- endif -%}
+{% endmacro %}
+
+{% macro messageTemplate() %}
+    <% it.messages.forEach(function(message){ %>
+    <div class="alert alert-<%= message.type %>" role="alert">
+        <div>
+            <%~ message.message %>
+        </div>
+    </div>
+    <% }) %>
+{% endmacro %}

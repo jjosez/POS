@@ -6,7 +6,7 @@
 
 <view>
     <columns>
-        <group name="data" numcolumns="12">
+        <group name="data" title="general" numcolumns="12">
             <column name="name" numcolumns="3" order="100">
                 <widget type="text" fieldname="nombre" icon="fas fa-tag" required="true"/>
             </column>
@@ -24,18 +24,32 @@
                 <widget type="select" fieldname="codserie" required='true' onclick="EditSerie">
                     <values source="series" fieldcode="codserie" fieldtitle="descripcion"/>
                 </widget>
-            </column>            
+            </column>
+            <column name='Acepta pagos' order='120' display='right'>
+                <widget type="checkbox" fieldname='aceptapagos'/>
+            </column>
         </group>
-        <group name="extra" numcolumns="12" valign="bottom">
+        <group name="extra" title="printing-format" numcolumns="12" valign="bottom">
             <column name="ticket-line-lenght" numcolumns="3" order="100">
                 <widget type="number" fieldname="anchopapel"/>
             </column>
             <column name="Numero tickets" numcolumns="3" order="100">
                 <widget type="number" fieldname="numerotickets"/>
-            </column>            
-            <column name='Acepta pagos' order='120' display='right'>
-                <widget type="checkbox" fieldname='aceptapagos'/>
-            </column> 
-        </group>        
+            </column>
+        </group>
+        <group name="documentos" title="doc-type" numcolumns="12">
+            <column name="doc-type" order="110">
+                <widget type="select" fieldname="defaultdocument" translate="true">
+                    <values title="customer-estimation">PresupuestoCliente</values>
+                    <values title="customer-order">PedidoCliente</values>
+                    <values title="customer-delivery-note">AlbaranCliente</values>
+                    <values title="customer-invoice">FacturaCliente</values>
+                    <values title="supplier-estimation">PresupuestoProveedor</values>
+                    <values title="supplier-order">PedidoProveedor</values>
+                    <values title="supplier-delivery-note">AlbaranProveedor</values>
+                    <values title="supplier-invoice">FacturaProveedor</values>
+                </widget>
+            </column>
+        </group>
     </columns>
 </view>

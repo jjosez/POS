@@ -1,0 +1,67 @@
+{#
+/**
+ *  This file is part of POS plugin for FacturaScripts
+ *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
+#}
+{% extends 'Master/POS.html.twig' %}
+{% import 'Macro/POS.html.twig' as pos %}
+
+{% set grid = fsc.getFormHeaders() %}
+{% block body %}
+    <div class="flex flex-col h-full h-screen antialiased">
+        <div class="flex flex-1 overflow-auto">
+            <div id="productMainView" class="app-container products-container overflow-hidden md:w-3/5">
+                {{ include('Block/POS/Navbar.html.twig') }}
+                {{ include('Block/POS/Products.html.twig') }}
+            </div>
+            <div id="cartEditView" class="app-container product-edit-container hidden md:w-3/5">
+                {{ include('Block/POS/CartEdit.html.twig') }}
+            </div>
+            <div id="cartMainView" class="app-container w-full md:w-2/5">
+                {{ include('Block/POS/Cart.html.twig') }}
+            </div>
+        </div>
+        <div id="checkoutView" class="app-container checkout-container w-full hidden">
+            {{ include('Block/POS/Checkout.html.twig') }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block modals %}
+    {{ include('Modal/POS/AddPayment.html.twig') }}
+    {{ include('Modal/POS/CustomerSearch.html.twig') }}
+    {{ include('Modal/POS/ProductEdit.html.twig') }}
+    {{ include('Modal/POS/PausedOrders.html.twig') }}
+    {{ include('Modal/POS/CloseSession.html.twig') }}
+    {{ include('Modal/POS/User.html.twig') }}
+{% endblock %}
+
+{% block js %}
+    <script id="message-template" type="text/template">
+        {{ pos.messageTemplate() }}
+    </script>
+    <script id="cartEditTemplate" type="text/template">
+        {{ pos.productEditTemplate(grid.headers, grid.columns) }}
+    </script>
+    <script id="cartListTemplate" type="text/template">
+        {{ pos.cartTemplate(i18n) }}
+    </script>
+    <script id="customerListTemplate" type="text/template">
+        {{ pos.customerSearchTemplate() }}
+    </script>
+    <script id="paymentListTemplate" type="text/template">
+        {{ pos.paymentListTemplate(i18n) }}
+    </script>
+    <script id="productListTemplate" type="text/template">
+        {{ pos.productSearchTemplate(i18n) }}
+    </script>
+    <script id="paused-orders-template" type="text/template">
+        {{ pos.pausedOrdersTemplate() }}
+    </script>
+    {# TODO: Change to dynamic for release #}
+    {{ parent() }}
+    <script src="{{ asset('Plugins/POS/Assets/JS/modules/eta.min.js?v=1') }}"></script>
+    <script src="{{ asset('Plugins/POS/Assets/JS/modules/onscan.min.js?v=1') }}"></script>
+    <script type="module" src="{{ asset('Plugins/POS/Assets/JS/POS/App.js') }}"></script>
+{% endblock %}

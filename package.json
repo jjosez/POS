@@ -1,0 +1,22 @@
+{
+  "name": "pos",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build-dev": "npx tailwindcss build -i ./_src/pos.css -o ./Assets/CSS/pos.app.css",
+    "build": "set NODE_ENV=production&&npx tailwindcss build -i ./_src/pos.css -o ./Assets/CSS/pos.app.min.css --minify"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jjosez/POS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.5",
+    "tailwindcss": "^3.0.24"
+  }
+}

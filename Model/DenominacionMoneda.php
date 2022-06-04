@@ -20,12 +20,12 @@ class DenominacionMoneda extends Base\ModelClass
     public $coddivisa;
     public $valor;
 
-    public static function primaryColumn()
+    public static function primaryColumn(): string
     {
         return 'clave';
     }
 
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'denominacionesmoneda';
     }

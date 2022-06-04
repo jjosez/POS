@@ -24,7 +24,7 @@
                     </select>
                 </div>
                 <div class="form-group col-6">
-                    {% set defaultdoc = appSettings.get('pointofsale','defaultdoc') %}
+                    {% set defaultdoc = appSettings.get('pointofsale','defaultdocument') %}
                     <label for="cash-payment">{{ i18n.trans('default-business-document') }}</label>
                     <select class="form-control" id="default-businessdoc" name="default-businessdoc">
                         {% for businessDoc in fsc.businessDocTypes %}

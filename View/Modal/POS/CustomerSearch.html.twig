@@ -1,0 +1,64 @@
+{#
+/**
+ *  This file is part of POSpro plugin for FacturaScripts
+ *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
+#}
+
+<div id="customerSearchModal" class="modal hidden">
+    <!--content-->
+    <div class="modal-content my-15">
+        <!--header-->
+        <div class="modal-header">
+            <label class="input-icon text-gray-400">
+                <i class="fa fa-sm fa-search"></i>
+                <input type="search" id="customerSearchBox" placeholder="Buscar...">
+            </label>
+            <button class="btn btn-icon btn-success ml-2" data-toggle="collapse" data-target="newCustomerForm">
+                <i class="fa fw fa-user-plus fa-fw"></i>
+            </button>
+            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="customerSearchModal">
+                <i class="fa fw fa-times"></i>
+            </button>
+        </div>
+        <!--body-->
+        <div class="modal-body p-0">
+            <div class="hidden p-5" id="newCustomerForm">
+                <div class="form-group">
+                    <label for="newCustomerTaxID" class="mb-2">{{ i18n.trans('cifnif') }}</label>
+                    <input type="text" class="form-control" id="newCustomerTaxID">
+                </div>
+                <div class="form-group my-2">
+                    <label for="newCustomerName" class="mb-2">{{ i18n.trans('name-or-business-name') }}</label>
+                    <input type="text" class="form-control" id="newCustomerName">
+                </div>
+                <div class="form-group my-4">
+                    <button class="btn justify-center bg-blue-500 hover:bg-blue-600" type="button"
+                            id="newCustomerSaveButton">{{ i18n.trans('save') }}</button>
+                </div>
+            </div>
+            <div class="overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-blue-500">
+                    <tr>
+                        <th class="py-3 text-lg text-white" scope="col">{{ i18n.trans('customers') }}</th>
+                    </tr>
+                </thead>
+                <tbody id="customerSearchResult" class="text-slate-gray-700">
+                {% for element in fsc.customer.codeModelAll() %}
+                    <tr class="cursor-pointer bg-blue-100 hover:bg-yellow-200">
+                        <td class="p-4 font-medium add-customer-btn"
+                            data-code="{{ element.code }}" data-description="{{ element.description }}">
+                            {{ element.description }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span>Deslice para ver mas operaciones</span>
+        </div>
+    </div>
+</div>

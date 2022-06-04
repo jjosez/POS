@@ -1,0 +1,210 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .d-none {
+        @apply hidden;
+    }
+
+    .app-container {
+        @apply flex flex-col h-full;
+    }
+
+    .alert-container {
+        @apply absolute bottom-0 left-0 z-auto m-4 w-1/4 space-y-2;
+    }
+
+    .alert {
+        @apply shadow-md p-4 rounded-md font-semibold text-white transition duration-150 ease-in-out;
+    }
+
+    .alert-error {
+        @apply bg-red-500;
+    }
+
+    .alert-info {
+        @apply bg-blue-500;
+    }
+
+    .alert-success {
+        @apply bg-green-500;
+    }
+
+    .alert-warning {
+        @apply bg-yellow-500;
+    }
+
+    .btn {
+        @apply text-white flex flex-shrink-0 px-4 py-2.5 items-center font-medium rounded-lg focus:ring select-none;
+    }
+
+    .btn-block {
+        @apply flex inline-flex items-center px-4 py-3 w-full font-medium rounded-lg;
+    }
+
+    .btn-icon {
+        @apply justify-center w-11 h-11;
+    }
+
+    .btn-ring {
+        @apply border-4 hover:border-opacity-75;
+    }
+
+    .btn-primary {
+        @apply bg-blue-500 focus:ring-blue-600;
+    }
+
+    .btn-secondary {
+        @apply bg-gray-500 focus:ring-gray-600;
+    }
+
+    .btn-success {
+        @apply bg-green-500 focus:ring-green-600;
+    }
+
+    .btn-danger {
+        @apply bg-red-500 focus:ring-red-600;
+    }
+
+    .btn-warning {
+        @apply bg-yellow-500 focus:ring-yellow-600;
+    }
+
+    .input-icon {
+        @apply relative flex-grow;
+    }
+
+    .input-icon i {
+        @apply flex absolute inset-y-0 left-4 items-center pointer-events-none;
+    }
+
+    .input-icon input[type=search],
+    .input-icon input[type=text],
+    .input-icon input[type=number],
+    .input-icon input[type=password] {
+        @apply py-2 pr-4 pl-10 w-full bg-white rounded-lg border-2 placeholder-slate-300 focus:outline-none focus:border-blue-400
+    }
+
+    .form-group {
+        @apply flex flex-col w-full;
+    }
+
+    .form-group input[type=search],
+    .form-group input[type=text],
+    .form-group input[type=number],
+    .form-group input[type=password],
+    textarea {
+        @apply py-2 px-4 bg-white rounded-lg border-2 placeholder-slate-300 focus:outline-none focus:border-blue-500
+    }
+
+    .form-group input[type=search]:read-only,
+    .form-group input[type=text]:read-only,
+    .form-group input[type=number]:read-only,
+    textarea:read-only {
+        @apply bg-slate-100;
+    }
+
+    .modal {
+        @apply overflow-y-auto overflow-x-hidden fixed inset-0 z-50 justify-center items-center outline-none focus:outline-none;
+    }
+
+    .modal-backdrop {
+        @apply fixed inset-0 z-40 bg-black bg-opacity-75;
+    }
+
+    .modal-content {
+        @apply flex relative flex-col mx-auto my-6 w-3/5 bg-white rounded-lg border-0 min-h-1/2 max-h-4/5;
+    }
+
+    .modal-content-lg {
+        @apply w-9/12;
+    }
+
+    .modal-footer {
+        @apply flex justify-end items-center p-6 rounded-b border-t border-solid;
+    }
+
+    .modal-header {
+        @apply flex justify-between items-start p-5 rounded-t border-b border-solid;
+    }
+
+    .modal-body {
+        @apply overflow-y-auto relative flex-auto p-5 h-4/5;
+    }
+
+    .product-tag {
+        @apply btn bg-slate-600 hover:bg-blue-500 focus:ring-0;
+    }
+
+    .product-tag.selected {
+        @apply bg-slate-200 text-slate-600;
+    }
+
+    .product-card {
+        @apply flex overflow-hidden flex-col bg-white rounded-lg border-4 border-solid shadow transition-shadow cursor-pointer select-none hover:border-blue-500;
+    }
+
+    div[role=listitem] {
+        @apply cursor-pointer select-none;
+    }
+
+    div[role=listitem] > *,
+    .product-card > *,
+    .delete-product-btn > *,
+    .product-tag > *,
+    .product-add-btn > *,
+    .edit-product-btn > * {
+        @apply pointer-events-none;
+    }
+
+    .delete-product-btn {
+        @apply btn btn-icon btn-danger;
+    }
+
+    /*.edit-cart-product {
+        @apply text-blue-500 hover:text-blue-700;
+    }*/
+
+    .edit-product-btn {
+        @apply flex w-full cursor-pointer;
+    }
+
+    table tbody tr:nth-child(odd) {
+        @apply bg-blue-50;
+    }
+
+    input:-moz-read-only {
+        @apply bg-slate-200;
+    }
+    input:read-only {
+        @apply bg-slate-200;
+    }
+
+    :disabled {
+        @apply opacity-50 cursor-auto bg-slate-200 hover:bg-slate-200;
+    }
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #d7dfe2; /*#cfd8dc;*/
+    border-radius: 5px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #90a4ae; /*#b0bec5;*/
+    border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #607d8b /*#90a4ae*/;
+}

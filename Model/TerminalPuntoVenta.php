@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of POS plugin for FacturaScripts
- * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ * Copyright (C) 2022 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 namespace FacturaScripts\Plugins\POS\Model;
 
@@ -24,6 +24,7 @@ class TerminalPuntoVenta extends Base\ModelClass
     public $codserie;    
     public $comandoapertura;
     public $comandocorte;
+    public $defaultdocument;
     public $disponible;     
     public $idterminal;   
     public $nombre; 
@@ -35,21 +36,22 @@ class TerminalPuntoVenta extends Base\ModelClass
         
         $this->aceptapagos = true;
         $this->anchopapel = 45;
+        $this->defaultdocument = 'FacturaCliente';
         $this->disponible = true;
         $this->numerotickets = 1;
     } 
 
-    public static function primaryColumn()
+    public static function primaryColumn(): string
     {
         return 'idterminal';
     }
 
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'terminalespos';
     }
 
-    public function allAvailable()
+    public function allAvailable(): array
     {
         $where = [
           new DataBaseWhere('disponible', true, '=')

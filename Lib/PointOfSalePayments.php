@@ -1,19 +1,20 @@
 <?php
+/**
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2022 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
 
-namespace FacturaScripts\Plugins\POS\Lib\POS\Sales;
+namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
-use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
-use FacturaScripts\Plugins\POS\Model\PagoPuntoVenta;
+use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 
-class PaymentStorage
+class PointOfSalePayments
 {
     /**
-     * @var SesionPuntoVenta
+     * @var array
      */
-    protected $session;
-
-    protected $payments;
+    protected $payments = [];
 
     /**
      * @var OrdenPuntoVenta
@@ -22,7 +23,6 @@ class PaymentStorage
 
     public function __construct(OrdenPuntoVenta $order)
     {
-        //$this->session = $session;
         $this->order = $order;
     }
 

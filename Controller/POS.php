@@ -1,63 +1,31 @@
 <?php
 /**
  * This file is part of POS plugin for FacturaScripts
- * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ * Copyright (C) 2022 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 
 namespace FacturaScripts\Plugins\POS\Controller;
 
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Base\ControllerPermissions;
-use FacturaScripts\Core\Model\Serie;
-use FacturaScripts\Dinamic\Lib\POS\Printer;
-use FacturaScripts\Dinamic\Lib\POS\Sales\Customer;
-use FacturaScripts\Dinamic\Lib\POS\Sales\Order;
-use FacturaScripts\Dinamic\Lib\POS\Sales\OrderRequest;
-use FacturaScripts\Dinamic\Lib\POS\Sales\OrderStorage;
-use FacturaScripts\Dinamic\Lib\POS\Sales\Product;
-use FacturaScripts\Dinamic\Lib\POS\SalesDataGrid;
-use FacturaScripts\Dinamic\Lib\POS\SalesSession;
-use FacturaScripts\Dinamic\Model\Cliente;
-use FacturaScripts\Dinamic\Model\DenominacionMoneda;
-use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\User;
-use Symfony\Component\HttpFoundation\Request;
+use FacturaScripts\Plugins\POS\Lib\PointOfSaleCustomer;
+use FacturaScripts\Plugins\POS\Lib\PointOfSaleOrder;
+use FacturaScripts\Plugins\POS\Lib\PointOfSalePayments;
+use FacturaScripts\Plugins\POS\Lib\PointOfSaleProduct;
+use FacturaScripts\Plugins\POS\Lib\PointOfSaleRequest;
+use FacturaScripts\Plugins\POS\Lib\PointOfSaleSession;
+use FacturaScripts\Plugins\POS\Lib\PointOfSaleTrait;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Controller to process Point of Sale Operations
- *
- * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
- */
 class POS extends Controller
 {
-    const DEFAULT_ORDER = 'FacturaCliente';
-    const HOLD_ORDER = 'OperacionPausada';
+    use PointOfSaleTrait;
 
     /**
-     * @var Cliente
+     * @var string
      */
-    public $customer;
-
-    /**
-     * @var FormaPago
-     */
-    public $formaPago;
-
-    /**
-     * @var SalesSession
-     */
-    public $session;
-
-    /**
-     * @var Serie
-     */
-    public $serie;
-
-    /**
-     * @var Order
-     */
-    private $order;
+    protected $token;
 
     /**
      * @param Response $response
@@ -69,35 +37,20 @@ class POS extends Controller
         parent::privateCore($response, $user, $permissions);
         $this->setTemplate(false);
 
-        // Init till session
-        $this->session = new SalesSession($this->user);
-
-        // Get any action that have to be performed
+        $this->session = new PointOfSaleSession($user);
         $action = $this->request->request->get('action', '');
 
-        // Exec action before load all data and stop exceution if not nedeed
-        if (false === $this->execPreviusAction($action)) return;
+        if (false === $this->execAction($action)) {
+            return;
+        }
 
-        // Init necesary stuff
-        $this->customer = new Cliente();
-        $this->formaPago = new FormaPago();
-        $this->serie = new Serie();
-
-        // Run operations after load all data
         $this->execAfterAction($action);
 
-        // Set view template
-        $template = $this->session->isOpen() ? '\POS\Layout\SalesScreen' : '\POS\Layout\SessionScreen';
+        $template = $this->session->getView();
         $this->setTemplate($template);
     }
 
-    /**
-     * Exec action before load all data.
-     *
-     * @param string $action
-     * @return bool
-     */
-    protected function execPreviusAction(string $action): bool
+    protected function execAction(string $action): bool
     {
         switch ($action) {
             case 'search-barcode':
@@ -112,20 +65,32 @@ class POS extends Controller
                 $this->searchProduct();
                 return false;
 
-            case 'resume-order':
-                $this->resumeOrder();
-                return false;
-
             case 'recalculate-order':
                 $this->recalculateOrder();
+                return false;
+
+            case 'save-new-customer':
+                $this->saveNewCustomer();
+                return false;
+
+            case 'hold-order':
+                $this->saveOrderOnHold();
+                return false;
+
+            case 'save-order':
+                $this->saveOrder();
+                return false;
+
+            case 'get-orders-on-hold':
+                $this->setResponse($this->getStorage()->getOrdersOnHold());
                 return false;
 
             case 'delete-order-on-hold':
                 $this->deleteOrderOnHold();
                 return false;
 
-            case 'save-new-customer':
-                $this->saveNewCustomer();
+            case 'resume-order':
+                $this->resumeOrder();
                 return false;
 
             default:
@@ -133,46 +98,16 @@ class POS extends Controller
         }
     }
 
-    /**
-     * Exec action after load all data.
-     *
-     * @param string $action
-     */
     protected function execAfterAction(string $action)
     {
         switch ($action) {
-            case 'close-session':
-                $this->closeSession();
-                break;
-
             case 'open-session':
-                $idterminal = $this->request->request->get('terminal', '');
+                $id = $this->request->request->get('terminal', '');
                 $amount = $this->request->request->get('saldoinicial', 0);
-                $this->session->open($idterminal, $amount);
+                $this->session->openSession($id, $amount);
                 break;
-
             case 'open-terminal':
-                $idterminal = $this->request->request->get('terminal', '');
-                $this->session->terminal($idterminal);
-                break;
-
-            case 'hold-order':
-                $this->saveOrderOnHold();
-                break;
-
-            case 'print-cashup':
-                $this->printClosingVoucher();
-                break;
-
-            case 'save-order':
-                $this->saveOrder();
-                break;
-
-            case 'delete-order-on-hold':
-                $this->deleteOrderOnHold();
-                break;
-
-            default:
+                $this->loadTerminal();
                 break;
         }
     }
@@ -182,10 +117,10 @@ class POS extends Controller
      */
     protected function searchBarcode()
     {
-        $producto = new Product();
+        $producto = new PointOfSaleProduct();
         $barcode = $this->request->request->get('query');
 
-        $this->setAjaxResponse($producto->searchBarcode($barcode));
+        $this->setResponse($producto->searchBarcode($barcode));
     }
 
     /**
@@ -193,21 +128,46 @@ class POS extends Controller
      */
     protected function searchCustomer()
     {
-        $customer = new Customer();
+        $customer = new PointOfSaleCustomer();
         $query = $this->request->request->get('query');
 
-        $this->setAjaxResponse($customer->search($query));
+        $this->setResponse($customer->search($query));
     }
 
     /**
-     * Search product by text match on description or code.
+     * Search product by text.
      */
     protected function searchProduct()
     {
-        $product = new Product();
-        $query = $this->request->request->get('query');
+        $product = new PointOfSaleProduct();
+        $query = $this->request->request->get('query', '');
+        $tags = $this->request->request->get('tags', []);
 
-        $this->setAjaxResponse($product->search($query));
+        $this->setResponse($product->advancedSearch($query, $tags, $this->getTerminal()->codalmacen));
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    protected function buildResponse(array $data = [])
+    {
+        $response = $data;
+        $response['messages'] = $this->getMessages();
+        $response['token'] = $this->token;
+
+        $this->setResponse($response);
+    }
+
+    /**
+     * Close current user POS session.
+     */
+    protected function closeSession()
+    {
+        //$cash = $this->request->request->get('cash');
+        //$this->session->close($cash);
+
+        $this->printClosingVoucher();
     }
 
     /**
@@ -219,28 +179,10 @@ class POS extends Controller
 
         if ($this->getStorage()->updateOrderOnHold($code)) {
             $this->toolBox()->i18nLog()->info('pos-order-on-hold-deleted');
-            $this->setAjaxResponse('OK');
-        }
-    }
-
-    /**
-     * Put order on hold.
-     *
-     * @return bool
-     */
-    protected function saveOrderOnHold(): bool
-    {
-        if (false === $this->validateOrderRequest()) return false;
-
-        $request = new OrderRequest($this->request, true);
-        $order = new Order($request);
-
-        if ($this->getStorage()->placeOrderOnHold($order)) {
-            $this->toolBox()->i18nLog()->info('pos-order-on-hold');
-            return true;
         }
 
-        return false;
+        $this->setNewToken();
+        $this->buildResponse();
     }
 
     /**
@@ -250,10 +192,10 @@ class POS extends Controller
      */
     protected function recalculateOrder()
     {
-        $request = new OrderRequest($this->request);
-        $order = new Order($request);
+        $request = new PointOfSaleRequest($this->request);
+        $order = new PointOfSaleOrder($request);
 
-        $this->setAjaxResponse($order->recalculate(), false);
+        $this->setResponse($order->recalculate());
     }
 
     /**
@@ -263,120 +205,92 @@ class POS extends Controller
     {
         $code = $this->request->request->get('code', '');
 
-        $this->setAjaxResponse($this->getStorage()->getOrderOnHold($code));
+        $this->setNewToken();
+        $this->buildResponse($this->getStorage()->getOrderOnHold($code));
+    }
+
+    protected function saveNewCustomer()
+    {
+        $customer = new PointOfSaleCustomer();
+
+        $taxID = $this->request->request->get('taxID');
+        $name = $this->request->request->get('name');
+
+        if ($customer->saveNew($taxID, $name)) {
+            $this->setResponse($customer->getCustomer());
+            return;
+        }
+
+        $this->setResponse('Error al guardar el cliente');
     }
 
     /**
      * Save order and payments.
      *
-     * @return bool
+     * @return void
      */
-    protected function saveOrder(): bool
+    protected function saveOrder(): void
     {
-        if (false === $this->validateOrderRequest()) return false;
+        if (false === $this->validateRequest()) return;
 
-        $orderRequest = new OrderRequest($this->request);
-        $order = new Order($orderRequest);
+        $orderRequest = new PointOfSaleRequest($this->request);
+        $order = new PointOfSaleOrder($orderRequest);
 
-        if ($this->getStorage()->placeOrder($order)) {
-            $this->printVoucher($order->getDocument());
-            $this->toolBox()->i18nLog()->info('pos-order-ok');
+        $this->dataBase->beginTransaction();
 
-            return true;
+        if (false === $this->getStorage()->saveOrder($order)) {
+            $this->dataBase->rollback();
+            return;
         }
 
-        return false;
+        $this->dataBase->commit();
+
+        $this->savePayments($order->getPayments());
+        $this->printVoucher($order->getDocument());
+        $this->buildResponse();
     }
 
     /**
-     * Close current user POS session.
-     */
-    protected function closeSession()
-    {
-        $cash = $this->request->request->get('cash');
-        $this->session->close($cash);
-
-        $this->printClosingVoucher();
-    }
-
-    /**
-     * Print closing voucher.
+     * Put order on hold.
      *
-     * @return void;
+     * @return void
      */
-    protected function printClosingVoucher()
+    protected function saveOrderOnHold(): void
     {
-        $ticketWidth = $this->session->terminal()->anchopapel;
-        $message = Printer::cashupTicket($this->session->getSession(), $this->empresa, $ticketWidth);
+        if (false === $this->validateRequest()) return;
 
-        $this->toolBox()->log()->info($message);
-    }
+        $request = new PointOfSaleRequest($this->request, true);
+        $order = new PointOfSaleOrder($request);
 
-    /**
-     * @param $document
-     * @return void;
-     */
-    protected function printVoucher($document)
-    {
-        $ticketWidth = $this->session->terminal()->anchopapel;
-        $message = Printer::salesTicket($document, $ticketWidth);
+        $this->dataBase->beginTransaction();
 
-        $this->toolBox()->log()->info($message);
-    }
-
-    /**
-     * @param Request $request
-     * @return bool
-     */
-    protected function validateOrderRequest(): bool
-    {
-        if (false === $this->permissions->allowUpdate) {
-            $this->toolBox()->i18nLog()->warning('not-allowed-modify');
-            return false;
+        if (false === $order->save()) {
+            $this->dataBase->rollback();
+            return;
         }
 
-        $token = $this->request->request->get('token');
+        $this->dataBase->commit();
+        $this->buildResponse();
+    }
 
-        if (empty($token) || false === $this->multiRequestProtection->validate($token)) {
-            $this->toolBox()->i18nLog()->warning('invalid-request');
-            return false;
-        }
+    protected function savePayments(array $payments)
+    {
+        $order = $this->getStorage()->getCurrentOrder();
 
-        if ($this->multiRequestProtection->tokenExist($token)) {
-            $this->toolBox()->i18nLog()->warning('duplicated-request');
-            return false;
-        }
+        $storage = new PointOfSalePayments($order);
+        $storage->savePayments($payments);
 
-        return true;
+        //$this->session->getArqueo()->saldoesperado += $processor->getCashPaymentAmount();
+        //$this->session->getArqueo()->save();
     }
 
     /**
-     * @param $content
-     * @param bool $encode
+     * @return void
      */
-    protected function setAjaxResponse($content, bool $encode = true): void
+    protected function loadTerminal()
     {
-        $response = $encode ? json_encode($content) : $content;
-        $this->response->setContent($response);
-    }
-
-    /**
-     * @return OrderStorage
-     */
-    protected function getStorage(): OrderStorage
-    {
-        return $this->session->getStorage();
-    }
-
-    /**
-     * Return POS setting value by given key.
-     *
-     * @param string $key
-     * @return mixed
-     */
-    protected function getSetting(string $key)
-    {
-        return $this->toolBox()->appSettings()->get('pointofsale', $key);
+        $id = $this->request->request->get('terminal', '');
+        $this->getSession()->getTerminal($id);
     }
 
     /**
@@ -387,95 +301,11 @@ class POS extends Controller
     public function getPageData(): array
     {
         $pagedata = parent::getPageData();
-        $pagedata['title'] = 'point-of-sale';
+        $pagedata['title'] = 'pos';
         $pagedata['menu'] = 'point-of-sale';
         $pagedata['icon'] = 'fas fa-shopping-cart';
         $pagedata['showonmenu'] = true;
 
         return $pagedata;
-    }
-
-    /**
-     * Returns the cash payment method ID.
-     *
-     * @return string
-     */
-    public function cashPaymentMethod(): ?string
-    {
-        return $this->getSetting('fpagoefectivo');
-    }
-
-    /**
-     * Returns all available payment methods.
-     *
-     * @return FormaPago[]
-     */
-    public function availablePaymentMethods(): array
-    {
-        $formasPago = [];
-
-        $formasPagoCodeList = explode('|', $this->getSetting('formaspago'));
-        foreach ($formasPagoCodeList as $value) {
-            $formasPago[] = (new FormaPago())->get($value);
-        }
-
-        return $formasPago;
-    }
-
-    /**
-     * Returns headers and columns available by user permissions.
-     *
-     * @return array
-     */
-    public function getGridHeaders(): array
-    {
-        return SalesDataGrid::getDataGrid($this->user);
-    }
-
-    /**
-     * Returns all available denominations.
-     *
-     * @return array
-     */
-    public function getDenominations(): array
-    {
-        return (new DenominacionMoneda())->all([], ['valor' => 'ASC']);
-    }
-
-    /**
-     * Returns a random token to use as transaction id.
-     *
-     * @return string
-     */
-    public function requestToken(): string
-    {
-        return $this->multiRequestProtection->newToken();
-    }
-
-    public function customFieldList(): array
-    {
-        $path = FS_FOLDER . '/Dinamic/View/POS/Block/CustomField/';
-        $list = scandir($path);
-
-        if (false !== $list) {
-            return array_diff($list, array('..', '.'));
-        }
-
-        return [];
-    }
-
-    private function saveNewCustomer()
-    {
-        $customer = new Customer();
-
-        $taxID = $this->request->request->get('taxID');
-        $name = $this->request->request->get('name');
-
-        if ($customer->saveNew($taxID, $name)) {
-            $this->setAjaxResponse($customer->getCustomer());
-            return;
-        }
-
-        $this->setAjaxResponse('Error al guardar el cliente');
     }
 }

@@ -1,37 +1,19 @@
 <?php
 /**
  * This file is part of POS plugin for FacturaScripts
- * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) 2022 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-namespace FacturaScripts\Plugins\POS\Lib\POS;
 
-use FacturaScripts\Core\Base\ToolBox;
+namespace FacturaScripts\Plugins\POS\Lib;
+
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Dinamic\Model\PageOption;
-use FacturaScripts\Dinamic\Model\User;
+use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Dinamic\Lib\AssetManager;
 use FacturaScripts\Dinamic\Lib\Widget\VisualItemLoadEngine;
+use FacturaScripts\Dinamic\Model\PageOption;
+use FacturaScripts\Dinamic\Model\User;
 
-/**
- * A set of tools to manage sessions and user acces.
- *
- * @author Carlos García Gómez   <carlos@facturascripts.com>
- * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
- */
-class SalesDataGrid
+class PointOfSaleForms
 {
     /**
      * Returns the columns available by user acces.
@@ -39,7 +21,7 @@ class SalesDataGrid
      * @param User $user
      * @return array
      */
-    public static function getDataGrid(User $user)
+    public static function getFormsGrid(User $user)
     {
         $data = [
             'headers' => [],

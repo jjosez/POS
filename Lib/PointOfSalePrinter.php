@@ -1,7 +1,10 @@
 <?php
+/**
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2022 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
 
-
-namespace FacturaScripts\Plugins\POS\Lib\POS;
+namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Model\Base\BusinessDocument;
 use FacturaScripts\Dinamic\Model\Empresa;
@@ -10,7 +13,7 @@ use FacturaScripts\Plugins\PrintTicket\Lib\PrintingService;
 use FacturaScripts\Plugins\PrintTicket\Lib\Ticket\Builder\CashupTicketBuilder;
 use FacturaScripts\Plugins\PrintTicket\Lib\Ticket\Builder\SalesTicketBuilder;
 
-class Printer
+class PointOfSalePrinter
 {
     public static function cashupTicket(SesionPuntoVenta $session, Empresa $company, int $width)
     {
@@ -31,5 +34,4 @@ class Printer
 
         return $salesTicket->getMessage();
     }
-
 }

@@ -1,0 +1,151 @@
+/**
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
+html,
+body {
+    overflow-x: hidden; /* Prevent scroll on narrow devices */
+}
+body {
+    padding-top: 56px;
+}
+#cartItemsTable {
+    min-width: 800px;
+}
+.table thead th {
+    border-bottom-width: 3px;
+}
+.table > tbody > tr > td,.table > thead > tr > th {
+    padding: 0 5px !important;
+}
+.table > tbody > tr > td {
+    height: 52px !important;
+    border-bottom-width: 2px;
+    border-bottom-style: dotted;
+}
+
+table tr td:last-child {
+    width: 1%;
+}
+
+button > i {
+    pointer-events: none;
+}
+
+.cart-item {
+    height: calc(1.5em + .5rem + 2px) !important;
+    min-width: 80px;
+    padding: .25rem .5rem !important
+}
+.cart-product-row {
+    min-width: 400px;
+}
+
+.log-table {
+    table-layout: auto;
+    width: 100%;
+}
+.log-table .stretch {
+    width: 100%;
+}
+
+hr.divider {
+    /* border: dotted; */
+    margin-top: .5rem;
+    margin-bottom: .5rem;
+    border-top: 2px dotted rgba(0,0,0,.1);
+}
+.w-15 {
+    width: 15% !important;
+}
+.w-20 {
+    width: 20% !important;
+}
+.w-60 {
+    width: 60% !important;
+}
+.w-70 {
+    width: 70% !important;
+}
+.w-80 {
+    width: 80% !important;
+}
+.w-90 {
+    width: 90% !important;
+}
+.text-responsive {
+    font-size: calc(100% + 1vw + 1vh);
+}
+.dropdown-item-btn {
+    display: block;
+    width: 100%;
+    padding: .25rem 1.5rem;
+    clear: both;
+    font-weight: 400;
+    color: #f8f6f6;
+    text-align: inherit;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0
+}
+.navbar .navbar-nav .nav-item .nav-link:focus, .navbar .navbar-nav .nav-item .nav-link:hover {
+    background: rgba(255, 255, 255, .22) !important;
+}
+.navbar .navbar-nav .nav-item .nav-link {
+    font-size: .85rem;
+}
+.navbar[class*=bg-] {
+    border-left: 0 !important;
+    border-bottom: 0 !important;
+}
+.app {
+    background: #ebeff2;
+    height: 100vh;
+}
+.app-content {
+    padding-bottom: 15px;
+    padding-top: 15px;
+    height: 100%;
+}
+.app-cart-items {
+    max-height: 100%;
+    overflow-y: scroll;
+}
+@media (min-width: 760px) {
+    .cart-content {
+        overflow-y: auto;
+        max-height: calc(100% - 60px);
+    }
+}
+@media (max-width: 600px) {
+    .app {
+        height: 100vh;
+    }
+    .app-content {
+        height: auto;
+    }
+    .cart-content {
+        margin-bottom: 15px;
+    }
+    .navbar[class*=bg-] .navbar-nav > .nav-item > .nav-link {
+        display: block;
+        color: #fff;
+        background-color: #1572e8;
+        /*#0b5d97;*/
+    }
+    .navbar[class*=bg-] .navbar-nav > .nav-item > .nav-link:hover {
+        background: #0b5d97 !important;
+        /*background: rgba(5, 62, 101, 1) !important;*/
+    }
+    .navbar .navbar-nav .nav-item {
+        display: block;
+        margin: 7px 0 0 0;
+    }
+}
+.modal-content {
+    border-radius: .25rem!important;
+}
+.debugbar {
+    left: 0;
+    max-width: 50% !important;
+}

@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{{ asset('Plugins/POS/Assets/CSS/pos.app.css') }}"/>
 {% endblock %}
 {% block fullBody %}
-    {% set terminal = fsc.session.terminal() %}
+    {% set terminal = fsc.getSession().getTerminal() %}
     <body class="app">
     <!-- Header -->
     <nav class="navbar navbar-dark bg-primary fixed-top">

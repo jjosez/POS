@@ -1,14 +1,19 @@
 <?php
 
-
-namespace FacturaScripts\Plugins\POS\Lib\POS\Sales;
+namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\Variante;
+use FacturaScripts\Dinamic\Model\Join\ProductoVariante;
 
-class Product
+class PointOfSaleProduct
 {
+    /**
+     * @var ProductoVariante
+     */
+    protected $product;
+
     /**
      * @var Variante
      */
@@ -17,6 +22,15 @@ class Product
     public function __construct()
     {
         $this->variante = new Variante();
+        $this->product = new ProductoVariante();
+    }
+
+    /**
+     * @return ProductoVariante
+     */
+    public function getProductoVariante(): ProductoVariante
+    {
+        return $this->product;
     }
 
     /**
@@ -68,5 +82,31 @@ class Product
     protected function queryProduct(string $text): array
     {
         return $this->getVariante()->codeModelSearch($text, 'referencia');
+    }
+
+    /**
+     * @param string $text
+     * @param array $tags
+     * @return array
+     */
+    public function advancedSearch(string $text, array $tags = [], string $wharehouse = ''): array
+    {
+        ///$text2 = str_replace(" ", "%", $text);
+
+        $where = [
+            new DataBaseWhere('V.referencia', $text, 'LIKE'),
+            new DataBaseWhere('P.descripcion', $text, 'XLIKE', 'OR')
+        ];
+
+        if ($wharehouse && '' !== $wharehouse) {
+            $where[] = new DataBaseWhere('S.codalmacen', 'ALG');
+            $where[] = new DataBaseWhere('S.codalmacen', NULL, 'IS', 'OR');
+        }
+
+        foreach ($tags as $tag) {
+            $where[] = new DataBaseWhere('codfamilia', $tag, '=', 'AND');
+        }
+
+        return $this->getProductoVariante()->all($where, [], 0, FS_ITEM_LIMIT);
     }
 }

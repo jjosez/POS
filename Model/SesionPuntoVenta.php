@@ -3,6 +3,7 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
+
 namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
@@ -26,9 +27,9 @@ class SesionPuntoVenta extends Base\ModelClass
     public $idsesion;
     public $idterminal;
     public $nickusuario;
-    public $saldocontado;    
+    public $saldocontado;
     public $saldoesperado;
-    public $saldoinicial; 
+    public $saldoinicial;
     public $saldomovimientos;
     public $saldoretirado;
 
@@ -39,6 +40,7 @@ class SesionPuntoVenta extends Base\ModelClass
         $this->abierto = false;
         $this->fechainicio = date(self::DATE_STYLE);
         $this->horainicio = date(self::HOUR_STYLE);
+        $this->nickusuario = false;
         $this->saldocontado = 0.0;
         $this->saldoesperado = 0.0;
     }
@@ -49,23 +51,41 @@ class SesionPuntoVenta extends Base\ModelClass
         return parent::install();
     }
 
+    public function loadFromUser(string $nickname): bool
+    {
+        $where = [
+            new DataBaseWhere('nickusuario', $nickname, '='),
+            new DataBaseWhere('abierto', true, '=')
+        ];
+
+        return $this->loadFromCode('', $where);
+    }
+
+    public function getTerminal(): TerminalPuntoVenta
+    {
+        $terminal = new TerminalPuntoVenta();
+        $terminal->loadFromCode($this->idterminal);
+
+        return $terminal;
+    }
+
     public function isOpen($search, $value): bool
     {
         switch ($search) {
             case 'terminal':
                 $where = [
-                  new DataBaseWhere('idterminal', $value, '='),
-                  new DataBaseWhere('abierto', true, '=')
+                    new DataBaseWhere('idterminal', $value, '='),
+                    new DataBaseWhere('abierto', true, '=')
                 ];
                 break;
 
             case 'user':
                 $where = [
-                  new DataBaseWhere('nickusuario', $value, '='),
-                  new DataBaseWhere('abierto', true, '=')
+                    new DataBaseWhere('nickusuario', $value, '='),
+                    new DataBaseWhere('abierto', true, '=')
                 ];
                 break;
-            
+
             default:
                 // code...
                 break;

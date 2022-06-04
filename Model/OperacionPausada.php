@@ -34,9 +34,9 @@ class OperacionPausada extends Base\SalesDocument
     /**
      * Returns the lines associated with the paused operation.
      *
-     * @return LineaOperacion[]
+     * @return array
      */
-    public function getLines()
+    public function getLines(): array
     {
         $lineaModel = new LineaOperacion();
         $where = [new DataBaseWhere('idpausada', $this->idpausada)];
@@ -69,7 +69,7 @@ class OperacionPausada extends Base\SalesDocument
      *
      * @return string
      */
-    public static function primaryColumn()
+    public static function primaryColumn(): string
     {
         return 'idpausada';
     }
@@ -79,7 +79,7 @@ class OperacionPausada extends Base\SalesDocument
      *
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'pausadaspos';
     }
