@@ -31,19 +31,19 @@ class PagoPuntoVenta extends Base\ModelClass
         $this->cambio = 0;
     }
 
-    public function install()
+    public function install(): string
     {
         new OrdenPuntoVenta();
         new SesionPuntoVenta();
         return parent::install();
     }
 
-    public static function primaryColumn()
+    public static function primaryColumn(): string
     {
         return 'idpago';
     }
 
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'pagospos';
     }

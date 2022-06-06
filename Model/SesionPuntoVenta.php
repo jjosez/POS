@@ -43,7 +43,7 @@ class SesionPuntoVenta extends Base\ModelClass
         $this->saldoesperado = 0.0;
     }
 
-    public function install()
+    public function install(): string
     {
         new TerminalPuntoVenta();
         return parent::install();

@@ -39,12 +39,12 @@ class TerminalPuntoVenta extends Base\ModelClass
         $this->numerotickets = 1;
     } 
 
-    public static function primaryColumn()
+    public static function primaryColumn(): string
     {
         return 'idterminal';
     }
 
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'terminalespos';
     }
