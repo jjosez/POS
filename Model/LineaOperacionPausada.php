@@ -46,7 +46,7 @@ class LineaOperacionPausada extends Base\SalesDocumentLine
      *
      * @return string
      */
-    public function install()
+    public function install(): string
     {
         /// needed dependency
         new OperacionPausada();
@@ -59,7 +59,7 @@ class LineaOperacionPausada extends Base\SalesDocumentLine
      *
      * @return string
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'lineaspausadaspos';
     }
