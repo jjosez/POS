@@ -38,27 +38,27 @@
                 </div>
             </div>
             <div class="overflow-hidden">
-            <table class="w-full">
-                <thead class="bg-blue-500">
+                <table class="w-full">
+                    {#<thead class="bg-blue-500">
                     <tr>
                         <th class="py-3 text-lg text-white" scope="col">{{ i18n.trans('customers') }}</th>
                     </tr>
-                </thead>
-                <tbody id="customerSearchResult" class="text-slate-gray-700">
-                {% for element in fsc.customer.codeModelAll() %}
-                    <tr class="cursor-pointer bg-blue-100 hover:bg-yellow-200">
-                        <td class="p-4 font-medium add-customer-btn"
-                            data-code="{{ element.code }}" data-description="{{ element.description }}">
-                            {{ element.description }}
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                    </thead>#}
+                    <tbody id="customerSearchResult" class="text-slate-gray-700">
+                    {% for element in fsc.customer.codeModelAll() %}
+                        <tr class="cursor-pointer bg-blue-100 hover:bg-yellow-200">
+                            <td class="p-4 font-medium add-customer-btn"
+                                data-code="{{ element.code }}" data-description="{{ element.description }}">
+                                {{ element.description }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
         <div class="modal-footer">
-            <span>Deslice para ver mas operaciones</span>
+            <span>Deslice para ver mas clientes</span>
         </div>
     </div>
 </div>

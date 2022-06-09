@@ -31,10 +31,10 @@
                 </div>
                 <div class="w-1/4 ml-4 flex-col items-center">
                     <div class="text-sm uppercase font-semibold px-3 py-0.5 bg-gray-200 text-gray-800 rounded-full">
-                        &bullet; {{ i18n.trans('price') }}: {{ element.price }}
+                        {{ fsc.toolBox().coins().format(element.price | default('0')) }}
                     </div>
-                    <div class="text-sm uppercase font-semibold mt-2 px-3 py-0.5 bg-gray-200 text-gray-800 rounded-full">
-                        &bullet; {{ i18n.trans('stock') }}: {{ element.stock }}
+                    <div class="text-sm lowercase font-semibold mt-2 px-3 py-0.5 bg-gray-200 text-gray-800 rounded-full">
+                        {{ element.stock | default('0') }} {{ i18n.trans('available') }}
                     </div>
                 </div>
             </div>

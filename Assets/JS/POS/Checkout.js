@@ -1,4 +1,4 @@
-export default class CheckoutClass {
+export default class Checkout {
     constructor(cashMethod = "", total = 0) {
         this.cashMethod = cashMethod;
         this.change = 0;

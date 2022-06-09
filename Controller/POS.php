@@ -240,6 +240,7 @@ class POS extends Controller
 
         if (false === $this->getStorage()->saveOrder($order)) {
             $this->dataBase->rollback();
+            $this->buildResponse();
             return;
         }
 

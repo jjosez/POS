@@ -3,22 +3,23 @@
  * Copyright (C) 2018-2021 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 import * as Core from './Core.js';
-import * as EventHandler from './EventHandler.js';
-import * as UI from './AppUI.js';
-import {cartView, searchView} from "./UI.js";
-import {Checkout} from './CheckoutModule.js';
+//import * as EventHandler from './EventHandler.js';
+//import * as UI from './AppUI.js';
+import {mainView, cartView, checkoutView} from "./UI.js";
 import * as Order from "./Order.js";
-import CartClass from "./CartClass.js";
-import {settings} from "./Core.js";
+import CartModel from "./Cart.js";
+import CheckoutModel from "./Checkout.js";
 
-export const Cart = new CartClass({
+export const Cart = new CartModel({
     'doc': {
-        'codcliente': settings.customer,
+        'codcliente': settings().customer,
         'idpausada': 'false',
-        'tipo-documento': settings.document,
-        'token': settings.token
-    }
+        'tipo-documento': settings().document
+    },
+    'token': settings().token
 });
+
+export const Checkout = new CheckoutModel('01');
 
 function saveOrder() {
     if (Cart.lines.length < 1) {
@@ -28,20 +29,70 @@ function saveOrder() {
     Order.saveRequest(Cart, Checkout.payments).then(response => {
         Cart.updateClean(response);
         Checkout.clear();
-        searchProductHandler();
+
+        Core.searchProduct('').then(response => {
+            mainView().updateProductListView(response);
+        });
     });
 }
 
-function searchProductHandler() {
-    Core.searchProduct(this.value || '').then(response => {
-        searchView().updateListView(response);
+function holdOrder() {
+    if (Cart.lines.length < 1) {
+        return;
+    }
+
+    Order.holdRequest(Cart).then(response => {
+        Cart.updateClean(response);
+        //Cart.token = response.token;
+
+        Order.getOnHoldRequest().then(response => {
+            mainView().updateHoldOrdersList(response);
+        });
+    });
+}
+
+export function searchCustomerHandler() {
+    Core.searchCustomer(this.value).then(response => {
+        mainView().updateCustomerListView(response);
     });
 }
 
 /**
  * @param {Event} event
  */
-function addProductHandler(event) {
+function setCustomerHandler(event) {
+    console.log('Set customer', event.target.dataset.description)
+    const data = event.target.dataset;
+    if (typeof data.code === 'undefined' || data.code === null) {
+        return;
+    }
+    Cart.setCustomer(data.code);
+    mainView().updateCustomer(data.description);
+}
+
+/**
+ * @param {Array} data
+ */
+function setCustomerAction(data) {
+    console.log('Set customer', data.description)
+    if (typeof data.code === 'undefined' || data.code === null) {
+        return;
+    }
+    Cart.setCustomer(data.code);
+    mainView().updateCustomer(data.description);
+}
+
+function searchProductHandler() {
+    let query = this.value || '';
+    Core.searchProduct(query).then(response => {
+        mainView().updateProductListView(response);
+    });
+}
+
+/**
+ * @param {Event} event
+ */
+function setProductHandler(event) {
     console.log('Add product', event.target.dataset.code)
     const data = event.target.dataset;
     if (typeof data.code === 'undefined' || data.code === null) {
@@ -54,7 +105,7 @@ function addProductHandler(event) {
  * @param {EventTarget} target
  */
 function deleteProductHandler(target) {
-    console.log('Delete product', target)
+    console.log('Delete product', target.dataset.index)
     Cart.deleteProduct(target.dataset.index);
 }
 
@@ -67,7 +118,7 @@ function editProductHandler(target) {
 
     if (true === cartView().editView.classList.contains('hidden')) {
         cartView().toggleEditView();
-        searchView().toggleMainView();
+        mainView().toggleMainView();
     }
 }
 
@@ -95,6 +146,12 @@ function updateCart() {
  */
 function updateCartView(data) {
     cartView().updateListView(data.detail);
+    cartView().updateTotals(data.detail);
+    Checkout.total = data.detail.doc.total;
+
+    if (data.detail.doc.total === 0) {
+        Checkout.clear();
+    }
 }
 
 /**
@@ -110,6 +167,7 @@ function updateEditView(index) {
  */
 function cartEventHandler(event) {
     const target = event.target;
+    const action = target.dataset.action;
 
     switch (true) {
         case target.matches('.delete-product-btn'):
@@ -118,25 +176,111 @@ function cartEventHandler(event) {
         case target.matches('.edit-product-btn'):
             editProductHandler(target);
             return;
+        case 'editProductAction' === action:
+            editProductHandler(target);
+            return;
         case target.matches('.edit-product-field'):
             editProductFieldHandler(target);
             return;
     }
 }
 
-//UI.orderHoldButton.addEventListener('click', holdOrder);
-UI.orderSaveButton.addEventListener('click', saveOrder);
+export function customEventHandler(event) {
+    const element = event.target;
+    switch (true) {
+        case element.matches('.add-customer-btn'):
+            setCustomerHandler(element);
+            break;
+        case element.matches('.add-product-btn'):
+            console.log(element)
+            setProductHandler(element);
+            break;
+        case element.matches('.resume-order-btn'):
+            resumeOrderHandler(element);
+            break;
+        case element.matches('.delete-order-btn'):
+            deleteOrderHandler(element);
+            break;
+        case element.matches('.product-tag'):
+            tagToggleHandler(element);
+            break;
+        default:
+            break;
+    }
+}
+
+/**
+ * @param {Event} event
+ */
+function commonEventHandler(event) {
+    const data = event.target.dataset;
+    const action = data.action;
+
+    switch (true) {
+        case 'setDocumentAction' === action:
+            setDocumentAction(data);
+            return;
+        case 'setCustomerAction' === action:
+            setCustomerAction(data);
+            return;
+    }
+}
+
+function setDocumentAction(event) {
+    console.log('set docu', event.target);
+}
+
+function applyPayment() {
+    Checkout.setPayment(checkoutView().paymentInput.value, checkoutView().paymentInput.dataset.method);
+}
+
+function recalculatePaymentAmount() {
+    if (this.dataset.value === 'balance') {
+        checkoutView().paymentInput.value = Checkout.getOutstandingBalance();
+    } else {
+        let value = parseFloat(checkoutView().paymentInput.value) || 0;
+        value += parseFloat(this.dataset.value) || 0;
+        checkoutView().paymentInput.value = value;
+    }
+}
+
+function showPaymentModal() {
+    checkoutView().showPaymentModal(this);
+}
+
+function updateCheckoutView() {
+    if (Checkout.change >= 0) {
+        checkoutView().confirmButton.removeAttribute('disabled');
+        checkoutView().confirmButton.classList.add('opacity-50', 'cursor-not-allowed');
+    } else {
+        checkoutView().confirmButton.setAttribute('disabled', 'disabled');
+    }
+
+    checkoutView().updateTotals(Checkout);
+    checkoutView().updatePaymentList(Checkout);
+}
+
+function updateOrderDiscount() {
+    Cart.setDiscountPercent(this.value);
+}
+
 //UI.pausedOrdersList.addEventListener('click', EventHandler.customEventHandler);
 //UI.customerSaveButton.addEventListener('click', EventHandler.saveNewCostumerHandler);
-//UI.customerSearchBox.addEventListener('keyup', EventHandler.searchCustomerHandler);
-//UI.customerSearchResult.addEventListener('click', EventHandler.customEventHandler);
-searchView().searchBox.addEventListener('keyup', searchProductHandler);
-searchView().listView.addEventListener('click', addProductHandler);
+mainView().customerSearchBox.addEventListener('keyup', searchCustomerHandler);
+//mainView().customerListView.addEventListener('click', setCustomerHandler);
+mainView().customerListView.addEventListener('click', commonEventHandler);
+mainView().documentTypeListView.addEventListener('click', commonEventHandler);
+mainView().productSearchBox.addEventListener('keyup', searchProductHandler);
+mainView().productListView.addEventListener('click', setProductHandler);
 cartView().listView.addEventListener('click', cartEventHandler);
 cartView().listView.addEventListener('click', cartEventHandler);
 cartView().editView.addEventListener('focusout', cartEventHandler);
+cartView().discountPercent.addEventListener('focusout', updateOrderDiscount);
+cartView().holdButton.addEventListener('click', holdOrder);
+checkoutView().confirmButton.addEventListener('click', saveOrder);
+checkoutView().paymentApplyButton.addEventListener('click', applyPayment);
+checkoutView().paymentAmounButton.forEach(element => element.addEventListener('click', recalculatePaymentAmount));
+checkoutView().paymentModalButton.forEach(element => element.addEventListener('click', showPaymentModal));
 document.addEventListener('updateCartEvent', updateCart);
 document.addEventListener('updateCartViewEvent', updateCartView);
-
-
-
+document.addEventListener('updateCheckout', updateCheckoutView);

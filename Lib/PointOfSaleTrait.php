@@ -219,15 +219,16 @@ trait PointOfSaleTrait
             return false;
         }
 
-        $token = $this->request->request->get('token');
+        $this->token = $this->request->request->get('token');
 
-        if (empty($token) || false === $this->multiRequestProtection->validate($token)) {
+        if (empty($this->token) || false === $this->multiRequestProtection->validate($this->token)) {
             $this->toolBox()->i18nLog()->warning('invalid-request');
+            $this->toolBox()->i18nLog()->warning('invalid-token' . $this->token);
             $this->buildResponse();
             return false;
         }
 
-        if ($this->multiRequestProtection->tokenExist($token)) {
+        if ($this->multiRequestProtection->tokenExist($this->token)) {
             $this->toolBox()->i18nLog()->warning('duplicated-request');
             $this->buildResponse();
             return false;

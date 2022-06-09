@@ -1,67 +1,12 @@
 import * as Money from "./Money.js";
 
-const defaultCartData = {
-    'doc': {
-        'codcliente': settings.customer,
-        'idpausada': 'false',
-        'tipo-documento': settings.document,
-        'token': settings.token
-    }
-};
-
-function updateCart() {
-    return recalculate(Cart).then(response => {
-        Cart.update(response);
-    });
-}
-
-function updateCartView(data) {
-    cartView().updateListView(data.detail);
-}
-
-function updateEditView(index) {
-    let data = Cart.getProduct(index);
-    cartView().updateEditForm(data);
-}
-
-/**
- * @param {Event} event
- */
-function addProductHandler(event) {
-    if (false === event.target.matches('.product-add-btn')) {
-        return;
-    }
-    Cart.addProduct(event.target.dataset.code, event.target.dataset.description);
-}
-
-function cartEventHandler(event) {
-    const target = event.target();
-
-    switch (true) {
-        case target.matches('.delete-product-btn'):
-            deleteProductHandler(target);
-            return;
-        case target.matches('.edit-product-btn'):
-            editProductHandler(target);
-            return;
-        case target.matches('.edit-product-field'):
-            return;
-    }
-}
-
-export const CartTo = class CartClass{
-
-}
-
-
-export const Cart = new CartClass(defaultCartData);
-
-class CartClass {
-    constructor({ doc } = {}) {
+export default class Cart {
+    constructor({ doc, token } = {}) {
         this.init = doc;
         this.doc = doc;
         this.lines = [];
         this.count = 0;
+        this.token = token
     }
 
     addProduct(code, description) {
@@ -129,7 +74,7 @@ class CartClass {
     updateClean({ token = '' }) {
         this.count = 0;
         this.doc = this.init;
-        this.doc.token = token;
+        this.token = token;
         this.lines = [];
 
         this.updateCartViewEvent(this);
@@ -143,3 +88,4 @@ class CartClass {
         document.dispatchEvent(new Event('updateCartEvent'));
     }
 }
+

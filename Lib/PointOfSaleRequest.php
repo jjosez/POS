@@ -70,12 +70,12 @@ class PointOfSaleRequest
         $action = $this->request->get('action');
         $payments = $this->request->get('payments');
 
-        if ('recalculate-order' !== $action) {
+       /* if ('recalculate-order' !== $action) {
             $this->paymentList = json_decode($payments, true);
             return;
-        }
+        }*/
 
-        $this->paymentList = $payments;
+        $this->paymentList = json_decode($payments, true);
     }
 
     /**

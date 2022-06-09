@@ -20,6 +20,7 @@ export const cartView = () => {
         'taxes': getElement('orderTaxes'),
         'totalNet': getElement('orderTotalNet'),
         'total': getElement('orderTotal'),
+        'holdButton': getElement('orderHoldButton'),
 
 
         toggleEditView: function () {
@@ -46,31 +47,6 @@ export const cartView = () => {
     };
 }
 
-export const searchView = () => {
-    return {
-        'main': getElement('productMainView'),
-        'searchBox': getElement('productSearchBox'),
-        'listView': getElement('productSearchResult'),
-        'listTemplate': getTemplate('productListTemplate'),
-
-        toggleMainView: function () {
-            this.main.classList.toggle('hidden');
-        },
-
-        updateListView: function (data = []) {
-            this.listView.innerHTML = this.listTemplate({items: data}, Eta.config);
-        }
-    };
-}
-
-export const customerView = () => {
-    return {
-        'searchBox': getElement('customerSearchBox'),
-        'listView': getElement('customerSearchResult'),
-        'listTemplate': getTemplate('customerListTemplate')
-    }
-}
-
 export const checkoutView = () => {
     return {
         'listView': getElement('paymentList'),
@@ -78,19 +54,15 @@ export const checkoutView = () => {
         'confirmButton': getElement('orderSaveButton'),
         'change': getElement('checkoutChange'),
         'tendered': getElement('checkoutTotalTendered'),
-        'paymentModal': getElement('addPaymentModal'),
+        'paymentModal': getElement('paymentModal'),
         'paymentModalButton': document.querySelectorAll('.payment-modal-btn'),
         'paymentAmounButton': document.querySelectorAll('.payment-add-btn'),
         'paymentApplyButton': getElement('paymentApplyButton'),
         'paymentInput': getElement('paymentApplyInput'),
 
-        togglePaymentModal: function () {
+        showPaymentModal: function (element) {
+            this.paymentInput.dataset.method = element.dataset.code;
             toggleModal(this.paymentModal);
-        },
-
-        showPaymentModal: function (code) {
-            this.paymentInput.dataset.method = code;
-            toggleModal(getElement('addPaymentModal'));
         },
 
         updatePaymentList: function (data = []) {
@@ -104,9 +76,42 @@ export const checkoutView = () => {
     }
 }
 
-export const appView = () => {
+export const mainView = () => {
     return {
-        'searchBox': ''
+        'main': getElement('productMainView'),
+        'customerNameLabel': getElement('customerNameLabel'),
+        'customerSearchBox': getElement('customerSearchBox'),
+        'customerSearchModal': getElement('customerSearchModal'),
+        'customerListView': getElement('customerSearchResult'),
+        'documentTypeModal': getElement('documentTypeModal'),
+        'documentTypeListView': getElement('documentTypeList'),
+        'customerListTemplate': getTemplate('customerListTemplate'),
+        'holdOrdersList': getElement('pausedOrdersList'),
+        'holdOrdersListTemplate': getTemplate('paused-orders-template'),
+        'productSearchBox': getElement('productSearchBox'),
+        'productListView': getElement('productSearchResult'),
+        'productoListTemplate': getTemplate('productListTemplate'),
+
+        toggleMainView: function () {
+            this.main.classList.toggle('hidden');
+        },
+
+        updateCustomer: function (name = '') {
+            this.customerNameLabel.textContent = name;
+            toggleModal(this.customerSearchModal);
+        },
+
+        updateCustomerListView: function (data = []) {
+            this.customerListView.innerHTML = this.customerListTemplate({items: data}, Eta.config);
+        },
+
+        updateHoldOrdersList: function (data = []) {
+            this.holdOrdersList.innerHTML = this.holdOrdersListTemplate({items: data}, Eta.config);
+        },
+
+        updateProductListView: function (data = []) {
+            this.productListView.innerHTML = this.productoListTemplate({items: data}, Eta.config);
+        }
     }
 }
 
@@ -120,14 +125,66 @@ function getTemplate(id) {
 /**
  * @param {HTMLElement} element
  */
+export function toggleCollapse(element) {
+    const target = getElement(element.dataset.target);
+    const elementOntoggle = getElement(element.dataset.ontoggle);
+
+    target.classList.toggle('hidden');
+
+    if (elementOntoggle) {
+        elementOntoggle.classList.toggle('hidden');
+    }
+}
+
+/**
+ * @param {HTMLElement} element
+ */
 export function toggleModal(element) {
     element.classList.toggle("flex");
 
     if (element.classList.toggle("hidden")) {
         document.querySelector('.modal-backdrop').remove();
     } else {
-        let backdrop = document.createElement('div');
+        const backdrop = document.createElement('div');
         backdrop.classList.add('modal-backdrop');
         document.querySelector('body').append(backdrop);
     }
 }
+
+/**
+ * @param {HTMLElement} element
+ */
+export function toggle(element) {
+    let target = getElement(element.dataset.target);
+
+    target.classList.toggle('hidden');
+
+    if (element.dataset.ontoggle) {
+        getElement(element.dataset.ontoggle).classList.toggle('hidden');
+    }
+}
+
+/**
+ * @param {EventTarget} event
+ */
+export function toggleEventHandler(event) {
+    const element = getElement(event.dataset.target);
+    switch (event.dataset.toggle) {
+        case 'modal':
+            toggleModal(element);
+            break;
+        case 'collapse':
+            toggleCollapse(event);
+            break;
+        default:
+            toggle(event);
+    }
+}
+
+document.addEventListener('click', function (event) {
+	if (event.target.attributes.getNamedItem('data-toggle')) {
+        toggleEventHandler(event.target);
+        event.stopPropagation();
+	}
+}, false);
+

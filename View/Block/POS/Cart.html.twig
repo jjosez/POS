@@ -9,12 +9,20 @@
 </form>
 
 <div class="flex flex-col h-full bg-white md:shadow-lg">
+    <div class="px-4 pt-4 w-full h-auto select-none">
+        <button id="documentTypeButton" class="btn bg-gray-200 text-slate-800 focus:ring-gray-600 w-full"
+                data-toggle="modal" data-target="documentTypeModal">
+            <i class="fa fa-file-invoice"></i>
+            <span id="documentTypeLabel" class="mx-2">{{ i18n.trans(fsc.getDefaultDocument()) }}</span>
+            <i class="ml-auto fa fa-ellipsis-v"></i>
+        </button>
+    </div>
     <div class="p-4 w-full h-auto select-none">
         <button id="customerSearchButton" class="btn btn-primary w-full"
                 data-toggle="modal" data-target="customerSearchModal">
             <i class="fa fa-user"></i>
             <span id="customerNameLabel" class="mx-2">{{ fsc.getDefaultCustomer().nombre }}</span>
-            <i class="ml-auto fa fa-ellipsis-h"></i>
+            <i class="ml-auto fa fa-ellipsis-v"></i>
         </button>
     </div>
     <div class="flex overflow-auto flex-col flex-1">

@@ -17,5 +17,5 @@ export function roundDecimals(amount, decimals) {
 }
 
 export function roundFixed(amount) {
-    return roundDecimals(amount).toFixed(3);
+    return roundDecimals(amount || 0).toFixed(3);
 }

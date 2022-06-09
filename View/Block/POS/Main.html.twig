@@ -31,6 +31,7 @@
 {% block modals %}
     {{ include('Modal/POS/AddPayment.html.twig') }}
     {{ include('Modal/POS/CustomerSearch.html.twig') }}
+    {{ include('Modal/POS/DocumentType.html.twig') }}
     {{ include('Modal/POS/ProductEdit.html.twig') }}
     {{ include('Modal/POS/PausedOrders.html.twig') }}
     {{ include('Modal/POS/CloseSession.html.twig') }}
@@ -64,4 +65,15 @@
     <script src="{{ asset('Plugins/POS/Assets/JS/modules/eta.min.js?v=1') }}"></script>
     <script src="{{ asset('Plugins/POS/Assets/JS/modules/onscan.min.js?v=1') }}"></script>
     <script type="module" src="{{ asset('Plugins/POS/Assets/JS/POS/App.js') }}"></script>
+    <script type="application/javascript">
+        const settings = () => {
+          return {
+              'cash': '{{ fsc.getCashPaymentMethod() }}',
+              'customer': '{{ fsc.getDefaultCustomer().codcliente }}',
+              'document': '{{ fsc.getDefaultDocument() }}',
+              'token': '{{ fsc.getNewToken() }}',
+              'url': 'POS',
+          }
+        }
+    </script>
 {% endblock %}

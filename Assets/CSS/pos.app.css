@@ -847,7 +847,7 @@ div[role=listitem] {
           user-select: none;
 }
 
-div[role=listitem] > *, .product-card > *, .delete-product-btn > *, .product-tag > *, .product-add-btn > *, .edit-product-btn > * {
+button > *, label > *, select > *, div[role=listitem] > *, .product-card > *, .delete-product-btn > *, .product-tag > *, .product-add-btn > *, .edit-product-btn > * {
   pointer-events: none;
 }
 
@@ -1329,9 +1329,9 @@ input:read-only {
   padding-right: 0.5rem;
 }
 
-.py-4 {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+.py-2 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .py-1 {
@@ -1339,19 +1339,23 @@ input:read-only {
   padding-bottom: 0.25rem;
 }
 
+.py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
 .px-4 {
   padding-left: 1rem;
   padding-right: 1rem;
 }
 
-.py-2 {
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-
 .py-3 {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
+}
+
+.pt-4 {
+  padding-top: 1rem;
 }
 
 .pl-2 {
@@ -1433,6 +1437,10 @@ input:read-only {
   text-transform: uppercase;
 }
 
+.lowercase {
+  text-transform: lowercase;
+}
+
 .leading-8 {
   line-height: 2rem;
 }
@@ -1455,14 +1463,14 @@ input:read-only {
   color: rgb(75 85 99 / var(--tw-text-opacity));
 }
 
-.text-blue-500 {
-  --tw-text-opacity: 1;
-  color: rgb(59 130 246 / var(--tw-text-opacity));
-}
-
 .text-slate-800 {
   --tw-text-opacity: 1;
   color: rgb(58 75 83 / var(--tw-text-opacity));
+}
+
+.text-blue-500 {
+  --tw-text-opacity: 1;
+  color: rgb(59 130 246 / var(--tw-text-opacity));
 }
 
 .text-white {
@@ -1597,6 +1605,11 @@ input:read-only {
   outline-offset: 2px;
 }
 
+.focus\:ring-gray-600:focus {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(75 85 99 / var(--tw-ring-opacity));
+}
+
 @media (min-width: 768px) {
   .md\:w-3\/5 {
     width: 60%;
@@ -1604,11 +1617,6 @@ input:read-only {
 
   .md\:w-2\/5 {
     width: 40%;
-  }
-
-  .md\:text-xs {
-    font-size: 0.75rem;
-    line-height: 1rem;
   }
 
   .md\:shadow-lg {

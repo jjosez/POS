@@ -11,10 +11,10 @@
         </div>
         <div class="w-1/4 ml-4 flex-col items-center">
             <div class="text-sm uppercase font-semibold px-3 py-0.5 bg-gray-200 text-gray-800 rounded-full">
-                &bullet; {{ i18n.trans('price') }}: <%= item.price %>
+                <%= item.price %>
             </div>
-            <div class="text-sm uppercase font-semibold mt-2 px-3 py-0.5 bg-gray-200 text-gray-800 rounded-full">
-                &bullet; {{ i18n.trans('stock') }}: <%= item.stock | 0 %>
+            <div class="text-sm lowercase font-semibold mt-2 px-3 py-0.5 bg-gray-200 text-gray-800 rounded-full">
+                <%= item.stock | 0 %> {{ i18n.trans('available') }}
             </div>
         </div>
     </div>
@@ -29,7 +29,7 @@
     <% } %>
     <% it.items.forEach(function(customer){ %>
     <tr class="bg-blue-100 cursor-pointer hover:bg-blue-500 hover:text-white">
-        <td class="p-4 font-medium add-customer-btn"
+        <td class="p-4 font-medium add-customer-btn" data-action="setCustomerAction"
             data-code="<%= customer.code %>" data-description="<%= customer.description %>">
             <%= customer.description %>
         </td>
@@ -45,7 +45,13 @@
     <% } %>
     <% it.lines.forEach(function(value, index) { %>
     <div class="flex px-2 py-2 w-full select-none text-slate-gray-700 border-b-4 border-dotted border-opacity-50">
-        <div class="edit-product-btn" data-index="<%= index %>">
+        <div class="flex items-center">
+            <button class="btn btn-icon bg-gray-200 text-slate-800 focus:ring-gray-600"
+                    data-action="editProductAction" data-index="<%= index %>">
+                <i class="fas fa-pen-alt"></i>
+            </button>
+        </div>
+        <div class="edit-product-btn mx-2" data-index="<%= index %>">
             <label class="flex items-center">
                 <input type="text"
                        class="h-12 w-12 font-medium text-center bg-slate-gray-200 rounded-lg"

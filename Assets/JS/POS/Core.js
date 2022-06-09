@@ -73,7 +73,6 @@ export function searchRequest(action, query) {
 export function showAlert(response) {
     if (null != response.messages) {
         updateAlertList(response);
-        alert('respuesta');
     }
 
     dismissAlert();

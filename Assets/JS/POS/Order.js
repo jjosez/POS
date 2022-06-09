@@ -17,9 +17,10 @@ export function getOnHoldRequest() {
     return postRequest(data);
 }
 
-export function holdRequest({doc, lines}) {
+export function holdRequest({doc, lines, token}) {
     const data = getFormData(doc);
 
+    data.set('token', token);
     data.set('action', 'hold-order');
     data.set('lines', JSON.stringify(lines));
 

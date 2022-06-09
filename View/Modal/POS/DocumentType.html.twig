@@ -1,0 +1,37 @@
+<div id="documentTypeModal" class="modal hidden">
+    <!--content-->
+    <div class="modal-content modal-content my-15">
+        <!--header-->
+        <div class="modal-header">
+            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('doc-type') }}</h2>
+            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="documentTypeModal">
+                <i class="fa fw fa-times"></i>
+            </button>
+        </div>
+        <!--body-->
+        <div class="modal-body p-0">
+            <div class="overflow-hidden">
+                <table class="w-full">
+                    <tbody id="documentTypeList" class="font-semibold text-slate-gray-700">
+                    {% set documentList = appSettings.get('pointofsale','tiposdocumento')|split('|') %}
+                    {% for document in documentList %}
+                        <tr class="bg-blue-100 cursor-pointer hover:bg-blue-500 hover:text-white">
+                            <td class="p-4 font-medium add-customer-btn" data-action="setDocumentAction"
+                                data-code="{{ document }}" data-description="{{ i18n.trans(document) }}">
+                                {{ i18n.trans(document) }}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <div class="alert alert-info" role="alert">
+                            No has habilitado algun documento.
+                        </div>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span>Deslice para ver mas elementos</span>
+        </div>
+    </div>
+</div>

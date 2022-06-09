@@ -1,6 +1,5 @@
 import * as Core from './Core.js';
 import * as UI from './AppUI.js';
-import {Cart} from "./CartModule.js";
 
 UI.toggleableElements.forEach(element => element.addEventListener('click', toggleEventHandler));
 

@@ -120,7 +120,7 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
             }
 
             $tiposdocumento = $this->request->request->get('bussinesdocs');
-            if ($fpagoefectivo) {               
+            if ($tiposdocumento) {
                 $appSettings->set('pointofsale', 'tiposdocumento', join('|', $tiposdocumento));
             }
 
