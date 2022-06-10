@@ -51,18 +51,24 @@ function holdOrder() {
     });
 }
 
-export function searchCustomerHandler() {
+function searchCustomerHandler() {
     Core.searchCustomer(this.value).then(response => {
         mainView().updateCustomerListView(response);
     });
 }
 
+function searchProductHandler() {
+    let query = this.value || '';
+    Core.searchProduct(query).then(response => {
+        mainView().updateProductListView(response);
+    });
+}
+
 /**
- * @param {Event} event
+ * @param {Array} data
  */
-function setCustomerHandler(event) {
-    console.log('Set customer', event.target.dataset.description)
-    const data = event.target.dataset;
+function setCustomerHandler(data) {
+    console.log('Set customer', data.description)
     if (typeof data.code === 'undefined' || data.code === null) {
         return;
     }
@@ -73,20 +79,13 @@ function setCustomerHandler(event) {
 /**
  * @param {Array} data
  */
-function setCustomerAction(data) {
-    console.log('Set customer', data.description)
+function setDocumentHandler(data) {
+    console.log('Set document', data.description)
     if (typeof data.code === 'undefined' || data.code === null) {
         return;
     }
-    Cart.setCustomer(data.code);
-    mainView().updateCustomer(data.description);
-}
-
-function searchProductHandler() {
-    let query = this.value || '';
-    Core.searchProduct(query).then(response => {
-        mainView().updateProductListView(response);
-    });
+    Cart.setDocumentType(data.code);
+    mainView().updateDocument(data.description);
 }
 
 /**
@@ -102,19 +101,31 @@ function setProductHandler(event) {
 }
 
 /**
- * @param {EventTarget} target
+ * @param {Array} data
  */
-function deleteProductHandler(target) {
-    console.log('Delete product', target.dataset.index)
-    Cart.deleteProduct(target.dataset.index);
+function deleteOrderHandler(data) {
+    Order.deleteHoldRequest(data.code).then(() => {
+        Order.getOnHoldRequest().then(response => {
+            mainView().updateHoldOrdersList(response);
+            mainView().toggleHoldOrdersModal();
+        });
+    });
 }
 
 /**
- * @param {EventTarget} target
+ * @param {Array} data
  */
-function editProductHandler(target) {
-    console.log('Edit product', target)
-    updateEditView(target.dataset.index);
+function deleteProductHandler(data) {
+    console.log('Delete product action', data.index)
+    Cart.deleteProduct(data.index);
+}
+
+/**
+ * @param {Array} data
+ */
+function editProductHandler(data) {
+    console.log('Edit product', data)
+    updateEditView(data.index);
 
     if (true === cartView().editView.classList.contains('hidden')) {
         cartView().toggleEditView();
@@ -126,7 +137,7 @@ function editProductHandler(target) {
  * @param {EventTarget} target
  */
 function editProductFieldHandler(target) {
-    console.log('Edit field handler', target)
+    console.log('Edit field handler', target.dataset)
     const index = target.dataset.index;
     Cart.editProduct(index, target.dataset.field, target.value);
 
@@ -165,69 +176,33 @@ function updateEditView(index) {
 /**
  * @param {Event} event
  */
-function cartEventHandler(event) {
-    const target = event.target;
-    const action = target.dataset.action;
-
-    switch (true) {
-        case target.matches('.delete-product-btn'):
-            deleteProductHandler(target);
-            return;
-        case target.matches('.edit-product-btn'):
-            editProductHandler(target);
-            return;
-        case 'editProductAction' === action:
-            editProductHandler(target);
-            return;
-        case target.matches('.edit-product-field'):
-            editProductFieldHandler(target);
-            return;
-    }
-}
-
-export function customEventHandler(event) {
-    const element = event.target;
-    switch (true) {
-        case element.matches('.add-customer-btn'):
-            setCustomerHandler(element);
-            break;
-        case element.matches('.add-product-btn'):
-            console.log(element)
-            setProductHandler(element);
-            break;
-        case element.matches('.resume-order-btn'):
-            resumeOrderHandler(element);
-            break;
-        case element.matches('.delete-order-btn'):
-            deleteOrderHandler(element);
-            break;
-        case element.matches('.product-tag'):
-            tagToggleHandler(element);
-            break;
-        default:
-            break;
-    }
-}
-
-/**
- * @param {Event} event
- */
 function commonEventHandler(event) {
     const data = event.target.dataset;
     const action = data.action;
 
     switch (true) {
         case 'setDocumentAction' === action:
-            setDocumentAction(data);
+            setDocumentHandler(data);
             return;
         case 'setCustomerAction' === action:
-            setCustomerAction(data);
+            setCustomerHandler(data);
+            return;
+        case 'deleteOrderAction' === action:
+            deleteOrderHandler(data);
+            return;
+        case 'deleteProductAction' === action:
+            deleteProductHandler(data);
+            return;
+        case 'editProductAction' === action:
+            editProductHandler(data);
+            return;
+        case 'editProductFieldAction' === action:
+            editProductFieldHandler(event.target);
+            return;
+        case 'resumeOrderAction' === action:
+            console.log('resume order action.')
             return;
     }
-}
-
-function setDocumentAction(event) {
-    console.log('set docu', event.target);
 }
 
 function applyPayment() {
@@ -264,17 +239,15 @@ function updateOrderDiscount() {
     Cart.setDiscountPercent(this.value);
 }
 
-//UI.pausedOrdersList.addEventListener('click', EventHandler.customEventHandler);
 //UI.customerSaveButton.addEventListener('click', EventHandler.saveNewCostumerHandler);
 mainView().customerSearchBox.addEventListener('keyup', searchCustomerHandler);
-//mainView().customerListView.addEventListener('click', setCustomerHandler);
 mainView().customerListView.addEventListener('click', commonEventHandler);
 mainView().documentTypeListView.addEventListener('click', commonEventHandler);
+mainView().holdOrdersList.addEventListener('click', commonEventHandler);
 mainView().productSearchBox.addEventListener('keyup', searchProductHandler);
 mainView().productListView.addEventListener('click', setProductHandler);
-cartView().listView.addEventListener('click', cartEventHandler);
-cartView().listView.addEventListener('click', cartEventHandler);
-cartView().editView.addEventListener('focusout', cartEventHandler);
+cartView().listView.addEventListener('click', commonEventHandler);
+cartView().editView.addEventListener('focusout', commonEventHandler);
 cartView().discountPercent.addEventListener('focusout', updateOrderDiscount);
 cartView().holdButton.addEventListener('click', holdOrder);
 checkoutView().confirmButton.addEventListener('click', saveOrder);

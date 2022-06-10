@@ -1,10 +1,10 @@
-<div id="pausedOrdersModal" class="modal hidden">
+<div id="holdOrdersModal" class="modal hidden">
     <!--content-->
     <div class="modal-content modal-content-lg my-15">
         <!--header-->
         <div class="modal-header">
             <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('pos-orders-on-hold') }}</h2>
-            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="pausedOrdersModal">
+            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="holdOrdersModal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
@@ -35,11 +35,11 @@
                             <td>
                                 <div class="flex justify-center py-1">
                                     <button type="button" class="btn btn-icon btn-primary mr-2 resume-order-btn"
-                                            data-code="{{ operation.idpausada }}">
+                                            data-action="resumeOrderAction" data-code="{{ operation.idpausada }}">
                                         <i class="fas fa-file-signature fa-sm"></i>
                                     </button>
                                     <button type="button" class="btn btn-icon btn-danger delete-order-btn"
-                                            data-code="{{ operation.idpausada }}">
+                                            data-action="deleteOrderAction" data-code="{{ operation.idpausada }}">
                                         <i class="fas fa-trash fa-sm"></i>
                                     </button>
                                 </div>

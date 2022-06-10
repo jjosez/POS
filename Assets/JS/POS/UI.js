@@ -84,8 +84,10 @@ export const mainView = () => {
         'customerSearchModal': getElement('customerSearchModal'),
         'customerListView': getElement('customerSearchResult'),
         'documentTypeModal': getElement('documentTypeModal'),
+        'documentNamelLabel': getElement('documentTypeLabel'),
         'documentTypeListView': getElement('documentTypeList'),
         'customerListTemplate': getTemplate('customerListTemplate'),
+        'holdOrdersModal': getElement('holdOrdersModal'),
         'holdOrdersList': getElement('pausedOrdersList'),
         'holdOrdersListTemplate': getTemplate('paused-orders-template'),
         'productSearchBox': getElement('productSearchBox'),
@@ -96,6 +98,10 @@ export const mainView = () => {
             this.main.classList.toggle('hidden');
         },
 
+        toggleHoldOrdersModal: function () {
+            toggleModal(this.holdOrdersModal);
+        },
+
         updateCustomer: function (name = '') {
             this.customerNameLabel.textContent = name;
             toggleModal(this.customerSearchModal);
@@ -103,6 +109,11 @@ export const mainView = () => {
 
         updateCustomerListView: function (data = []) {
             this.customerListView.innerHTML = this.customerListTemplate({items: data}, Eta.config);
+        },
+
+        updateDocument: function (name = '') {
+            this.documentNamelLabel.textContent = name;
+            toggleModal(this.documentTypeModal);
         },
 
         updateHoldOrdersList: function (data = []) {

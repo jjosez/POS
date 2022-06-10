@@ -69,7 +69,7 @@
             </div>
         </div>
         <div class="flex items-center">
-            <button class="delete-product-btn" data-index="<%= index %>">
+            <button class="delete-product-btn" data-action="deleteProductAction" data-index="<%= index %>">
                 <i class="fas fa-trash-alt"></i>
             </button>
         </div>
@@ -83,13 +83,14 @@
             <div class="form-group col-span-2">
                 <label class="font-semibold uppercase">{{ headers[loop.index0] }}</label>
                 <input type="{{ column.type }}" class="form-control edit-product-field" value="<%= it.referencia %>"
-                       data-index="<%= it.index %>" data-field="{{ column.data }}" readonly>
+                       data-action="editProductFieldAction" data-index="<%= it.index %>" data-field="{{ column.data }}" readonly>
             </div>
         {%- elseif column.data == 'descripcion' %}
             <div class="form-group col-span-2">
                 <label class=" font-semibold uppercase">{{ headers[loop.index0] }}</label>
-                <textarea class="form-control edit-product-field" rows="3" data-index="<%= it.index %>"
-                          data-field="{{ column.data }}" {{ column.readonly }}><%= it.descripcion %></textarea>
+                <textarea class="form-control edit-product-field" rows="3" data-action="editProductFieldAction"
+                          data-index="<%= it.index %>" data-field="{{ column.data }}" {{ column.readonly }}><%= it.descripcion %>
+                </textarea>
             </div>
         {% else -%}
             <div class="form-group">
@@ -97,6 +98,7 @@
                 <input class="form-control edit-product-field" type="{{ column.type }}"
                        value="<%= it.{{ column.data }} %>"
                        step=".001" data-index="<%= it.index %>"
+                       data-action="editProductFieldAction"
                        data-field="{{ column.data }}" {{ column.readonly }}>
             </div>
         {% endif -%}
@@ -119,11 +121,11 @@
         <td>
             <div class="flex justify-center py-1">
                 <button type="button" class="btn btn-icon btn-primary mr-2 resume-order-btn"
-                        data-code="<%= order.idpausada %>">
+                        data-action="resumeOrderAction" data-code="<%= order.idpausada %>">
                     <i class="fas fa-file-signature fa-sm"></i>
                 </button>
                 <button type="button" class="btn btn-icon btn-danger delete-order-btn"
-                        data-code="<%= order.idpausada %>">
+                        data-action="deleteOrderAction" data-code="<%= order.idpausada %>">
                     <i class="fas fa-trash fa-sm"></i>
                 </button>
             </div>

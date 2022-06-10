@@ -48,6 +48,11 @@ export default class Cart {
         this.updateCartEvent();
     }
 
+    setDocumentType(documentType) {
+        this.doc['tipo-documento'] = documentType;
+        this.updateCartEvent();
+    }
+
     setDiscountPercent(value = 0) {
         this.doc.dtopor1 = value;
         this.updateCartEvent();
