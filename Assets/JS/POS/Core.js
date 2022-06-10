@@ -2,11 +2,7 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-import {alertsContainer, updateAlertList} from "./AppUI.js";
-
-export const settings = {
-    url: 'POS'
-}
+import {alertView} from "./UI.js";
 
 /**
  * Send request to controller url
@@ -18,7 +14,7 @@ export function postRequest(data) {
         body: data
     };
 
-    return fetch(settings.url, init)
+    return fetch('POS', init)
         .then(response => {
             if (response.ok) {
                 return response.json();
@@ -30,6 +26,16 @@ export function postRequest(data) {
             showAlert(response);
             return response;
         });
+}
+
+export function saveNewCustomer(taxID, name) {
+    const data = new FormData();
+
+    data.set('action', 'save-new-customer');
+    data.set('taxID', taxID);
+    data.set('name', name);
+
+    return postRequest(data);
 }
 
 /**
@@ -72,7 +78,7 @@ export function searchRequest(action, query) {
  */
 export function showAlert(response) {
     if (null != response.messages) {
-        updateAlertList(response);
+        alertView().updateAlertListView(response);
     }
 
     dismissAlert();
@@ -82,10 +88,10 @@ export function showAlert(response) {
  * Close all alerts by timeout
  */
 export function dismissAlert() {
-    if (alertsContainer.firstElementChild) {
+    if (alertView().container.firstElementChild) {
         setTimeout(function () {
-            if (alertsContainer.firstChild) {
-                alertsContainer.removeChild(alertsContainer.firstChild);
+            if (alertView().container.firstChild) {
+                alertView().container.removeChild(alertView().container.firstChild);
             }
             dismissAlert();
         }, 1800);

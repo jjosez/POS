@@ -13,22 +13,19 @@
 {% endblock %}
 {% block fullBody %}
     <body class="bg-slate-100 text-slate-800">
-    <div id="settings" data-cash-method="{{ fsc.getCashPaymentMethod() }}" data-url="POS"
-           data-document="{{ defaultDocument }}" data-customer="{{ customer.codcliente }}"
-           data-token="{{ fsc.getNewToken() }}"></div>
-        {% block messages %}
-            {% from 'Macro/POS.html.twig' import message as alert %}
-            <div id="alert-container" class="alert-container">
-                {{- alert(log, ['warning', 'error', 'critical'], 'warning') -}}
-                {{- alert(log, ['notice'], 'success') -}}
-                {{- alert(log, ['info'], 'info') -}}
-            </div>
-        {% endblock %}
-        {% block body %}
-        {% endblock %}
-        {% block modals %}
-        {% endblock %}
-        {% block js %}
-        {% endblock %}
+    {% block messages %}
+        {% from 'Macro/POS.html.twig' import message as alert %}
+        <div id="alert-container" class="alert-container">
+            {{- alert(log, ['warning', 'error', 'critical'], 'warning') -}}
+            {{- alert(log, ['notice'], 'success') -}}
+            {{- alert(log, ['info'], 'info') -}}
+        </div>
+    {% endblock %}
+    {% block body %}
+    {% endblock %}
+    {% block modals %}
+    {% endblock %}
+    {% block js %}
+    {% endblock %}
     </body>
 {% endblock %}

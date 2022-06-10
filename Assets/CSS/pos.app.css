@@ -1,5 +1,5 @@
 /*
-! tailwindcss v3.0.24 | MIT License | https://tailwindcss.com
+! tailwindcss v3.1.1 | MIT License | https://tailwindcss.com
 */
 
 /*
@@ -186,6 +186,8 @@ textarea {
   font-family: inherit;
   /* 1 */
   font-size: 100%;
+  /* 1 */
+  font-weight: inherit;
   /* 1 */
   line-height: inherit;
   /* 1 */
@@ -415,15 +417,103 @@ video {
   height: auto;
 }
 
-/*
-Ensure the default browser behavior of the `hidden` attribute.
-*/
-
-[hidden] {
-  display: none;
+*, ::before, ::after {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-pan-x:  ;
+  --tw-pan-y:  ;
+  --tw-pinch-zoom:  ;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ordinal:  ;
+  --tw-slashed-zero:  ;
+  --tw-numeric-figure:  ;
+  --tw-numeric-spacing:  ;
+  --tw-numeric-fraction:  ;
+  --tw-ring-inset:  ;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-blur:  ;
+  --tw-brightness:  ;
+  --tw-contrast:  ;
+  --tw-grayscale:  ;
+  --tw-hue-rotate:  ;
+  --tw-invert:  ;
+  --tw-saturate:  ;
+  --tw-sepia:  ;
+  --tw-drop-shadow:  ;
+  --tw-backdrop-blur:  ;
+  --tw-backdrop-brightness:  ;
+  --tw-backdrop-contrast:  ;
+  --tw-backdrop-grayscale:  ;
+  --tw-backdrop-hue-rotate:  ;
+  --tw-backdrop-invert:  ;
+  --tw-backdrop-opacity:  ;
+  --tw-backdrop-saturate:  ;
+  --tw-backdrop-sepia:  ;
 }
 
-*, ::before, ::after {
+::-webkit-backdrop {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-pan-x:  ;
+  --tw-pan-y:  ;
+  --tw-pinch-zoom:  ;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ordinal:  ;
+  --tw-slashed-zero:  ;
+  --tw-numeric-figure:  ;
+  --tw-numeric-spacing:  ;
+  --tw-numeric-fraction:  ;
+  --tw-ring-inset:  ;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-blur:  ;
+  --tw-brightness:  ;
+  --tw-contrast:  ;
+  --tw-grayscale:  ;
+  --tw-hue-rotate:  ;
+  --tw-invert:  ;
+  --tw-saturate:  ;
+  --tw-sepia:  ;
+  --tw-drop-shadow:  ;
+  --tw-backdrop-blur:  ;
+  --tw-backdrop-brightness:  ;
+  --tw-backdrop-contrast:  ;
+  --tw-backdrop-grayscale:  ;
+  --tw-backdrop-hue-rotate:  ;
+  --tw-backdrop-invert:  ;
+  --tw-backdrop-opacity:  ;
+  --tw-backdrop-saturate:  ;
+  --tw-backdrop-sepia:  ;
+}
+
+::backdrop {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
   --tw-translate-x: 0;
   --tw-translate-y: 0;
   --tw-rotate: 0;
@@ -627,7 +717,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   align-items: center;
 }
 
-.input-icon input[type=search], .input-icon input[type=text], .input-icon input[type=number], .input-icon input[type=password] {
+.input-icon input[type=search], 
+    .input-icon input[type=text], 
+    .input-icon input[type=number], 
+    .input-icon input[type=password] {
   width: 100%;
   border-radius: 0.5rem;
   border-width: 2px;
@@ -649,12 +742,18 @@ Ensure the default browser behavior of the `hidden` attribute.
   color: rgb(191 203 209 / var(--tw-placeholder-opacity));
 }
 
-.input-icon input[type=search]::placeholder, .input-icon input[type=text]::placeholder, .input-icon input[type=number]::placeholder, .input-icon input[type=password]::placeholder {
+.input-icon input[type=search]::placeholder, 
+    .input-icon input[type=text]::placeholder, 
+    .input-icon input[type=number]::placeholder, 
+    .input-icon input[type=password]::placeholder {
   --tw-placeholder-opacity: 1;
   color: rgb(191 203 209 / var(--tw-placeholder-opacity));
 }
 
-.input-icon input[type=search]:focus, .input-icon input[type=text]:focus, .input-icon input[type=number]:focus, .input-icon input[type=password]:focus {
+.input-icon input[type=search]:focus, 
+    .input-icon input[type=text]:focus, 
+    .input-icon input[type=number]:focus, 
+    .input-icon input[type=password]:focus {
   --tw-border-opacity: 1;
   border-color: rgb(96 165 250 / var(--tw-border-opacity));
   outline: 2px solid transparent;
@@ -667,7 +766,11 @@ Ensure the default browser behavior of the `hidden` attribute.
   flex-direction: column;
 }
 
-.form-group input[type=search], .form-group input[type=text], .form-group input[type=number], .form-group input[type=password], textarea {
+.form-group input[type=search], 
+    .form-group input[type=text], 
+    .form-group input[type=number], 
+    .form-group input[type=password], 
+    textarea {
   border-radius: 0.5rem;
   border-width: 2px;
   --tw-bg-opacity: 1;
@@ -688,12 +791,20 @@ Ensure the default browser behavior of the `hidden` attribute.
   color: rgb(191 203 209 / var(--tw-placeholder-opacity));
 }
 
-.form-group input[type=search]::placeholder, .form-group input[type=text]::placeholder, .form-group input[type=number]::placeholder, .form-group input[type=password]::placeholder, textarea::placeholder {
+.form-group input[type=search]::placeholder, 
+    .form-group input[type=text]::placeholder, 
+    .form-group input[type=number]::placeholder, 
+    .form-group input[type=password]::placeholder, 
+    textarea::placeholder {
   --tw-placeholder-opacity: 1;
   color: rgb(191 203 209 / var(--tw-placeholder-opacity));
 }
 
-.form-group input[type=search]:focus, .form-group input[type=text]:focus, .form-group input[type=number]:focus, .form-group input[type=password]:focus, textarea:focus {
+.form-group input[type=search]:focus, 
+    .form-group input[type=text]:focus, 
+    .form-group input[type=number]:focus, 
+    .form-group input[type=password]:focus, 
+    textarea:focus {
   --tw-border-opacity: 1;
   border-color: rgb(59 130 246 / var(--tw-border-opacity));
   outline: 2px solid transparent;
@@ -705,7 +816,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   background-color: rgb(239 242 243 / var(--tw-bg-opacity));
 }
 
-.form-group input[type=search]:read-only, .form-group input[type=text]:read-only, .form-group input[type=number]:read-only, textarea:read-only {
+.form-group input[type=search]:read-only, 
+    .form-group input[type=text]:read-only, 
+    .form-group input[type=number]:read-only, 
+    textarea:read-only {
   --tw-bg-opacity: 1;
   background-color: rgb(239 242 243 / var(--tw-bg-opacity));
 }
@@ -756,6 +870,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   border-width: 0px;
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+.modal-content-sm {
+  width: 33.333333%;
 }
 
 .modal-content-lg {
@@ -847,7 +965,15 @@ div[role=listitem] {
           user-select: none;
 }
 
-button > *, label > *, select > *, div[role=listitem] > *, .product-card > *, .delete-product-btn > *, .product-tag > *, .product-add-btn > *, .edit-product-btn > * {
+button > *, 
+    label > *, 
+    select > *, 
+    div[role=listitem] > *, 
+    .product-card > *, 
+    .delete-product-btn > *, 
+    .product-tag > *, 
+    .product-add-btn > *, 
+    .edit-product-btn > * {
   pointer-events: none;
 }
 
@@ -1439,6 +1565,10 @@ input:read-only {
 
 .lowercase {
   text-transform: lowercase;
+}
+
+.capitalize {
+  text-transform: capitalize;
 }
 
 .leading-8 {

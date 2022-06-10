@@ -152,6 +152,38 @@ class PointOfSaleSession
     }
 
     /**
+     * Close current session.
+     *
+     * @return void
+     */
+    public function closeSession(array $cash)
+    {
+        if (false === $this->session->abierto) {
+            ToolBox::i18nLog()->info('there-is-no-open-till-session');
+            return;
+        }
+
+        $this->session->abierto = false;
+        $this->session->fechafin = date('d-m-Y');
+        $this->session->horafin = date('H:i:s');
+
+        $total = 0.0;
+        foreach ($cash as $value => $count) {
+            $total += (float)$value * (float)$count;
+        }
+
+        ToolBox::i18nLog()->info('cashup-total', ['%amount%' => $total]);
+        $this->session->saldocontado = $total;
+        $this->session->conteo = json_encode($cash);
+
+        if ($this->session->save()) {
+            $this->terminal->disponible = true;
+            $this->terminal->save();
+            $this->open = false;
+        }
+    }
+
+    /**
      * Replace current user by the given one.
      *
      * @param User $user

@@ -5,6 +5,17 @@
 import {getElement} from "./Core.js";
 import * as Money from "./Money.js";
 
+export const alertView = () => {
+    return  {
+        'container': getElement("alert-container"),
+        'listTemplate': getTemplate('message-template'),
+
+        updateAlertListView: function (data) {
+            this.container.innerHTML = this.listTemplate(data, Eta.config);
+        }
+    }
+}
+
 export const cartView = () => {
     return {
         'main': getElement('cartMainView'),
@@ -82,7 +93,10 @@ export const mainView = () => {
         'customerNameLabel': getElement('customerNameLabel'),
         'customerSearchBox': getElement('customerSearchBox'),
         'customerSearchModal': getElement('customerSearchModal'),
+        'customerSaveButton': getElement('newCustomerSaveButton'),
         'customerListView': getElement('customerSearchResult'),
+        'closeSessionButton': getElement('closeSessionButton'),
+        'closeSessionForm': getElement('closeSessionForm'),
         'documentTypeModal': getElement('documentTypeModal'),
         'documentNamelLabel': getElement('documentTypeLabel'),
         'documentTypeListView': getElement('documentTypeList'),

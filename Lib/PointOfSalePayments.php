@@ -17,18 +17,39 @@ class PointOfSalePayments
     protected $payments = [];
 
     /**
+     * @var float
+     */
+    protected $cashPaymentAmount = 0.0;
+
+    /**
      * @var OrdenPuntoVenta
      */
     protected $order;
+    /**
+     * @var string
+     */
+    protected $cashPaymentMethod;
 
-    public function __construct(OrdenPuntoVenta $order)
+    public function __construct(OrdenPuntoVenta $order, string $cashPaymentMethod)
     {
+        $this->cashPaymentMethod = $cashPaymentMethod;
         $this->order = $order;
+    }
+
+    /**
+     * @return float
+     */
+    public function getCashPaymentAmount(): float
+    {
+        return $this->cashPaymentAmount;
     }
 
     public function savePayments(array $payments = [])
     {
         foreach ($payments as $payment) {
+            if ($payment['method'] === $this->cashPaymentMethod) {
+                $this->cashPaymentAmount += $payment['amount'] - $payment['change'];
+            }
             $this->savePayment($payment);
         }
     }
@@ -37,7 +58,7 @@ class PointOfSalePayments
     {
         $pago = new PagoPuntoVenta();
         $pago->cantidad = $payment['amount'];
-        $pago->cambio = 0;
+        $pago->cambio = $payment['change'];
         $pago->codpago = $payment['method'];
         $pago->idoperacion = $this->order->idoperacion;
         $pago->idsesion = $this->order->idsesion;

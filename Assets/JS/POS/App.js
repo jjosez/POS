@@ -51,6 +51,18 @@ function holdOrder() {
     });
 }
 
+/**
+ * @param {Array} data
+ */
+function resumeOrderHandler(data) {
+    Order.resumeRequest(data.code).then(response => {
+        Cart.update(response);
+        Cart.token = response.token;
+
+        mainView().toggleHoldOrdersModal();
+    });
+}
+
 function searchCustomerHandler() {
     Core.searchCustomer(this.value).then(response => {
         mainView().updateCustomerListView(response);
@@ -200,13 +212,14 @@ function commonEventHandler(event) {
             editProductFieldHandler(event.target);
             return;
         case 'resumeOrderAction' === action:
-            console.log('resume order action.')
+            resumeOrderHandler(data);
             return;
     }
 }
 
-function applyPayment() {
+function setPayment() {
     Checkout.setPayment(checkoutView().paymentInput.value, checkoutView().paymentInput.dataset.method);
+    checkoutView().paymentInput.value = 0;
 }
 
 function recalculatePaymentAmount() {
@@ -239,7 +252,33 @@ function updateOrderDiscount() {
     Cart.setDiscountPercent(this.value);
 }
 
-//UI.customerSaveButton.addEventListener('click', EventHandler.saveNewCostumerHandler);
+function closeSessionHandler() {
+    mainView().closeSessionForm.submit();
+}
+
+export function scanCodeHandler(code) {
+    Core.searchBarcode(code).then(response => {
+        Cart.addProduct(response.code, response.description);
+        //UI.productBarcodeBox.value = '';
+    });
+}
+
+export function saveNewCostumerHandler() {
+    const taxID = Core.getElement('newCustomerTaxID').value;
+    const name = Core.getElement('newCustomerName').value;
+
+    function saveCustomer(response) {
+        if (response.codcliente) {
+            Cart.setCustomer(response.codcliente);
+            mainView().updateCustomer(response.razonsocial);
+        }
+    }
+
+    Core.saveNewCustomer(taxID, name).then(saveCustomer);
+}
+
+mainView().customerSaveButton.addEventListener('click', saveNewCostumerHandler);
+mainView().closeSessionButton.addEventListener('click', closeSessionHandler);
 mainView().customerSearchBox.addEventListener('keyup', searchCustomerHandler);
 mainView().customerListView.addEventListener('click', commonEventHandler);
 mainView().documentTypeListView.addEventListener('click', commonEventHandler);
@@ -251,7 +290,7 @@ cartView().editView.addEventListener('focusout', commonEventHandler);
 cartView().discountPercent.addEventListener('focusout', updateOrderDiscount);
 cartView().holdButton.addEventListener('click', holdOrder);
 checkoutView().confirmButton.addEventListener('click', saveOrder);
-checkoutView().paymentApplyButton.addEventListener('click', applyPayment);
+checkoutView().paymentApplyButton.addEventListener('click', setPayment);
 checkoutView().paymentAmounButton.forEach(element => element.addEventListener('click', recalculatePaymentAmount));
 checkoutView().paymentModalButton.forEach(element => element.addEventListener('click', showPaymentModal));
 document.addEventListener('updateCartEvent', updateCart);

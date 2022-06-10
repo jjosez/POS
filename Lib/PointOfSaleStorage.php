@@ -64,6 +64,9 @@ class PointOfSaleStorage
     {
         $order = new OperacionPausada();
         $order->loadFromCode($code);
+        $order->codigo = null;
+        $order->fecha = date($order::DATE_STYLE);
+        $order->hora = date($order::HOUR_STYLE);
 
         $result = [
             'doc' => $order->toArray(),

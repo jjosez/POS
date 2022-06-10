@@ -117,6 +117,10 @@
         @apply flex relative flex-col mx-auto my-6 w-3/5 bg-white rounded-lg border-0 min-h-1/2 max-h-4/5;
     }
 
+    .modal-content-sm {
+        @apply w-4/12;
+    }
+
     .modal-content-lg {
         @apply w-9/12;
     }

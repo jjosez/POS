@@ -44,8 +44,8 @@ export default class Checkout {
         let balance = this.getOutstandingBalance();
         amount = parseFloat(amount);
 
-        if (amount > balance && method !== this.cashMethod) {
-            amount = balance < 0 ? 0 : balance;
+        if (method !== this.cashMethod) {
+            amount = (balance < 0) ? 0 : balance;
         }
 
         if (false === this.payments.some(element => {
@@ -55,11 +55,21 @@ export default class Checkout {
             }
             return false;
         }) && amount > 0) {
-            this.payments.push({amount: amount, method: method});
+            this.payments.push({amount: amount, method: method, change: 0});
         }
 
-        this.change = (this.getPaymentsTotal() - this.total).toFixed(2) || 0;
+        this.updateMoneyChange();
         this.updateCheckoutEvent();
+    }
+
+    updateMoneyChange() {
+        this.change = (this.getPaymentsTotal() - this.total).toFixed(2) || 0;
+
+        this.payments.find(payment => {
+            if (payment.method === this.cashMethod) {
+                payment.change = this.change;
+            }
+        });
     }
 
     updateTotal(total) {
