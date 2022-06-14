@@ -127,6 +127,14 @@ function deleteOrderHandler(data) {
 /**
  * @param {Array} data
  */
+function deletePaymentHandler(data) {
+    console.log('Delete payment action', data.index)
+    Checkout.deletePayment(data.index);
+}
+
+/**
+ * @param {Array} data
+ */
 function deleteProductHandler(data) {
     console.log('Delete product action', data.index)
     Cart.deleteProduct(data.index);
@@ -202,6 +210,9 @@ function commonEventHandler(event) {
         case 'deleteOrderAction' === action:
             deleteOrderHandler(data);
             return;
+        case 'deletePaymentAction' === action:
+            deletePaymentHandler(data);
+            return;
         case 'deleteProductAction' === action:
             deleteProductHandler(data);
             return;
@@ -218,7 +229,7 @@ function commonEventHandler(event) {
 }
 
 function setPayment() {
-    Checkout.setPayment(checkoutView().paymentInput.value, checkoutView().paymentInput.dataset.method);
+    Checkout.setPayment(checkoutView().paymentInput.value, checkoutView().paymentInput.dataset);
     checkoutView().paymentInput.value = 0;
 }
 
@@ -290,6 +301,7 @@ cartView().editView.addEventListener('focusout', commonEventHandler);
 cartView().discountPercent.addEventListener('focusout', updateOrderDiscount);
 cartView().holdButton.addEventListener('click', holdOrder);
 checkoutView().confirmButton.addEventListener('click', saveOrder);
+checkoutView().listView.addEventListener('click', commonEventHandler);
 checkoutView().paymentApplyButton.addEventListener('click', setPayment);
 checkoutView().paymentAmounButton.forEach(element => element.addEventListener('click', recalculatePaymentAmount));
 checkoutView().paymentModalButton.forEach(element => element.addEventListener('click', showPaymentModal));

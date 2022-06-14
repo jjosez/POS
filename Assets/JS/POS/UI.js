@@ -73,6 +73,7 @@ export const checkoutView = () => {
 
         showPaymentModal: function (element) {
             this.paymentInput.dataset.method = element.dataset.code;
+            this.paymentInput.dataset.description = element.dataset.description;
             toggleModal(this.paymentModal);
         },
 

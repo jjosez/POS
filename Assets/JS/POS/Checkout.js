@@ -40,12 +40,25 @@ export default class Checkout {
         return total;
     }
 
-    setPayment(amount, method) {
+    deletePayment(index) {
+        this.payments.splice(index, 1);
+        this.updateMoneyChange();
+        this.updateCheckoutEvent();
+    }
+
+    setPayment(amount, {method, description}) {
         let balance = this.getOutstandingBalance();
         amount = parseFloat(amount);
 
         if (method !== this.cashMethod) {
-            amount = (balance < 0) ? 0 : balance;
+            if (balance < 0 && amount < 0) {
+                amount = 0;
+                return;
+            }
+
+            if (amount > balance) {
+                amount = balance;
+            }
         }
 
         if (false === this.payments.some(element => {
@@ -55,7 +68,7 @@ export default class Checkout {
             }
             return false;
         }) && amount > 0) {
-            this.payments.push({amount: amount, method: method, change: 0});
+            this.payments.push({amount: amount, method: method, description: description, change: 0});
         }
 
         this.updateMoneyChange();
