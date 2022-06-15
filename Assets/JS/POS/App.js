@@ -268,9 +268,13 @@ function closeSessionHandler() {
 }
 
 export function scanCodeHandler(code) {
+    console.log('Search barcode:', code);
     Core.searchBarcode(code).then(response => {
-        Cart.addProduct(response.code, response.description);
-        //UI.productBarcodeBox.value = '';
+        if (response.code) {
+            Cart.addProduct(response.code, response.description);
+        } else {
+            console.log('Barcode not found');
+        }
     });
 }
 
@@ -287,6 +291,15 @@ export function saveNewCostumerHandler() {
 
     Core.saveNewCustomer(taxID, name).then(saveCustomer);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    /* global onScan*/
+    onScan.attachTo(document);
+
+    document.addEventListener('scan', function (event) {
+        scanCodeHandler(event.detail.scanCode);
+    });
+});
 
 mainView().customerSaveButton.addEventListener('click', saveNewCostumerHandler);
 mainView().closeSessionButton.addEventListener('click', closeSessionHandler);

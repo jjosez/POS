@@ -92,9 +92,11 @@ class PointOfSaleProduct
     public function advancedSearch(string $text, array $tags = [], string $wharehouse = ''): array
     {
         ///$text2 = str_replace(" ", "%", $text);
+        $text = mb_strtolower($text, 'UTF8');
 
         $where = [
-            new DataBaseWhere('V.referencia', $text, 'LIKE'),
+            new DataBaseWhere('LOWER(V.codbarras)', $text . '%', 'LIKE'),
+            new DataBaseWhere('V.referencia', $text, 'LIKE', 'OR'),
             new DataBaseWhere('P.descripcion', $text, 'XLIKE', 'OR')
         ];
 

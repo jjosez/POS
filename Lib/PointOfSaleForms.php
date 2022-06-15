@@ -51,7 +51,7 @@ class PointOfSaleForms
             $data['headers'][] = ToolBox::i18n()->trans($column->title);
         }
 
-        AssetManager::clear();
+        //AssetManager::clear();
         return $data;
     }
 

@@ -10,6 +10,7 @@ class ProductoVariante extends JoinModel
 {
     /**
     * @property-read $name
+    * @property-read $barcode
     * @property-read $description
     * @property-read $stock
     * @property-read $price
@@ -37,6 +38,7 @@ class ProductoVariante extends JoinModel
     {
         return [
             'code' => 'V.referencia',
+            'barcode' => 'V.codbarras',
             'description' => 'P.descripcion',
             'price' => 'V.precio',
             'stock' => 'S.disponible',
