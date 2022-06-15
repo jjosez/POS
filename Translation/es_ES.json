@@ -1,4 +1,6 @@
 {
+  "add-payment": "Agregar pago",
+  "apply": "Aplicar",
   "amount-counted": "Cantidad contada",
   "available-custumer-doctypes": "Tipos de documentos disponibles",
   "cashup-money-counted": "Dinero contado en caja: %amount%",

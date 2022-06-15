@@ -124,4 +124,23 @@ class PointOfSaleOrder
             $this->documentLines[] = $this->document->getNewProductLine($product['referencia']);
         }
     }
+
+    protected function getPaymentMethod(): string
+    {
+        $amount = 0;
+        $paymentMethod = '';
+        foreach ($this->payments as $payment) {
+            $currentAmount = $payment['amount'];
+            if ($payment['method'] === 'CONT') {
+                $currentAmount = $payment['amount'] - $payment['change'];
+            }
+
+            if ($currentAmount > $amount) {
+                $paymentMethod = $payment['method'];
+                $amount = $currentAmount;
+            }
+        }
+
+        return $paymentMethod;
+    }
 }
