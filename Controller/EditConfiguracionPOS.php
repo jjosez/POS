@@ -25,7 +25,7 @@ class EditConfiguracionPOS extends ExtendedController\PanelController
     public function getPageData()
     {
         $pagedata = parent::getPageData();
-        $pagedata['title'] = 'options';
+        $pagedata['title'] = 'setup-options';
         $pagedata['menu'] = 'point-of-sale';
         $pagedata['icon'] = 'fas fa-cogs';
 

@@ -1702,6 +1702,11 @@ input:read-only {
   opacity: 0.75;
 }
 
+.focus\:bg-gray-200:focus {
+  --tw-bg-opacity: 1;
+  background-color: rgb(229 231 235 / var(--tw-bg-opacity));
+}
+
 .focus\:outline-none:focus {
   outline: 2px solid transparent;
   outline-offset: 2px;
@@ -1710,6 +1715,11 @@ input:read-only {
 .focus\:ring-gray-600:focus {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(75 85 99 / var(--tw-ring-opacity));
+}
+
+.focus\:ring-slate-100:focus {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(239 242 243 / var(--tw-ring-opacity));
 }
 
 @media (min-width: 768px) {
