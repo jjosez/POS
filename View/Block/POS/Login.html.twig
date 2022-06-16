@@ -8,6 +8,7 @@
 {% set terminal = fsc.getSession().getTerminal() %}
 
 {% block body %}
+    {{ fsc.validateSettings() }}
     <div class="flex modal">
         <div class="modal-content">
             <div class="modal-header">

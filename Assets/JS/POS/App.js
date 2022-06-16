@@ -104,7 +104,7 @@ function setDocumentHandler(data) {
  * @param {Event} event
  */
 function setProductHandler(event) {
-    console.log('Add product', event.target.dataset.code)
+    console.log('Add product', event.target.dataset)
     const data = event.target.dataset;
     if (typeof data.code === 'undefined' || data.code === null) {
         return;

@@ -83,6 +83,7 @@ class PointOfSaleOrder
         }
 
         $this->setDocumentLines();
+        $this->setPaymentMethod();
 
         return Calculator::calculate($this->document, $this->documentLines, true);
     }
@@ -125,15 +126,20 @@ class PointOfSaleOrder
         }
     }
 
+    protected function setPaymentMethod()
+    {
+        $this->document->codpago = $this->getPaymentMethod();
+    }
+
     protected function getPaymentMethod(): string
     {
         $amount = 0;
         $paymentMethod = '';
         foreach ($this->payments as $payment) {
             $currentAmount = $payment['amount'];
-            if ($payment['method'] === 'CONT') {
+            /*if ($payment['method'] === 'CONT') {
                 $currentAmount = $payment['amount'] - $payment['change'];
-            }
+            }*/
 
             if ($currentAmount > $amount) {
                 $paymentMethod = $payment['method'];

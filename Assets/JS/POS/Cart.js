@@ -10,13 +10,16 @@ export default class Cart {
     }
 
     addProduct(code, description) {
-        if (this.lines.some(element => {
+        if ('' === code) {
+            this.lines.unshift({referencia: code, descripcion: description});
+        } else if (this.lines.some(element => {
             return element.referencia === code ? element.cantidad++ : false;
         })) {
             this.updateCartEvent();
             return;
+        } else {
+            this.lines.unshift({referencia: code, descripcion: description});
         }
-        this.lines.unshift({referencia: code, descripcion: description});
         this.updateCartEvent();
     }
 

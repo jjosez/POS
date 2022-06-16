@@ -237,4 +237,34 @@ trait PointOfSaleTrait
         $this->setNewToken();
         return true;
     }
+
+    public function validateSettings(): bool
+    {
+        $result = true;
+
+        $cashMethod = $this->getCashPaymentMethod();
+        if ($cashMethod === null || trim($cashMethod) === '') {
+            $this->toolBox()->Log()->warning('No se configuro el metodo de pago que se usara para pagos en efectivo');
+            $result = false;
+        }
+
+        $defaultDocument = $this->getDefaultDocument();
+        if ($defaultDocument === null || trim($defaultDocument) === '') {
+            $this->toolBox()->Log()->warning('No se configuro el documento predefinido');
+            $result = false;
+        }
+
+        $paymentMethod = $this->getPaymentMethods();
+        if (empty($paymentMethod)) {
+            $this->toolBox()->Log()->warning('No se configuro ningun metodo de pago disponible.');
+            $result = false;
+        }
+
+        if (empty($this->getDenominations())) {
+            $this->toolBox()->Log()->warning('No se configuro ninguna moneda, se necesitan para el cierre de arqueo.');
+            $result = false;
+        }
+
+        return $result;
+    }
 }

@@ -168,7 +168,7 @@ class POS extends Controller
     protected function initSession()
     {
         $terminal = $this->request->request->get('terminal', '');
-        $amount = $this->request->request->get('saldoinicial', 0);
+        $amount = $this->request->request->get('saldoinicial', 0) ?: 0;
         $this->session->openSession($terminal, $amount);
     }
 
