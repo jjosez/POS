@@ -25,7 +25,7 @@ trait PointOfSaleTrait
      */
     public function getCashPaymentMethod(): string
     {
-        return $this->getSetting('fpagoefectivo');
+        return $this->getSetting('fpagoefectivo') ?: '';
     }
 
     /**

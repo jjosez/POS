@@ -633,19 +633,6 @@ video {
   box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 
-.btn-block {
-  display: flex;
-  display: inline-flex;
-  width: 100%;
-  align-items: center;
-  border-radius: 0.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-  font-weight: 500;
-}
-
 .btn-icon {
   height: 2.75rem;
   width: 2.75rem;
@@ -1203,10 +1190,6 @@ input:read-only {
   width: 66.666667%;
 }
 
-.w-20 {
-  width: 5rem;
-}
-
 .flex-1 {
   flex: 1 1 0%;
 }
@@ -1236,6 +1219,10 @@ input:read-only {
 
 .grid-cols-2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .flex-row {
@@ -1342,6 +1329,10 @@ input:read-only {
   border-top-width: 4px;
 }
 
+.border-l-4 {
+  border-left-width: 4px;
+}
+
 .border-solid {
   border-style: solid;
 }
@@ -1352,6 +1343,11 @@ input:read-only {
 
 .border-dotted {
   border-style: dotted;
+}
+
+.border-red-500 {
+  --tw-border-opacity: 1;
+  border-color: rgb(239 68 68 / var(--tw-border-opacity));
 }
 
 .border-opacity-50 {
@@ -1396,6 +1392,11 @@ input:read-only {
 .bg-yellow-500 {
   --tw-bg-opacity: 1;
   background-color: rgb(234 179 8 / var(--tw-bg-opacity));
+}
+
+.bg-red-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 226 226 / var(--tw-bg-opacity));
 }
 
 .bg-transparent {
@@ -1513,11 +1514,6 @@ input:read-only {
   line-height: 2.5rem;
 }
 
-.text-xs {
-  font-size: 0.75rem;
-  line-height: 1rem;
-}
-
 .font-semibold {
   font-weight: 600;
 }
@@ -1544,10 +1540,6 @@ input:read-only {
 
 .leading-normal {
   line-height: 1.5;
-}
-
-.leading-snug {
-  line-height: 1.375;
 }
 
 .text-gray-800 {
@@ -1588,6 +1580,11 @@ input:read-only {
 .text-slate-700 {
   --tw-text-opacity: 1;
   color: rgb(72 94 104 / var(--tw-text-opacity));
+}
+
+.text-red-700 {
+  --tw-text-opacity: 1;
+  color: rgb(185 28 28 / var(--tw-text-opacity));
 }
 
 .text-slate-50 {
@@ -1696,15 +1693,6 @@ input:read-only {
 .hover\:text-slate-800:hover {
   --tw-text-opacity: 1;
   color: rgb(58 75 83 / var(--tw-text-opacity));
-}
-
-.hover\:opacity-75:hover {
-  opacity: 0.75;
-}
-
-.focus\:bg-gray-200:focus {
-  --tw-bg-opacity: 1;
-  background-color: rgb(229 231 235 / var(--tw-bg-opacity));
 }
 
 .focus\:outline-none:focus {
