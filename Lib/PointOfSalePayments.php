@@ -44,7 +44,7 @@ class PointOfSalePayments
         return $this->cashPaymentAmount;
     }
 
-    public function savePayments(array $payments = [])
+    public function savePayments(array $payments = []): void
     {
         foreach ($payments as $payment) {
             if ($payment['method'] === $this->cashPaymentMethod) {
@@ -54,7 +54,7 @@ class PointOfSalePayments
         }
     }
 
-    protected function savePayment(array $payment)
+    protected function savePayment(array $payment): void
     {
         $pago = new PagoPuntoVenta();
         $pago->cantidad = $payment['amount'];

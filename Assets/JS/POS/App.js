@@ -3,8 +3,6 @@
  * Copyright (C) 2018-2021 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 import * as Core from './Core.js';
-//import * as EventHandler from './EventHandler.js';
-//import * as UI from './AppUI.js';
 import {mainView, cartView, checkoutView} from "./UI.js";
 import * as Order from "./Order.js";
 import CartModel from "./Cart.js";
@@ -12,14 +10,15 @@ import CheckoutModel from "./Checkout.js";
 
 export const Cart = new CartModel({
     'doc': {
-        'codcliente': settings().customer,
+        'codcliente': settings.customer,
         'idpausada': 'false',
-        'tipo-documento': settings().document
+        'tipo-documento': settings.document
     },
-    'token': settings().token
+    'token': settings.token
 });
 
-export const Checkout = new CheckoutModel('01');
+export const Checkout = new CheckoutModel(settings.cash);
+//window.App = {};
 
 function saveOrder() {
     if (Cart.lines.length < 1) {
@@ -193,6 +192,24 @@ function updateEditView(index) {
     cartView().updateEditForm(data);
 }
 
+/*function documentEventHandler(event) {
+    const data = event.target.dataset;
+    const functionName = data.action;
+
+    if (typeof App[functionName] === "function") {
+        console.log('Ejecutando funcion:', functionName);
+        App[functionName](data);
+    }
+}
+
+App.setDocumentAction = function (data) {
+    if (typeof data.code === 'undefined' || data.code === null) {
+        return;
+    }
+    Cart.setDocumentType(data.code);
+    mainView().updateDocument(data.description);
+}*/
+
 /**
  * @param {Event} event
  */
@@ -200,29 +217,29 @@ function commonEventHandler(event) {
     const data = event.target.dataset;
     const action = data.action;
 
-    switch (true) {
-        case 'setDocumentAction' === action:
+    switch (action) {
+        case 'setDocumentAction':
             setDocumentHandler(data);
             return;
-        case 'setCustomerAction' === action:
+        case 'setCustomerAction':
             setCustomerHandler(data);
             return;
-        case 'deleteOrderAction' === action:
+        case 'deleteOrderAction':
             deleteOrderHandler(data);
             return;
-        case 'deletePaymentAction' === action:
+        case 'deletePaymentAction':
             deletePaymentHandler(data);
             return;
-        case 'deleteProductAction' === action:
+        case 'deleteProductAction':
             deleteProductHandler(data);
             return;
-        case 'editProductAction' === action:
+        case 'editProductAction':
             editProductHandler(data);
             return;
-        case 'editProductFieldAction' === action:
+        case 'editProductFieldAction':
             editProductFieldHandler(event.target);
             return;
-        case 'resumeOrderAction' === action:
+        case 'resumeOrderAction':
             resumeOrderHandler(data);
             return;
     }
@@ -305,7 +322,8 @@ mainView().customerSaveButton.addEventListener('click', saveNewCostumerHandler);
 mainView().closeSessionButton.addEventListener('click', closeSessionHandler);
 mainView().customerSearchBox.addEventListener('keyup', searchCustomerHandler);
 mainView().customerListView.addEventListener('click', commonEventHandler);
-mainView().documentTypeListView.addEventListener('click', commonEventHandler);
+//mainView().documentTypeListView.addEventListener('click', commonEventHandler);
+mainView().documentTypeListView.addEventListener('click', documentEventHandler);
 mainView().holdOrdersList.addEventListener('click', commonEventHandler);
 mainView().productSearchBox.addEventListener('keyup', searchProductHandler);
 mainView().productListView.addEventListener('click', setProductHandler);

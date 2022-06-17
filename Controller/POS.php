@@ -318,7 +318,7 @@ class POS extends Controller
     public function getPageData(): array
     {
         $pagedata = parent::getPageData();
-        $pagedata['title'] = 'pos';
+        $pagedata['title'] = 'POS';
         $pagedata['menu'] = 'point-of-sale';
         $pagedata['icon'] = 'fas fa-shopping-cart';
         $pagedata['showonmenu'] = true;
