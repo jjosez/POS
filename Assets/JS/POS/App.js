@@ -18,6 +18,7 @@ export const Cart = new CartModel({
 });
 
 export const Checkout = new CheckoutModel(settings.cash);
+
 //window.App = {};
 
 function saveOrder() {
@@ -51,7 +52,7 @@ function holdOrder() {
 }
 
 /**
- * @param {Array} data
+ * @param {{code:string}} data
  */
 function resumeOrderHandler(data) {
     Order.resumeRequest(data.code).then(response => {
@@ -76,7 +77,7 @@ function searchProductHandler() {
 }
 
 /**
- * @param {Array} data
+ * @param {{code:string, description:string}} data
  */
 function setCustomerHandler(data) {
     console.log('Set customer', data.description)
@@ -88,7 +89,7 @@ function setCustomerHandler(data) {
 }
 
 /**
- * @param {Array} data
+ * @param {{code:string, description:string}} data
  */
 function setDocumentHandler(data) {
     console.log('Set document', data.description)
@@ -112,7 +113,7 @@ function setProductHandler(event) {
 }
 
 /**
- * @param {Array} data
+ * @param {{code:string}} data
  */
 function deleteOrderHandler(data) {
     Order.deleteHoldRequest(data.code).then(() => {
@@ -124,7 +125,7 @@ function deleteOrderHandler(data) {
 }
 
 /**
- * @param {Array} data
+ * @param {{index:int}} data
  */
 function deletePaymentHandler(data) {
     console.log('Delete payment action', data.index)
@@ -132,7 +133,7 @@ function deletePaymentHandler(data) {
 }
 
 /**
- * @param {Array} data
+ * @param {{index:int}} data
  */
 function deleteProductHandler(data) {
     console.log('Delete product action', data.index)
@@ -140,7 +141,7 @@ function deleteProductHandler(data) {
 }
 
 /**
- * @param {Array} data
+ * @param {{index:int}} data
  */
 function editProductHandler(data) {
     console.log('Edit product', data)
@@ -172,7 +173,7 @@ function updateCart() {
 }
 
 /**
- * @param {Array} data
+ * @param {{detail}} data
  */
 function updateCartView(data) {
     cartView().updateListView(data.detail);
@@ -299,6 +300,9 @@ export function saveNewCostumerHandler() {
     const taxID = Core.getElement('newCustomerTaxID').value;
     const name = Core.getElement('newCustomerName').value;
 
+    /**
+     * @param {{codcliente:string, razonsocial:string}} response
+     */
     function saveCustomer(response) {
         if (response.codcliente) {
             Cart.setCustomer(response.codcliente);
@@ -322,8 +326,8 @@ mainView().customerSaveButton.addEventListener('click', saveNewCostumerHandler);
 mainView().closeSessionButton.addEventListener('click', closeSessionHandler);
 mainView().customerSearchBox.addEventListener('keyup', searchCustomerHandler);
 mainView().customerListView.addEventListener('click', commonEventHandler);
-//mainView().documentTypeListView.addEventListener('click', commonEventHandler);
-mainView().documentTypeListView.addEventListener('click', documentEventHandler);
+mainView().documentTypeListView.addEventListener('click', commonEventHandler);
+//mainView().documentTypeListView.addEventListener('click', documentEventHandler);
 mainView().holdOrdersList.addEventListener('click', commonEventHandler);
 mainView().productSearchBox.addEventListener('keyup', searchProductHandler);
 mainView().productListView.addEventListener('click', setProductHandler);

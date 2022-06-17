@@ -10,7 +10,9 @@
         </div>
         <div class="w-1/4 ml-4 flex-col items-center">
             <div class="text-sm uppercase font-semibold px-3 py-0.5 bg-gray-200 text-gray-800 rounded-full">0</div>
-            <div class="text-sm lowercase font-semibold mt-2 px-3 py-0.5 bg-gray-200 text-gray-800 rounded-full">&infin;</div>
+            <div class="text-sm lowercase font-semibold mt-2 px-3 py-0.5 bg-gray-200 text-gray-800 rounded-full">
+                &infin;
+            </div>
         </div>
     </div>
     <% it.items.forEach(function(item){ %>
@@ -65,29 +67,45 @@
                 <i class="fas fa-pen-alt"></i>
             </button>
         </div>
-        <div class="edit-product-btn mx-2" data-index="<%= index %>">
+        <div class="flex w-full mx-2" data-index="<%= index %>">
             <label class="flex items-center">
-                <input type="text"
-                       class="h-12 w-12 font-medium text-center bg-slate-gray-200 rounded-lg"
-                       value="<%= value.cantidad %>"
-                >
+                <input type="text" class="h-12 w-12 font-medium text-center bg-slate-gray-200 rounded-lg"
+                       value="<%= value.cantidad %>">
             </label>
             <div class="flex-1 mx-2">
-                <h4 class="font-semibold">
-                    <%= value.referencia %>
-                </h4>
+                <h4 class="font-semibold"><%= value.referencia %></h4>
                 <p><%= value.descripcion %></p>
                 <span class="text-blue-500 uppercase">
-                        {{ i18n.trans('pvp') }}: <%= value.pvpunitario %> / {{ i18n.trans('total') }}: <%= value.pvptotal %>
-                    </span>
+                    {{ i18n.trans('pvp') }}: <%= value.pvpunitario %> / {{ i18n.trans('total') }}: <%= value.pvptotal %>
+                </span>
             </div>
         </div>
         <div class="flex items-center">
-            <button class="delete-product-btn" data-action="deleteProductAction" data-index="<%= index %>">
+            <button class="btn btn-icon btn-danger" data-action="deleteProductAction" data-index="<%= index %>">
                 <i class="fas fa-trash-alt"></i>
             </button>
         </div>
     </div>
+    <% }) %>
+{% endmacro %}
+
+{% macro lastOrdersTemplate() %}
+    <% it.items.forEach(function(order){ %>
+    <tr class="bg-blue-100 hover:bg-yellow-200">
+        <td class="text-center"><%= order.codigo %></td>
+        <td class="text-center"><%= order.tipodoc %></td>
+        <td class="text-right"><%= order.fecha %></td>
+        <td class="text-right"><%= order.hora %></td>
+        <td class="text-right"><%= order.total %></td>
+        <td>
+            <div class="flex justify-center py-1">
+                <button type="button" class="btn btn-icon btn-primary resume-order-btn"
+                        data-action="printOrderAction" data-code="<%= order.idoperacion %>" disabled>
+                    <i class="fas fa-print fa-sm"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
     <% }) %>
 {% endmacro %}
 
@@ -128,7 +146,7 @@
     <% } %>
     <% it.items.forEach(function(order){ %>
     <tr class="bg-blue-100 hover:bg-yellow-200">
-        <td class="text-center"><%= order.codigo %>{{ operation.codigo }}</td>
+        <td class="text-center"><%= order.codigo %></td>
         <td><%= order.nombrecliente %></td>
         <td class="text-right"><%= order.fecha %></td>
         <td class="text-right"><%= order.hora %></td>
@@ -153,20 +171,14 @@
     <% it.payments.forEach(function(value, index) { %>
     <div class="bg-white shadow rounded-lg p-4 m-4 flex">
         <div class="mr-4 flex items-center">
-            <span class="bg-slate-gray-200">
-                <i class="fas fa-1x fa-plus-circle"></i>
-            </span>
+            <span class="bg-slate-gray-200"><i class="fas fa-1x fa-plus-circle"></i></span>
         </div>
         <div class="flex-1">
-            <p class="text-sm uppercase font-bold text-gray-600">
-                <%= value.description %>
-            </p>
-            <p class="text-lg font-bold text-blue-500">
-                <%= value.amount %>
-            </p>
+            <p class="text-sm uppercase font-bold text-gray-600"><%= value.description %></p>
+            <p class="text-lg font-bold text-blue-500"><%= value.amount %></p>
         </div>
         <div class="flex items-center">
-            <button class="delete-product-btn" data-action="deletePaymentAction" data-index="<%= index %>">
+            <button class="btn btn-icon btn-danger" data-action="deletePaymentAction" data-index="<%= index %>">
                 <i class="fas fa-trash-alt"></i>
             </button>
         </div>

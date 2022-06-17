@@ -58,8 +58,11 @@
     <script id="productListTemplate" type="text/template">
         {{ pos.productSearchTemplate(i18n) }}
     </script>
-    <script id="paused-orders-template" type="text/template">
+    <script id="pausedOrdersListTemplate" type="text/template">
         {{ pos.pausedOrdersTemplate() }}
+    </script>
+    <script id="lastOrdersListTemplate" type="text/template">
+        {{ pos.lastOrdersTemplate() }}
     </script>
     {# TODO: Change to dynamic for release #}
     {{ parent() }}

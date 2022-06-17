@@ -158,22 +158,9 @@
     select > *,
     div[role=listitem] > *,
     .product-card > *,
-    .delete-product-btn > *,
     .product-tag > *,
-    .product-add-btn > *,
-    .edit-product-btn > * {
+    .product-add-btn > * {
         @apply pointer-events-none;
-    }
-
-    .delete-product-btn {
-        @apply btn btn-icon btn-danger;
-    }
-
-    /*.edit-cart-product {
-        @apply text-blue-500 hover:text-blue-700;
-    }*/
-    .edit-product-btn {
-        @apply flex w-full cursor-pointer;
     }
 
     table tbody tr:nth-child(odd) {

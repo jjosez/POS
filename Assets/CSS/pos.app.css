@@ -957,58 +957,9 @@ button > *,
     select > *, 
     div[role=listitem] > *, 
     .product-card > *, 
-    .delete-product-btn > *, 
     .product-tag > *, 
-    .product-add-btn > *, 
-    .edit-product-btn > * {
+    .product-add-btn > * {
   pointer-events: none;
-}
-
-.delete-product-btn {
-  display: flex;
-  flex-shrink: 0;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
-  align-items: center;
-  border-radius: 0.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 0.625rem;
-  padding-bottom: 0.625rem;
-  font-weight: 500;
-  --tw-text-opacity: 1;
-  color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-
-.delete-product-btn:focus {
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
-}
-
-.delete-product-btn {
-  height: 2.75rem;
-  width: 2.75rem;
-  justify-content: center;
-  --tw-bg-opacity: 1;
-  background-color: rgb(239 68 68 / var(--tw-bg-opacity));
-}
-
-.delete-product-btn:focus {
-  --tw-ring-opacity: 1;
-  --tw-ring-color: rgb(220 38 38 / var(--tw-ring-opacity));
-}
-
-/*.edit-cart-product {
-        @apply text-blue-500 hover:text-blue-700;
-    }*/
-
-.edit-product-btn {
-  display: flex;
-  width: 100%;
-  cursor: pointer;
 }
 
 table tbody tr:nth-child(odd) {
