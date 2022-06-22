@@ -62,6 +62,12 @@ async function reprintOrderHandler(data) {
     mainView().toggleLastOrdersModal();
 }
 
+async function printClosingVoucherHandler() {
+    await Core.printClosingVoucher();
+
+    mainView().toggleCloseSessionModal();
+}
+
 async function searchCustomerHandler() {
     mainView().updateCustomerListView(await Core.searchCustomer(this.value));
 }
@@ -229,6 +235,9 @@ function commonEventHandler(event) {
         case 'printOrderAction':
             void reprintOrderHandler(data);
             return;
+        case 'printClosingVoucher':
+            void printClosingVoucherHandler(data);
+            return;
     }
 }
 
@@ -303,6 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 mainView().customerSaveButton.addEventListener('click', saveNewCostumerHandler);
 mainView().closeSessionButton.addEventListener('click', closeSessionHandler);
+mainView().closeSessionModal.addEventListener('click', commonEventHandler);
 mainView().customerSearchBox.addEventListener('keyup', searchCustomerHandler);
 mainView().customerListView.addEventListener('click', commonEventHandler);
 mainView().documentTypeListView.addEventListener('click', commonEventHandler);

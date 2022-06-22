@@ -98,6 +98,7 @@ export const mainView = () => {
         'customerListView': getElement('customerSearchResult'),
         'closeSessionButton': getElement('closeSessionButton'),
         'closeSessionForm': getElement('closeSessionForm'),
+        'closeSessionModal': getElement('closeSessionModal'),
         'documentTypeModal': getElement('documentTypeModal'),
         'documentNamelLabel': getElement('documentTypeLabel'),
         'documentTypeListView': getElement('documentTypeList'),
@@ -114,6 +115,10 @@ export const mainView = () => {
 
         toggleMainView: function () {
             this.main.classList.toggle('hidden');
+        },
+
+        toggleCloseSessionModal: function () {
+            toggleModal(this.closeSessionModal);
         },
 
         toggleHoldOrdersModal: function () {

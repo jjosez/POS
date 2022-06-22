@@ -10,14 +10,13 @@ use FacturaScripts\Core\Model\Base\BusinessDocument;
 use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Plugins\PrintTicket\Lib\PrintingService;
-use FacturaScripts\Plugins\PrintTicket\Lib\Ticket\Builder\CashupTicketBuilder;
 use FacturaScripts\Plugins\PrintTicket\Lib\Ticket\Builder\SalesTicketBuilder;
 
 class PointOfSalePrinter
 {
     public static function cashupTicket(SesionPuntoVenta $session, Empresa $company, int $width)
     {
-        $ticketBuilder = new CashupTicketBuilder($session, $company, $width);
+        $ticketBuilder = new PointOfSaleClosingTicket($session, $company, $width);
 
         $cashupTicket = new PrintingService($ticketBuilder);
         $cashupTicket->savePrintJob();

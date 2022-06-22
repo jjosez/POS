@@ -22,6 +22,14 @@ export async function postRequest(data) {
     return result;
 }
 
+export function printClosingVoucher() {
+    const data = new FormData();
+
+    data.set('action', 'print-closing-voucher');
+
+    return postRequest(data);
+}
+
 /**
  * @param {string} taxID
  * @param {string} name

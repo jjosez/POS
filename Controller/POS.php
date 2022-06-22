@@ -105,6 +105,10 @@ class POS extends Controller
             case 'reprint-order':
                 $this->reprintOrder();
                 return false;
+            case 'print-closing-voucher':
+                $this->printClosingVoucher();
+                $this->buildResponse();
+                return false;
 
             default:
                 $this->setResponse('Funcion no encontrada');

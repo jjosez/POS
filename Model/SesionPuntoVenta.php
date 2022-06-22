@@ -109,7 +109,7 @@ class SesionPuntoVenta extends Base\ModelClass
     }
 
     /**
-     * @return array
+     * @return PagoPuntoVenta[]
      */
     public function getPagos(): array
     {
