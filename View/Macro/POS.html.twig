@@ -39,9 +39,9 @@
 
 {% macro customerSearchTemplate() %}
     <% if(it.items.length === 0) { %>
-    <div class="flex justify-center content-center h-full">
-        <i class="fa fa-frown fa-5x text-slate-gray-300"></i>
-    </div>
+    <tr>
+        <td colspan="20" class="p-4">No se encontraron clientes</td>
+    </tr>
     <% } %>
     <% it.items.forEach(function(customer){ %>
     <tr class="bg-blue-100 cursor-pointer hover:bg-blue-500 hover:text-white">
@@ -100,7 +100,7 @@
         <td>
             <div class="flex justify-center py-1">
                 <button type="button" class="btn btn-icon btn-primary resume-order-btn"
-                        data-action="printOrderAction" data-code="<%= order.idoperacion %>" disabled>
+                        data-action="printOrderAction" data-code="<%= order.idoperacion %>">
                     <i class="fas fa-print fa-sm"></i>
                 </button>
             </div>
@@ -140,9 +140,11 @@
 
 {% macro pausedOrdersTemplate() %}
     <% if(it.items.length === 0) { %>
-    <div class="flex justify-center content-center h-full">
-        <i class="fa fa-frown fa-5x text-slate-gray-300"></i>
-    </div>
+    <tr>
+        <td colspan="20" class="p-4">
+            Ninguna operacion registrada
+        </td>
+    </tr>
     <% } %>
     <% it.items.forEach(function(order){ %>
     <tr class="bg-blue-100 hover:bg-yellow-200">

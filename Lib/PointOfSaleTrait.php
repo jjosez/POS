@@ -107,6 +107,14 @@ trait PointOfSaleTrait
     }
 
     /**
+     * @return string
+     */
+    public function getDefaultWarehouse(): string
+    {
+        return $this->getTerminal()->codalmacen ?: '';
+    }
+
+    /**
      * @param $document
      * @return void;
      */

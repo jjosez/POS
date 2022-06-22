@@ -9,20 +9,6 @@ export default class Cart {
         this.token = token
     }
 
-    addProduct(code, description) {
-        if ('' === code) {
-            this.lines.unshift({referencia: code, descripcion: description});
-        } else if (this.lines.some(element => {
-            return element.referencia === code ? element.cantidad++ : false;
-        })) {
-            this.updateCartEvent();
-            return;
-        } else {
-            this.lines.unshift({referencia: code, descripcion: description});
-        }
-        this.updateCartEvent();
-    }
-
     deleteProduct(index) {
         this.lines.splice(index, 1);
         this.updateCartEvent();
@@ -66,24 +52,30 @@ export default class Cart {
         line.pvpunitarioiva = line.pvptotaliva / line.cantidad;
     }
 
-    update({ doc, lines } = {}) {
+    setProduct(code, description) {
+        if ('' === code) {
+            this.lines.unshift({referencia: code, descripcion: description});
+        } else if (this.lines.some(element => {
+            return element.referencia === code ? element.cantidad++ : false;
+        })) {
+            this.updateCartEvent();
+            return;
+        } else {
+            this.lines.unshift({referencia: code, descripcion: description});
+        }
+        this.updateCartEvent();
+    }
+
+    update({doc = this.init, lines = [], token = '' }) {
         this.doc = doc;
         this.lines = lines;
         this.count = 0;
+        this.token = token ? token : this.token;
 
         for (let line of this.lines) {
             this.count += line.cantidad;
             this.setPriceWithTax(line);
         }
-
-        this.updateCartViewEvent(this);
-    }
-
-    updateClean({ token = '' }) {
-        this.count = 0;
-        this.doc = this.init;
-        this.token = token;
-        this.lines = [];
 
         this.updateCartViewEvent(this);
     }

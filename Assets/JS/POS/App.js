@@ -10,6 +10,7 @@ import CheckoutModel from "./Checkout.js";
 
 export const Cart = new CartModel({
     'doc': {
+        'codalmacen': settings.warehouse,
         'codcliente': settings.customer,
         'idpausada': 'false',
         'tipo-documento': settings.document
@@ -21,66 +22,58 @@ export const Checkout = new CheckoutModel(settings.cash);
 
 //window.App = {};
 
-function saveOrder() {
-    if (Cart.lines.length < 1) {
-        return;
+async function saveOrder() {
+    const wasOnHold = Cart.doc.idpausada;
+    if (Cart.lines.length < 1) return;
+
+    Cart.update(await Order.saveRequest(Cart, Checkout.payments));
+    Checkout.clear();
+
+    mainView().updateProductListView(await Core.searchProduct(''));
+    mainView().updateLastOrdersListView(await Order.getLastOrders());
+
+    if (wasOnHold) {
+        mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
     }
-
-    Order.saveRequest(Cart, Checkout.payments).then(response => {
-        Cart.updateClean(response);
-        Checkout.clear();
-
-        Core.searchProduct('').then(response => {
-            mainView().updateProductListView(response);
-        });
-    });
 }
 
-function holdOrder() {
-    if (Cart.lines.length < 1) {
-        return;
-    }
+async function holdOrder() {
+    if (Cart.lines.length < 1) return;
 
-    Order.holdRequest(Cart).then(response => {
-        Cart.updateClean(response);
-        //Cart.token = response.token;
-
-        Order.getOnHoldRequest().then(response => {
-            mainView().updateHoldOrdersList(response);
-        });
-    });
+    Cart.update(await Order.holdRequest(Cart));
+    mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
 }
 
 /**
  * @param {{code:string}} data
  */
-function resumeOrderHandler(data) {
-    Order.resumeRequest(data.code).then(response => {
-        Cart.update(response);
-        Cart.token = response.token;
+async function resumeOrderHandler(data) {
+    Cart.update(await Order.resumeRequest(data.code));
 
-        mainView().toggleHoldOrdersModal();
-    });
-}
-
-function searchCustomerHandler() {
-    Core.searchCustomer(this.value).then(response => {
-        mainView().updateCustomerListView(response);
-    });
-}
-
-function searchProductHandler() {
-    let query = this.value || '';
-    Core.searchProduct(query).then(response => {
-        mainView().updateProductListView(response);
-    });
+    mainView().toggleHoldOrdersModal();
 }
 
 /**
- * @param {{code:string, description:string}} data
+ * @param {{code:string}} data
+ */
+async function reprintOrderHandler(data) {
+    await Order.reprintRequest(data.code);
+
+    mainView().toggleLastOrdersModal();
+}
+
+async function searchCustomerHandler() {
+    mainView().updateCustomerListView(await Core.searchCustomer(this.value));
+}
+
+async function searchProductHandler() {
+    mainView().updateProductListView(await Core.searchProduct(this.value));
+}
+
+/**
+ * @param {{code:string|null, description:string}} data
  */
 function setCustomerHandler(data) {
-    console.log('Set customer', data.description)
     if (typeof data.code === 'undefined' || data.code === null) {
         return;
     }
@@ -89,10 +82,9 @@ function setCustomerHandler(data) {
 }
 
 /**
- * @param {{code:string, description:string}} data
+ * @param {{code:string|null, description:string}} data
  */
 function setDocumentHandler(data) {
-    console.log('Set document', data.description)
     if (typeof data.code === 'undefined' || data.code === null) {
         return;
     }
@@ -104,31 +96,27 @@ function setDocumentHandler(data) {
  * @param {Event} event
  */
 function setProductHandler(event) {
-    console.log('Add product', event.target.dataset)
     const data = event.target.dataset;
     if (typeof data.code === 'undefined' || data.code === null) {
         return;
     }
-    Cart.addProduct(data.code, data.description);
+    Cart.setProduct(data.code, data.description);
 }
 
 /**
  * @param {{code:string}} data
  */
-function deleteOrderHandler(data) {
-    Order.deleteHoldRequest(data.code).then(() => {
-        Order.getOnHoldRequest().then(response => {
-            mainView().updateHoldOrdersList(response);
-            mainView().toggleHoldOrdersModal();
-        });
-    });
+async function deleteOrderHandler(data) {
+    await Order.deleteHoldRequest(data.code);
+
+    mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
+    mainView().toggleHoldOrdersModal();
 }
 
 /**
  * @param {{index:int}} data
  */
 function deletePaymentHandler(data) {
-    console.log('Delete payment action', data.index)
     Checkout.deletePayment(data.index);
 }
 
@@ -136,7 +124,6 @@ function deletePaymentHandler(data) {
  * @param {{index:int}} data
  */
 function deleteProductHandler(data) {
-    console.log('Delete product action', data.index)
     Cart.deleteProduct(data.index);
 }
 
@@ -144,7 +131,6 @@ function deleteProductHandler(data) {
  * @param {{index:int}} data
  */
 function editProductHandler(data) {
-    console.log('Edit product', data)
     updateEditView(data.index);
 
     if (true === cartView().editView.classList.contains('hidden')) {
@@ -157,7 +143,6 @@ function editProductHandler(data) {
  * @param {EventTarget} target
  */
 function editProductFieldHandler(target) {
-    console.log('Edit field handler', target.dataset)
     const index = target.dataset.index;
     Cart.editProduct(index, target.dataset.field, target.value);
 
@@ -166,10 +151,8 @@ function editProductFieldHandler(target) {
     });
 }
 
-function updateCart() {
-    return Order.recalculateRequest(Cart).then(response => {
-        Cart.update(response);
-    });
+async function updateCart() {
+    Cart.update(await Order.recalculateRequest(Cart));
 }
 
 /**
@@ -241,7 +224,10 @@ function commonEventHandler(event) {
             editProductFieldHandler(event.target);
             return;
         case 'resumeOrderAction':
-            resumeOrderHandler(data);
+            void resumeOrderHandler(data);
+            return;
+        case 'printOrderAction':
+            void reprintOrderHandler(data);
             return;
     }
 }
@@ -285,32 +271,25 @@ function closeSessionHandler() {
     mainView().closeSessionForm.submit();
 }
 
-export function scanCodeHandler(code) {
-    console.log('Search barcode:', code);
-    Core.searchBarcode(code).then(response => {
-        if (response.code) {
-            Cart.addProduct(response.code, response.description);
-        } else {
-            console.log('Barcode not found');
-        }
-    });
+async function scanCodeHandler(code) {
+    let result = await Core.searchBarcode(code);
+
+    if (result.code) {
+        Cart.setProduct(result.code, result.description);
+        return;
+    }
+    console.log('Barcode not found');
 }
 
-export function saveNewCostumerHandler() {
+async function saveNewCostumerHandler() {
     const taxID = Core.getElement('newCustomerTaxID').value;
     const name = Core.getElement('newCustomerName').value;
+    const response = await Core.saveNewCustomer(taxID, name);
 
-    /**
-     * @param {{codcliente:string, razonsocial:string}} response
-     */
-    function saveCustomer(response) {
-        if (response.codcliente) {
-            Cart.setCustomer(response.codcliente);
-            mainView().updateCustomer(response.razonsocial);
-        }
+    if (response.codcliente) {
+        Cart.setCustomer(response.codcliente);
+        mainView().updateCustomer(response.razonsocial);
     }
-
-    Core.saveNewCustomer(taxID, name).then(saveCustomer);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -318,7 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
     onScan.attachTo(document);
 
     document.addEventListener('scan', function (event) {
-        scanCodeHandler(event.detail.scanCode);
+        void scanCodeHandler(event.detail.scanCode);
     });
 });
 
@@ -329,6 +308,7 @@ mainView().customerListView.addEventListener('click', commonEventHandler);
 mainView().documentTypeListView.addEventListener('click', commonEventHandler);
 //mainView().documentTypeListView.addEventListener('click', documentEventHandler);
 mainView().holdOrdersList.addEventListener('click', commonEventHandler);
+mainView().lastOrdersList.addEventListener('click', commonEventHandler);
 mainView().productSearchBox.addEventListener('keyup', searchProductHandler);
 mainView().productListView.addEventListener('click', setProductHandler);
 cartView().listView.addEventListener('click', commonEventHandler);

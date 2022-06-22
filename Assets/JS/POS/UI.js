@@ -102,11 +102,12 @@ export const mainView = () => {
         'documentNamelLabel': getElement('documentTypeLabel'),
         'documentTypeListView': getElement('documentTypeList'),
         'customerListTemplate': getTemplate('customerListTemplate'),
-        'holdOrdersModal': getElement('holdOrdersModal'),
         'holdOrdersList': getElement('pausedOrdersList'),
         'holdOrdersListTemplate': getTemplate('pausedOrdersListTemplate'),
+        'holdOrdersModal': getElement('holdOrdersModal'),
         'lastOrdersList': getElement('lastOrdersList'),
         'lastOrdersListTemplate': getTemplate('lastOrdersListTemplate'),
+        'lastOrdersModal': getElement('lastOrdersModal'),
         'productSearchBox': getElement('productSearchBox'),
         'productListView': getElement('productSearchResult'),
         'productoListTemplate': getTemplate('productListTemplate'),
@@ -117,6 +118,10 @@ export const mainView = () => {
 
         toggleHoldOrdersModal: function () {
             toggleModal(this.holdOrdersModal);
+        },
+
+        toggleLastOrdersModal: function () {
+            toggleModal(this.lastOrdersModal);
         },
 
         updateCustomer: function (name = '') {
@@ -139,6 +144,10 @@ export const mainView = () => {
 
         updateProductListView: function (data = []) {
             this.productListView.innerHTML = this.productoListTemplate({items: data}, Eta.config);
+        },
+        
+        updateLastOrdersListView: function (data = []) {
+            this.lastOrdersList.innerHTML = this.lastOrdersListTemplate({items: data}, Eta.config);
         }
     }
 }

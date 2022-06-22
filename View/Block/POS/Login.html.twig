@@ -42,10 +42,11 @@
                             </label>
                             <div class="flex flex-col p-5">
                                 <div class="mx-auto py-2">
-                                    <a href="{{ asset('POS') }}">{{ i18n.trans('all') }}</a>
+                                    <button type="submit" class="btn btn-primary">{{ i18n.trans('continue') }}</button>
                                 </div>
                                 <div class="mx-auto py-2">
-                                    <button type="submit" class="btn btn-primary">{{ i18n.trans('continue') }}</button>
+                                    <a class="btn bg-gray-200 text-slate-800 focus:ring-gray-600"
+                                       href="{{ asset('POS') }}">{{ i18n.trans('back') }}</a>
                                 </div>
                             </div>
                         {% else %}

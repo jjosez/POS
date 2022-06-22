@@ -91,7 +91,6 @@ class PointOfSaleProduct
      */
     public function advancedSearch(string $text, array $tags = [], string $wharehouse = ''): array
     {
-        ///$text2 = str_replace(" ", "%", $text);
         $text = mb_strtolower($text, 'UTF8');
 
         $where = [
@@ -100,14 +99,14 @@ class PointOfSaleProduct
             new DataBaseWhere('P.descripcion', $text, 'XLIKE', 'OR')
         ];
 
-        if ($wharehouse && '' !== $wharehouse) {
+        if ($wharehouse) {
             $where[] = new DataBaseWhere('S.codalmacen', 'ALG');
             $where[] = new DataBaseWhere('S.codalmacen', NULL, 'IS', 'OR');
         }
 
-        foreach ($tags as $tag) {
+        /*foreach ($tags as $tag) {
             $where[] = new DataBaseWhere('codfamilia', $tag, '=', 'AND');
-        }
+        }*/
 
         return $this->getProductoVariante()->all($where, [], 0, FS_ITEM_LIMIT);
     }

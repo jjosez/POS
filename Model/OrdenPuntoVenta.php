@@ -7,6 +7,7 @@ namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Core\Model\Base\BusinessDocument;
 
 /**
  * Operaciones realizadas terminales POS.
@@ -41,6 +42,14 @@ class OrdenPuntoVenta extends Base\ModelClass
     public static function tableName(): string
     {
         return 'operacionespos';
+    }
+
+    public function getDocument(): BusinessDocument
+    {
+        $className = '\\FacturaScripts\\Dinamic\\Model\\' . $this->tipodoc;
+        $document = new $className;
+
+        return $document->get($this->iddocumento);
     }
 
     /**

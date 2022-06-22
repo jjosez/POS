@@ -45,7 +45,7 @@ class POS extends Controller
         $this->session = new PointOfSaleSession($user);
         $action = $this->request->request->get('action', '');
 
-        if (false === $this->execAction($action)) {
+        if ($action && false === $this->execAction($action)) {
             return;
         }
 
@@ -90,6 +90,10 @@ class POS extends Controller
                 $this->setResponse($this->getStorage()->getOrdersOnHold());
                 return false;
 
+            case 'get-last-orders':
+                $this->setResponse($this->getStorage()->getLastOrders());
+                return false;
+
             case 'delete-order-on-hold':
                 $this->deleteOrderOnHold();
                 return false;
@@ -98,7 +102,12 @@ class POS extends Controller
                 $this->resumeOrder();
                 return false;
 
+            case 'reprint-order':
+                $this->reprintOrder();
+                return false;
+
             default:
+                $this->setResponse('Funcion no encontrada');
                 return true;
         }
     }
@@ -147,9 +156,9 @@ class POS extends Controller
     {
         $product = new PointOfSaleProduct();
         $query = $this->request->request->get('query', '');
-        $tags = $this->request->request->get('tags', []);
+        //$tags = $this->request->request->get('tags', []);
 
-        $this->setResponse($product->advancedSearch($query, $tags, $this->getTerminal()->codalmacen));
+        $this->setResponse($product->advancedSearch($query, [], $this->getTerminal()->codalmacen));
     }
 
     /**
@@ -220,6 +229,20 @@ class POS extends Controller
 
         $this->setNewToken();
         $this->buildResponse($this->getStorage()->getOrderOnHold($code));
+    }
+
+    /**
+     * Reprint order by code.
+     */
+    protected function reprintOrder()
+    {
+        $code = $this->request->request->get('code', '');
+
+        if ($code) {
+            $order = $this->getStorage()->getOrder($code);
+            $this->printVoucher($order->getDocument());
+            $this->buildResponse();
+        }
     }
 
     protected function saveNewCustomer()

@@ -8,26 +8,24 @@ import {alertView} from "./UI.js";
  * Send request to controller url
  * @param {FormData} data
  */
-export function postRequest(data) {
-    const init = {
+export async function postRequest(data) {
+    const response = await fetch('POS', {
         method: 'POST',
         body: data
-    };
+    });
 
-    return fetch('POS', init)
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error('Bad response');
-        }).catch(err => {
-            throw new Error(err);
-        }).then(response => {
-            showAlert(response);
-            return response;
-        });
+    if (!response.ok) requestErrorHandler(response.status);
+
+    let result = await response.json();
+    await showMessage(result);
+
+    return result;
 }
 
+/**
+ * @param {string} taxID
+ * @param {string} name
+ */
 export function saveNewCustomer(taxID, name) {
     const data = new FormData();
 
@@ -41,7 +39,7 @@ export function saveNewCustomer(taxID, name) {
 /**
  * @param {string} query
  */
-export function searchBarcode(query) {
+export function searchBarcode(query = '') {
     return searchRequest('search-barcode', query);
 }
 
@@ -76,24 +74,26 @@ export function searchRequest(action, query) {
  * Show alerts in response
  * @param {Promise} response
  */
-export function showAlert(response) {
+export function showMessage(response) {
     if (null != response.messages) {
         alertView().updateAlertListView(response);
     }
 
-    dismissAlert();
+    autoCloseMessage();
 }
 
 /**
- * Close all alerts by timeout
+ * Close all messages by timeout
  */
-export function dismissAlert() {
-    if (alertView().container.firstElementChild) {
+export function autoCloseMessage() {
+    let container = alertView().container;
+
+    if (container.firstElementChild) {
         setTimeout(function () {
-            if (alertView().container.firstChild) {
-                alertView().container.removeChild(alertView().container.firstChild);
+            if (container.firstChild) {
+                container.removeChild(container.firstChild);
             }
-            dismissAlert();
+            autoCloseMessage();
         }, 1800);
     } else {
         clearTimeout();
@@ -106,4 +106,12 @@ export function dismissAlert() {
  */
 export function getElement(id) {
     return document.getElementById(id);
+}
+
+/**
+ * Show console error message *
+ * @param {int} error
+ */
+function requestErrorHandler(error) {
+    throw new Error(`An error has occured: ${error}`);
 }

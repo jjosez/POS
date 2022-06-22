@@ -1,10 +1,33 @@
 import { postRequest } from "./Core.js";
 
+/**
+ * @param {string} code
+ */
 export function deleteHoldRequest(code) {
     const data = new FormData();
 
     data.set('action', 'delete-order-on-hold');
     data.set('code', code);
+
+    return postRequest(data);
+}
+
+/**
+ * @param {string} code
+ */
+export function reprintRequest(code) {
+    const data = new FormData();
+
+    data.set('action', 'reprint-order');
+    data.set('code', code);
+
+    return postRequest(data);
+}
+
+export function getLastOrders(){
+    const data = new FormData();
+
+    data.set('action', 'get-last-orders');
 
     return postRequest(data);
 }

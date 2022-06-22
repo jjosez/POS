@@ -58,6 +58,17 @@ class PointOfSaleStorage
 
     /**
      * @param string $code
+     * @return OrdenPuntoVenta
+     */
+    public function getOrder(string $code): OrdenPuntoVenta
+    {
+        $order = new OrdenPuntoVenta();
+
+        return $order->get($code);
+    }
+
+    /**
+     * @param string $code
      * @return array
      */
     public function getOrderOnHold(string $code): array
