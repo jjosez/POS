@@ -41,12 +41,17 @@ class ProductoVariante extends JoinModel
             'barcode' => 'V.codbarras',
             'description' => 'P.descripcion',
             'price' => 'V.precio',
-            'stock' => 'S.disponible',
+            'stock' => 'SUM(S.disponible)',
             'atribute1' => 'A1.descripcion',
             'atribute2' => 'A2.descripcion',
             'atribute3' => 'A3.descripcion',
             'atribute4' => 'A4.descripcion'
         ];
+    }
+
+    protected function getGroupFields(): string
+    {
+        return 'V.referencia';
     }
 
     /**

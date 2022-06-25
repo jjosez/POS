@@ -66,6 +66,13 @@ export function searchProduct(query = '') {
 }
 
 /**
+ * @param {string} code
+ */
+export function getProductStock(code) {
+    return searchRequest('get-product-stock', code);
+}
+
+/**
  * @param {string} action
  * @param {string} query
  */

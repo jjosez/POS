@@ -5,6 +5,7 @@ namespace FacturaScripts\Plugins\POS\Lib;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\Variante;
+use FacturaScripts\Dinamic\Model\Join\ProductoStock;
 use FacturaScripts\Dinamic\Model\Join\ProductoVariante;
 
 class PointOfSaleProduct
@@ -35,14 +36,17 @@ class PointOfSaleProduct
 
     /**
      * @param string $code
-     * @return float|int
+     * @return ProductoStock[]
      */
-    public function getStock(string $code)
+    public function getStock(string $code): array
     {
-        $producto = $this->getVariante();
-        $producto->loadFromCode('', [new DataBaseWhere('referencia', $code)]);
+        $where = [
+            new DataBaseWhere('LOWER(S.referencia)', $code)
+        ];
 
-        return $producto->stockfis ?? 0;
+        $stock = new ProductoStock();
+
+        return $stock->all($where);
     }
 
     /**
@@ -87,6 +91,7 @@ class PointOfSaleProduct
     /**
      * @param string $text
      * @param array $tags
+     * @param string $wharehouse
      * @return array
      */
     public function advancedSearch(string $text, array $tags = [], string $wharehouse = ''): array
@@ -100,7 +105,7 @@ class PointOfSaleProduct
         ];
 
         if ($wharehouse) {
-            $where[] = new DataBaseWhere('S.codalmacen', 'ALG');
+            $where[] = new DataBaseWhere('S.codalmacen', $wharehouse);
             $where[] = new DataBaseWhere('S.codalmacen', NULL, 'IS', 'OR');
         }
 

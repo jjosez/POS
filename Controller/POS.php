@@ -70,6 +70,10 @@ class POS extends Controller
                 $this->searchProduct();
                 return false;
 
+            case 'get-product-stock':
+                $this->searchStock();
+                return false;
+
             case 'recalculate-order':
                 $this->recalculateOrder();
                 return false;
@@ -160,9 +164,19 @@ class POS extends Controller
     {
         $product = new PointOfSaleProduct();
         $query = $this->request->request->get('query', '');
-        //$tags = $this->request->request->get('tags', []);
 
-        $this->setResponse($product->advancedSearch($query, [], $this->getTerminal()->codalmacen));
+        $this->setResponse($product->advancedSearch($query, []));
+    }
+
+    /**
+     * Search product by text.
+     */
+    protected function searchStock()
+    {
+        $product = new PointOfSaleProduct();
+        $query = $this->request->request->get('query', '');
+
+        $this->setResponse($product->getStock($query));
     }
 
     /**

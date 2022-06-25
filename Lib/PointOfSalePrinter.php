@@ -16,7 +16,7 @@ class PointOfSalePrinter
 {
     public static function cashupTicket(SesionPuntoVenta $session, Empresa $company, int $width)
     {
-        $ticketBuilder = new PointOfSaleClosingTicket($session, $company, $width);
+        $ticketBuilder = new PointOfSaleClosingVoucher($session, $company, $width);
 
         $cashupTicket = new PrintingService($ticketBuilder);
         $cashupTicket->savePrintJob();

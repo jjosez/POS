@@ -44,6 +44,11 @@
         <null>YES</null>
     </column>
     <column>
+        <name>defaultdocument</name>
+        <type>character varying(20)</type>
+        <default>'FacturaCliente'</default>
+    </column>
+    <column>
         <name>disponible</name>
         <type>boolean</type>
         <null>NO</null>
@@ -53,7 +58,12 @@
         <type>serial</type>
         <null>NO</null>
         <default>nextval('terminalespos_idterminal_seq'::regclass)</default>
-    </column>    
+    </column>
+    <column>
+        <name>idempresa</name>
+        <type>integer</type>
+        <null>YES</null>
+    </column>
     <column>
         <name>nombre</name>
         <type>character varying(100)</type>
@@ -63,6 +73,11 @@
         <name>numerotickets</name>
         <type>integer</type>
         <null>NO</null>
+    </column>
+    <column>
+        <name>productsource</name>
+        <type>integer</type>
+        <default>null</default>
     </column>
     <constraint>
         <name>terminalespos_pkey</name>
@@ -75,6 +90,10 @@
     <constraint>
         <name>ca_terminalespos_cliente</name>
         <type>FOREIGN KEY (codcliente) REFERENCES clientes (codcliente) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+     <constraint>
+        <name>ca_terminalespos_empresa</name>
+        <type>FOREIGN KEY (idempresa) REFERENCES empresas (idempresa) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
         <name>ca_terminalespos_series</name>

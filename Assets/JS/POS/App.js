@@ -99,10 +99,9 @@ function setDocumentHandler(data) {
 }
 
 /**
- * @param {Event} event
+ * @param data
  */
-function setProductHandler(event) {
-    const data = event.target.dataset;
+function setProductHandler(data) {
     if (typeof data.code === 'undefined' || data.code === null) {
         return;
     }
@@ -155,6 +154,14 @@ function editProductFieldHandler(target) {
     updateCart().then(() => {
         updateEditView(index);
     });
+}
+
+/**
+ * @param {string} data
+ */
+async function stockDetailHandler(data) {
+    mainView().updateStockListView(await Core.getProductStock(data.code));
+    mainView().toggleStockDetailModal();
 }
 
 async function updateCart() {
@@ -214,6 +221,9 @@ function commonEventHandler(event) {
         case 'setCustomerAction':
             setCustomerHandler(data);
             return;
+        case 'setProductAction':
+            setProductHandler(data);
+            return;
         case 'deleteOrderAction':
             deleteOrderHandler(data);
             return;
@@ -237,6 +247,10 @@ function commonEventHandler(event) {
             return;
         case 'printClosingVoucher':
             void printClosingVoucherHandler(data);
+            return;
+        case 'stockDetailAction':
+            void stockDetailHandler(data);
+            event.stopPropagation();
             return;
     }
 }
@@ -320,7 +334,7 @@ mainView().documentTypeListView.addEventListener('click', commonEventHandler);
 mainView().holdOrdersList.addEventListener('click', commonEventHandler);
 mainView().lastOrdersList.addEventListener('click', commonEventHandler);
 mainView().productSearchBox.addEventListener('keyup', searchProductHandler);
-mainView().productListView.addEventListener('click', setProductHandler);
+mainView().productListView.addEventListener('click', commonEventHandler);
 cartView().listView.addEventListener('click', commonEventHandler);
 cartView().editView.addEventListener('focusout', commonEventHandler);
 cartView().discountPercent.addEventListener('focusout', updateOrderDiscount);

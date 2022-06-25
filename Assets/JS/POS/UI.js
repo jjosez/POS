@@ -112,6 +112,9 @@ export const mainView = () => {
         'productSearchBox': getElement('productSearchBox'),
         'productListView': getElement('productSearchResult'),
         'productoListTemplate': getTemplate('productListTemplate'),
+        'stockDetailModal': getElement('stockDetailModal'),
+        'stockDetailList': getElement('stockDetailList'),
+        'stockDetailListTemplate': getTemplate('stockDetailListTemplate'),
 
         toggleMainView: function () {
             this.main.classList.toggle('hidden');
@@ -127,6 +130,10 @@ export const mainView = () => {
 
         toggleLastOrdersModal: function () {
             toggleModal(this.lastOrdersModal);
+        },
+
+        toggleStockDetailModal: function () {
+            toggleModal(this.stockDetailModal);
         },
 
         updateCustomer: function (name = '') {
@@ -153,6 +160,10 @@ export const mainView = () => {
         
         updateLastOrdersListView: function (data = []) {
             this.lastOrdersList.innerHTML = this.lastOrdersListTemplate({items: data}, Eta.config);
+        },
+
+        updateStockListView: function (data = []) {
+            this.stockDetailList.innerHTML = this.stockDetailListTemplate({items: data}, Eta.config);
         }
     }
 }

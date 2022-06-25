@@ -37,6 +37,7 @@
     {{ include('Modal/POS/CloseSession.html.twig') }}
     {{ include('Modal/POS/User.html.twig') }}
     {{ include('Modal/POS/LastOrders.html.twig') }}
+    {{ include('Modal/POS/ProductStockDetail.html.twig') }}
 {% endblock %}
 
 {% block js %}
@@ -63,6 +64,9 @@
     </script>
     <script id="lastOrdersListTemplate" type="text/template">
         {{ pos.lastOrdersTemplate() }}
+    </script>
+    <script id="stockDetailListTemplate" type="text/template">
+        {{ pos.stockDetailTemplate() }}
     </script>
     {# TODO: Change to dynamic for release #}
     {{ parent() }}

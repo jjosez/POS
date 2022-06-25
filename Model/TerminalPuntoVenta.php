@@ -7,6 +7,8 @@ namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Core\DataSrc\Almacenes;
+use FacturaScripts\Dinamic\Model\Almacen;
 
 /**
  * Una terminal POS.
@@ -16,6 +18,7 @@ use FacturaScripts\Core\Model\Base;
 class TerminalPuntoVenta extends Base\ModelClass
 {
     use Base\ModelTrait;
+    use Base\CompanyRelationTrait;
 
     public $anchopapel;
     public $aceptapagos;
@@ -25,10 +28,12 @@ class TerminalPuntoVenta extends Base\ModelClass
     public $comandoapertura;
     public $comandocorte;
     public $defaultdocument;
-    public $disponible;     
+    public $disponible;
+    public $idempresa;
     public $idterminal;   
     public $nombre; 
-    public $numerotickets;  
+    public $numerotickets;
+    public $restringealmacen;
 
     public function clear()
     {
@@ -36,6 +41,7 @@ class TerminalPuntoVenta extends Base\ModelClass
         
         $this->aceptapagos = true;
         $this->anchopapel = 45;
+        $this->restringealmacen = false;
         $this->defaultdocument = 'FacturaCliente';
         $this->disponible = true;
         $this->numerotickets = 1;
@@ -51,12 +57,28 @@ class TerminalPuntoVenta extends Base\ModelClass
         return 'terminalespos';
     }
 
-    public function allAvailable(): array
+    public function allAvailable($idempresa = false): array
     {
         $where = [
           new DataBaseWhere('disponible', true, '=')
         ];
 
+        if ($idempresa) {
+            $where[] = new DataBaseWhere('idempresa', $idempresa);
+        }
+
         return $this->all($where);
+    }
+
+    public function getWarehouse(): Almacen
+    {
+        return Almacenes::get($this->codalmacen);
+    }
+
+    public function save()
+    {
+        $this->idempresa = $this->getWarehouse()->idempresa;
+
+        return parent::save();
     }
 }

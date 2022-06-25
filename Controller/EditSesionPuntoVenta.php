@@ -46,6 +46,7 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
         $this->setSettings('ListOrdenPuntoVenta', 'btnDelete', false);
         $this->setSettings('ListPagoPuntoVenta', 'btnNew', false);
         $this->setSettings('ListPagoPuntoVenta', 'btnDelete', false);
+        $this->setSettings('ListPagoPuntoVenta', 'clickable', false);
         $this->setTabsPosition('top');  
     }
 

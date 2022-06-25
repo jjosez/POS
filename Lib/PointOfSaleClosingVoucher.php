@@ -6,7 +6,7 @@ use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Plugins\PrintTicket\Lib\Ticket\Builder\AbstractTicketBuilder;
 
-class PointOfSaleClosingTicket extends AbstractTicketBuilder
+class PointOfSaleClosingVoucher extends AbstractTicketBuilder
 {
     protected $company;
     protected $session;

@@ -44,7 +44,7 @@ trait PointOfSaleTrait
      */
     public function getDefaultDocument(): string
     {
-        return $this->getTerminal()->defaultdocument ?: $this->getSetting('defaultdocument');
+        return $this->getTerminal()->defaultdocument;
     }
 
     /**
@@ -76,7 +76,7 @@ trait PointOfSaleTrait
     {
         $product = new PointOfSaleProduct();
 
-        return $product->advancedSearch('', [], $this->getTerminal()->codalmacen);
+        return $product->advancedSearch('', []);
     }
 
     /**
@@ -166,6 +166,16 @@ trait PointOfSaleTrait
     public function getTerminal(): TerminalPuntoVenta
     {
         return $this->getSession()->getTerminal();
+    }
+
+    /**
+     * Get current user session terminal.
+     *
+     * @return TerminalPuntoVenta[]
+     */
+    public function getTerminalFromCompany(): array
+    {
+        return $this->getSession()->getTerminal()->allAvailable($this->user->idempresa);
     }
 
     /**
