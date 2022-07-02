@@ -33,6 +33,7 @@ class TerminalPuntoVenta extends Base\ModelClass
     public $idterminal;   
     public $nombre; 
     public $numerotickets;
+    public $productsource;
     public $restringealmacen;
 
     public function clear()
@@ -73,6 +74,22 @@ class TerminalPuntoVenta extends Base\ModelClass
     public function getWarehouse(): Almacen
     {
         return Almacenes::get($this->codalmacen);
+    }
+
+    /**
+     * @return FormaPagoPuntoVenta[]
+     */
+    public function getPaymenthMethods(): array
+    {
+        return (new FormaPagoPuntoVenta)->all([new DataBaseWhere('idterminal', $this->idterminal)]);
+    }
+
+    /**
+     * @return TipoDocumentoPuntoVenta[]
+     */
+    public function getDocumentTypes(): array
+    {
+        return (new TipoDocumentoPuntoVenta())->all([new DataBaseWhere('idterminal', $this->idterminal)]);
     }
 
     public function save()

@@ -97,11 +97,11 @@ class SesionPuntoVenta extends Base\ModelClass
     /**
      * Returns the operations associated with the sessionpos.
      *
-     * @return OrdenPuntoVenta[]
+     * @return MovimientoPuntoVenta[]
      */
     public function getOperaciones(): array
     {
-        $operacion = new OrdenPuntoVenta();
+        $operacion = new MovimientoPuntoVenta();
         $where = [new DataBaseWhere('idsesion', $this->idsesion)];
         $order = ['idsesion' => 'ASC'];
 

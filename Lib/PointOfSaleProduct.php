@@ -3,6 +3,7 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
+use FacturaScripts\Core\DataSrc\Almacenes;
 use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\Variante;
 use FacturaScripts\Dinamic\Model\Join\ProductoStock;
@@ -24,6 +25,20 @@ class PointOfSaleProduct
     {
         $this->variante = new Variante();
         $this->product = new ProductoVariante();
+    }
+
+    /**
+     * @param string $idempresa
+     * @return DataBaseWhere
+     */
+    protected function getCompanyDatabaseWhere(string $idempresa): DataBaseWhere
+    {
+        $almacenes = [];
+        foreach (Almacenes::all() as $almacen) if ((string)$almacen->idempresa === $idempresa) {
+            $almacenes[] = $almacen->codalmacen;
+        }
+
+        return new DataBaseWhere('S.codalmacen', implode(',', $almacenes), 'IN');
     }
 
     /**
@@ -59,52 +74,22 @@ class PointOfSaleProduct
 
     /**
      * @param string $text
-     * @return CodeModel[]
-     */
-    public function search(string $text): array
-    {
-        $text = str_replace(" ", "%", $text);
-
-        return $this->queryProduct($text);
-    }
-
-    /**
-     * @param string $text
-     * @return false|CodeModel
-     */
-    public function searchBarcode(string $text)
-    {
-        $queryResult = $this->queryProduct($text);
-
-        return empty($queryResult) ? false : $queryResult[0];
-    }
-
-    /**
-     * @param string $text
-     * @return array|CodeModel[]
-     */
-    protected function queryProduct(string $text): array
-    {
-        return $this->getVariante()->codeModelSearch($text, 'referencia');
-    }
-
-    /**
-     * @param string $text
      * @param array $tags
      * @param string $wharehouse
+     * @param string $company
      * @return array
      */
-    public function advancedSearch(string $text, array $tags = [], string $wharehouse = ''): array
+    public function search(string $text, array $tags = [], string $wharehouse = '', string $company = ''): array
     {
-        $text = mb_strtolower($text, 'UTF8');
-
         $where = [
-            new DataBaseWhere('LOWER(V.codbarras)', $text . '%', 'LIKE'),
+            new DataBaseWhere('V.codbarras', $text, 'LIKE'),
             new DataBaseWhere('V.referencia', $text, 'LIKE', 'OR'),
             new DataBaseWhere('P.descripcion', $text, 'XLIKE', 'OR')
         ];
 
-        if ($wharehouse) {
+        if ($company) {
+            $where[] = $this->getCompanyDatabaseWhere($company);
+        } elseif ($wharehouse) {
             $where[] = new DataBaseWhere('S.codalmacen', $wharehouse);
             $where[] = new DataBaseWhere('S.codalmacen', NULL, 'IS', 'OR');
         }
@@ -114,5 +99,16 @@ class PointOfSaleProduct
         }*/
 
         return $this->getProductoVariante()->all($where, [], 0, FS_ITEM_LIMIT);
+    }
+
+    /**
+     * @param string $text
+     * @return false|CodeModel
+     */
+    public function searchBarcode(string $text)
+    {
+        $result = $this->getVariante()->codeModelSearch($text, 'referencia');
+
+        return empty($result) ? false : current($result);
     }
 }

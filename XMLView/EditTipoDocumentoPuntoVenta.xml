@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+-->
+<view>
+    <columns>
+        <group name="data" numcolumns="12" valign="center">
+            <column name="code" numcolumns="2" order="100">
+                <widget type="text" fieldname="id" icon="fas fa-hashtag" readonly="true"/>
+            </column>
+            <column name="cash-register" numcolumns="2" order="110">
+                <widget type="text" fieldname="idterminal" icon="fas fa-cash-register" readonly="true"/>
+            </column>
+            <column name="serie" numcolumns="2" order="120">
+                <widget type="select" fieldname="codserie" required='true' onclick="EditSerie" icon="fas fa-layer-group">
+                    <values source="series" fieldcode="codserie" fieldtitle="descripcion"/>
+                </widget>
+            </column>
+            <column name="doc-type" numcolumns="3" order="130">
+                <widget type="select" fieldname="tipodoc" translate="true" icon="fas fa-file-invoice">
+                    <values title="customer-estimation">PresupuestoCliente</values>
+                    <values title="customer-order">PedidoCliente</values>
+                    <values title="customer-delivery-note">AlbaranCliente</values>
+                    <values title="customer-invoice">FacturaCliente</values>
+                    <values title="supplier-estimation">PresupuestoProveedor</values>
+                    <values title="supplier-order">PedidoProveedor</values>
+                    <values title="supplier-delivery-note">AlbaranProveedor</values>
+                    <values title="supplier-invoice">FacturaProveedor</values>
+                    <values title="service">Servicio</values>
+                </widget>
+            </column>
+            <column name="description" numcolumns="3" order="140">
+                <widget type="text" fieldname="descripcion" icon="fas fa-tag"/>
+            </column>
+            <column name="default" numcolumns="3" order='150'>
+                <widget type="checkbox" fieldname="preferido"/>
+            </column>
+        </group>
+    </columns>
+</view>

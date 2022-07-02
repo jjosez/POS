@@ -91,6 +91,8 @@ export const checkoutView = () => {
 export const mainView = () => {
     return {
         'main': getElement('productMainView'),
+        'cashMovmentForm': getElement('cashMovmentForm'),
+        'cashMovmentButton': getElement('cashMovmentSaveButton'),
         'customerNameLabel': getElement('customerNameLabel'),
         'customerSearchBox': getElement('customerSearchBox'),
         'customerSearchModal': getElement('customerSearchModal'),
@@ -193,6 +195,8 @@ export function toggleCollapse(element) {
  * @param {HTMLElement} element
  */
 export function toggleModal(element) {
+    if (!element) return;
+
     element.classList.toggle("flex");
 
     if (element.classList.toggle("hidden")) {

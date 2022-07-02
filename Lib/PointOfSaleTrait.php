@@ -25,6 +25,9 @@ trait PointOfSaleTrait
      */
     public function getCashPaymentMethod(): string
     {
+        foreach ($this->getTerminal()->getPaymenthMethods() as $element) if ($element->recibecambio) {
+            return $element->codpago;
+        }
         return $this->getSetting('fpagoefectivo') ?: '';
     }
 
@@ -44,7 +47,10 @@ trait PointOfSaleTrait
      */
     public function getDefaultDocument(): string
     {
-        return $this->getTerminal()->defaultdocument;
+        foreach ($this->getTerminal()->getDocumentTypes() as $element) if ($element->preferido) {
+            return $element->tipodoc;
+        }
+        return 'FacturaCliente';
     }
 
     /**
@@ -76,7 +82,7 @@ trait PointOfSaleTrait
     {
         $product = new PointOfSaleProduct();
 
-        return $product->advancedSearch('', []);
+        return $product->search('', []);
     }
 
     /**
@@ -96,14 +102,7 @@ trait PointOfSaleTrait
      */
     public function getPaymentMethods(): array
     {
-        $formasPago = [];
-
-        $formasPagoCodeList = explode('|', $this->getSetting('formaspago'));
-        foreach ($formasPagoCodeList as $value) {
-            $formasPago[] = (new FormaPago())->get($value);
-        }
-
-        return $formasPago;
+        return $this->getTerminal()->getPaymenthMethods();
     }
 
     /**

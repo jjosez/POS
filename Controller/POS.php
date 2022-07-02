@@ -16,6 +16,7 @@ use FacturaScripts\Plugins\POS\Lib\PointOfSaleProduct;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleRequest;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleSession;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleTrait;
+use FacturaScripts\Plugins\POS\Model\MovimientoPuntoVenta;
 use Symfony\Component\HttpFoundation\Response;
 
 class POS extends Controller
@@ -69,6 +70,10 @@ class POS extends Controller
             case 'search-product':
                 $this->searchProduct();
                 return false;
+
+            case 'cash-movment':
+                $this->saveMovments();
+                return true;
 
             case 'get-product-stock':
                 $this->searchStock();
@@ -165,7 +170,21 @@ class POS extends Controller
         $product = new PointOfSaleProduct();
         $query = $this->request->request->get('query', '');
 
-        $this->setResponse($product->advancedSearch($query, []));
+        $source = $this->getTerminal()->productsource;
+        $company = '';
+        $warehouse = '';
+
+        if ($source) {
+            switch ($source) {
+                case 1:
+                    $company = $this->getTerminal()->idempresa;
+                    break;
+                case 2:
+                    $warehouse = $this->getTerminal()->codalmacen;
+            }
+        }
+
+        $this->setResponse($product->search($query, [], $warehouse, $company));
     }
 
     /**
@@ -277,6 +296,27 @@ class POS extends Controller
         $this->buildResponse();
     }
 
+    protected function saveMovments()
+    {
+        if (false === $this->validateRequest()) return;
+
+        $amount = $this->request->request->get('amount');
+        $description = $this->request->request->get('description');
+
+        $movment = new MovimientoPuntoVenta();
+        $movment->idsesion = $this->getSession()->getSession()->idsesion;
+        $movment->nickusuario = $this->user->nick;
+        $movment->descripcion = $description;
+        $movment->total = $amount ?? 0;
+
+        if ($movment->save()) {
+            $this->session->updateCashAmount($movment->total);
+            self::toolBox()::log()->info('Movimiento cuardado correctamente.');
+        }
+
+        $this->buildResponse();
+    }
+
     /**
      * Save order and payments.
      *
@@ -338,8 +378,7 @@ class POS extends Controller
         $storage = new PointOfSalePayments($order, $this->getCashPaymentMethod());
         $storage->savePayments($payments);
 
-        $this->session->getSession()->saldoesperado += $storage->getCashPaymentAmount();
-        $this->session->getSession()->save();
+        $this->session->updateCashAmount($storage->getCashPaymentAmount());
     }
 
     /**

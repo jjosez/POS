@@ -1,6 +1,7 @@
 {
   "add-payment": "Agregar pago",
   "apply": "Aplicar",
+  "allow-change": "Puede devolver cambio",
   "amount-counted": "Cantidad contada",
   "available-cash-registers": "Terminales disponibles",
   "available-custumer-doctypes": "Tipos de documentos disponibles",
@@ -43,6 +44,7 @@
   "ticket-holding": "Tickets pendientes",
   "till-session": "Arqueo",
   "till-session-allready-opened": "%userNickname%, ya cuenta con un arqueo abierto",
+  "till-session-cash-movments": "Entradas y Salidas de Dinero",
   "till-session-closed": "Arqueo cerrado por %userNickname%.",
   "till-session-opened": "Arqueo iniciado en %terminalName%, por %userNickname%.",
   "till-session-operations": "Historial",

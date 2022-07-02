@@ -294,6 +294,10 @@ function closeSessionHandler() {
     mainView().closeSessionForm.submit();
 }
 
+function cashMovmentHandler() {
+    mainView().cashMovmentForm.submit();
+}
+
 async function scanCodeHandler(code) {
     let result = await Core.searchBarcode(code);
 
@@ -325,6 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 mainView().customerSaveButton.addEventListener('click', saveNewCostumerHandler);
+mainView().cashMovmentButton.addEventListener('click', cashMovmentHandler);
 mainView().closeSessionButton.addEventListener('click', closeSessionHandler);
 mainView().closeSessionModal.addEventListener('click', commonEventHandler);
 mainView().customerSearchBox.addEventListener('keyup', searchCustomerHandler);

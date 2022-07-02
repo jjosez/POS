@@ -1,0 +1,37 @@
+{#
+/**
+ *  This file is part of POS plugin for FacturaScripts
+ *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
+#}
+<!-- Close Session Modal -->
+<div id="cashMovmentModal" class="modal hidden">
+    <div class="modal-content md:modal-content-sm">
+        <div class="modal-header">
+            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('till-session-cash-movments') }}</h2>
+            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="cashMovmentModal">
+                <i class="fa fw fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="cashMovmentForm" method="POST">
+                <input type="hidden" name="action" value="cash-movment">
+                <input type="hidden" name="token" value="{{ fsc.getNewToken() }}">
+                <p>Ingrese la cantidad a retirar/depositar. Utilize signo <em>negativo</em> <strong>&minus;</strong> si es un retiro.</p>
+                <div class="form-group mt-4">
+                    <span class="text-xl font-medium text-left">{{ i18n.trans('amount') }}</span>
+                    <input name="amount" type="number" required>
+                </div>
+                <div class="form-group mt-2">
+                    <span class="text-xl font-medium text-left">{{ i18n.trans('description') }}</span>
+                    <input name="description" type="text" required>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-warning btn-round" id="cashMovmentSaveButton" data-toggle="modal"
+                    data-target="cashMovmentModal">
+                {{ i18n.trans('continue') }}</button>
+        </div>
+    </div>
+</div>

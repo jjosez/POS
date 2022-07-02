@@ -3,6 +3,7 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
+
 namespace FacturaScripts\Plugins\POS\Controller;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
@@ -38,16 +39,43 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
     {
         parent::createViews();
 
-        $this->addListView('ListOrdenPuntoVenta', 'OrdenPuntoVenta', 'till-session-operations', 'fas fa-list-ol');
-        $this->addListView('ListPagoPuntoVenta', 'PagoPuntoVenta', 'till-session-payments', 'fas fa-money-check-alt');
+        $this->createOrdenesView();
+        $this->createPagosView();
+        $this->createMovimientosView();
 
         $this->setSettings('EditSesionPuntoVenta', 'btnNew', false);
-        $this->setSettings('ListOrdenPuntoVenta', 'btnNew', false);
-        $this->setSettings('ListOrdenPuntoVenta', 'btnDelete', false);
-        $this->setSettings('ListPagoPuntoVenta', 'btnNew', false);
-        $this->setSettings('ListPagoPuntoVenta', 'btnDelete', false);
-        $this->setSettings('ListPagoPuntoVenta', 'clickable', false);
-        $this->setTabsPosition('top');  
+        $this->setTabsPosition('top');
+    }
+
+    protected function createMovimientosView(string $viewName = 'ListMovimientoPuntoVenta')
+    {
+        $this->addListView($viewName, 'MovimientoPuntoVenta', 'till-session-cash-movments', 'fas fa-wallet');
+        $this->views[$viewName]->addOrderBy(['fecha', 'hora'], 'date');
+        $this->disableButtons($viewName);
+    }
+
+    protected function createOrdenesView(string $viewName = 'ListOrdenPuntoVenta')
+    {
+        $this->addListView($viewName, 'OrdenPuntoVenta', 'till-session-operations');
+        $this->views[$viewName]->addOrderBy(['fecha', 'hora'], 'Fecha', 2);
+        $this->disableButtons($viewName);
+    }
+
+    protected function createPagosView(string $viewName = 'ListPagoPuntoVenta')
+    {
+        $this->addListView($viewName, 'PagoPuntoVenta', 'till-session-payments', 'fas fa-credit-card');
+        $this->views[$viewName]->addOrderBy(['total'], 'Total', 2);
+        $this->views[$viewName]->addOrderBy(['idoperacion'], 'No. operacion', 2);
+        $this->disableButtons($viewName);
+    }
+
+    protected function disableButtons(string $viewName)
+    {
+        $this->setSettings($viewName, 'btnNew', false);
+        $this->setSettings($viewName, 'btnDelete', false);
+        $this->setSettings($viewName, 'btnNew', false);
+        $this->setSettings($viewName, 'btnDelete', false);
+        $this->setSettings($viewName, 'clickable', false);
     }
 
     /**
@@ -61,25 +89,15 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
     protected function loadData($viewName, $view)
     {
         switch ($viewName) {
-            case 'ListOrdenPuntoVenta':
-                $idsesion = $this->getViewModelValue('EditSesionPuntoVenta', 'idsesion');
-                $where = [new DataBaseWhere('idsesion', $idsesion)];
-                $view->addOrderBy(['fecha','hora'], 'Fecha',2);
-                $view->loadData('', $where);                
-                //('ListGrupoClientes', ['nombre'], 'name', 1);
-                break;
             case 'ListPagoPuntoVenta':
-                $idsesion = $this->getViewModelValue('EditSesionPuntoVenta', 'idsesion');
-                $where = [new DataBaseWhere('idsesion', $idsesion)];
-                $view->addOrderBy(['total'], 'Total',2);
-                $view->addOrderBy(['idoperacion'], 'No. operacion',2);
+            case 'ListMovimientoPuntoVenta':
+            case 'ListOrdenPuntoVenta':
+                $where = [new DataBaseWhere('idsesion', $this->getModel()->primaryColumnValue())];
                 $view->loadData('', $where);
-                //('ListGrupoClientes', ['nombre'], 'name', 1);
                 break;
             default:
                 parent::loadData($viewName, $view);
                 break;
         }
     }
-
 }

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+-->
+
+<view>
+    <columns>
+        <group name="data" numcolumns="12" valign="center">
+            <column name="code" numcolumns="3" order="100">
+                <widget type="text" fieldname="id" icon="fas fa-hashtag" readonly="true"/>
+            </column>
+            <column name="cash-register" numcolumns="3" order="110">
+                <widget type="text" fieldname="idterminal" icon="fas fa-cash-register" readonly="true"/>
+            </column>
+            <column name="payment-method" numcolumns="6" order="120">
+                <widget type="select" fieldname="codpago" required='true' onclick="EditFormaPago" icon="fas fa-credit-card">
+                    <values source="formaspago" fieldcode="codpago" fieldtitle="descripcion"/>
+                </widget>
+            </column>
+            <column name="allow-change" numcolumns="3" order='140'>
+                <widget type="checkbox" fieldname="recibecambio"/>
+            </column>
+        </group>
+    </columns>
+</view>

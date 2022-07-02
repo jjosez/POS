@@ -25,35 +25,18 @@
                     <values source="empresas" fieldcode="idempresa" fieldtitle="nombre"/>
                 </widget>
             </column>
-            <column name="serie" titleurl="ListSerie" numcolumns="3" order="130">
-                <widget type="select" fieldname="codserie" required='true' onclick="EditSerie" icon="fas fa-list-ol">
-                    <values source="series" fieldcode="codserie" fieldtitle="descripcion"/>
-                </widget>
-            </column>
-            <column name="doc-type" numcolumns="3" order="140">
-                <widget type="select" fieldname="defaultdocument" translate="true" required="true" icon="fas fa-file-invoice">
-                    <values title="customer-estimation">PresupuestoCliente</values>
-                    <values title="customer-order">PedidoCliente</values>
-                    <values title="customer-delivery-note">AlbaranCliente</values>
-                    <values title="customer-invoice">FacturaCliente</values>
-                    <values title="supplier-estimation">PresupuestoProveedor</values>
-                    <values title="supplier-order">PedidoProveedor</values>
-                    <values title="supplier-delivery-note">AlbaranProveedor</values>
-                    <values title="supplier-invoice">FacturaProveedor</values>
-                </widget>
-            </column>
-            <column name="product-source" numcolumns="3" order="160">
-                <widget type="select" fieldname="productsource" translate="true" icon="fas fa-search" readonly="true">
+            <column name="product-source" numcolumns="3" order="150">
+                <widget type="select" fieldname="productsource" translate="true" icon="fas fa-search">
                     <values title="company">1</values>
                     <values title="warehouse">2</values>
                 </widget>
             </column>
         </group>
-        <group name="extra" title="other-settings" numcolumns="6">
-            <column name="ticket-line-lenght" order="100">
+        <group name="extra" title="other-settings" numcolumns="12" valign="bottom">
+            <column name="ticket-line-lenght" numcolumns="3" order="100">
                 <widget type="number" fieldname="anchopapel"/>
             </column>
-            <column name="Numero tickets" order="100">
+            <column name="Numero tickets" numcolumns="3" order="100">
                 <widget type="number" fieldname="numerotickets"/>
             </column>
             <column name="pos-checkout-available" numcolumns="3" order='110'>

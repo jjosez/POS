@@ -57,7 +57,7 @@ class OrdenPuntoVenta extends Base\ModelClass
      *
      * @param string $code
      *
-     * @return OrdenPuntoVenta[]
+     * @return MovimientoPuntoVenta[]
      */
     public function allFromSession(string $code)
     {

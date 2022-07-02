@@ -196,4 +196,10 @@ class PointOfSaleSession
         $this->session->nickusuario = $this->user->nick;
         $this->session->save();
     }
+
+    public function updateCashAmount(float $amount = 0)
+    {
+        $this->session->saldoesperado += $amount;
+        $this->session->save();
+    }
 }
