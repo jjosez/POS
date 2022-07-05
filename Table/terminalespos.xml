@@ -29,11 +29,6 @@
         <null>NO</null>
     </column>
     <column>
-        <name>codserie</name>
-        <type>character varying(4)</type>
-        <null>NO</null>
-    </column>
-    <column>
         <name>comandoapertura</name>
         <type>character varying(15)</type>
         <null>YES</null>
@@ -42,11 +37,6 @@
         <name>comandocorte</name>
         <type>character varying(15)</type>
         <null>YES</null>
-    </column>
-    <column>
-        <name>defaultdocument</name>
-        <type>character varying(20)</type>
-        <default>'FacturaCliente'</default>
     </column>
     <column>
         <name>disponible</name>
@@ -94,9 +84,5 @@
      <constraint>
         <name>ca_terminalespos_empresa</name>
         <type>FOREIGN KEY (idempresa) REFERENCES empresas (idempresa) ON DELETE RESTRICT ON UPDATE CASCADE</type>
-    </constraint>
-    <constraint>
-        <name>ca_terminalespos_series</name>
-        <type>FOREIGN KEY (codserie) REFERENCES series (codserie) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
 </table>

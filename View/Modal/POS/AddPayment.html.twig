@@ -25,11 +25,11 @@
                 </label>
             </div>
             <div class="flex flex-wrap justify-center gap-4">
-                <button class="btn btn-secondary payment-add-btn" data-method="" data-value="balance">
+                <button class="btn btn-secondary payment-add-btn" data-action="recalculatePaymentAction" data-value="balance">
                     <span class="w-full text-center">{{ i18n.trans('balance') }}</span>
                 </button>
                 {% for element in fsc.getDenominations() %}
-                    <button class="btn btn-primary payment-add-btn" data-method="" data-value="{{ element.valor }}">
+                    <button class="btn btn-primary payment-add-btn" data-action="recalculatePaymentAction" data-value="{{ element.valor }}">
                         <i class="fas fa-plus-circle mr-2"></i>
                         <span class="w-full text-center">{{ fsc.toolBox().coins().format(element.valor) }}</span>
                     </button>
@@ -37,7 +37,8 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button id="paymentApplyButton" class="btn btn-primary ml-auto" data-toggle="modal" data-target="paymentModal">
+            <button id="paymentApplyButton" class="btn btn-primary ml-auto" data-action="setPaymentAction"
+                    data-toggle="modal" data-target="paymentModal">
                 <i class="fa fw fa-save"></i>
                 <span class="mx-2 text-center">{{ i18n.trans('apply') }}</span>
             </button>

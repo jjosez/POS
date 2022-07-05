@@ -33,18 +33,13 @@
                     <input type="text" class="form-control" id="newCustomerName">
                 </div>
                 <div class="form-group my-4">
-                    <button class="btn justify-center bg-blue-500 hover:bg-blue-600" type="button"
-                            id="newCustomerSaveButton" data-toggle="modal" data-target="customerSearchModal">
+                    <button class="btn justify-center bg-blue-500 hover:bg-blue-600" type="button" id="newCustomerSaveButton"
+                            data-action="saveCustomerAction" data-toggle="modal" data-target="customerSearchModal">
                         {{ i18n.trans('save') }}</button>
                 </div>
             </div>
             <div class="overflow-hidden">
                 <table class="w-full">
-                    {#<thead class="bg-blue-500">
-                    <tr>
-                        <th class="py-3 text-lg text-white" scope="col">{{ i18n.trans('customers') }}</th>
-                    </tr>
-                    </thead>#}
                     <tbody id="customerSearchResult" class="text-slate-gray-700">
                     {% for element in fsc.customer.codeModelAll() %}
                         <tr class="cursor-pointer bg-blue-100 hover:bg-yellow-200">
@@ -55,6 +50,16 @@
                         </tr>
                     {% endfor %}
                     </tbody>
+                    <tbody id="customerSearsschResult" class="text-slate-gray-700">
+                    {% for element in fsc.customer.codeModelAll() %}
+                        <tr class="cursor-pointer bg-blue-100 hover:bg-yellow-200">
+                            <td class="p-4 font-medium add-customer-btn"
+                                data-code="{{ element.code }}" data-description="{{ element.description }}">
+                                {{ element.description }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>s
                 </table>
             </div>
         </div>

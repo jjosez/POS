@@ -46,7 +46,7 @@
                 <div class="flex flex-wrap justify-center gap-4">
                     {% for element in fsc.getPaymentMethods() %}
                         <button class="btn btn-primary payment-modal-btn" data-code="{{ element.codpago }}"
-                                data-description="{{ element.descripcion }}" data-target="paymentModal">
+                                data-description="{{ element.descripcion }}" data-action="showPaymentModalAction">
                             <i class="fas fa-plus-circle mr-2"></i>
                             <span class="w-full text-center">{{ element.descripcion }}</span>
                         </button>
@@ -60,8 +60,8 @@
                     <i class="fa fa-arrow-alt-circle-left"></i>
                     <span class="mx-2 text-center">{{ i18n.trans('back') }}</span>
                 </button>
-                <button id="orderSaveButton" class="btn btn-success ml-auto" data-toggle="block"
-                        data-target="checkoutView" disabled="disabled">
+                <button id="orderSaveButton" class="btn btn-success ml-auto" data-action="saveOrderAction"
+                        data-toggle="block" data-target="checkoutView" disabled="disabled">
                     <span class="mx-2 text-center">{{ i18n.trans('confirm') }}</span>
                     <i class="fa fa-arrow-alt-circle-right"></i>
                 </button>

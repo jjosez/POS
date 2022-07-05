@@ -5,11 +5,11 @@
  */
 #}
 <!-- Close Session Modal -->
-<div id="cashMovmentModal" class="modal hidden">
+<div id="moneyInOutModal" class="modal hidden">
     <div class="modal-content md:modal-content-sm">
         <div class="modal-header">
             <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('till-session-cash-movments') }}</h2>
-            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="cashMovmentModal">
+            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="moneyInOutModal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
@@ -29,8 +29,8 @@
             </form>
         </div>
         <div class="modal-footer">
-            <button type="submit" class="btn btn-warning btn-round" id="cashMovmentSaveButton" data-toggle="modal"
-                    data-target="cashMovmentModal">
+            <button type="submit" class="btn btn-warning btn-round" id="cashMovmentSaveButton" data-action="moneyInOutAction"
+                    data-toggle="modal" data-target="moneyInOutModal">
                 {{ i18n.trans('continue') }}</button>
         </div>
     </div>

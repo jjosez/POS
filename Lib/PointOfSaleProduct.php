@@ -56,7 +56,7 @@ class PointOfSaleProduct
     public function getStock(string $code): array
     {
         $where = [
-            new DataBaseWhere('LOWER(S.referencia)', $code)
+            new DataBaseWhere('LOWER(S.referencia)', mb_strtolower($code, 'UTF8'))
         ];
 
         $stock = new ProductoStock();

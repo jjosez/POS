@@ -3,7 +3,7 @@
  * Copyright (C) 2018-2021 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 import * as Core from './Core.js';
-import {mainView, cartView, checkoutView} from "./UI.js";
+import {cartView, checkoutView, mainView} from "./UI.js";
 import * as Order from "./Order.js";
 import CartModel from "./Cart.js";
 import CheckoutModel from "./Checkout.js";
@@ -44,6 +44,31 @@ async function holdOrder() {
     mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
 }
 
+async function printClosingVoucherHandler() {
+    await Core.printClosingVoucher();
+
+    mainView().toggleCloseSessionModal();
+}
+
+/**
+ * @param {{code:string}} data
+ */
+async function printOrderHandler(data) {
+    await Order.reprintRequest(data.code);
+
+    mainView().toggleLastOrdersModal();
+}
+
+function recalculatePaymentHandler({value}) {
+    if (value === 'balance') {
+        checkoutView().paymentInput.value = Checkout.getOutstandingBalance();
+    } else {
+        let amount = parseFloat(checkoutView().paymentInput.value) || 0;
+        amount += parseFloat(value) || 0;
+        checkoutView().paymentInput.value = amount;
+    }
+}
+
 /**
  * @param {{code:string}} data
  */
@@ -53,19 +78,12 @@ async function resumeOrderHandler(data) {
     mainView().toggleHoldOrdersModal();
 }
 
-/**
- * @param {{code:string}} data
- */
-async function reprintOrderHandler(data) {
-    await Order.reprintRequest(data.code);
+async function searchBarcodeHandler(code) {
+    let result = await Core.searchBarcode(code);
 
-    mainView().toggleLastOrdersModal();
-}
-
-async function printClosingVoucherHandler() {
-    await Core.printClosingVoucher();
-
-    mainView().toggleCloseSessionModal();
+    if (result.code) {
+        Cart.setProduct(result.code, result.description);
+    }
 }
 
 async function searchCustomerHandler() {
@@ -79,33 +97,38 @@ async function searchProductHandler() {
 /**
  * @param {{code:string|null, description:string}} data
  */
-function setCustomerHandler(data) {
-    if (typeof data.code === 'undefined' || data.code === null) {
+function setCustomerHandler({code, description}) {
+    if (typeof code === 'undefined' || code === null) {
         return;
     }
-    Cart.setCustomer(data.code);
-    mainView().updateCustomer(data.description);
+    Cart.setCustomer(code);
+    mainView().updateCustomer(description);
 }
 
 /**
  * @param {{code:string|null, description:string}} data
  */
-function setDocumentHandler(data) {
-    if (typeof data.code === 'undefined' || data.code === null) {
+function setDocumentHandler({code, description}) {
+    if (typeof code === 'undefined' || code === null) {
         return;
     }
-    Cart.setDocumentType(data.code);
-    mainView().updateDocument(data.description);
+    Cart.setDocumentType(code);
+    mainView().updateDocument(description);
+}
+
+function setPayment() {
+    Checkout.setPayment(checkoutView().paymentInput.value, checkoutView().paymentInput.dataset);
+    checkoutView().paymentInput.value = 0;
 }
 
 /**
- * @param data
+ * @param {{code:string|null, description:string}} data
  */
-function setProductHandler(data) {
-    if (typeof data.code === 'undefined' || data.code === null) {
+function setProductHandler({code, description}) {
+    if (typeof code === 'undefined' || code === null) {
         return;
     }
-    Cart.setProduct(data.code, data.description);
+    Cart.setProduct(code, description);
 }
 
 /**
@@ -171,12 +194,12 @@ async function updateCart() {
 /**
  * @param {{detail}} data
  */
-function updateCartView(data) {
-    cartView().updateListView(data.detail);
-    cartView().updateTotals(data.detail);
-    Checkout.total = data.detail.doc.total;
+function updateCartView({detail}) {
+    cartView().updateListView(detail);
+    cartView().updateTotals(detail);
+    Checkout.total = detail.doc.total;
 
-    if (data.detail.doc.total === 0) {
+    if (detail.doc.total === 0) {
         Checkout.clear();
     }
 }
@@ -214,6 +237,11 @@ function commonEventHandler(event) {
     const data = event.target.dataset;
     const action = data.action;
 
+    if (typeof action === 'undefined' || action === null) {
+        return;
+    }
+
+    console.log('Action:', action);
     switch (action) {
         case 'setDocumentAction':
             setDocumentHandler(data);
@@ -223,6 +251,9 @@ function commonEventHandler(event) {
             return;
         case 'setProductAction':
             setProductHandler(data);
+            return;
+        case 'closeSessionAction':
+            closeSessionHandler();
             return;
         case 'deleteOrderAction':
             deleteOrderHandler(data);
@@ -239,14 +270,34 @@ function commonEventHandler(event) {
         case 'editProductFieldAction':
             editProductFieldHandler(event.target);
             return;
+        case 'holdOrderAction':
+            holdOrder();
+            return;
+        case 'moneyInOutAction':
+            moneyInOutHandler();
+            return;
         case 'resumeOrderAction':
             void resumeOrderHandler(data);
+            case 'recalculatePaymentAction':
+            void recalculatePaymentHandler(data);
+            return;
+        case 'setPaymentAction':
+            setPayment();
+            return;
+        case 'showPaymentModalAction':
+            void showPaymentModal(data);
             return;
         case 'printOrderAction':
-            void reprintOrderHandler(data);
+            void printOrderHandler(data);
             return;
         case 'printClosingVoucher':
             void printClosingVoucherHandler(data);
+            return;
+        case 'saveCustomerAction':
+            void saveCustomerHandler();
+            return;
+        case 'saveOrderAction':
+            saveOrder();
             return;
         case 'stockDetailAction':
             void stockDetailHandler(data);
@@ -255,23 +306,8 @@ function commonEventHandler(event) {
     }
 }
 
-function setPayment() {
-    Checkout.setPayment(checkoutView().paymentInput.value, checkoutView().paymentInput.dataset);
-    checkoutView().paymentInput.value = 0;
-}
-
-function recalculatePaymentAmount() {
-    if (this.dataset.value === 'balance') {
-        checkoutView().paymentInput.value = Checkout.getOutstandingBalance();
-    } else {
-        let value = parseFloat(checkoutView().paymentInput.value) || 0;
-        value += parseFloat(this.dataset.value) || 0;
-        checkoutView().paymentInput.value = value;
-    }
-}
-
-function showPaymentModal() {
-    checkoutView().showPaymentModal(this);
+function showPaymentModal(data) {
+    checkoutView().showPaymentModal(data);
 }
 
 function updateCheckoutView() {
@@ -294,21 +330,11 @@ function closeSessionHandler() {
     mainView().closeSessionForm.submit();
 }
 
-function cashMovmentHandler() {
+function moneyInOutHandler() {
     mainView().cashMovmentForm.submit();
 }
 
-async function scanCodeHandler(code) {
-    let result = await Core.searchBarcode(code);
-
-    if (result.code) {
-        Cart.setProduct(result.code, result.description);
-        return;
-    }
-    console.log('Barcode not found');
-}
-
-async function saveNewCostumerHandler() {
+async function saveCustomerHandler() {
     const taxID = Core.getElement('newCustomerTaxID').value;
     const name = Core.getElement('newCustomerName').value;
     const response = await Core.saveNewCustomer(taxID, name);
@@ -324,31 +350,14 @@ document.addEventListener("DOMContentLoaded", () => {
     onScan.attachTo(document);
 
     document.addEventListener('scan', function (event) {
-        void scanCodeHandler(event.detail.scanCode);
+        void searchBarcodeHandler(event.detail.scanCode);
     });
 });
 
-mainView().customerSaveButton.addEventListener('click', saveNewCostumerHandler);
-mainView().cashMovmentButton.addEventListener('click', cashMovmentHandler);
-mainView().closeSessionButton.addEventListener('click', closeSessionHandler);
-mainView().closeSessionModal.addEventListener('click', commonEventHandler);
 mainView().customerSearchBox.addEventListener('keyup', searchCustomerHandler);
-mainView().customerListView.addEventListener('click', commonEventHandler);
-mainView().documentTypeListView.addEventListener('click', commonEventHandler);
-//mainView().documentTypeListView.addEventListener('click', documentEventHandler);
-mainView().holdOrdersList.addEventListener('click', commonEventHandler);
-mainView().lastOrdersList.addEventListener('click', commonEventHandler);
 mainView().productSearchBox.addEventListener('keyup', searchProductHandler);
-mainView().productListView.addEventListener('click', commonEventHandler);
-cartView().listView.addEventListener('click', commonEventHandler);
-cartView().editView.addEventListener('focusout', commonEventHandler);
 cartView().discountPercent.addEventListener('focusout', updateOrderDiscount);
-cartView().holdButton.addEventListener('click', holdOrder);
-checkoutView().confirmButton.addEventListener('click', saveOrder);
-checkoutView().listView.addEventListener('click', commonEventHandler);
-checkoutView().paymentApplyButton.addEventListener('click', setPayment);
-checkoutView().paymentAmounButton.forEach(element => element.addEventListener('click', recalculatePaymentAmount));
-checkoutView().paymentModalButton.forEach(element => element.addEventListener('click', showPaymentModal));
+document.addEventListener('click', commonEventHandler);
 document.addEventListener('updateCartEvent', updateCart);
 document.addEventListener('updateCartViewEvent', updateCartView);
 document.addEventListener('updateCheckout', updateCheckoutView);

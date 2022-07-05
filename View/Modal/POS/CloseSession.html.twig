@@ -33,25 +33,11 @@
                         </div>
                     {% endfor %}
                 </div>
-                {#<div class="flex space-x-3">
-                    {% for denominacion in fsc.getDenominations() %}
-                        <div class="form-group mt-4">
-                            <span class="text-xl font-medium text-left">
-                                {{ denominacion.valor }} X </span>
-                            <input name="cash[{{ denominacion.valor }}]" type="number" value="0">
-                        </div>
-                    {% else %}
-                        <div class="alert alert-warning" role="alert">
-                            No hay denominaciones registradas, registralas en.
-                            <a href="{{ i18n.trans('EditConfiguracionPOS') }}">{{ i18n.trans('pos-settings') }}</a>
-                        </div>
-                    {% endfor %}
-                </div>#}
             </form>
         </div>
         <div class="modal-footer">
-            <button type="submit" class="btn btn-warning btn-round" id="closeSessionButton" data-toggle="modal"
-                    data-target="closeSessionModal">
+            <button type="submit" class="btn btn-warning btn-round" id="closeSessionButton" data-action="closeSessionAction"
+                    data-toggle="modal" data-target="closeSessionModal">
                 {{ i18n.trans('continue') }}</button>
         </div>
     </div>
