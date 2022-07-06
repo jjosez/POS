@@ -6,7 +6,7 @@ import {getElement} from "./Core.js";
 import * as Money from "./Money.js";
 
 export const alertView = () => {
-    return  {
+    return {
         'container': getElement("alert-container"),
         'listTemplate': getTemplate('message-template'),
 
@@ -70,6 +70,22 @@ export const checkoutView = () => {
         'paymentAmounButton': document.querySelectorAll('.payment-add-btn'),
         'paymentApplyButton': getElement('paymentApplyButton'),
         'paymentInput': getElement('paymentApplyInput'),
+
+        enableConfirmButton: function (enable = true) {
+            this.confirmButton.disabled = !enable;
+        },
+
+        getCurrentPaymentData: function () {
+            return {
+                amount: this.paymentInput.value,
+                method: this.paymentInput.dataset.method,
+                description: this.paymentInput.dataset.description
+            };
+        },
+
+        getCurrentPaymentInput: function() {
+            return parseFloat(this.paymentInput.value) || 0;
+        },
 
         showPaymentModal: function (data = {}) {
             this.paymentInput.dataset.method = data.code;
@@ -159,7 +175,7 @@ export const mainView = () => {
         updateProductListView: function (data = []) {
             this.productListView.innerHTML = this.productoListTemplate({items: data}, Eta.config);
         },
-        
+
         updateLastOrdersListView: function (data = []) {
             this.lastOrdersList.innerHTML = this.lastOrdersListTemplate({items: data}, Eta.config);
         },
@@ -239,9 +255,9 @@ export function toggleEventHandler(event) {
 }
 
 document.addEventListener('click', function (event) {
-	if (event.target.attributes.getNamedItem('data-toggle')) {
+    if (event.target.attributes.getNamedItem('data-toggle')) {
         toggleEventHandler(event.target);
         event.stopPropagation();
-	}
+    }
 }, false);
 

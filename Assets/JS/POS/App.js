@@ -62,11 +62,10 @@ async function printOrderHandler(data) {
 function recalculatePaymentHandler({value}) {
     if (value === 'balance') {
         checkoutView().paymentInput.value = Checkout.getOutstandingBalance();
-    } else {
-        let amount = parseFloat(checkoutView().paymentInput.value) || 0;
-        amount += parseFloat(value) || 0;
-        checkoutView().paymentInput.value = amount;
+        return;
     }
+
+    checkoutView().paymentInput.value = checkoutView().getCurrentPaymentInput() + parseFloat(value) || 0;
 }
 
 /**
@@ -117,7 +116,7 @@ function setDocumentHandler({code, description}) {
 }
 
 function setPayment() {
-    Checkout.setPayment(checkoutView().paymentInput.value, checkoutView().paymentInput.dataset);
+    Checkout.setPayment(checkoutView().getCurrentPaymentData());
     checkoutView().paymentInput.value = 0;
 }
 
@@ -180,10 +179,10 @@ function editProductFieldHandler(target) {
 }
 
 /**
- * @param {string} data
+ * @param {code} data
  */
-async function stockDetailHandler(data) {
-    mainView().updateStockListView(await Core.getProductStock(data.code));
+async function stockDetailHandler({code}) {
+    mainView().updateStockListView(await Core.getProductStock(code));
     mainView().toggleStockDetailModal();
 }
 
@@ -197,11 +196,7 @@ async function updateCart() {
 function updateCartView({detail}) {
     cartView().updateListView(detail);
     cartView().updateTotals(detail);
-    Checkout.total = detail.doc.total;
-
-    if (detail.doc.total === 0) {
-        Checkout.clear();
-    }
+    Checkout.updateTotal(detail.doc.total);
 }
 
 /**
@@ -278,7 +273,8 @@ function commonEventHandler(event) {
             return;
         case 'resumeOrderAction':
             void resumeOrderHandler(data);
-            case 'recalculatePaymentAction':
+            return;
+        case 'recalculatePaymentAction':
             void recalculatePaymentHandler(data);
             return;
         case 'setPaymentAction':
@@ -311,13 +307,7 @@ function showPaymentModal(data) {
 }
 
 function updateCheckoutView() {
-    if (Checkout.change >= 0) {
-        checkoutView().confirmButton.removeAttribute('disabled');
-        checkoutView().confirmButton.classList.add('opacity-50', 'cursor-not-allowed');
-    } else {
-        checkoutView().confirmButton.setAttribute('disabled', 'disabled');
-    }
-
+    checkoutView().enableConfirmButton(Checkout.change >= 0);
     checkoutView().updateTotals(Checkout);
     checkoutView().updatePaymentList(Checkout);
 }

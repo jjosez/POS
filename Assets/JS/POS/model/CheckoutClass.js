@@ -1,15 +1,14 @@
-export default class Checkout {
-    constructor(cashMethod = "", total = 0) {
+class CheckoutClass {
+    constructor({cashPaymentMethod = ""}) {
         this.cashMethod = cashMethod;
         this.change = 0;
-        this.total = total;
+        this.total = 0;
         this.payments = [];
     }
 
     clear() {
         this.change = 0;
         this.payments = [];
-        this.total = 0;
 
         this.updateCheckoutEvent();
     }
@@ -85,11 +84,14 @@ export default class Checkout {
         });
     }
 
-    updateTotal(total) {
-        total === 0 ? this.clear() :  this.total = total;
+    updateTotal(total = 0) {
+        this.total = total;
+        this.clear();
     }
 
     updateCheckoutEvent() {
         document.dispatchEvent(new Event('updateCheckout'));
     }
 }
+
+export default CheckoutClass;
