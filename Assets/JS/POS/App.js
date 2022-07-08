@@ -3,137 +3,15 @@
  * Copyright (C) 2018-2021 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 import * as Core from './Core.js';
-import {cartView, checkoutView, mainView} from "./UI.js";
 import * as Order from "./Order.js";
-import CartModel from "./Cart.js";
-import CheckoutModel from "./Checkout.js";
-
-export const Cart = new CartModel({
-    'doc': {
-        'codalmacen': settings.warehouse,
-        'codcliente': settings.customer,
-        'idpausada': 'false',
-        'tipo-documento': settings.document
-    },
-    'token': settings.token
-});
-
-export const Checkout = new CheckoutModel(settings.cash);
-
-//window.App = {};
-
-async function saveOrder() {
-    const wasOnHold = Cart.doc.idpausada;
-    if (Cart.lines.length < 1) return;
-
-    Cart.update(await Order.saveRequest(Cart, Checkout.payments));
-    Checkout.clear();
-
-    mainView().updateProductListView(await Core.searchProduct(''));
-    mainView().updateLastOrdersListView(await Order.getLastOrders());
-
-    if (wasOnHold) {
-        mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
-    }
-}
-
-async function holdOrder() {
-    if (Cart.lines.length < 1) return;
-
-    Cart.update(await Order.holdRequest(Cart));
-    mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
-}
-
-async function printClosingVoucherHandler() {
-    await Core.printClosingVoucher();
-
-    mainView().toggleCloseSessionModal();
-}
+import {mainView} from "./UI.js";
+import Cart from "./modules/Cart.js"
+import Checkout from "./modules/Checkout.js";
 
 /**
  * @param {{code:string}} data
  */
-async function printOrderHandler(data) {
-    await Order.reprintRequest(data.code);
-
-    mainView().toggleLastOrdersModal();
-}
-
-function recalculatePaymentHandler({value}) {
-    if (value === 'balance') {
-        checkoutView().paymentInput.value = Checkout.getOutstandingBalance();
-        return;
-    }
-
-    checkoutView().paymentInput.value = checkoutView().getCurrentPaymentInput() + parseFloat(value) || 0;
-}
-
-/**
- * @param {{code:string}} data
- */
-async function resumeOrderHandler(data) {
-    Cart.update(await Order.resumeRequest(data.code));
-
-    mainView().toggleHoldOrdersModal();
-}
-
-async function searchBarcodeHandler(code) {
-    let result = await Core.searchBarcode(code);
-
-    if (result.code) {
-        Cart.setProduct(result.code, result.description);
-    }
-}
-
-async function searchCustomerHandler() {
-    mainView().updateCustomerListView(await Core.searchCustomer(this.value));
-}
-
-async function searchProductHandler() {
-    mainView().updateProductListView(await Core.searchProduct(this.value));
-}
-
-/**
- * @param {{code:string|null, description:string}} data
- */
-function setCustomerHandler({code, description}) {
-    if (typeof code === 'undefined' || code === null) {
-        return;
-    }
-    Cart.setCustomer(code);
-    mainView().updateCustomer(description);
-}
-
-/**
- * @param {{code:string|null, description:string}} data
- */
-function setDocumentHandler({code, description}) {
-    if (typeof code === 'undefined' || code === null) {
-        return;
-    }
-    Cart.setDocumentType(code);
-    mainView().updateDocument(description);
-}
-
-function setPayment() {
-    Checkout.setPayment(checkoutView().getCurrentPaymentData());
-    checkoutView().paymentInput.value = 0;
-}
-
-/**
- * @param {{code:string|null, description:string}} data
- */
-function setProductHandler({code, description}) {
-    if (typeof code === 'undefined' || code === null) {
-        return;
-    }
-    Cart.setProduct(code, description);
-}
-
-/**
- * @param {{code:string}} data
- */
-async function deleteOrderHandler(data) {
+async function orderDeleteAction(data) {
     await Order.deleteHoldRequest(data.code);
 
     mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
@@ -141,94 +19,81 @@ async function deleteOrderHandler(data) {
 }
 
 /**
- * @param {{index:int}} data
+ * @param {{code:string}} data
  */
-function deletePaymentHandler(data) {
-    Checkout.deletePayment(data.index);
+async function orderPrintAction({code}) {
+    await Order.reprintRequest(code);
+    mainView().toggleLastOrdersModal();
 }
 
 /**
- * @param {{index:int}} data
+ * @param {{code:string}} data
  */
-function deleteProductHandler(data) {
-    Cart.deleteProduct(data.index);
+async function orderResumeAction({code}) {
+    Cart.update(await Order.resumeRequest(code));
+    mainView().toggleHoldOrdersModal();
 }
 
-/**
- * @param {{index:int}} data
- */
-function editProductHandler(data) {
-    updateEditView(data.index);
+async function orderSaveAction() {
+    const wasOnHold = Cart.doc.idpausada;
+    if (Cart.lines.length < 1) return;
 
-    if (true === cartView().editView.classList.contains('hidden')) {
-        cartView().toggleEditView();
-        mainView().toggleMainView();
+    Cart.update(await Order.saveRequest(Cart, Checkout.payments));
+    Checkout.clear();
+
+    //mainView().updateProductListView(await Core.searchProduct(''));
+    mainView().updateLastOrdersListView(await Order.getLastOrders());
+
+    if (wasOnHold) {
+        mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
     }
 }
 
-/**
- * @param {EventTarget} target
- */
-function editProductFieldHandler(target) {
-    const index = target.dataset.index;
-    Cart.editProduct(index, target.dataset.field, target.value);
+async function orderSuspendAction() {
+    if (Cart.lines.length < 1) return;
 
-    updateCart().then(() => {
-        updateEditView(index);
-    });
+    Cart.update(await Order.holdRequest(Cart));
+    mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
 }
 
-/**
- * @param {code} data
- */
-async function stockDetailHandler({code}) {
+async function searchBarcodeAction(code) {
+    let response = await Core.searchBarcode(code);
+
+    if (response.code) {
+        Cart.setProduct(response.code, response.description);
+    }
+}
+
+async function searchCustomerAction() {
+    mainView().updateCustomerListView(await Core.searchCustomer(this.value));
+}
+
+async function searchProductAction() {
+    mainView().updateProductListView(await Core.searchProduct(this.value));
+}
+
+function sessionCloseAction() {
+    mainView().closeSessionForm.submit();
+}
+
+function sessionMoneyMovmentAction() {
+    mainView().cashMovmentForm.submit();
+}
+
+async function sessionPrintClosingVoucherAction() {
+    await Core.printClosingVoucher();
+    mainView().toggleCloseSessionModal();
+}
+
+async function showStockDetailAction({code}) {
     mainView().updateStockListView(await Core.getProductStock(code));
     mainView().toggleStockDetailModal();
 }
 
-async function updateCart() {
-    Cart.update(await Order.recalculateRequest(Cart));
-}
-
-/**
- * @param {{detail}} data
- */
-function updateCartView({detail}) {
-    cartView().updateListView(detail);
-    cartView().updateTotals(detail);
-    Checkout.updateTotal(detail.doc.total);
-}
-
-/**
- * @param index
- */
-function updateEditView(index) {
-    let data = Cart.getProduct(index);
-    cartView().updateEditForm(data);
-}
-
-/*function documentEventHandler(event) {
-    const data = event.target.dataset;
-    const functionName = data.action;
-
-    if (typeof App[functionName] === "function") {
-        console.log('Ejecutando funcion:', functionName);
-        App[functionName](data);
-    }
-}
-
-App.setDocumentAction = function (data) {
-    if (typeof data.code === 'undefined' || data.code === null) {
-        return;
-    }
-    Cart.setDocumentType(data.code);
-    mainView().updateDocument(data.description);
-}*/
-
 /**
  * @param {Event} event
  */
-function commonEventHandler(event) {
+function appEventHandler(event) {
     const data = event.target.dataset;
     const action = data.action;
 
@@ -236,98 +101,44 @@ function commonEventHandler(event) {
         return;
     }
 
-    console.log('Action:', action);
     switch (action) {
-        case 'setDocumentAction':
-            setDocumentHandler(data);
-            return;
-        case 'setCustomerAction':
-            setCustomerHandler(data);
-            return;
-        case 'setProductAction':
-            setProductHandler(data);
-            return;
         case 'closeSessionAction':
-            closeSessionHandler();
-            return;
+            return sessionCloseAction();
+
         case 'deleteOrderAction':
-            deleteOrderHandler(data);
-            return;
-        case 'deletePaymentAction':
-            deletePaymentHandler(data);
-            return;
-        case 'deleteProductAction':
-            deleteProductHandler(data);
-            return;
-        case 'editProductAction':
-            editProductHandler(data);
-            return;
-        case 'editProductFieldAction':
-            editProductFieldHandler(event.target);
-            return;
+            return orderDeleteAction(data);
+
         case 'holdOrderAction':
-            holdOrder();
-            return;
+            return orderSuspendAction();
+
         case 'moneyInOutAction':
-            moneyInOutHandler();
-            return;
+            return sessionMoneyMovmentAction();
+
         case 'resumeOrderAction':
-            void resumeOrderHandler(data);
-            return;
-        case 'recalculatePaymentAction':
-            void recalculatePaymentHandler(data);
-            return;
-        case 'setPaymentAction':
-            setPayment();
-            return;
-        case 'showPaymentModalAction':
-            void showPaymentModal(data);
-            return;
+            return orderResumeAction(data);
+
         case 'printOrderAction':
-            void printOrderHandler(data);
-            return;
+            return orderPrintAction(data);
+
         case 'printClosingVoucher':
-            void printClosingVoucherHandler(data);
-            return;
+            return sessionPrintClosingVoucherAction(data);
+
         case 'saveCustomerAction':
-            void saveCustomerHandler();
-            return;
+            return saveCustomerHandler();
+
         case 'saveOrderAction':
-            saveOrder();
-            return;
+            return orderSaveAction();
+
         case 'stockDetailAction':
-            void stockDetailHandler(data);
-            event.stopPropagation();
-            return;
+            return showStockDetailAction(data);
     }
-}
-
-function showPaymentModal(data) {
-    checkoutView().showPaymentModal(data);
-}
-
-function updateCheckoutView() {
-    checkoutView().enableConfirmButton(Checkout.change >= 0);
-    checkoutView().updateTotals(Checkout);
-    checkoutView().updatePaymentList(Checkout);
-}
-
-function updateOrderDiscount() {
-    Cart.setDiscountPercent(this.value);
-}
-
-function closeSessionHandler() {
-    mainView().closeSessionForm.submit();
-}
-
-function moneyInOutHandler() {
-    mainView().cashMovmentForm.submit();
 }
 
 async function saveCustomerHandler() {
     const taxID = Core.getElement('newCustomerTaxID').value;
     const name = Core.getElement('newCustomerName').value;
     const response = await Core.saveNewCustomer(taxID, name);
+
 
     if (response.codcliente) {
         Cart.setCustomer(response.codcliente);
@@ -339,15 +150,11 @@ document.addEventListener("DOMContentLoaded", () => {
     /* global onScan*/
     onScan.attachTo(document);
 
-    document.addEventListener('scan', function (event) {
-        void searchBarcodeHandler(event.detail.scanCode);
+    document.addEventListener('scan', event => {
+        return searchBarcodeAction(event.detail.scanCode);
     });
 });
 
-mainView().customerSearchBox.addEventListener('keyup', searchCustomerHandler);
-mainView().productSearchBox.addEventListener('keyup', searchProductHandler);
-cartView().discountPercent.addEventListener('focusout', updateOrderDiscount);
-document.addEventListener('click', commonEventHandler);
-document.addEventListener('updateCartEvent', updateCart);
-document.addEventListener('updateCartViewEvent', updateCartView);
-document.addEventListener('updateCheckout', updateCheckoutView);
+mainView().customerSearchBox.addEventListener('keyup', searchCustomerAction);
+mainView().productSearchBox.addEventListener('keyup', searchProductAction);
+document.addEventListener('click', appEventHandler);

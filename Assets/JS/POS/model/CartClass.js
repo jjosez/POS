@@ -1,6 +1,6 @@
 import * as Money from "./../Money.js";
 
-export default class Cart {
+class CartClass {
     constructor({ doc, token } = {}) {
         this.init = doc;
         this.doc = doc;
@@ -81,11 +81,12 @@ export default class Cart {
     }
 
     updateCartViewEvent(data) {
-        document.dispatchEvent(new CustomEvent('updateCartViewEvent', { detail: data }));
+        document.dispatchEvent(new CustomEvent('onCartUpdate', { detail: data }));
     }
 
     updateCartEvent() {
-        document.dispatchEvent(new Event('updateCartEvent'));
+        document.dispatchEvent(new Event('onCartChange'));
     }
 }
 
+export default CartClass;

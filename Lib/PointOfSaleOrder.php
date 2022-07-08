@@ -118,7 +118,6 @@ class PointOfSaleOrder
             }
             if (true === isset($product['cantidad'])) {
                 $this->documentLines[] = $this->document->getNewLine($product);
-
                 continue;
             }
 

@@ -42,6 +42,7 @@ class ProductoVariante extends JoinModel
             'description' => 'P.descripcion',
             'price' => 'V.precio',
             'stock' => 'SUM(S.disponible)',
+            'detail' => 'CONCAT_WS(" - ", A1.descripcion, A2.descripcion, A3.descripcion, A4.descripcion)',
             'atribute1' => 'A1.descripcion',
             'atribute2' => 'A2.descripcion',
             'atribute3' => 'A3.descripcion',

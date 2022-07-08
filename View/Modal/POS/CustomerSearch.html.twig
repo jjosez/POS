@@ -50,16 +50,6 @@
                         </tr>
                     {% endfor %}
                     </tbody>
-                    <tbody id="customerSearsschResult" class="text-slate-gray-700">
-                    {% for element in fsc.customer.codeModelAll() %}
-                        <tr class="cursor-pointer bg-blue-100 hover:bg-yellow-200">
-                            <td class="p-4 font-medium add-customer-btn"
-                                data-code="{{ element.code }}" data-description="{{ element.description }}">
-                                {{ element.description }}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>s
                 </table>
             </div>
         </div>

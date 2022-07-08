@@ -28,7 +28,7 @@ trait PointOfSaleTrait
         foreach ($this->getTerminal()->getPaymenthMethods() as $element) if ($element->recibecambio) {
             return $element->codpago;
         }
-        return $this->getSetting('fpagoefectivo') ?: '';
+        return '';
     }
 
     /**
@@ -259,26 +259,26 @@ trait PointOfSaleTrait
     {
         $result = true;
 
+        $paymentMethod = $this->getPaymentMethods();
+        if (empty($paymentMethod)) {
+            $this->toolBox()->Log('POS')->warning('No se configuro ningun metodo de pago.');
+            $result = false;
+        }
+
         $cashMethod = $this->getCashPaymentMethod();
         if ($cashMethod === null || trim($cashMethod) === '') {
-            $this->toolBox()->Log()->warning('No se configuro el metodo de pago que se usara para pagos en efectivo');
+            $this->toolBox()->Log('POS')->warning('No se configuro el metodo de pago que se usara para pagos en efectivo.');
             $result = false;
         }
 
         $defaultDocument = $this->getDefaultDocument();
         if ($defaultDocument === null || trim($defaultDocument) === '') {
-            $this->toolBox()->Log()->warning('No se configuro el documento predefinido');
-            $result = false;
-        }
-
-        $paymentMethod = $this->getPaymentMethods();
-        if (empty($paymentMethod)) {
-            $this->toolBox()->Log()->warning('No se configuro ningun metodo de pago disponible.');
+            $this->toolBox()->Log('POS')->warning('No se configuro el documento predefinido.');
             $result = false;
         }
 
         if (empty($this->getDenominations())) {
-            $this->toolBox()->Log()->warning('No se configuro ninguna moneda, se necesitan para el cierre de arqueo.');
+            $this->toolBox()->Log('POS')->warning('No se configuro ninguna moneda, se necesitan para el cierre de arqueo.');
             $result = false;
         }
 

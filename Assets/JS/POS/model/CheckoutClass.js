@@ -1,5 +1,5 @@
 class CheckoutClass {
-    constructor({cashPaymentMethod = ""}) {
+    constructor({cashMethod = ""}) {
         this.cashMethod = cashMethod;
         this.change = 0;
         this.total = 0;
@@ -90,7 +90,7 @@ class CheckoutClass {
     }
 
     updateCheckoutEvent() {
-        document.dispatchEvent(new Event('updateCheckout'));
+        document.dispatchEvent(new Event('onCheckoutUpdate'));
     }
 }
 

@@ -2,21 +2,21 @@ import {checkoutView} from "../UI.js";
 import CheckoutClass from "../model/CheckoutClass.js";
 
 const Checkout = new CheckoutClass({
-    cashPaymentMethod: settings.cash
+    cashMethod: settings.cash
 });
 
 /**
  * Delete given payment at index.
  * @param {{index:int}} data
  */
-function deletePaymentAction({index}) {
+function paymentDeleteAction({index}) {
     Checkout.deletePayment(index);
 }
 
 /**
  * Update checkout view, when new payment was added.
  */
-function recalculateAction({value}) {
+function paymentRecalculateAction({value}) {
     if (value === 'balance') {
         checkoutView().paymentInput.value = Checkout.getOutstandingBalance();
         return;
@@ -28,16 +28,28 @@ function recalculateAction({value}) {
 /**
  * Set new payment from dialog.
  */
-function setPaymentAction() {
+function paymentSetAction() {
     Checkout.setPayment(checkoutView().getCurrentPaymentData());
     checkoutView().paymentInput.value = 0;
+}
+
+function showPaymentModalAction(data) {
+    checkoutView().showPaymentModal(data);
+}
+
+/**
+ * Update checkout totals when cart was updated.
+ */
+function updateTotals({detail}) {
+    Checkout.updateTotal(detail.doc.total);
+    checkoutView().enableConfirmButton(false);
 }
 
 /**
  * Update checkout view, when new payment was added.
  */
 function updateView() {
-    checkoutView().enableConfirmButton(Checkout.change >= 0);
+    checkoutView().enableConfirmButton(Checkout.change >= 0 && Checkout.total > 0);
     checkoutView().updateTotals(Checkout);
     checkoutView().updatePaymentList(Checkout);
 }
@@ -55,17 +67,21 @@ function checkoutEventHandler(event) {
 
     switch (action) {
         case 'deletePaymentAction':
-            return deletePaymentAction(data);
+            return paymentDeleteAction(data);
 
         case 'recalculatePaymentAction':
-            return recalculateAction(data);
+            return paymentRecalculateAction(data);
 
         case 'setPaymentAction':
-            return setPaymentAction();
+            return paymentSetAction();
+
+        case 'showPaymentModalAction':
+            return showPaymentModalAction(data);
     }
 }
 
 document.addEventListener('click', checkoutEventHandler);
-document.addEventListener('updateCheckout', updateView);
+document.addEventListener('onCheckoutUpdate', updateView);
+document.addEventListener('onCartUpdate', updateTotals);
 
 export default Checkout;

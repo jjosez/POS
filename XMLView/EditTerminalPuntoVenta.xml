@@ -16,12 +16,14 @@
                 </widget>
             </column>
             <column name="warehouse" titleurl="ListAlmacen" numcolumns="3" order="120">
-                <widget type="select" fieldname="codalmacen" required='true' onclick="EditAlmacen" icon="fas fa-warehouse">
+                <widget type="select" fieldname="codalmacen" required='true' onclick="EditAlmacen"
+                        icon="fas fa-warehouse">
                     <values source="almacenes" fieldcode="codalmacen" fieldtitle="nombre"/>
                 </widget>
             </column>
             <column name="company" titleurl="ListEmpresa" numcolumns="3" order="130">
-                <widget type="select" fieldname="idempresa" required='true' onclick="EditEmpresa" icon="fas fa-building" readonly="true">
+                <widget type="select" fieldname="idempresa" required='true' onclick="EditEmpresa" icon="fas fa-building"
+                        readonly="true">
                     <values source="empresas" fieldcode="idempresa" fieldtitle="nombre"/>
                 </widget>
             </column>
@@ -44,4 +46,12 @@
             </column>
         </group>
     </columns>
+    <rows>
+        <row type="actions">
+            <button type="link" label="pos-field-options" color="light" action="EditPageOption?code=EditConfiguracionPOS"
+                    icon="fas fa-users"/>
+            <button type="link" label="pos-currency" color="light" action="ListDenominacionMoneda"
+                    icon="fas fa-money-bill-alt"/>
+        </row>
+    </rows>
 </view>

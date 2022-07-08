@@ -33,6 +33,12 @@ export const cartView = () => {
         'total': getElement('orderTotal'),
         'holdButton': getElement('orderHoldButton'),
 
+        showEditView: function () {
+            if (true === cartView().editView.classList.contains('hidden')) {
+                this.toggleEditView();
+                mainView().toggleMainView();
+            }
+        },
 
         toggleEditView: function () {
             this.editView.classList.toggle('hidden');
@@ -83,7 +89,7 @@ export const checkoutView = () => {
             };
         },
 
-        getCurrentPaymentInput: function() {
+        getCurrentPaymentInput: function () {
             return parseFloat(this.paymentInput.value) || 0;
         },
 

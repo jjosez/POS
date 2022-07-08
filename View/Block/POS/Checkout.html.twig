@@ -11,7 +11,7 @@
         <div class="p-5 border-t-2 border-dashed">
             <h2 class="text-xl font-medium">{{ i18n.trans('percentage-discount') }}</h2>
             <div class="form-group flex flex-row mt-4">
-                <input id="orderDiscount" type="number" class="flex-grow-0" value="0">
+                <input id="orderDiscount" type="number" class="flex-grow-0" value="0" data-action="editDiscountAction">
                 <span id="orderDiscountAmount" class="flex-1 text-2xl font-medium text-right w-8/12">0.000</span>
             </div>
         </div>
@@ -61,7 +61,7 @@
                     <span class="mx-2 text-center">{{ i18n.trans('back') }}</span>
                 </button>
                 <button id="orderSaveButton" class="btn btn-success ml-auto" data-action="saveOrderAction"
-                        data-toggle="block" data-target="checkoutView" disabled="disabled">
+                        data-toggle="block" data-target="checkoutView" disabled>
                     <span class="mx-2 text-center">{{ i18n.trans('confirm') }}</span>
                     <i class="fa fa-arrow-alt-circle-right"></i>
                 </button>

@@ -24,6 +24,9 @@
         <div class="flex-1">
             <p class="text-sm uppercase font-semibold text-gray-800">{{ i18n.trans('code') }} : <%= item.code %></p>
             <p class="text-base text-gray-600"><%= item.description %></p>
+            <% if(item.detail) { %>
+                <p><%= item.detail %></p>
+            <% } %>
         </div>
         <div class="w-1/4 ml-4 flex-col items-center">
             <div class="text-sm font-semibold px-3 py-0.5 bg-gray-200 text-gray-800 rounded-full">
@@ -197,10 +200,10 @@
     <% } %>
     <% it.items.forEach(function(stock){ %>
     <tr class="bg-blue-100">
-        <td class="p-4 font-medium" >
+        <td class="p-4 font-medium">
             <%= stock.warehouse %>
         </td>
-         <td class="p-4 font-medium" >
+        <td class="p-4 font-medium">
             <%= stock.stock %> disponibles
         </td>
     </tr>
