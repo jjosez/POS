@@ -4,25 +4,20 @@
  *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
-
 <div id="productEditModal" class="modal hidden">
     <!--content-->
-    <div class="modal-content my-15">
+    <div class="modal-content" style="min-height: fit-content">
         <!--header-->
         <div class="modal-header">
             <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('edit') }}</h2>
-            <button class="btn btn-icon btn-danger ml-auto" data-toggle="modal" data-target="productEditModal">
+            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="productEditModal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
         <!--body-->
-        <div id="productDataEdit" class="modal-body max-h-3/4">
-
+        <div class="modal-body">
+            <div id="productEditForm" class="grid grid-cols-2 gap-4 items-end">
+            </div>
         </div>
-        {#<div class="modal-footer">
-            <button class="btn ml-auto bg-blue-500 hover:bg-blue-600">
-                <i class="fa fw fa-save">&nbsp;{{ i18n.trans('save') }}</i>
-            </button>
-        </div>#}
     </div>
 </div>

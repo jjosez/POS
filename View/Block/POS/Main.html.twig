@@ -11,14 +11,14 @@
 {% block body %}
     <div class="flex flex-col h-full h-screen antialiased">
         <div class="flex flex-1 overflow-auto">
-            <div id="productMainView" class="app-container products-container overflow-hidden md:w-3/5">
+            <div id="productMainView" class="app-container overflow-hidden w-full md:w-3/5">
                 {{ include('Block/POS/Navbar.html.twig') }}
                 {{ include('Block/POS/Products.html.twig') }}
             </div>
-            <div id="cartEditView" class="app-container product-edit-container hidden md:w-3/5">
+            <div id="cartEditView" class="hidden app-container md:w-3/5">
                 {{ include('Block/POS/CartEdit.html.twig') }}
             </div>
-            <div id="cartMainView" class="app-container w-full md:w-2/5">
+            <div id="cartMainView" class="hidden md:flex flex flex-col h-full w-full md:w-2/5">
                 {{ include('Block/POS/Cart.html.twig') }}
             </div>
         </div>
@@ -39,6 +39,7 @@
     {{ include('Modal/POS/LastOrders.html.twig') }}
     {{ include('Modal/POS/ProductStockDetail.html.twig') }}
     {{ include('Modal/POS/CashMovments.html.twig') }}
+    {{ include('Modal/POS/ProductEdit.html.twig') }}
 {% endblock %}
 
 {% block js %}

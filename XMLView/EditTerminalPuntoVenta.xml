@@ -48,9 +48,7 @@
     </columns>
     <rows>
         <row type="actions">
-            <button type="link" label="pos-field-options" color="light" action="EditPageOption?code=EditConfiguracionPOS"
-                    icon="fas fa-users"/>
-            <button type="link" label="pos-currency" color="light" action="ListDenominacionMoneda"
+            <button type="link" label="pos-currency" color="warning" action="ListDenominacionMoneda"
                     icon="fas fa-money-bill-alt"/>
         </row>
     </rows>

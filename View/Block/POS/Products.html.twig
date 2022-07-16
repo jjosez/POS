@@ -14,7 +14,7 @@
         {% endfor %}
     </div>
 </div> #}
-<div class="flex-1 my-4 px-4 overflow-y-auto">
+<div class="flex-1 mb-4 px-4 overflow-y-auto">
     <div id="productSearchResult" role="list">
         <div role="listitem" class="product-add-btn bg-white cursor-pointer shadow-sm rounded-lg p-4 mb-4 flex"
              data-action="setProductAction" data-code="" data-description="Producto Generico">
@@ -36,7 +36,8 @@
         </div>
         {% for element in fsc.getHomeProducts() %}
             <div role="listitem" class="product-add-btn bg-white cursor-pointer shadow-sm rounded-lg p-4 mb-4 flex"
-                 data-action="setProductAction" data-code="{{ element.code }}" data-description="{{ element.description }}">
+                 data-action="setProductAction" data-code="{{ element.code }}"
+                 data-description="{{ element.description }}">
                 <div class="mr-4 flex items-center">
                     <span>
                         <i class="fas fa-3x fa-box"></i>
@@ -59,4 +60,10 @@
             </div>
         {% endfor %}
     </div>
+</div>
+<div class="md:hidden flex flex-row p-4 h-auto select-none bg-white">
+    <button class="btn btn-primary btn-block" data-toggle="block" data-target="cartMainView" data-ontoggle="productMainView">
+        <span class="mr-auto uppercase">Carrito</span>
+        <i class="fas fa-shopping-cart fa-fw"></i>
+    </button>
 </div>

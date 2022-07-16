@@ -8,6 +8,9 @@ namespace FacturaScripts\Plugins\POS\Controller;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController;
+use FacturaScripts\Dinamic\Model\CodeModel;
+use FacturaScripts\Dinamic\Model\User;
+use FacturaScripts\Plugins\POS\Lib\PointOfSaleForms;
 
 /**
  * Controller to edit a single item from the Divisa model
@@ -16,6 +19,7 @@ use FacturaScripts\Core\Lib\ExtendedController;
  */
 class EditTerminalPuntoVenta extends ExtendedController\EditController
 {
+    public $selectedUser = '';
 
     /**
      * Returns the model name
@@ -49,6 +53,7 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
 
         $this->createPaymenthMethodView();
         $this->createDocumentTypeView();
+        $this->createTerminalFieldsView();
     }
 
     protected function createDocumentTypeView(string $viewName='EditTipoDocumentoPuntoVenta')
@@ -60,6 +65,11 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
     {
         $this->addEditListView($viewName, 'FormaPagoPuntoVenta', 'payment-methods', 'fas fa-credit-card');
         $this->views[$viewName]->disableColumn('codpago', false, 'false');
+    }
+
+    protected function createTerminalFieldsView(string $viewName = 'EditTerminalFields')
+    {
+        $this->addHtmlView($viewName, 'Master/EditTerminalFieldOption', 'TerminalPuntoVenta', 'pos-field-options', 'fas fa-users');
     }
 
     /**
@@ -81,18 +91,45 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
     protected function loadData($viewName, $view)
     {
         switch ($viewName) {
+            case 'EditTipoDocumentoPuntoVenta':
             case 'EditFormaPagoPuntoVenta':
                 $where = [new DataBaseWhere('idterminal', $this->getModel()->primaryColumnValue())];
                 $view->loadData('', $where);
                 break;
-                case 'EditTipoDocumentoPuntoVenta':
-                $where = [new DataBaseWhere('idterminal', $this->getModel()->primaryColumnValue())];
-                $view->loadData('', $where);
+
+            case 'EditTerminalFields':
                 break;
 
             default:
                 parent::loadData($viewName, $view);
                 break;
         }
+    }
+
+    protected function execAfterAction($action)
+    {
+        parent::execAfterAction($action);
+
+        $this->selectedUser = $this->request->get('nick', '');
+
+        $datas = $this->request->get('field', []);
+        //print_r(json_encode($datas));
+    }
+
+    public function getTermianlFields(): array
+    {
+        return PointOfSaleForms::getFormsGrid($this->user);
+    }
+
+    public function getUserList(): array
+    {
+        $result = [];
+        $users = CodeModel::all(User::tableName(), 'nick', 'nick', false);
+
+        foreach ($users as $codeModel) {
+            $result[$codeModel->code] = $codeModel->description;
+        }
+
+        return $result;
     }
 }

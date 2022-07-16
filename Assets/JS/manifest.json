@@ -1,0 +1,7 @@
+{
+  "name": "Facturascripts POS",
+  "short_name": "POS",
+  "description": "Aplicacion de punto de venta, para Facturascripts.",
+  "display": "standalone",
+  "orientation": "portrait"
+}

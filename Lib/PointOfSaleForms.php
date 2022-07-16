@@ -8,7 +8,6 @@ namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Base\ToolBox;
-use FacturaScripts\Dinamic\Lib\AssetManager;
 use FacturaScripts\Dinamic\Lib\Widget\VisualItemLoadEngine;
 use FacturaScripts\Dinamic\Model\PageOption;
 use FacturaScripts\Dinamic\Model\User;
@@ -28,30 +27,22 @@ class PointOfSaleForms
             'columns' => []
         ];
         $columns = self::loadPageOptions($user);
-
-        foreach (self::getColumns($columns) as $column) {
-            if ($column->hidden()) {
-                continue;
-            }
-
+        foreach (self::getColumnsData($columns) as $column) {
             $item = [
-                'data' => $column->widget->fieldname,
-                'type' => $column->widget->getType(),
-                'readonly' => ($column->widget->readonly == 'true') ? 'readonly' : ''
+                'data' => $column['fieldname'],
+                'type' => $column['type'],
+                'readonly' => ($column['readonly'] === 'true') ? 'readonly' : '',
+                'carrito' => $column['carrito']
             ];
 
             if ($item['type'] === 'number' || $item['type'] === 'money') {
                 $item['type'] = 'number';
-                $item['numericFormat'] = $column->widget->gridFormat();;
-            } else {
-                $item['type'] = 'text';
             }
 
             $data['columns'][] = $item;
-            $data['headers'][] = ToolBox::i18n()->trans($column->title);
+            $data['headers'][] = ToolBox::i18n()->trans($column['tittle']);
         }
 
-        //AssetManager::clear();
         return $data;
     }
 
@@ -60,27 +51,25 @@ class PointOfSaleForms
      * @param User|false $user
      * @return array
      */
-    private static function loadPageOptions($user)
+    private static function loadPageOptions($user): array
     {
-        $viewName = 'EditConfiguracionPOS';
+        $view = 'EditConfiguracionPOS';
         $columns = [];
-        $pageOption = new PageOption();
+        $model = new PageOption();
 
-        $orderby = ['nick' => 'ASC'];
         $where = [
-            new DataBaseWhere('name', $viewName),
+            new DataBaseWhere('name', $view),
             new DataBaseWhere('nick', $user->nick),
-            new DataBaseWhere('nick', null, 'IS', 'OR'),
+            //new DataBaseWhere('nick', null, 'IS', 'OR'),
         ];
 
-        if (!$pageOption->loadFromCode('', $where, $orderby)) {
-            VisualItemLoadEngine::installXML($viewName, $pageOption);
+        if (false === $model->loadFromCode('', $where)) {
+            VisualItemLoadEngine::installXML($view, $model);
         }
 
-        //VisualItemLoadEngine::loadArray($columns, $modals, $rows, $pageOption);
-        self::getGroupsColumns($pageOption->columns, $columns);
-
-        return $columns;
+        //VisualItemLoadEngine::loadArray($columns, $modals, $rows, $model);
+        //self::getGroupsColumns($model->columns, $columns);
+        return $model->columns;
     }
 
     /**
@@ -113,6 +102,25 @@ class PointOfSaleForms
             $groupItem = new $groupClass($newGroupArray);
             $target[$groupItem->name] = $groupItem;
         }
+    }
+
+    protected static function getColumnsData(array $columns)
+    {
+        $data = [];
+        $count = 0;
+
+        foreach ($columns as $column) {
+            $data[$count]['tittle'] = $column['name'];
+            foreach ($column['children'][0] as $key => $value) {
+                if ($key === 'tag' || $key === 'children') {
+                    continue;
+                }
+                $data[$count][$key] = $value;
+            }
+            $count++;
+        }
+
+        return $data;
     }
 
     /**

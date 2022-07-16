@@ -25,7 +25,7 @@
             <p class="text-sm uppercase font-semibold text-gray-800">{{ i18n.trans('code') }} : <%= item.code %></p>
             <p class="text-base text-gray-600"><%= item.description %></p>
             <% if(item.detail) { %>
-                <p><%= item.detail %></p>
+            <p><%= item.detail %></p>
             <% } %>
         </div>
         <div class="w-1/4 ml-4 flex-col items-center">
@@ -82,6 +82,14 @@
                 <span class="text-blue-500 uppercase">
                     {{ i18n.trans('pvp') }}: <%= value.pvpunitario %> / {{ i18n.trans('total') }}: <%= value.pvptotal %>
                 </span>
+            </div>
+            <div class="flex-none flex-col w-24 items-center self-center">
+                <label class="font-semibold">% DESC
+                <input class="pl-2 w-full h-12 rounded-lg font-medium" type="number"
+                       value="0"
+                       step=".001" data-index="<%= index %>"
+                       data-action="editProductFieldAction"
+                       data-field="descuento"></label>
             </div>
         </div>
         <div class="flex items-center">
@@ -152,12 +160,12 @@
     <% } %>
     <% it.items.forEach(function(order){ %>
     <tr class="bg-blue-100 hover:bg-yellow-200">
-        <td class="text-center"><%= order.codigo %></td>
-        <td><%= order.nombrecliente %></td>
-        <td class="text-right"><%= order.fecha %></td>
-        <td class="text-right"><%= order.hora %></td>
-        <td class="text-right"><%= order.total %></td>
-        <td>
+        <td class="px-3 text-center"><%= order.codigo %></td>
+        <td class="px-3"><%= order.nombrecliente %></td>
+        <td class="px-3 text-right whitespace-nowrap"><%= order.fecha %></td>
+        <td class="px-3 text-right whitespace-nowrap"><%= order.hora %></td>
+        <td class="px-3 text-right whitespace-nowrap"><%= order.total %></td>
+        <td class="px-3">
             <div class="flex justify-center py-1">
                 <button type="button" class="btn btn-icon btn-primary mr-2 resume-order-btn"
                         data-action="resumeOrderAction" data-code="<%= order.idpausada %>">
@@ -219,11 +227,9 @@
                     <span aria-hidden="true">×</span>
                 </button>
             </div> #}
-            <div>
-                {% for msg in messages %}
-                    <div>{{ msg.message | raw }}</div>
-                {% endfor %}
-            </div>
+            {% for msg in messages %}
+                <div>{{ msg.message | raw }}</div>
+            {% endfor %}
         </div>
     {%- endif -%}
 {% endmacro %}

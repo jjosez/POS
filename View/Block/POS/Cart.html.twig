@@ -31,13 +31,25 @@
                 <i class="fa fa-shopping-cart fa-5x text-slate-gray-300"></i>
             </div>
         </div>
-        <div class="p-4 flex flex-row h-auto select-none">
+        <div class="hidden md:flex flex-row p-4 h-auto select-none">
             <button id="orderHoldButton" class="flex-1 btn btn-warning mr-4" data-action="holdOrderAction">
                 <span class="mr-auto uppercase">Suspender</span>
                 <i class="fa fa-hourglass-start mr-2"></i>
             </button>
             <button class=" flex-1 btn btn-success" data-toggle="block" data-target="checkoutView">
                 <span class="mr-auto uppercase">{{ i18n.trans('cobrar') }}</span>
+                <i class="fa fa-calculator mr-2"></i>
+            </button>
+        </div>
+        <div class="md:hidden flex flex-row p-4 h-auto select-none">
+            <button id="orderHoldButton" class="btn btn-icon btn-danger mr-4" data-toggle="block"
+                    data-target="cartMainView" data-ontoggle="productMainView">
+                <i class="fa fa-arrow-left"></i>
+            </button>
+            <button id="orderHoldButton" class="btn btn-warning mr-4" data-action="holdOrderAction">
+                <i class="fa fa-hourglass-start"></i>
+            </button>
+            <button class=" flex-1 btn btn-success" data-toggle="block" data-target="checkoutView">
                 <i class="fa fa-calculator mr-2"></i>
             </button>
         </div>

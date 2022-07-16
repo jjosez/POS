@@ -19,7 +19,8 @@ export const alertView = () => {
 export const cartView = () => {
     return {
         'main': getElement('cartMainView'),
-        'editForm': getElement('cartEditForm'),
+        'editForm': getElement('productEditForm'),
+        //'editForm': getElement('cartEditForm'),
         'editView': getElement('cartEditView'),
         'listView': getElement('cartListView'),
         'editTemplate': getTemplate('cartEditTemplate'),
@@ -32,13 +33,17 @@ export const cartView = () => {
         'totalNet': getElement('orderTotalNet'),
         'total': getElement('orderTotal'),
         'holdButton': getElement('orderHoldButton'),
+        'productEditModal': getElement('productEditModal'),
 
         showEditView: function () {
+            toggleModal(this.productEditModal);
+        },
+        /*showEditView: function () {
             if (true === cartView().editView.classList.contains('hidden')) {
                 this.toggleEditView();
                 mainView().toggleMainView();
             }
-        },
+        },*/
 
         toggleEditView: function () {
             this.editView.classList.toggle('hidden');
@@ -266,4 +271,12 @@ document.addEventListener('click', function (event) {
         event.stopPropagation();
     }
 }, false);
+
+window.addEventListener("click", function (event) {
+    var menu = getElement('navbarMenu');
+
+    if (!menu.contains(event.target) && !menu.classList.contains('hidden')) {
+        menu.classList.add('hidden');
+    }
+})
 

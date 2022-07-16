@@ -1,6 +1,6 @@
 <div id="holdOrdersModal" class="modal hidden">
     <!--content-->
-    <div class="modal-content modal-content-lg my-15">
+    <div class="modal-content md:modal-content-lg">
         <!--header-->
         <div class="modal-header">
             <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('pos-orders-on-hold') }}</h2>
@@ -10,16 +10,16 @@
         </div>
         <!--body-->
         <div class="modal-body p-0">
-            <div class="overflow-hidden">
+            <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="bg-blue-500">
                     <tr>
-                        <th class="py-3 text-lg text-white" scope="col">{{ i18n.trans('code') }}</th>
-                        <th class="py-3 text-lg text-white" scope="col">{{ i18n.trans('customer') }}</th>
-                        <th class="py-3 text-lg text-white" scope="col">{{ i18n.trans('date') }}</th>
-                        <th class="py-3 text-lg text-white" scope="col">{{ i18n.trans('time') }}</th>
-                        <th class="py-3 text-lg text-white" scope="col">{{ i18n.trans('total') }}</th>
-                        <th class="py-3 text-lg text-white text-center" scope="col">
+                        <th class="p-3 text-lg text-white" scope="col">{{ i18n.trans('code') }}</th>
+                        <th class="p-3 text-lg text-white" scope="col">{{ i18n.trans('customer') }}</th>
+                        <th class="p-3 text-lg text-white" scope="col">{{ i18n.trans('date') }}</th>
+                        <th class="p-3 text-lg text-white" scope="col">{{ i18n.trans('time') }}</th>
+                        <th class="p-3 text-lg text-white" scope="col">{{ i18n.trans('total') }}</th>
+                        <th class="p-3 text-lg text-white text-center" scope="col">
                             <i class="fas fa-exclamation-circle fa-lg"></i>
                         </th>
                     </tr>
@@ -27,12 +27,12 @@
                     <tbody id="pausedOrdersList" class="font-semibold text-slate-gray-700">
                     {% for operation in fsc.session.getStorage().getOrdersOnHold() %}
                         <tr class="bg-blue-100 hover:bg-yellow-200">
-                            <td class="text-center">{{ operation.codigo }}</td>
-                            <td>{{ i18n.trans(operation.nombrecliente) }}</td>
-                            <td class="text-right">{{ operation.fecha }}</td>
-                            <td class="text-right">{{ operation.hora }}</td>
-                            <td class="text-right">{{ fsc.toolBox().coins().format(operation.total) }}</td>
-                            <td>
+                            <td class="px-3 text-center">{{ operation.codigo }}</td>
+                            <td class="px-3">{{ i18n.trans(operation.nombrecliente) }}</td>
+                            <td class="px-3 text-right whitespace-nowrap">{{ operation.fecha }}</td>
+                            <td class="px-3 text-right">{{ operation.hora }}</td>
+                            <td class="px-3 text-right whitespace-nowrap">{{ fsc.toolBox().coins().format(operation.total) }}</td>
+                            <td class="px-3">
                                 <div class="flex justify-center py-1">
                                     <button type="button" class="btn btn-icon btn-primary mr-2 resume-order-btn"
                                             data-action="resumeOrderAction" data-code="{{ operation.idpausada }}">

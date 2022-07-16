@@ -12,11 +12,11 @@
     }
 
     .alert-container {
-        @apply absolute bottom-0 left-0 z-auto m-4 w-1/4 space-y-2;
+        @apply absolute bottom-0 left-0 z-auto p-4 w-full md:w-1/4 space-y-2;
     }
 
     .alert {
-        @apply shadow-md p-4 rounded-md font-semibold text-white transition duration-150 ease-in-out;
+        @apply p-4 w-full shadow-md rounded-md font-semibold text-white transition duration-150 ease-in-out;
     }
 
     .alert-error {
@@ -106,7 +106,7 @@
     }
 
     .modal {
-        @apply overflow-y-auto overflow-x-hidden fixed inset-0 z-50 justify-center items-center outline-none focus:outline-none;
+        @apply py-6 overflow-y-auto overflow-x-hidden fixed inset-0 z-50 justify-center items-center outline-none focus:outline-none;
     }
 
     .modal-backdrop {
@@ -114,11 +114,15 @@
     }
 
     .modal-content {
-        @apply flex relative flex-col mx-auto my-6 w-3/5 bg-white rounded-lg border-0 min-h-1/2 max-h-4/5;
+        @apply flex relative flex-col m-auto w-10/12 md:w-3/5 bg-white rounded-lg border-0 min-h-1/2 md:max-h-4/5;
     }
 
     .modal-content-sm {
         @apply w-4/12;
+    }
+
+    .modal-content-md {
+        @apply w-3/5;
     }
 
     .modal-content-lg {
@@ -134,7 +138,7 @@
     }
 
     .modal-body {
-        @apply overflow-y-auto relative flex-auto p-5 h-4/5;
+        @apply overflow-y-auto flex-auto p-5;
     }
 
     .product-tag {

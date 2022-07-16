@@ -6,34 +6,34 @@
 <view>
     <columns>
         <column name="reference" order="100">
-            <widget type="text" fieldname="referencia" />
+            <widget type="text" fieldname="referencia" readonly="true" carrito="false"/>
         </column>
-        <column name="description" order="110">
-            <widget type="text" fieldname="descripcion" />
+        <column name="description" carrito="true" order="110">
+            <widget type="text" fieldname="descripcion" readonly="false" carrito="true"/>
         </column>
-        <column name="quantity" display="right" order="120">
-            <widget type="number" fieldname="cantidad" />
+        <column name="quantity" display="right" carrito="true" order="120">
+            <widget type="number" fieldname="cantidad" readonly="false" carrito="true"/>
         </column>
-        <column name="price" display="right" order="130">
-            <widget type="money" fieldname="pvpunitario" />
+        <column name="price" display="right" carrito="true" order="130">
+            <widget type="money" fieldname="pvpunitario" readonly="false" carrito="false"/>
         </column>
-        <column name="percentage-discount" display="right" order="140">
-            <widget type="number" fieldname="dtopor" />
+        <column name="percentage-discount" display="right" carrito="true" order="140">
+            <widget type="number" fieldname="dtopor" readonly="false" carrito="true"/>
         </column>
-        <column name="dto-2" display="none" order="150">
-            <widget type="number" fieldname="dtopor2" />
+        <column name="dto-2" display="none" carrito="true" order="150">
+            <widget type="number" fieldname="dtopor2" readonly="false" carrito="false"/>
         </column>
-        <column name="net" display="right" order="160">
-            <widget type="money" fieldname="pvptotal" readonly="true" />
+        <column name="net" display="right" carrito="true" order="160">
+            <widget type="money" fieldname="pvptotal" readonly="false" carrito="false"/>
         </column>
-        <column name="percentage-vat" display="right" order="170">
-            <widget type="number" fieldname="iva" />
+        <column name="percentage-vat" display="right" carrito="true" order="170">
+            <widget type="number" fieldname="iva" readonly="true" carrito="false"/>
         </column>
-        <column name="price-with-tax" display="right" order="180">
-            <widget type="money" fieldname="pvpunitarioiva" />
+        <column name="price-with-tax" display="right" carrito="true" order="180">
+            <widget type="money" fieldname="pvpunitarioiva" readonly="false" carrito="false"/>
         </column>
-        <column name="total" display="right" order="190">
-            <widget type="money" fieldname="pvptotaliva" readonly="true" />
+        <column name="total" display="right" carrito="true" order="190">
+            <widget type="money" fieldname="pvptotaliva" readonly="true" carrito="false"/>
         </column>
     </columns>
 </view>
