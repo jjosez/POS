@@ -98,6 +98,7 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
                 break;
 
             case 'EditTerminalFields':
+                print_r(json_encode(PointOfSaleForms::getFormsGrid($this->user)));
                 break;
 
             default:

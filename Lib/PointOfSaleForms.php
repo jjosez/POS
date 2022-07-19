@@ -20,27 +20,26 @@ class PointOfSaleForms
      * @param User $user
      * @return array
      */
-    public static function getFormsGrid(User $user)
+    public static function getFormsGrid(User $user): array
     {
         $data = [
             'headers' => [],
             'columns' => []
         ];
-        $columns = self::loadPageOptions($user);
-        foreach (self::getColumnsData($columns) as $column) {
+
+        $options  = self::loadPageOptions($user);
+
+        /** @var PointOfSaleFormColumn $column */
+        foreach (self::getColumns($options) as $tittle => $column) {
             $item = [
-                'data' => $column['fieldname'],
-                'type' => $column['type'],
-                'readonly' => ($column['readonly'] === 'true') ? 'readonly' : '',
-                'carrito' => $column['carrito']
+                'data' => $column->fieldname,
+                'type' => $column->type,
+                'readonly' => $column->readonly,
+                'carrito' => $column->onCart
             ];
 
-            if ($item['type'] === 'number' || $item['type'] === 'money') {
-                $item['type'] = 'number';
-            }
-
             $data['columns'][] = $item;
-            $data['headers'][] = ToolBox::i18n()->trans($column['tittle']);
+            $data['headers'][] = ToolBox::i18n()->trans($tittle);
         }
 
         return $data;
@@ -54,7 +53,6 @@ class PointOfSaleForms
     private static function loadPageOptions($user): array
     {
         $view = 'EditConfiguracionPOS';
-        $columns = [];
         $model = new PageOption();
 
         $where = [
@@ -67,73 +65,32 @@ class PointOfSaleForms
             VisualItemLoadEngine::installXML($view, $model);
         }
 
-        //VisualItemLoadEngine::loadArray($columns, $modals, $rows, $model);
-        //self::getGroupsColumns($model->columns, $columns);
         return $model->columns;
     }
 
-    /**
-     * Load the column structure from the JSON
-     *
-     * @param array $columns
-     * @param array $target
-     */
-    private static function getGroupsColumns($columns, &$target)
-    {
-        $namespace = '\\FacturaScripts\\Dinamic\\Lib\\Widget\\';
-        $groupClass = $namespace . 'GroupItem';
-        $newGroupArray = [
-            'children' => [],
-            'name' => 'main',
-            'tag' => 'group',
-        ];
-
-        foreach ($columns as $key => $item) {
-            if ($item['tag'] === 'group') {
-                $groupItem = new $groupClass($item);
-                $target[$groupItem->name] = $groupItem;
-            } else {
-                $newGroupArray['children'][$key] = $item;
-            }
-        }
-
-        /// is there are loose columns, then we put it on a new group
-        if (!empty($newGroupArray['children'])) {
-            $groupItem = new $groupClass($newGroupArray);
-            $target[$groupItem->name] = $groupItem;
-        }
-    }
-
-    protected static function getColumnsData(array $columns)
+    protected static function getColumns(array $elements): array
     {
         $data = [];
-        $count = 0;
 
-        foreach ($columns as $column) {
-            $data[$count]['tittle'] = $column['name'];
-            foreach ($column['children'][0] as $key => $value) {
-                if ($key === 'tag' || $key === 'children') {
-                    continue;
-                }
-                $data[$count][$key] = $value;
+        foreach ($elements as $element) {
+            if ($element['tag'] !== 'column') {
+                continue;
             }
-            $count++;
+
+            $data[$element['name']] = self::getFields($element['children']);
         }
 
         return $data;
     }
 
-    /**
-     *
-     * @param array $columns
-     * @return array
-     */
-    private static function getColumns(array $columns)
+    protected static function getFields(array $elements): PointOfSaleFormColumn
     {
-        foreach ($columns as $group) {
-            return $group->columns;
+        $fields = [];
+
+        foreach ($elements as $element) {
+            $fields = new PointOfSaleFormColumn($element);
         }
 
-        return [];
+        return $fields;
     }
 }

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+*    This file is part of POS plugin for FacturaScripts
+*    Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+*
+*    Document   : terminalespos.xml
+*    Description:
+*         Estructura de la tabla terminalespos.
+-->
+<table>
+    <column>
+        <name>showoncart</name>
+        <type>boolean</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>codalmacen</name>
+        <type>character varying(4)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>codcliente</name>
+        <type>character varying(10)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>comandoapertura</name>
+        <type>character varying(15)</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>comandocorte</name>
+        <type>character varying(15)</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>disponible</name>
+        <type>boolean</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>idterminal</name>
+        <type>serial</type>
+        <null>NO</null>
+        <default>nextval('terminalespos_idterminal_seq'::regclass)</default>
+    </column>
+    <column>
+        <name>idempresa</name>
+        <type>integer</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>nombre</name>
+        <type>character varying(100)</type>
+        <null>NO</null>
+    </column>    
+    <column>
+        <name>numerotickets</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>productsource</name>
+        <type>integer</type>
+        <default>null</default>
+    </column>
+    <constraint>
+        <name>terminalespos_pkey</name>
+        <type>PRIMARY KEY (idterminal)</type>
+    </constraint>
+    <constraint>
+        <name>ca_terminalespos_almacen</name>
+        <type>FOREIGN KEY (codalmacen) REFERENCES almacenes (codalmacen) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_terminalespos_cliente</name>
+        <type>FOREIGN KEY (codcliente) REFERENCES clientes (codcliente) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+     <constraint>
+        <name>ca_terminalespos_empresa</name>
+        <type>FOREIGN KEY (idempresa) REFERENCES empresas (idempresa) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+</table>
