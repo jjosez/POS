@@ -85,7 +85,8 @@
                 </span> #}
                 <div class="flex gap-2">
                     {% for column in columns %}
-                        {%- if column.data == 'referencia' or column.data == 'descripcion' or column.data == 'cantidad'-%}
+                        {%- if column.data == 'referencia' or column.data == 'descripcion' or column.data == 'cantidad' -%}
+                        {% elseif not column.eneabled -%}
                         {% elseif column.carrito -%}
                             <div class="flex-auto w-24 items-center self-center">
                                 <label>
@@ -100,32 +101,6 @@
                         {% endif -%}
                     {% endfor %}
                 </div>
-            </div>
-        </div>
-        <div class="flex items-center">
-            <button class="btn btn-icon btn-danger" data-action="deleteProductAction" data-index="<%= index %>">
-                <i class="fas fa-trash-alt"></i>
-            </button>
-        </div>
-    </div>
-    <div class="flex px-2 py-2 w-full select-none text-slate-gray-700 border-b-4 border-dotted border-opacity-50">
-        <div class="flex items-center">
-            <button class="btn btn-icon bg-gray-200 text-slate-800 focus:ring-gray-600"
-                    data-action="editProductAction" data-index="<%= index %>">
-                <i class="fas fa-pen-alt"></i>
-            </button>
-        </div>
-        <div class="flex w-full mx-2" data-index="<%= index %>">
-            <label class="flex items-center">
-                <input type="text" class="h-12 w-12 font-medium text-center bg-slate-gray-200 rounded-lg"
-                       value="<%= value.cantidad %>">
-            </label>
-            <div class="flex-1 mx-2">
-                <h4 class="font-semibold"><%= value.referencia %></h4>
-                <p><%= value.descripcion %></p>
-                <span class="text-blue-500 uppercase">
-                    {{ i18n.trans('pvp') }}: <%= value.pvpunitario %> / {{ i18n.trans('total') }}: <%= value.pvptotal %>
-                </span>
             </div>
         </div>
         <div class="flex items-center">
