@@ -1,4 +1,3 @@
-{% set grid = fsc.getTermianlFields() %}
 <div class="card shadow">
     <div class="card-header">
         <h1>Campos</h1>
@@ -44,7 +43,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for column in fsc.getTermianlFields() %}
+            {% for column in fsc.getTerminalFields() %}
                 <tr>
                     <td>
                         <input type="hidden" name="field[{{ column.name }}][data]" value="{{ column.data }}"/>

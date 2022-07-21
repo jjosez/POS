@@ -119,52 +119,51 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
                 break;
 
             case 'delete-fields-options':
-                $options = new OpcionesTerminalPuntoVenta();
-
-                $where = [
-                    new DataBaseWhere('idterminal', $this->getModel()->primaryColumnValue()),
-                    new DataBaseWhere('nick', $this->selectedUser),
-                ];
-
-                if ($options->loadFromCode('', $where)) {
-                    $options->delete();
-                }
+                $this->deleteFieldOptions();
                 break;
 
             default:
                 parent::execAfterAction($action);
                 break;
         }
+    }
 
+    private function deleteFieldOptions()
+    {
+        $this->selectedUser = $this->request->get('nick') ? $this->request->get('nick') : null;
+        $options = new OpcionesTerminalPuntoVenta();
 
-        //print_r(json_encode($this->getTermianlFields()));
+        $where = [
+            new DataBaseWhere('idterminal', $this->getModel()->primaryColumnValue()),
+            new DataBaseWhere('nick', $this->selectedUser),
+        ];
 
-
+        if ($options->loadFromCode('', $where) && $options->delete()) {
+            self::toolBox()::log()->notice('Configuracion de campos en el pos eliminado.');
+        }
     }
 
     private function saveFieldOptions()
     {
-        $this->selectedUser = $this->request->get('nick') ? $this->request->get('nick') : null;
         $fields = $this->request->get('field', []);
-        $terminal = $this->getModel()->primaryColumnValue();
-
+        $this->selectedUser = $this->request->get('nick') ? $this->request->get('nick') : null;
         $options = new OpcionesTerminalPuntoVenta();
 
         $where = [
-            new DataBaseWhere('idterminal', $terminal),
+            new DataBaseWhere('idterminal', $this->getModel()->primaryColumnValue()),
             new DataBaseWhere('nick', $this->selectedUser),
         ];
 
         if (false === $options->loadFromCode('', $where)) {
             $options->nick = $this->selectedUser;
-            $options->idterminal = $terminal;
+            $options->idterminal = $this->getModel()->primaryColumnValue();
         }
 
         $options->columns = json_encode($fields);
         $options->save();
     }
 
-    public function getTermianlFields(): array
+    public function getTerminalFields(): array
     {
         return PointOfSaleForms::getFormsGrid($this->selectedUser ?? '', $this->getModel()->primaryColumnValue());
     }
