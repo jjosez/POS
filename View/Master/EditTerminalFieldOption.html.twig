@@ -36,6 +36,7 @@
             <thead>
             <tr>
                 <th>Campo</th>
+                <th>Titulo</th>
                 <th>Decimales</th>
                 <th class="text-center">Disponible</th>
                 <th class="text-center">Solo lectura</th>
@@ -48,9 +49,12 @@
                     <td>
                         <input type="hidden" name="field[{{ column.name }}][data]" value="{{ column.data }}"/>
                         <input type="hidden" name="field[{{ column.name }}][name]" value="{{ column.name }}"/>
-                        <input type="hidden" name="field[{{ column.name }}][tittle]" value="{{ column.tittle }}"/>
                         <input type="hidden" name="field[{{ column.name }}][type]" value="{{ column.type }}"/>
-                        {{ column.tittle }}</td>
+                        {{ i18n.trans(column.name) }}</td>
+                    <td>
+                        <input class="form-control" type="text" name="field[{{ column.name }}][tittle]"
+                               value="{{ column.tittle ?: i18n.trans(column.name) }}">
+                    </td>
                     <td>
                         {% if column.type == 'number' %}
                             <input type="number" name="field[{{ column.name }}][decimales]" min="0" max="7" step="1"

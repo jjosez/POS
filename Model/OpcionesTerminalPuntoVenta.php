@@ -13,6 +13,13 @@ class OpcionesTerminalPuntoVenta extends Base\ModelClass
     public $columns;
     public $nick;
 
+    public function clear()
+    {
+        parent::clear();
+        $this->idterminal = null;
+        $this->nick = null;
+    }
+
     /**
      * @return array|mixed
      */

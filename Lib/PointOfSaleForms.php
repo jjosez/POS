@@ -14,7 +14,7 @@ use FacturaScripts\Plugins\POS\Model\OpcionesTerminalPuntoVenta;
 
 class PointOfSaleForms
 {
-    const FIELD_OPTIONS_VIEW = 'EditConfiguracionPOS';
+    const FIELD_OPTIONS_VIEW = 'EditTerminalFieldOption';
 
     private static $options = [];
 
@@ -22,12 +22,11 @@ class PointOfSaleForms
      * Returns the columns available by user acces.
      *
      * @param string $nick
-     * @param string $terminal
      * @return array
      */
-    public static function getFormsGrid(string $nick, string $terminal): array
+    public static function getFormsGrid(string $nick): array
     {
-        if (self::getUserFieldOptions($nick, $terminal) || self::getTerminalFieldOptions($terminal)) {
+        if (self::getUserFieldOptions($nick) || self::getAllUsersFieldOptions()) {
             $fields = [];
 
             foreach (self::$options as $column) {
@@ -69,13 +68,12 @@ class PointOfSaleForms
         return $fields;
     }
 
-    protected static function getTerminalFieldOptions(string $terminal): bool
+    protected static function getAllUsersFieldOptions(): bool
     {
-        // 'Buscando campos terminal: ' . $terminal;
+        // 'Buscando campos terminal: ';
         $options = new OpcionesTerminalPuntoVenta();
 
         $where = [
-            new DataBaseWhere('idterminal', $terminal),
             new DataBaseWhere('nick', NULL),
         ];
 
@@ -87,13 +85,12 @@ class PointOfSaleForms
         return false;
     }
 
-    protected static function getUserFieldOptions(string $nick, string $terminal): bool
+    protected static function getUserFieldOptions(string $nick): bool
     {
-        // 'Buscando campos usuario: ' . $nick . ' terminal: ' . $terminal;
+        // 'Buscando campos usuario: ' . $nick;
         $options = new OpcionesTerminalPuntoVenta();
 
         $where = [
-            new DataBaseWhere('idterminal', $terminal),
             new DataBaseWhere('nick', $nick),
         ];
 

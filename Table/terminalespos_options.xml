@@ -20,7 +20,7 @@
     <column>
         <name>idterminal</name>
         <type>integer</type>
-        <null>NO</null>
+        <null>YES</null>
     </column>
     <column>
         <name>nick</name>

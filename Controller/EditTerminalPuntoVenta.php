@@ -130,11 +130,10 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
 
     private function deleteFieldOptions()
     {
-        $this->selectedUser = $this->request->get('nick') ? $this->request->get('nick') : null;
+        $this->selectedUser = $this->request->get('nick') ?: null;
         $options = new OpcionesTerminalPuntoVenta();
 
         $where = [
-            new DataBaseWhere('idterminal', $this->getModel()->primaryColumnValue()),
             new DataBaseWhere('nick', $this->selectedUser),
         ];
 
@@ -146,17 +145,15 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
     private function saveFieldOptions()
     {
         $fields = $this->request->get('field', []);
-        $this->selectedUser = $this->request->get('nick') ? $this->request->get('nick') : null;
+        $this->selectedUser = $this->request->get('nick') ?: null;
         $options = new OpcionesTerminalPuntoVenta();
 
         $where = [
-            new DataBaseWhere('idterminal', $this->getModel()->primaryColumnValue()),
-            new DataBaseWhere('nick', $this->selectedUser),
+            new DataBaseWhere('nick', $this->selectedUser)
         ];
 
         if (false === $options->loadFromCode('', $where)) {
             $options->nick = $this->selectedUser;
-            $options->idterminal = $this->getModel()->primaryColumnValue();
         }
 
         $options->columns = json_encode($fields);
@@ -165,7 +162,7 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
 
     public function getTerminalFields(): array
     {
-        return PointOfSaleForms::getFormsGrid($this->selectedUser ?? '', $this->getModel()->primaryColumnValue());
+        return PointOfSaleForms::getFormsGrid($this->selectedUser ?? '');
     }
 
     public function getUserList(): array

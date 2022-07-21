@@ -70,7 +70,7 @@ trait PointOfSaleTrait
      */
     public function getFieldOptions(): array
     {
-        return PointOfSaleForms::getFormsGrid($this->user->nick, $this->getTerminal()->idterminal);
+        return PointOfSaleForms::getFormsGrid($this->user->nick);
     }
 
     /**

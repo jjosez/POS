@@ -57,13 +57,57 @@
     <% }) %>
 {% endmacro %}
 
-{% macro cartTemplate(i18n) %}
+{% macro cartTemplate(i18n, columns) %}
     <% if(it.lines.length === 0) { %>
     <div class="h-full flex justify-center items-center">
         <i class="fa fa-shopping-cart fa-5x text-slate-gray-300"></i>
     </div>
     <% } %>
     <% it.lines.forEach(function(value, index) { %>
+    <div class="flex px-2 py-2 w-full select-none text-slate-gray-700 border-b-4 border-dotted border-opacity-50">
+        <div class="flex items-center">
+            <button class="btn btn-icon bg-gray-200 text-slate-800 focus:ring-gray-600"
+                    data-action="editProductAction" data-index="<%= index %>">
+                <i class="fas fa-pen-alt"></i>
+            </button>
+        </div>
+        <div class="flex w-full mx-2">
+            <label class="flex items-center">
+                <input class="h-12 w-12 font-medium text-center bg-slate-gray-200 rounded-lg" type="number"
+                       data-action="editProductFieldAction" data-field="cantidad" data-index="<%= index %>"
+                       value="<%= value.cantidad %>">
+            </label>
+            <div class="flex-1 mx-2">
+                <h4 class="font-semibold"><%= value.referencia %></h4>
+                <p><%= value.descripcion %></p>
+                {# <span class="text-blue-500 uppercase">
+                    {{ i18n.trans('pvp') }}: <%= value.pvpunitario %> / {{ i18n.trans('total') }}: <%= value.pvptotal %>
+                </span> #}
+                <div class="flex gap-2">
+                    {% for column in columns %}
+                        {%- if column.data == 'referencia' or column.data == 'descripcion' or column.data == 'cantidad'-%}
+                        {% elseif column.carrito -%}
+                            <div class="flex-auto w-24 items-center self-center">
+                                <label>
+                                    <span class="font-semibold text-sm">{{ column.tittle }}</span>
+                                    <input class="p-2 w-full rounded-lg border-2 focus:outline-none focus:border-blue-500"
+                                           type="{{ column.type }}" value="<%= value.{{ column.data }} %>"
+                                           step=".001" data-index="<%= index %>"
+                                           data-action="editProductFieldAction"
+                                           data-field="{{ column.data }}" {% if column.readonly %} readonly {% endif %}>
+                                </label>
+                            </div>
+                        {% endif -%}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center">
+            <button class="btn btn-icon btn-danger" data-action="deleteProductAction" data-index="<%= index %>">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+    </div>
     <div class="flex px-2 py-2 w-full select-none text-slate-gray-700 border-b-4 border-dotted border-opacity-50">
         <div class="flex items-center">
             <button class="btn btn-icon bg-gray-200 text-slate-800 focus:ring-gray-600"
@@ -82,14 +126,6 @@
                 <span class="text-blue-500 uppercase">
                     {{ i18n.trans('pvp') }}: <%= value.pvpunitario %> / {{ i18n.trans('total') }}: <%= value.pvptotal %>
                 </span>
-            </div>
-            <div class="flex-none flex-col w-24 items-center self-center">
-                <label class="font-semibold">% DESC
-                    <input class="pl-2 w-full h-12 rounded-lg font-medium" type="number"
-                           value="0"
-                           step=".001" data-index="<%= index %>"
-                           data-action="editProductFieldAction"
-                           data-field="descuento"></label>
             </div>
         </div>
         <div class="flex items-center">
