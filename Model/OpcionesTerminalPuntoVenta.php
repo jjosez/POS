@@ -4,18 +4,22 @@ namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Model\Base;
 
-class AjustePuntoVenta extends Base\ModelClass
+class OpcionesTerminalPuntoVenta extends Base\ModelClass
 {
     use Base\ModelTrait;
 
     public $id;
     public $idterminal;
-    public $decimals;
-    public $fieldcode;
+    public $columns;
     public $nick;
-    public $readonly;
-    public $type;
-    public $tittle;
+
+    /**
+     * @return array|mixed
+     */
+    public function getColumnsAsArray(): array
+    {
+        return json_decode($this->columns, true) ?? [];
+    }
 
     public static function primaryColumn(): string
     {
@@ -24,6 +28,6 @@ class AjustePuntoVenta extends Base\ModelClass
 
     public static function tableName(): string
     {
-        return 'camposterminalspos';
+        return 'terminalespos_options';
     }
 }

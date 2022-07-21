@@ -5,7 +5,7 @@
     </div>
     <div class="card-body">
         <form method="post">
-            <input type="hidden" name="action" value="loadUserFields">
+            <input type="hidden" name="action" value="load-fields-options">
             <input type="hidden" name="activetab" value="{{ fsc.getCurrentView().getViewName() }}">
             <div class="row">
                 <div class="col">
@@ -31,51 +31,68 @@
         </form>
     </div>
     <form method="post" name="fields">
-        <input type="hidden" name="action" value="">
         <input type="hidden" name="nick" value="{{ fsc.selectedUser }}"/>
+        <input type="hidden" name="activetab" value="{{ fsc.getCurrentView().getViewName() }}">
         <table class="table">
             <thead>
             <tr>
                 <th>Campo</th>
                 <th>Decimales</th>
+                <th class="text-center">Disponible</th>
                 <th class="text-center">Solo lectura</th>
-                <th class="text-center">Mostrar en carrito</th>
+                <th class="text-center">Ver en carrito</th>
             </tr>
             </thead>
             <tbody>
-            {% for column in grid.columns %}
+            {% for column in fsc.getTermianlFields() %}
                 <tr>
                     <td>
-                        <input type="hidden" name="field[{{ column.data }}][type]" value="{{ column.type }}"/>
-                        {{ grid.headers[loop.index0] }}</td>
+                        <input type="hidden" name="field[{{ column.name }}][data]" value="{{ column.data }}"/>
+                        <input type="hidden" name="field[{{ column.name }}][name]" value="{{ column.name }}"/>
+                        <input type="hidden" name="field[{{ column.name }}][tittle]" value="{{ column.tittle }}"/>
+                        <input type="hidden" name="field[{{ column.name }}][type]" value="{{ column.type }}"/>
+                        {{ column.tittle }}</td>
                     <td>
                         {% if column.type == 'number' %}
-                            <input type="number" name="field[{{ column.data }}][decimales]" min="0" max="7" step="1"
+                            <input type="number" name="field[{{ column.name }}][decimales]" min="0" max="7" step="1"
                                    value="2"
                                    class="form-control">
                         {% endif %}
                     </td>
                     <td class="text-center">
                         <div class="form-check form-check-inline mb-2 mr-sm-2 mb-sm-0">
-                            <input class="form-check-input" type="checkbox" name="field[{{ column.data }}][readonly]"
-                                   value="1" {% if column.readonly == 'readonly'  %} checked {% endif %}>
+                            <input class="form-check-input" type="checkbox" name="field[{{ column.name }}][eneabled]"
+                                   value="1" {% if column.eneabled %} checked {% endif %}>
                         </div>
                     </td>
                     <td class="text-center">
                         <div class="form-check form-check-inline mb-2 mr-sm-2 mb-sm-0">
-                            <input class="form-check-input" type="checkbox" name="field[{{ column.data }}][carrito]"
-                                   value="1" {% if column.carrito == 'true'  %} checked {% endif %}>
+                            <input class="form-check-input" type="checkbox" name="field[{{ column.name }}][readonly]"
+                                   value="1" {% if column.readonly %} checked {% endif %}>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <div class="form-check form-check-inline mb-2 mr-sm-2 mb-sm-0">
+                            <input class="form-check-input" type="checkbox" name="field[{{ column.name }}][carrito]"
+                                   value="1" {% if column.carrito %} checked {% endif %}>
                         </div>
                     </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
-        <div class="col">
-            <div class="mt-4">
-                <button class="btn btn-sm btn-primary" type="submit">
-                    <i class="fas fa-save fa-fw" aria-hidden="true"></i> {{ i18n.trans('save') }}
-                </button>
+        <div class="card-body">
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-sm btn-danger" type="submit" name="action" value="delete-fields-options">
+                        <i class="fas fa-trash-alt fa-fw" aria-hidden="true"></i> {{ i18n.trans('delete') }}
+                    </button>
+                </div>
+                <div class="col text-right">
+                    <button class="btn btn-sm btn-primary" type="submit" name="action" value="save-fields-options">
+                        <i class="fas fa-save fa-fw" aria-hidden="true"></i> {{ i18n.trans('save') }}
+                    </button>
+                </div>
             </div>
         </div>
     </form>

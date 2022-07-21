@@ -10,7 +10,7 @@ class PointOfSaleFormColumn
     public $fieldname;
 
     /**
-     * @var string
+     * @var bool
      */
     public $readonly;
 
@@ -30,20 +30,31 @@ class PointOfSaleFormColumn
     public $onCart;
 
     /**
+     * @var bool
+     */
+    public $eneabled;
+    /**
+     * @var string
+     */
+    public $name;
+
+    /**
      * @param array $data
      */
-    public function __construct($data)
+    public function __construct(array $data, string $name)
     {
+        $this->name = $name;
         $this->fieldname = $data['fieldname'];
         $this->readonly = $this->getBoolValue($data, 'readonly');
+        $this->eneabled = $this->getBoolValue($data, 'eneabled');
         $this->decimals = $this->getIntValue($data, 'decimals');
         $this->type = $this->getType($data);
-        $this->onCart = $this->getBoolValue($data, 'cart');
+        $this->onCart = $this->getBoolValue($data, 'carrito');
     }
 
     private function getBoolValue($fields, $key)
     {
-        return isset($fields[$key]) && ($fields[$key] === 1);
+        return isset($fields[$key]) && filter_var($fields[$key], FILTER_VALIDATE_BOOLEAN);
     }
 
     private function getIntValue($fields, $key)
@@ -53,7 +64,7 @@ class PointOfSaleFormColumn
 
     private function getType($fields)
     {
-        if ($fields['type'] === 'number' || $fields['type'] === 'money') {
+        if (in_array($fields['type'], ['number', 'money', 'percentage'])) {
             return 'number';
         }
 

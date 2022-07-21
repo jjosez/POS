@@ -64,13 +64,13 @@ trait PointOfSaleTrait
     }
 
     /**
-     * Returns headers and columns available by user permissions.
+     * Returns fields available by user permissions.
      *
      * @return array
      */
-    public function getFormHeaders(): array
+    public function getFieldOptions(): array
     {
-        return PointOfSaleForms::getFormsGrid($this->user);
+        return PointOfSaleForms::getFormsGrid($this->user->nick, $this->getTerminal()->idterminal);
     }
 
     /**

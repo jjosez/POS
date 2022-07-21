@@ -11,6 +11,7 @@ use FacturaScripts\Core\Lib\ExtendedController;
 use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleForms;
+use FacturaScripts\Plugins\POS\Model\OpcionesTerminalPuntoVenta;
 
 /**
  * Controller to edit a single item from the Divisa model
@@ -19,7 +20,7 @@ use FacturaScripts\Plugins\POS\Lib\PointOfSaleForms;
  */
 class EditTerminalPuntoVenta extends ExtendedController\EditController
 {
-    public $selectedUser = '';
+    public $selectedUser = 'all';
 
     /**
      * Returns the model name
@@ -56,7 +57,7 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
         $this->createTerminalFieldsView();
     }
 
-    protected function createDocumentTypeView(string $viewName='EditTipoDocumentoPuntoVenta')
+    protected function createDocumentTypeView(string $viewName = 'EditTipoDocumentoPuntoVenta')
     {
         $this->addEditListView($viewName, 'TipoDocumentoPuntoVenta', 'doc-type', 'fas fa-file-invoice');
     }
@@ -98,7 +99,7 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
                 break;
 
             case 'EditTerminalFields':
-                print_r(json_encode(PointOfSaleForms::getFormsGrid($this->user)));
+
                 break;
 
             default:
@@ -109,17 +110,63 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
 
     protected function execAfterAction($action)
     {
-        parent::execAfterAction($action);
+        switch ($action) {
+            case 'load-fields-options':
+                $this->selectedUser = $this->request->get('nick');
+                break;
+            case 'save-fields-options':
+                $this->saveFieldOptions();
+                break;
 
-        $this->selectedUser = $this->request->get('nick', '');
+            case 'delete-fields-options':
+                $options = new OpcionesTerminalPuntoVenta();
 
-        $datas = $this->request->get('field', []);
-        //print_r(json_encode($datas));
+                $where = [
+                    new DataBaseWhere('idterminal', $this->getModel()->primaryColumnValue()),
+                    new DataBaseWhere('nick', $this->selectedUser),
+                ];
+
+                if ($options->loadFromCode('', $where)) {
+                    $options->delete();
+                }
+                break;
+
+            default:
+                parent::execAfterAction($action);
+                break;
+        }
+
+
+        //print_r(json_encode($this->getTermianlFields()));
+
+
+    }
+
+    private function saveFieldOptions()
+    {
+        $this->selectedUser = $this->request->get('nick') ? $this->request->get('nick') : null;
+        $fields = $this->request->get('field', []);
+        $terminal = $this->getModel()->primaryColumnValue();
+
+        $options = new OpcionesTerminalPuntoVenta();
+
+        $where = [
+            new DataBaseWhere('idterminal', $terminal),
+            new DataBaseWhere('nick', $this->selectedUser),
+        ];
+
+        if (false === $options->loadFromCode('', $where)) {
+            $options->nick = $this->selectedUser;
+            $options->idterminal = $terminal;
+        }
+
+        $options->columns = json_encode($fields);
+        $options->save();
     }
 
     public function getTermianlFields(): array
     {
-        return PointOfSaleForms::getFormsGrid($this->user);
+        return PointOfSaleForms::getFormsGrid($this->selectedUser ?? '', $this->getModel()->primaryColumnValue());
     }
 
     public function getUserList(): array

@@ -10,62 +10,99 @@ use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Dinamic\Lib\Widget\VisualItemLoadEngine;
 use FacturaScripts\Dinamic\Model\PageOption;
-use FacturaScripts\Dinamic\Model\User;
+use FacturaScripts\Plugins\POS\Model\OpcionesTerminalPuntoVenta;
 
 class PointOfSaleForms
 {
+    const FIELD_OPTIONS_VIEW = 'EditConfiguracionPOS';
+
+    private static $options = [];
+
     /**
      * Returns the columns available by user acces.
      *
-     * @param User $user
+     * @param string $nick
+     * @param string $terminal
      * @return array
      */
-    public static function getFormsGrid(User $user): array
+    public static function getFormsGrid(string $nick, string $terminal): array
     {
-        $data = [
-            'headers' => [],
-            'columns' => []
-        ];
+        if (self::getUserFieldOptions($nick, $terminal) || self::getTerminalFieldOptions($terminal)) {
+            $fields = [];
 
-        $options  = self::loadPageOptions($user);
+            foreach (self::$options as $column) {
+                $fields[] = $column;
+            }
 
-        /** @var PointOfSaleFormColumn $column */
-        foreach (self::getColumns($options) as $tittle => $column) {
-            $item = [
-                'data' => $column->fieldname,
-                'type' => $column->type,
-                'readonly' => $column->readonly,
-                'carrito' => $column->onCart
-            ];
-
-            $data['columns'][] = $item;
-            $data['headers'][] = ToolBox::i18n()->trans($tittle);
+            return $fields;
         }
 
-        return $data;
+        return self::getDefaultFieldOptions();
     }
 
     /**
      *
-     * @param User|false $user
      * @return array
      */
-    private static function loadPageOptions($user): array
+    private static function getDefaultFieldOptions(): array
     {
-        $view = 'EditConfiguracionPOS';
         $model = new PageOption();
+        $fields = [];
 
-        $where = [
-            new DataBaseWhere('name', $view),
-            new DataBaseWhere('nick', $user->nick),
-            //new DataBaseWhere('nick', null, 'IS', 'OR'),
-        ];
+        VisualItemLoadEngine::installXML(self::FIELD_OPTIONS_VIEW, $model);
 
-        if (false === $model->loadFromCode('', $where)) {
-            VisualItemLoadEngine::installXML($view, $model);
+        /** @var PointOfSaleFormColumn $column */
+        foreach (self::getColumns($model->columns) as $column) {
+            $item = [
+                'name' => $column->name,
+                'data' => $column->fieldname,
+                'type' => $column->type,
+                'readonly' => $column->readonly,
+                'carrito' => $column->onCart,
+                'eneabled' => $column->eneabled,
+                'tittle' => ToolBox::i18n()->trans($column->name),
+            ];
+
+            $fields[] = $item;
         }
 
-        return $model->columns;
+        return $fields;
+    }
+
+    protected static function getTerminalFieldOptions(string $terminal): bool
+    {
+        // 'Buscando campos terminal: ' . $terminal;
+        $options = new OpcionesTerminalPuntoVenta();
+
+        $where = [
+            new DataBaseWhere('idterminal', $terminal),
+            new DataBaseWhere('nick', NULL),
+        ];
+
+        if ($options->loadFromCode('', $where)) {
+            self::$options = $options->getColumnsAsArray();
+            return true;
+        }
+
+        return false;
+    }
+
+    protected static function getUserFieldOptions(string $nick, string $terminal): bool
+    {
+        // 'Buscando campos usuario: ' . $nick . ' terminal: ' . $terminal;
+        $options = new OpcionesTerminalPuntoVenta();
+
+        $where = [
+            new DataBaseWhere('idterminal', $terminal),
+            new DataBaseWhere('nick', $nick),
+        ];
+
+        if ($options->loadFromCode('', $where)) {
+            self::$options = $options->getColumnsAsArray();
+            return true;
+        }
+
+        return false;
     }
 
     protected static function getColumns(array $elements): array
@@ -77,18 +114,18 @@ class PointOfSaleForms
                 continue;
             }
 
-            $data[$element['name']] = self::getFields($element['children']);
+            $data[] = self::getFields($element['children'], $element['name']);
         }
 
         return $data;
     }
 
-    protected static function getFields(array $elements): PointOfSaleFormColumn
+    protected static function getFields(array $elements, string $name): PointOfSaleFormColumn
     {
         $fields = [];
 
         foreach ($elements as $element) {
-            $fields = new PointOfSaleFormColumn($element);
+            $fields = new PointOfSaleFormColumn($element, $name);
         }
 
         return $fields;

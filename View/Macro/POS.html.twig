@@ -85,11 +85,11 @@
             </div>
             <div class="flex-none flex-col w-24 items-center self-center">
                 <label class="font-semibold">% DESC
-                <input class="pl-2 w-full h-12 rounded-lg font-medium" type="number"
-                       value="0"
-                       step=".001" data-index="<%= index %>"
-                       data-action="editProductFieldAction"
-                       data-field="descuento"></label>
+                    <input class="pl-2 w-full h-12 rounded-lg font-medium" type="number"
+                           value="0"
+                           step=".001" data-index="<%= index %>"
+                           data-action="editProductFieldAction"
+                           data-field="descuento"></label>
             </div>
         </div>
         <div class="flex items-center">
@@ -121,30 +121,31 @@
     <% }) %>
 {% endmacro %}
 
-{% macro productEditTemplate(headers, columns) %}
+{% macro productEditTemplate(columns) %}
     {% for column in columns %}
         {%- if column.data == 'referencia' -%}
             <div class="form-group col-span-2">
-                <label class="font-semibold uppercase">{{ headers[loop.index0] }}</label>
+                <label class="font-semibold uppercase">{{ column.tittle }}</label>
                 <input type="{{ column.type }}" class="form-control" value="<%= it.referencia %>"
                        data-action="editProductFieldAction" data-index="<%= it.index %>" data-field="{{ column.data }}"
                        readonly>
             </div>
         {%- elseif column.data == 'descripcion' %}
             <div class="form-group col-span-2">
-                <label class=" font-semibold uppercase">{{ headers[loop.index0] }}</label>
+                <label class=" font-semibold uppercase">{{ column.tittle }}</label>
                 <textarea class="form-control" rows="3" data-action="editProductFieldAction"
-                          data-index="<%= it.index %>" data-field="{{ column.data }}" {{ column.readonly }}><%= it.descripcion %>
+                          data-index="<%= it.index %>" data-field="{{ column.data }}"
+                        {% if column.readonly %} readonly {% endif %}><%= it.descripcion %>
                 </textarea>
             </div>
-        {% else -%}
+        {% elseif column.eneabled -%}
             <div class="form-group">
-                <label class="font-semibold uppercase">{{ headers[loop.index0] }}</label>
+                <label class="font-semibold uppercase">{{ column.tittle }}</label>
                 <input class="form-control" type="{{ column.type }}"
                        value="<%= it.{{ column.data }} %>"
                        step=".001" data-index="<%= it.index %>"
                        data-action="editProductFieldAction"
-                       data-field="{{ column.data }}" {{ column.readonly }}>
+                       data-field="{{ column.data }}" {% if column.readonly %} readonly {% endif %}>
             </div>
         {% endif -%}
     {% endfor %}
