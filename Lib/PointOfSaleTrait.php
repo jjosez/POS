@@ -10,6 +10,8 @@ use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
+use FacturaScripts\Plugins\POS\Model\TipoDocumentoPuntoVenta;
+use phpDocumentor\Reflection\Types\Expression;
 
 trait PointOfSaleTrait
 {
@@ -43,14 +45,14 @@ trait PointOfSaleTrait
     }
 
     /**
-     * @return string
+     * @return TipoDocumentoPuntoVenta
      */
-    public function getDefaultDocument(): string
+    public function getDefaultDocument(): TipoDocumentoPuntoVenta
     {
         foreach ($this->getTerminal()->getDocumentTypes() as $element) if ($element->preferido) {
-            return $element->tipodoc;
+            return $element;
         }
-        return 'FacturaCliente';
+        return new TipoDocumentoPuntoVenta();
     }
 
     /**
@@ -272,7 +274,7 @@ trait PointOfSaleTrait
         }
 
         $defaultDocument = $this->getDefaultDocument();
-        if ($defaultDocument === null || trim($defaultDocument) === '') {
+        if ($defaultDocument->tipodoc === false) {
             $this->toolBox()->Log('POS')->warning('No se configuro el documento predefinido.');
             $result = false;
         }

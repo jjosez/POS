@@ -44,8 +44,8 @@
         <type>PRIMARY KEY (id)</type>
     </constraint>
     <constraint>
-        <name>uniq_tipodoc_idterminal</name>
-        <type>UNIQUE (tipodoc, idterminal)</type>
+        <name>uniq_serie_tipodoc_idterminal</name>
+        <type>UNIQUE (codserie, tipodoc, idterminal)</type>
     </constraint>
     <constraint>
         <name>ca_tiposdocpos_terminales</name>

@@ -37,8 +37,9 @@ class CartClass {
         this.updateCartEvent();
     }
 
-    setDocumentType(documentType) {
-        this.doc['tipo-documento'] = documentType;
+    setDocumentType(code, serie) {
+        this.doc['tipo-documento'] = code;
+        this.doc['codserie'] = serie;
         this.updateCartEvent();
     }
 

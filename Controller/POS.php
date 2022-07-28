@@ -331,7 +331,13 @@ class POS extends Controller
 
         $this->dataBase->beginTransaction();
 
-        if (false === $this->getStorage()->saveOrder($order)) {
+        if (false === $order->save()) {
+            $this->dataBase->rollback();
+            $this->buildResponse();
+            return;
+        }
+
+        if (false === $this->getStorage()->saveOrder($order->getDocument())) {
             $this->dataBase->rollback();
             $this->buildResponse();
             return;
@@ -341,6 +347,7 @@ class POS extends Controller
 
         $this->savePayments($order->getPayments());
         $this->printVoucher($order->getDocument());
+        $order->getDocument()->save();
         $this->lastOrder = $order;
         $this->buildResponse();
     }

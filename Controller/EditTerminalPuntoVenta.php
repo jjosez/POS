@@ -20,7 +20,7 @@ use FacturaScripts\Plugins\POS\Model\OpcionesTerminalPuntoVenta;
  */
 class EditTerminalPuntoVenta extends ExtendedController\EditController
 {
-    public $selectedUser = 'all';
+    public $selectedUser = '';
 
     /**
      * Returns the model name

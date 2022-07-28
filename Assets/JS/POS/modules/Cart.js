@@ -4,6 +4,7 @@ import CartClass from "../model/CartClass.js";
 
 const Cart = new CartClass({
     'doc': {
+        'codserie': settings.serie,
         'codalmacen': settings.warehouse,
         'codcliente': settings.customer,
         'idpausada': 'false',
@@ -60,11 +61,11 @@ function setCustomerAction({code, description}) {
 /**
  * @param {{code:string|null, description:string}} data
  */
-function setDocumentAction({code, description}) {
+function setDocumentAction({code, serie, description}) {
     if (typeof code === 'undefined' || code === null) {
         return;
     }
-    Cart.setDocumentType(code);
+    Cart.setDocumentType(code, serie);
     mainView().updateDocument(description);
 }
 

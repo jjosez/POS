@@ -20,7 +20,6 @@ export const cartView = () => {
     return {
         'main': getElement('cartMainView'),
         'editForm': getElement('productEditForm'),
-        //'editForm': getElement('cartEditForm'),
         'editView': getElement('cartEditView'),
         'listView': getElement('cartListView'),
         'editTemplate': getTemplate('cartEditTemplate'),
@@ -38,12 +37,6 @@ export const cartView = () => {
         showEditView: function () {
             toggleModal(this.productEditModal);
         },
-        /*showEditView: function () {
-            if (true === cartView().editView.classList.contains('hidden')) {
-                this.toggleEditView();
-                mainView().toggleMainView();
-            }
-        },*/
 
         toggleEditView: function () {
             this.editView.classList.toggle('hidden');

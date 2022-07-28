@@ -71,6 +71,10 @@
         @apply bg-yellow-500 focus:ring-yellow-600;
     }
 
+    .btn-light {
+        @apply text-slate-800 bg-gray-200 focus:ring-gray-600;
+    }
+
     .input-icon {
         @apply relative flex-grow;
     }
@@ -106,7 +110,7 @@
     }
 
     .modal {
-        @apply py-6 overflow-y-auto overflow-x-hidden fixed inset-0 z-50 justify-center items-center outline-none focus:outline-none;
+        @apply overflow-y-auto overflow-x-hidden fixed inset-0 z-50 justify-center items-center outline-none focus:outline-none;
     }
 
     .modal-backdrop {
@@ -114,7 +118,9 @@
     }
 
     .modal-content {
-        @apply flex relative flex-col m-auto w-10/12 md:w-3/5 bg-white rounded-lg border-0 min-h-1/2 md:max-h-4/5;
+        @apply flex relative flex-col m-auto md:w-3/5 md:max-w-lg min-h-1/2 md:max-h-4/5 bg-white rounded-lg border-0;
+        max-height: calc(100% - 3.5rem);
+        max-width: calc(100% - 3.5rem);
     }
 
     .modal-content-sm {

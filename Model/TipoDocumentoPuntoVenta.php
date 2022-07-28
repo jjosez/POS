@@ -22,6 +22,13 @@ class TipoDocumentoPuntoVenta extends Base\ModelClass
     public $preferido;
     public $tipodoc;
 
+    public function clear()
+    {
+        parent::clear();
+        $this->tipodoc = false;
+        $this->preferido = false;
+    }
+
     public static function primaryColumn(): string
     {
         return 'id';

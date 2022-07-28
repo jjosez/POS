@@ -13,7 +13,9 @@
         <button id="documentTypeButton" class="btn bg-gray-200 text-slate-800 focus:ring-gray-600 w-full"
                 data-toggle="modal" data-target="documentTypeModal">
             <i class="fa fa-file-invoice"></i>
-            <span id="documentTypeLabel" class="mx-2">{{ i18n.trans(fsc.getDefaultDocument()) }}</span>
+            <span id="documentTypeLabel" class="mx-2">
+                {{ fsc.getDefaultDocument().descripcion ?: i18n.trans(fsc.getDefaultDocument().tipodoc) }}
+            </span>
             <i class="ml-auto fa fa-ellipsis-v"></i>
         </button>
     </div>
@@ -33,24 +35,26 @@
         </div>
         <div class="hidden md:flex flex-row p-4 h-auto select-none">
             <button id="orderHoldButton" class="flex-1 btn btn-warning mr-4" data-action="holdOrderAction">
-                <span class="mr-auto uppercase">Suspender</span>
+                <span class="mr-auto">{{ i18n.trans('hold') }}</span>
                 <i class="fa fa-hourglass-start mr-2"></i>
             </button>
             <button class=" flex-1 btn btn-success" data-toggle="block" data-target="checkoutView">
-                <span class="mr-auto uppercase">{{ i18n.trans('cobrar') }}</span>
+                <span class="mr-auto">{{ i18n.trans('charge') }}</span>
                 <i class="fa fa-calculator mr-2"></i>
             </button>
         </div>
-        <div class="md:hidden flex flex-row p-4 h-auto select-none">
-            <button id="orderHoldButton" class="btn btn-icon btn-danger mr-4" data-toggle="block"
+        <div class="md:hidden flex flex-row p-4 gap-4 h-auto select-none">
+            <button class="btn btn-icon btn-light" data-toggle="block"
                     data-target="cartMainView" data-ontoggle="productMainView">
                 <i class="fa fa-arrow-left"></i>
             </button>
-            <button id="orderHoldButton" class="btn btn-warning mr-4" data-action="holdOrderAction">
-                <i class="fa fa-hourglass-start"></i>
+            <button class="flex-1 btn btn-warning" data-action="holdOrderAction">
+                <i class="fa fa-hourglass-start mr-2"></i>
+                <span class="mr-auto">{{ i18n.trans('hold') }}</span>
             </button>
-            <button class=" flex-1 btn btn-success" data-toggle="block" data-target="checkoutView">
+            <button class="flex-1 btn btn-success" data-toggle="block" data-target="checkoutView">
                 <i class="fa fa-calculator mr-2"></i>
+                <span class="mr-auto">{{ i18n.trans('charge') }}</span>
             </button>
         </div>
     </div>

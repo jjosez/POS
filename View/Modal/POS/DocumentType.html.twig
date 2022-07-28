@@ -13,12 +13,12 @@
             <div class="overflow-hidden">
                 <table class="w-full">
                     <tbody id="documentTypeList" class="font-semibold text-slate-gray-700">
-                    {% set documentList = appSettings.get('pointofsale','tiposdocumento')|split('|') %}
-                    {% for document in documentList %}
+                    {% for element in fsc.getTerminal.getDocumentTypes() %}
                         <tr class="bg-blue-100 cursor-pointer hover:bg-blue-500 hover:text-white">
-                            <td class="p-4 font-medium add-customer-btn" data-action="setDocumentAction"
-                                data-code="{{ document }}" data-description="{{ i18n.trans(document) }}">
-                                {{ i18n.trans(document) }}
+                            <td class="p-4 font-medium" data-action="setDocumentAction"
+                                data-code="{{ element.tipodoc }}" data-serie="{{ element.codserie }}"
+                                data-description="{{ i18n.trans(element.descripcion) }}">
+                                {{ i18n.trans(element.descripcion) ?: i18n.trans(element.tipodoc)}}
                             </td>
                         </tr>
                     {% else %}

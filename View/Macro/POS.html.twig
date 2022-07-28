@@ -94,7 +94,7 @@
                                     <input class="p-2 w-full rounded-lg border-2 focus:outline-none focus:border-blue-500"
                                            type="{{ column.type }}" value="<%= value.{{ column.data }} %>"
                                            step=".001" data-index="<%= index %>"
-                                           data-action="editProductFieldAction"
+                                           data-action="{{ column.readonly ? '' : 'editProductFieldAction' }}"
                                            data-field="{{ column.data }}" {% if column.readonly %} readonly {% endif %}>
                                 </label>
                             </div>
@@ -155,7 +155,7 @@
                 <input class="form-control" type="{{ column.type }}"
                        value="<%= it.{{ column.data }} %>"
                        step=".001" data-index="<%= it.index %>"
-                       data-action="editProductFieldAction"
+                       data-action="{{ column.readonly ? '' : 'editProductFieldAction' }}"
                        data-field="{{ column.data }}" {% if column.readonly %} readonly {% endif %}>
             </div>
         {% endif -%}
@@ -234,11 +234,6 @@
     {%- set messages = log.read('', types) -%}
     {%- if messages | length > 0 -%}
         <div class="alert alert-{{ style }}" role="alert" data-delay="2000">
-            {# <div>
-                <button type="button" class="text-{{ style }}-800 ml-auto close" data-dismiss="toast" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div> #}
             {% for msg in messages %}
                 <div>{{ msg.message | raw }}</div>
             {% endfor %}

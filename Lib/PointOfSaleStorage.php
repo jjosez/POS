@@ -19,6 +19,7 @@
 
 namespace FacturaScripts\Plugins\POS\Lib;
 
+use FacturaScripts\Core\Model\Base\BusinessDocument;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Plugins\POS\Model\OperacionPausada;
@@ -120,14 +121,9 @@ class PointOfSaleStorage
      *
      * @return bool
      */
-    public function saveOrder(PointOfSaleOrder $order): bool
+    public function saveOrder(BusinessDocument $document): bool
     {
-        if (false === $order->save()) {
-            return false;
-        }
-
         $this->currentOrder = new OrdenPuntoVenta();
-        $document = $order->getDocument();
 
         $this->currentOrder->codigo = $document->codigo;
         $this->currentOrder->codcliente = $document->codcliente;
