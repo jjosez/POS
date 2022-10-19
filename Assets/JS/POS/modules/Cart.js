@@ -137,7 +137,7 @@ function editCartEventHandler(event) {
 }
 
 document.addEventListener('click', clickCartEventHandler);
-document.addEventListener('focusout', editCartEventHandler);
+document.addEventListener('change', editCartEventHandler);
 document.addEventListener('onCartChange', onChangeCartAction);
 document.addEventListener('onCartUpdate', onUpdateCartAction);
 

@@ -79,6 +79,13 @@ class POS extends Controller
                 $this->searchStock();
                 return false;
 
+            case 'get-product-images':
+                $id = $this->request->request->get('id', '');
+                $code = $this->request->request->get('code', '');
+
+                $this->setResponse($this->getProductImageList($id, $code));
+                return false;
+
             case 'recalculate-order':
                 $this->recalculateOrder();
                 return false;

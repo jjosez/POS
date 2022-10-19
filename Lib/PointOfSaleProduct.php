@@ -5,6 +5,7 @@ namespace FacturaScripts\Plugins\POS\Lib;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Almacenes;
 use FacturaScripts\Dinamic\Model\CodeModel;
+use FacturaScripts\Dinamic\Model\ProductoImagen;
 use FacturaScripts\Dinamic\Model\Variante;
 use FacturaScripts\Dinamic\Model\Join\ProductoStock;
 use FacturaScripts\Dinamic\Model\Join\ProductoVariante;
@@ -39,6 +40,34 @@ class PointOfSaleProduct
         }
 
         return new DataBaseWhere('S.codalmacen', implode(',', $almacenes), 'IN');
+    }
+
+    /**
+     * @return ProductoImagen[]
+     */
+    public function getImages(string $id, string $code): array
+    {
+        $where = [
+            new DataBaseWhere('idproducto', $id),
+            new DataBaseWhere('referencia', null, 'IS', 'AND'),
+            new DataBaseWhere('referencia', $code, '=', 'OR')
+        ];
+
+        return (new ProductoImagen())->all($where);
+    }
+
+    /**
+     * @return String[]
+     */
+    public function getImagesURL(string $id, string $code): array
+    {
+        $routes = [];
+
+        foreach ($this->getImages($id, $code) as $image) {
+            $routes[] = FS_ROUTE . '/' . $image->url('download');
+        }
+
+        return $routes;
     }
 
     /**
@@ -97,8 +126,14 @@ class PointOfSaleProduct
         /*foreach ($tags as $tag) {
             $where[] = new DataBaseWhere('codfamilia', $tag, '=', 'AND');
         }*/
+        $products = $this->getProductoVariante()->all($where, [], 0, FS_ITEM_LIMIT);
 
-        return $this->getProductoVariante()->all($where, [], 0, FS_ITEM_LIMIT);
+        foreach ($products as $product) {
+            $images = $this->getImagesURL($product->id, $product->code);
+            $product->image = $images ? $images[0] : '';
+        }
+
+        return $products;
     }
 
     /**

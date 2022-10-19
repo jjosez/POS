@@ -131,9 +131,12 @@ export const mainView = () => {
         'lastOrdersList': getElement('lastOrdersList'),
         'lastOrdersListTemplate': getTemplate('lastOrdersListTemplate'),
         'lastOrdersModal': getElement('lastOrdersModal'),
+        'productImagesModal': getElement('productImagesModal'),
         'productSearchBox': getElement('productSearchBox'),
         'productListView': getElement('productSearchResult'),
-        'productoListTemplate': getTemplate('productListTemplate'),
+        'productListTemplate': getTemplate('productListTemplate'),
+        'productImageListView': getElement('productImageListView'),
+        'productImageListTemplate': getTemplate('productImageListTemplate'),
         'stockDetailModal': getElement('stockDetailModal'),
         'stockDetailList': getElement('stockDetailList'),
         'stockDetailListTemplate': getTemplate('stockDetailListTemplate'),
@@ -158,6 +161,10 @@ export const mainView = () => {
             toggleModal(this.stockDetailModal);
         },
 
+        toggleProductImageModal: function () {
+            toggleModal(this.productImagesModal);
+        },
+
         updateCustomer: function (name = '') {
             this.customerNameLabel.textContent = name;
             toggleModal(this.customerSearchModal);
@@ -176,8 +183,18 @@ export const mainView = () => {
             this.holdOrdersList.innerHTML = this.holdOrdersListTemplate({items: data}, Eta.config);
         },
 
+        /*updateProductListView: async function (data = []) {
+            this.productListView.innerHTML = await Eta.renderAsync(
+                this.productoListTemplateHtml, {items: data}
+            )
+        },*/
+
         updateProductListView: function (data = []) {
-            this.productListView.innerHTML = this.productoListTemplate({items: data}, Eta.config);
+            this.productListView.innerHTML = this.productListTemplate({items: data}, Eta.config);
+        },
+
+        updateProductImageListView: function (data = []) {
+            this.productImageListView.innerHTML = this.productImageListTemplate({items: data}, Eta.config);
         },
 
         updateLastOrdersListView: function (data = []) {

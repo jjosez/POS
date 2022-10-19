@@ -1,71 +1,72 @@
-<div class="flex flex-row h-full">
-    <div class="flex flex-col flex-1 place-content-between bg-gray-50 shadow-lg">
-        <div class="p-5">
-            <h2 class="text-xl font-medium"><i class="fas fa-shopping-cart"></i></h2>
-            <h2 id="orderItemsNumber" class="text-2xl font-medium text-right">0</h2>
-        </div>
-        <div class="p-5 border-t-2 border-dashed">
-            <h2 class="text-xl font-medium">{{ i18n.trans('subtotal') }}</h2>
-            <h2 id="orderSubtotal" class="text-2xl font-medium text-right">0.000</h2>
-        </div>
-        <div class="p-5 border-t-2 border-dashed">
-            <h2 class="text-xl font-medium">{{ i18n.trans('percentage-discount') }}</h2>
-            <div class="form-group flex flex-row mt-4">
+<div class="flex flex-col md:w-2/5 md:place-content-between text-xl font-medium bg-gray-50 md:shadow-lg">
+    <div class="p-4 flex justify-between">
+        <span><i class="fas fa-shopping-cart"></i></span>
+        <span id="orderItemsNumber" class="text-right">0</span>
+    </div>
+    <div class="p-4 flex justify-between border-t-2 border-dashed">
+        <span>{{ i18n.trans('subtotal') }}</span>
+        <span id="orderSubtotal" class="text-right">0.000</span>
+    </div>
+    <div class="p-4 flex justify-between border-t-2 border-dashed">
+        <div class="w-1/2">
+            <span class="text-sm">{{ i18n.trans('dto') }}</span>
+            <label class="input-icon text-gray-400">
+                <span><i class="fa fa-sm fa-percent"></i></span>
                 <input id="orderDiscount" type="number" class="flex-grow-0" value="0" data-action="editDiscountAction">
-                <span id="orderDiscountAmount" class="flex-1 text-2xl font-medium text-right w-8/12">0.000</span>
-            </div>
+            </label>
         </div>
-        <div class="p-5 border-t-2 border-dashed">
-            <h2 class="text-xl font-medium">{{ i18n.trans('total') }}</h2>
-            <h2 id="orderTotalNet" class="text-2xl font-medium text-right">0.000</h2>
+        <span id="orderDiscountAmount" class="flex-1 self-center text-right">0.000</span>
+    </div>
+    <div class="p-4 flex justify-between border-t-2 border-dashed">
+        <span>{{ i18n.trans('total') }}</span>
+        <span id="orderTotalNet" class="text-right">0.000</span>
+    </div>
+    <div class="p-4 flex justify-between border-t-2 border-dashed">
+        <span>{{ i18n.trans('taxes') }}</span>
+        <span id="orderTaxes" class="text-right">0.000</span>
+    </div>
+    <div class="p-4 text-white bg-slate-800 border-t-4 border-solid">
+        <h2 class="text-2xl font-medium">{{ i18n.trans('due-amount') }}:</h2>
+        <h4 id="orderTotal" class="font-sans text-4xl font-bold text-center">0.000</h4>
+    </div>
+</div>
+<div class="flex flex-1 flex-col">
+    <div class="flex border-b-4 text-white font-medium">
+        <div class="flex-1 p-4 bg-green-500">
+            <h2 class="text-xl text-green-800">{{ i18n.trans('payment-amount') }}:</h2>
+            <h2 id="checkoutTotalTendered" class="text-right text-4xl">0</h2>
         </div>
-        <div class="p-5 border-t-2 border-dashed">
-            <h2 class="text-xl font-medium">{{ i18n.trans('taxes') }}</h2>
-            <h2 id="orderTaxes" class="text-2xl font-medium text-right">0.000</h2>
-        </div>
-        <div class="p-5 text-white bg-slate-800 border-t-4 border-solid">
-            <h2 class="text-2xl font-medium">{{ i18n.trans('due-amount') }}:</h2>
-            <h4 id="orderTotal" class="font-sans text-4xl font-bold text-center">0.000</h4>
+        <div class="flex-1 p-4 bg-yellow-500">
+            <h2 class="text-xl text-yellow-800">{{ i18n.trans('payment-change') }}:</h2>
+            <h2 id="checkoutChange" class="text-right text-4xl">0</h2>
         </div>
     </div>
-    <div class="flex flex-col w-8/12">
-        <div class="flex w-full border-b-4 text-white font-medium">
-            <div class="flex-grow p-5 bg-green-500">
-                <h2 class="text-xl text-green-800">{{ i18n.trans('payment-amount') }}:</h2>
-                <h2 id="checkoutTotalTendered" class="text-right text-4xl">0</h2>
-            </div>
-            <div class="flex-grow p-5 bg-yellow-500">
-                <h2 class="text-xl text-yellow-800">{{ i18n.trans('payment-change') }}:</h2>
-                <h2 id="checkoutChange" class="text-right text-4xl">0</h2>
+    <div class="flex flex-col flex-1">
+        <div id="paymentList" class="flex-1">
+        </div>
+        <div class="p-4">
+            <div class="flex flex-wrap justify-center gap-4">
+                {% for element in fsc.getPaymentMethods() %}
+                    <button class="btn btn-primary payment-modal-btn" data-code="{{ element.codpago }}"
+                            data-description="{{ element.descripcion }}" data-action="showPaymentModalAction">
+                        <i class="fas fa-plus-circle mr-2"></i>
+                        <span class="w-full text-center">{{ element.descripcion }}</span>
+                    </button>
+                {% endfor %}
             </div>
         </div>
-        <div class="flex flex-col flex-1">
-            <div id="paymentList" class="flex-1">
-            </div>
-            <div class="p-5 mt-auto">
-                <div class="flex flex-wrap justify-center gap-4">
-                    {% for element in fsc.getPaymentMethods() %}
-                        <button class="btn btn-primary payment-modal-btn" data-code="{{ element.codpago }}"
-                                data-description="{{ element.descripcion }}" data-action="showPaymentModalAction">
-                            <i class="fas fa-plus-circle mr-2"></i>
-                            <span class="w-full text-center">{{ element.descripcion }}</span>
-                        </button>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        <div class="p-5 mt-auto border-t-4">
-            <div class="flex">
-                <button class="btn btn-danger" data-toggle="block" data-target="checkoutView">
-                    <i class="fa fa-arrow-alt-circle-left"></i>
-                    <span class="mx-2 text-center">{{ i18n.trans('back') }}</span>
-                </button>
-                <button id="orderSaveButton" class="btn btn-success ml-auto" data-action="saveOrderAction"
-                        data-toggle="block" data-target="checkoutView" disabled>
-                    <span class="mx-2 text-center">{{ i18n.trans('confirm') }}</span>
-                    <i class="fa fa-arrow-alt-circle-right"></i>
-                </button>
-            </div>
+    </div>
+    <div class="p-4 border-t-4">
+        <div class="flex">
+            <button class="btn btn-danger" data-toggle="block" data-target="checkoutView">
+                <i class="fa fa-arrow-alt-circle-left"></i>
+                <span class="mx-2 text-center">{{ i18n.trans('back') }}</span>
+            </button>
+            <button id="orderSaveButton" class="btn btn-success ml-auto" data-action="saveOrderAction"
+                    data-toggle="block" data-target="checkoutView" disabled>
+                <span class="mx-2 text-center">{{ i18n.trans('confirm') }}</span>
+                <i class="fa fa-arrow-alt-circle-right"></i>
+            </button>
         </div>
     </div>
 </div>

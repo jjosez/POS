@@ -90,10 +90,15 @@ async function showStockDetailAction({code}) {
     mainView().toggleStockDetailModal();
 }
 
+async function showProductImagesAction({id, code}) {
+    mainView().updateProductImageListView(await Core.getProductImages(id, code));
+    mainView().toggleProductImageModal();
+}
+
 /**
  * @param {Event} event
  */
-function appEventHandler(event) {
+async function appEventHandler(event) {
     const data = event.target.dataset;
     const action = data.action;
 
@@ -122,6 +127,9 @@ function appEventHandler(event) {
 
         case 'printClosingVoucher':
             return sessionPrintClosingVoucherAction(data);
+
+        case 'productImageAction':
+            return showProductImagesAction(data);
 
         case 'saveCustomerAction':
             return saveCustomerHandler();

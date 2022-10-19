@@ -73,6 +73,20 @@ export function getProductStock(code) {
 }
 
 /**
+ * @param {string} id
+ * @param {string} code
+ */
+export function getProductImages(id, code) {
+    const data = new FormData();
+
+    data.set('action', 'get-product-images');
+    data.set('id', id);
+    data.set('code', code);
+
+    return postRequest(data);
+}
+
+/**
  * @param {string} action
  * @param {string} query
  */

@@ -8,7 +8,7 @@
     }
 
     .app-container {
-        @apply flex flex-col h-full;
+        @apply flex flex-col h-full w-full;
     }
 
     .alert-container {
@@ -76,6 +76,21 @@
     }
 
     .input-icon {
+        @apply relative block;
+    }
+
+    .input-icon span {
+        @apply absolute inset-y-0 left-4 flex items-center pointer-events-none;
+    }
+
+    .input-icon input[type=search],
+    .input-icon input[type=text],
+    .input-icon input[type=number],
+    .input-icon input[type=password] {
+        @apply py-2 pr-4 pl-10 w-full bg-white rounded-lg border-2 placeholder-slate-300 focus:outline-none focus:border-blue-500
+    }
+
+    /*.input-icon {
         @apply relative flex-grow;
     }
 
@@ -88,7 +103,7 @@
     .input-icon input[type=number],
     .input-icon input[type=password] {
         @apply py-2 pr-4 pl-10 w-full bg-white rounded-lg border-2 placeholder-slate-300 focus:outline-none focus:border-blue-500
-    }
+    }*/
 
     .form-group {
         @apply flex flex-col w-full;

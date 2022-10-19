@@ -98,6 +98,30 @@ trait PointOfSaleTrait
     }
 
     /**
+     * Return some products for initial view
+     *
+     * @return array
+     */
+    public function getProductImage(string $id, string $code): array
+    {
+        $product = new PointOfSaleProduct();
+
+        return $product->getImages($id, $code);
+    }
+
+    /**
+     * Return product images url list
+     *
+     * @return array
+     */
+    public function getProductImageList(string $id, string $code): array
+    {
+        $product = new PointOfSaleProduct();
+
+        return $product->getImagesURL($id, $code);
+    }
+
+    /**
      * Returns all available payment methods.
      *
      * @return FormaPago[]

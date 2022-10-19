@@ -37,6 +37,7 @@ class ProductoVariante extends JoinModel
     protected function getFields(): array
     {
         return [
+            'id' => 'P.idproducto',
             'code' => 'V.referencia',
             'barcode' => 'V.codbarras',
             'description' => 'P.descripcion',

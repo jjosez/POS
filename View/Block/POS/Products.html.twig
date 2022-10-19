@@ -1,6 +1,6 @@
 <div class="p-4">
-    <label class="text-gray-400 input-icon">
-        <i class="fa fa-sm fa-search"></i>
+    <label class="input-icon text-gray-400">
+        <span><i class="fa fa-sm fa-search"></i></span>
         <input type="search" id="productSearchBox" placeholder="{{ i18n.trans('search') }}">
     </label>
 </div>
@@ -39,14 +39,17 @@
                  data-action="setProductAction" data-code="{{ element.code }}"
                  data-description="{{ element.description }}">
                 <div class="mr-4 flex items-center">
-                    <span>
-                        <i class="fas fa-3x fa-box"></i>
-                    </span>
+                    {% if element.image %}
+                        <img class="pointer-events-auto object-scale-down h-32 w-32" src="{{ element.image }}"
+                             data-action="productImageAction" data-id="{{ element.id }}" data-code="{{ element.code }}">
+                    {% else %}
+                        <span><i class="fas fa-3x fa-box"></i></span>
+                    {% endif %}
                 </div>
                 <div class="flex-1">
                     <p class="text-sm uppercase font-semibold text-gray-800">{{ i18n.trans('code') }}
                         : {{ element.code }}</p>
-                    <p class="text-base text-gray-600">{{ element.description }}</p>
+                    <p class="text-gray-600">{{ element.description }}</p>
                 </div>
                 <div class="w-1/4 ml-4 flex-col items-center">
                     <div class="text-sm uppercase font-semibold px-3 py-0.5 bg-gray-200 text-gray-800 rounded-full">
