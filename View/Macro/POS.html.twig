@@ -20,7 +20,8 @@
          data-action="setProductAction" data-code="<%= item.code %>" data-description="<%= item.description %>">
         <div class="mr-4 flex items-center">
             <% if (item.image) { %>
-            <img class="object-scale-down h-32 w-32" src="<%= item.image %>" alt="">
+            <img class="pointer-events-auto object-scale-down h-32 w-32" src="<%= item.imagen %>"
+                             data-action="productImageAction" data-id="<%= item.id %>" data-code="<%= item.code %>">
             <% } else { %>
             <span><i class="fas fa-3x fa-box"></i></span>
             <% } %>
@@ -54,7 +55,7 @@
     <div class="divide-y-4 divide-dotted">
         <% it.items.forEach(function(item){ %>
         <div class="flex-1">
-            <img class="mx-auto" src="<%= item %>" alt="Imagen Producto">
+            <img class="py-2 mx-auto" src="<%= item %>" alt="Imagen Producto">
         </div>
         <% }) %>
     </div>

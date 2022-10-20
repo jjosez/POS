@@ -64,7 +64,7 @@ class PointOfSaleProduct
         $routes = [];
 
         foreach ($this->getImages($id, $code) as $image) {
-            $routes[] = FS_ROUTE . '/' . $image->url('download');
+            $routes[] = FS_ROUTE . '/' . $image->url('download-permanent');
         }
 
         return $routes;

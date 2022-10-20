@@ -27,17 +27,17 @@
 
 {% block modals %}
     {{ include('Modal/POS/AddPayment.html.twig') }}
+    {{ include('Modal/POS/CashMovments.html.twig') }}
+    {{ include('Modal/POS/Checkout.html.twig') }}
+    {{ include('Modal/POS/CloseSession.html.twig') }}
     {{ include('Modal/POS/CustomerSearch.html.twig') }}
     {{ include('Modal/POS/DocumentType.html.twig') }}
-    {{ include('Modal/POS/ProductEdit.html.twig') }}
-    {{ include('Modal/POS/PausedOrders.html.twig') }}
-    {{ include('Modal/POS/CloseSession.html.twig') }}
-    {{ include('Modal/POS/User.html.twig') }}
     {{ include('Modal/POS/LastOrders.html.twig') }}
+    {{ include('Modal/POS/PausedOrders.html.twig') }}
+    {{ include('Modal/POS/ProductEdit.html.twig') }}
     {{ include('Modal/POS/ProductStockDetail.html.twig') }}
     {{ include('Modal/POS/ProductImages.html.twig') }}
-    {{ include('Modal/POS/CashMovments.html.twig') }}
-    {{ include('Modal/POS/ProductEdit.html.twig') }}
+    {{ include('Modal/POS/User.html.twig') }}
 {% endblock %}
 
 {% block js %}

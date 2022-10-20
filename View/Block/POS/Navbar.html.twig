@@ -3,7 +3,7 @@
         <div class="w-full relative flex justify-between md:w-auto lg:static lg:block lg:justify-start">
             <a class="text-xl font-semibold leading-normal inline-block py-2 whitespace-nowrap uppercase text-slate-50"
                href="{{ asset('') }}">
-                {{ fsc.empresa.nombrecorto | raw }}
+                {{ fsc.empresa.nombrecorto | raw }} &bullet; <i class="fa fa-desktop"></i> {{ fsc.getTerminal().nombre }}
             </a>
             <button class="md:hidden text-xl py-1 btn text-slate-100 focus:bg-gray-100 focus:text-slate-700 focus:ring-gray-300"
                     type="button" data-toggle="collapse" data-target="navbarMenu">
@@ -40,7 +40,8 @@
                     </button>
                 </li>
                 <li class="nav-item">
-                    <a class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100" href="{{ asset('ListTerminalPuntoVenta') }}" target="_blank">
+                    <a class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
+                       href="{{ fsc.getTerminal().url('edit') }}" target="_blank">
                         <i class="fas fa-cog fa-fw text-lg leading-lg"></i>
                     </a>
                 </li>
