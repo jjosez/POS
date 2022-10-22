@@ -38,8 +38,8 @@
                             <p class="mb-3">{{ i18n.trans('cash-initial-amount-input') }}</p>
 
                             <label class="input-icon text-slate-700">
-                                <i class="fa fa-money-bill-alt"></i>
-                                <input type="number" class="form-control" name="saldoinicial" value="0">
+                                <span><i class="fa fa-money-bill-alt"></i></span>
+                                <input type="number" name="saldoinicial" value="0">
                             </label>
                             <div class="flex flex-col p-5">
                                 <div class="mx-auto py-2">
@@ -66,7 +66,7 @@
                         {% else %}
                             <div class="flex flex-col w-full">
                                 <div class="py-2 mx-auto">
-                                    <a href="{{ asset('ListTerminalPuntoVenta') }}"
+                                    <a href="{{ terminal.url('new') }}"
                                        class="btn btn-success">{{ i18n.trans('add') }}</a>
                                 </div>
                             </div>

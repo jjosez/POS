@@ -34,6 +34,30 @@ trait PointOfSaleTrait
     }
 
     /**
+     * @return array
+     */
+    public function getCustomButtons(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    public function getCustomFields(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    public function getCustomModals(): array
+    {
+        return [];
+    }
+
+    /**
      * @return Cliente
      */
     public function getDefaultCustomer(): Cliente
@@ -140,30 +164,6 @@ trait PointOfSaleTrait
     }
 
     /**
-     * @param $document
-     * @return void;
-     */
-    protected function printVoucher($document)
-    {
-        $message = PointOfSalePrinter::salesTicket($document, $this->getTerminal()->anchopapel);
-
-        $this->toolBox()->log()->info($message);
-    }
-
-    /**
-     * Print closing voucher.
-     *
-     * @return void;
-     */
-    protected function printClosingVoucher()
-    {
-        $message = PointOfSalePrinter::cashupTicket($this->session->getSession(), $this->empresa,
-            $this->getTerminal()->anchopapel);
-
-        $this->toolBox()->log()->info($message);
-    }
-
-    /**
      * Get current user session.
      *
      * @return PointOfSaleSession
@@ -234,6 +234,31 @@ trait PointOfSaleTrait
     protected function getSetting(string $key)
     {
         return self::toolBox()::appSettings()::get('pointofsale', $key);
+    }
+
+        /**
+     * @param $document
+     * @return void;
+     */
+    protected function printVoucher($document)
+    {
+        $message = PointOfSalePrinter::salesTicket($document, $this->getTerminal()->anchopapel);
+
+        $this->toolBox()->log()->info($message);
+    }
+
+    /**
+     * Print closing voucher.
+     *
+     * @return void;
+     */
+    protected function printClosingVoucher()
+    {
+        $message = PointOfSalePrinter::cashupTicket(
+            $this->session->getSession(), $this->empresa,
+            $this->getTerminal()->anchopapel);
+
+        $this->toolBox()->log()->info($message);
     }
 
     protected function setNewToken(): void

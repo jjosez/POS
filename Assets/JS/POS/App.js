@@ -154,6 +154,10 @@ async function saveCustomerHandler() {
     }
 }
 
+window.setCartCustomField = function (field, value) {
+    Cart.doc[field] = value;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     /* global onScan*/
     onScan.attachTo(document);

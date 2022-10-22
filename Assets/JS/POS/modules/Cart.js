@@ -92,6 +92,17 @@ function onUpdateCartAction({detail}) {
 }
 
 /**
+ * @param {{detail}} data
+ */
+function onCartCustomFieldUpdateAction({detail}) {
+    if (typeof detail.field === 'undefined' || detail.value === null) {
+        return;
+    }
+    Cart.setCustomField(detail.field, detail.value);
+    console.log(Cart.doc);
+}
+
+/**
  * @param {Event} event
  */
 function clickCartEventHandler(event) {
@@ -140,6 +151,7 @@ document.addEventListener('click', clickCartEventHandler);
 document.addEventListener('change', editCartEventHandler);
 document.addEventListener('onCartChange', onChangeCartAction);
 document.addEventListener('onCartUpdate', onUpdateCartAction);
+document.addEventListener('onCartCustomFieldUpdate', onCartCustomFieldUpdateAction);
 
 export default Cart;
 

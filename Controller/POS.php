@@ -298,6 +298,7 @@ class POS extends Controller
 
         if ($customer->saveNew($taxID, $name)) {
             $this->setResponse($customer->getCustomer());
+            return;
         }
 
         $this->buildResponse();

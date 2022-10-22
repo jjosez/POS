@@ -30,6 +30,7 @@ export const cartView = () => {
         'discountAmount': getElement('orderDiscountAmount'),
         'taxes': getElement('orderTaxes'),
         'totalNet': getElement('orderTotalNet'),
+        'cartTotal': getElement('cartTotal'),
         'total': getElement('orderTotal'),
         'holdButton': getElement('orderHoldButton'),
         'productEditModal': getElement('productEditModal'),
@@ -51,6 +52,7 @@ export const cartView = () => {
         },
 
         updateTotals: function (data = {}) {
+            this.cartTotal.textContent = Money.roundFixed(data.doc.total);
             this.itemsNumber.textContent = data.count;
             this.subtotal.textContent = Money.roundFixed(data.doc.netosindto);
             this.discountPercent.value = data.doc.dtopor1 || 0;
@@ -67,8 +69,9 @@ export const checkoutView = () => {
         'listView': getElement('paymentList'),
         'listTemplate': getTemplate('paymentListTemplate'),
         'confirmButton': getElement('orderSaveButton'),
-        'change': getElement('checkoutChange'),
-        'tendered': getElement('checkoutTotalTendered'),
+        'change': getElement('checkoutChangeAmount'),
+        'tendered': getElement('checkoutTenderedAmount'),
+        'total': getElement('checkoutTotal'),
         'paymentModal': getElement('paymentModal'),
         'paymentModalButton': document.querySelectorAll('.payment-modal-btn'),
         'paymentAmounButton': document.querySelectorAll('.payment-add-btn'),
@@ -79,11 +82,11 @@ export const checkoutView = () => {
             this.confirmButton.disabled = !enable;
         },
 
-        getCurrentPaymentData: function () {
+        getCurrentPaymentData: function ({code, description}) {
             return {
                 amount: this.paymentInput.value,
-                method: this.paymentInput.dataset.method,
-                description: this.paymentInput.dataset.description
+                method: code,
+                description: description
             };
         },
 
@@ -104,6 +107,7 @@ export const checkoutView = () => {
         updateTotals: function (data = {}) {
             this.change.textContent = data.change;
             this.tendered.textContent = data.getPaymentsTotal();
+            this.total.textContent = data.total;
         }
     }
 }

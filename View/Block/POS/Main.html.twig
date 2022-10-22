@@ -19,14 +19,14 @@
                 {{ include('Block/POS/Cart.html.twig') }}
             </div>
         </div>
-        <div id="checkoutView" class="hidden app-container md:flex-row">
+        {# <div id="checkoutView" class="hidden app-container md:flex-row">
             {{ include('Block/POS/Checkout.html.twig') }}
-        </div>
+        </div> #}
     </div>
 {% endblock %}
 
 {% block modals %}
-    {{ include('Modal/POS/AddPayment.html.twig') }}
+    {# {{ include('Modal/POS/AddPayment.html.twig') }} #}
     {{ include('Modal/POS/CashMovments.html.twig') }}
     {{ include('Modal/POS/Checkout.html.twig') }}
     {{ include('Modal/POS/CloseSession.html.twig') }}
@@ -37,7 +37,11 @@
     {{ include('Modal/POS/ProductEdit.html.twig') }}
     {{ include('Modal/POS/ProductStockDetail.html.twig') }}
     {{ include('Modal/POS/ProductImages.html.twig') }}
+    {{ include('Modal/POS/TotalsDetail.html.twig') }}
     {{ include('Modal/POS/User.html.twig') }}
+    {% for modal in fsc.getCustomModals() %}
+        {{ include(modal) }}
+    {% endfor %}
 {% endblock %}
 
 {% block js %}
@@ -85,6 +89,11 @@
             'token': '{{ fsc.getNewToken() }}',
             'url': 'POS',
             'warehouse': '{{ fsc.getDefaultWarehouse() }}',
+        }
+
+        window.POS = {
+            'customActions': [],
+            'customFields': []
         }
     </script>
 {% endblock %}

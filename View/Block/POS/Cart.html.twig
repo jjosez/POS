@@ -9,7 +9,7 @@
 </form>
 
 <div class="flex flex-col h-full bg-white md:shadow-lg">
-    <div class="px-4 pt-4 w-full select-none">
+    <div class="flex flex-col p-4 gap-4">
         <button id="documentTypeButton" class="btn bg-gray-200 text-slate-800 focus:ring-gray-600 w-full"
                 data-toggle="modal" data-target="documentTypeModal">
             <i class="fa fa-file-invoice"></i>
@@ -18,52 +18,41 @@
             </span>
             <i class="ml-auto fa fa-ellipsis-v"></i>
         </button>
-    </div>
-    <div class="p-4 w-full select-none">
         <button id="customerSearchButton" class="btn btn-primary w-full"
                 data-toggle="modal" data-target="customerSearchModal">
             <i class="fa fa-user"></i>
             <span id="customerNameLabel" class="mx-2">{{ fsc.getDefaultCustomer().nombre }}</span>
             <i class="ml-auto fa fa-ellipsis-v"></i>
         </button>
+        {% for button in fsc.getCustomButtons %}
+            {{ include(button) }}
+        {% endfor %}
     </div>
     <div id="cartListView" class="flex-1 px-4 overflow-auto">
         <div class="h-full flex justify-center items-center">
             <i class="fa fa-shopping-cart fa-5x text-slate-gray-300"></i>
         </div>
     </div>
-    {#<div class="flex flex-col md:place-content-between text-slate-800 text-xl font-medium h-auto select-none">
+    <div class="flex flex-col md:place-content-between h-auto select-none font-medium">
         <div class="p-4 flex justify-between border-t-2 border-dashed">
-            <span>{{ i18n.trans('total') }}</span>
-            <span id="orderTotalNet" class="text-right">0.000</span>
+            <button class="btn btn-light text-slate-800" data-toggle="modal" data-target="totalsDetailModal">
+                <i class="fas fa-ellipsis-v fa-fw"></i> {{ i18n.trans('payable-amount') }}
+            </button>
+            <span id="cartTotal" class="text-right text-xl">0.000</span>
         </div>
-    </div>#}
-    <div class="hidden md:flex flex-row p-4 h-auto select-none">
-        <button id="orderHoldButton" class="flex-1 btn btn-warning mr-4" data-action="holdOrderAction">
-            <span class="mr-auto">{{ i18n.trans('hold') }}</span>
-            <i class="fa fa-hourglass-start mr-2"></i>
-        </button>
-        <button class="flex-1 btn btn-success" data-toggle="block" data-target="checkoutView">
-            <span class="mr-auto">{{ i18n.trans('charge') }}</span>
-            <i class="fa fa-calculator mr-2"></i>
-        </button>
-        {#<button class="flex-1 btn btn-success" data-toggle="modal" data-target="checkoutModal">
-            <i class="fa fa-calculator mr-2"></i>
-            <span class="mr-auto">{{ i18n.trans('charge') }}</span>
-        </button>#}
     </div>
-    <div class="md:hidden flex flex-row p-4 gap-4 h-auto select-none">
-        <button class="btn btn-icon btn-light" data-toggle="block"
+    <div class="flex flex-row gap-4 p-4 h-auto select-none">
+        <button class="md:hidden btn btn-icon btn-light" data-toggle="block"
                 data-target="cartMainView" data-ontoggle="productMainView">
             <i class="fa fa-arrow-left"></i>
         </button>
         <button class="flex-1 btn btn-warning" data-action="holdOrderAction">
-            <i class="fa fa-hourglass-start mr-2"></i>
             <span class="mr-auto">{{ i18n.trans('hold') }}</span>
+            <i class="fa fa-hourglass-start"></i>
         </button>
-        <button class="flex-1 btn btn-success" data-toggle="block" data-target="checkoutView">
-            <i class="fa fa-calculator mr-2"></i>
+        <button class="flex-1 btn btn-success" data-toggle="modal" data-target="checkoutModal">
             <span class="mr-auto">{{ i18n.trans('charge') }}</span>
+            <i class="fa fa-calculator"></i>
         </button>
     </div>
 </div>

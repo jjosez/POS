@@ -37,6 +37,11 @@ class CartClass {
         this.updateCartEvent();
     }
 
+    setCustomField(field, value) {
+        this.doc[field] = value;
+        this.updateCartEvent();
+    }
+
     setDocumentType(code, serie) {
         this.doc['tipo-documento'] = code;
         this.doc['codserie'] = serie;
