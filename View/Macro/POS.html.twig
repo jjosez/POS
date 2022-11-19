@@ -20,7 +20,7 @@
          data-action="setProductAction" data-code="<%= item.code %>" data-description="<%= item.description %>">
         <div class="mr-4 flex items-center">
             <% if (item.image) { %>
-            <img class="pointer-events-auto object-scale-down h-32 w-32" src="<%= item.imagen %>"
+            <img class="pointer-events-auto object-scale-down h-32 w-32" src="<%= item.image %>"
                              data-action="productImageAction" data-id="<%= item.id %>" data-code="<%= item.code %>">
             <% } else { %>
             <span><i class="fas fa-3x fa-box"></i></span>
