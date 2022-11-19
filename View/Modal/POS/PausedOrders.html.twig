@@ -25,7 +25,7 @@
                     </tr>
                     </thead>
                     <tbody id="pausedOrdersList" class="font-semibold text-slate-gray-700">
-                    {% for operation in fsc.session.getStorage().getOrdersOnHold() %}
+                    {% for operation in fsc.session.getPausedOrders() %}
                         <tr class="bg-blue-100 hover:bg-yellow-200">
                             <td class="px-3 text-center">{{ operation.codigo }}</td>
                             <td class="px-3">{{ i18n.trans(operation.nombrecliente) }}</td>

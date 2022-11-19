@@ -139,6 +139,9 @@ async function appEventHandler(event) {
 
         case 'stockDetailAction':
             return showStockDetailAction(data);
+
+        case 'setProductFilter':
+            return console.log('FiltroProducto');
     }
 }
 

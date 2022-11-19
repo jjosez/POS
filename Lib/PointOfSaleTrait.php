@@ -8,10 +8,10 @@ namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
+use FacturaScripts\Dinamic\Model\Familia;
 use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Plugins\POS\Model\TipoDocumentoPuntoVenta;
-use phpDocumentor\Reflection\Types\Expression;
 
 trait PointOfSaleTrait
 {
@@ -19,6 +19,14 @@ trait PointOfSaleTrait
      * @var PointOfSaleSession
      */
     protected $session;
+
+    /**
+     * @return array
+     */
+    public function getFamilies(): array
+    {
+        return (new Familia())->all();
+    }
 
     /**
      * Returns the cash payment method ID.
@@ -174,23 +182,13 @@ trait PointOfSaleTrait
     }
 
     /**
-     * Return Current Session Storage Object
-     *
-     * @return PointOfSaleStorage
-     */
-    protected function getStorage(): PointOfSaleStorage
-    {
-        return $this->session->getStorage();
-    }
-
-    /**
      * Get current user session terminal.
      *
      * @return TerminalPuntoVenta
      */
     public function getTerminal(): TerminalPuntoVenta
     {
-        return $this->getSession()->getTerminal();
+        return $this->session->getTerminal();
     }
 
     /**
@@ -200,7 +198,7 @@ trait PointOfSaleTrait
      */
     public function getTerminalFromCompany(): array
     {
-        return $this->getSession()->getTerminal()->allAvailable($this->user->idempresa);
+        return $this->session->getTerminal()->allAvailable($this->user->idempresa);
     }
 
     /**

@@ -53,7 +53,7 @@ class PointOfSaleClosingVoucher extends AbstractTicketBuilder
         $this->printer->text('RESUMEN DE PAGOS', true, true);
         $this->printer->lineBreak();
 
-        foreach ($this->session->getPagosTotales() as $payment) {
+        foreach ($this->session->getPaymentsAmount() as $payment) {
             $this->printer->keyValueText(strtoupper($payment['descripcion']), $payment['total']);
         }
 

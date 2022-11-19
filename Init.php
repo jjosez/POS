@@ -11,6 +11,7 @@ class Init extends InitClass
 {
     public function init()
     {
+        $this->loadExtension(new Extension\Controller\EditFamilia());
     }
 
     public function update()

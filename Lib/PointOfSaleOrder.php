@@ -76,7 +76,7 @@ class PointOfSaleOrder
     /**
      * @return bool
      */
-    public function save(): bool
+    public function saveDocument(): bool
     {
         if (empty($this->document->primaryColumnValue()) && false === $this->document->save()) {
             return false;

@@ -5,8 +5,6 @@ const Checkout = new CheckoutClass({
     cashMethod: settings.cash
 });
 
-export
-
 /**
  * Delete given payment at index.
  * @param {{index:int}} data
@@ -31,6 +29,10 @@ function paymentRecalculateAction({value}) {
  * Set new payment from dialog.
  */
 function paymentSetAction(data) {
+    if (checkoutView().paymentInput.value === 0 || checkoutView().paymentInput.value === '') {
+        checkoutView().paymentInput.value = Checkout.getOutstandingBalance();
+    }
+
     Checkout.setPayment(checkoutView().getCurrentPaymentData(data));
     checkoutView().paymentInput.value = 0;
 }

@@ -29,11 +29,6 @@ class POS extends Controller
     protected $token;
 
     /**
-     * @var PointOfSaleOrder
-     */
-    protected $lastOrder;
-
-    /**
      * @param Response $response
      * @param User $user
      * @param ControllerPermissions $permissions
@@ -103,11 +98,11 @@ class POS extends Controller
                 return false;
 
             case 'get-orders-on-hold':
-                $this->setResponse($this->getStorage()->getOrdersOnHold());
+                $this->setResponse($this->getSession()->getPausedOrders());
                 return false;
 
             case 'get-last-orders':
-                $this->setResponse($this->getStorage()->getLastOrders());
+                $this->setResponse($this->getSession()->getOrders());
                 return false;
 
             case 'delete-order-on-hold':
@@ -121,6 +116,7 @@ class POS extends Controller
             case 'reprint-order':
                 $this->reprintOrder();
                 return false;
+
             case 'print-closing-voucher':
                 $this->printClosingVoucher();
                 $this->buildResponse();
@@ -243,7 +239,7 @@ class POS extends Controller
     {
         $code = $this->request->request->get('code', '');
 
-        if ($this->getStorage()->updateOrderOnHold($code)) {
+        if ($this->getSession()->deletePausedOrder($code)) {
             $this->toolBox()->i18nLog()->info('pos-order-on-hold-deleted');
         }
 
@@ -270,9 +266,12 @@ class POS extends Controller
     protected function resumeOrder()
     {
         $code = $this->request->request->get('code', '');
+        $order = $this->getSession()->getPausedOrder($code);
+
+        $result = ['doc' => $order->toArray(), 'lines' => $order->getLines()];
 
         $this->setNewToken();
-        $this->buildResponse($this->getStorage()->getOrderOnHold($code));
+        $this->buildResponse($result);
     }
 
     /**
@@ -283,7 +282,7 @@ class POS extends Controller
         $code = $this->request->request->get('code', '');
 
         if ($code) {
-            $order = $this->getStorage()->getOrder($code);
+            $order = $this->getSession()->getOrder($code);
             $this->printVoucher($order->getDocument());
             $this->buildResponse();
         }
@@ -312,7 +311,7 @@ class POS extends Controller
         $description = $this->request->request->get('description');
 
         $movment = new MovimientoPuntoVenta();
-        $movment->idsesion = $this->getSession()->getSession()->idsesion;
+        $movment->idsesion = $this->session->getSession()->idsesion;
         $movment->nickusuario = $this->user->nick;
         $movment->descripcion = $description;
         $movment->total = $amount ?? 0;
@@ -334,18 +333,18 @@ class POS extends Controller
     {
         if (false === $this->validateRequest()) return;
 
-        $orderRequest = new PointOfSaleRequest($this->request);
-        $order = new PointOfSaleOrder($orderRequest);
+        $saleRequest = new PointOfSaleRequest($this->request);
+        $saleOrder = new PointOfSaleOrder($saleRequest);
 
         $this->dataBase->beginTransaction();
 
-        if (false === $order->save()) {
+        if (false === $saleOrder->saveDocument()) {
             $this->dataBase->rollback();
             $this->buildResponse();
             return;
         }
 
-        if (false === $this->getStorage()->saveOrder($order->getDocument())) {
+        if (false === $this->getSession()->saveOrder($saleOrder->getDocument())) {
             $this->dataBase->rollback();
             $this->buildResponse();
             return;
@@ -353,10 +352,9 @@ class POS extends Controller
 
         $this->dataBase->commit();
 
-        $this->savePayments($order->getPayments());
-        $this->printVoucher($order->getDocument());
-        $order->getDocument()->save();
-        $this->lastOrder = $order;
+        $this->savePayments($saleRequest->getPaymentList(), $this->getSession()->getLastOrder());
+        $this->printVoucher($saleOrder->getDocument());
+
         $this->buildResponse();
     }
 
@@ -374,7 +372,7 @@ class POS extends Controller
 
         $this->dataBase->beginTransaction();
 
-        if (false === $order->save()) {
+        if (false === $order->saveDocument()) {
             $this->toolBox()->i18nLog()->warning('pos-order-on-hold-error');
             $this->dataBase->rollback();
             return;
@@ -386,14 +384,11 @@ class POS extends Controller
         $this->buildResponse();
     }
 
-    protected function savePayments(array $payments)
+    protected function savePayments(array $payments, $order)
     {
-        $order = $this->getStorage()->getCurrentOrder();
+        $cashAmount = PointOfSalePayments::saveOrderPayments($this->getCashPaymentMethod(), $order, $payments);
 
-        $storage = new PointOfSalePayments($order, $this->getCashPaymentMethod());
-        $storage->savePayments($payments);
-
-        $this->session->updateCashAmount($storage->getCashPaymentAmount());
+        $this->getSession()->updateCashAmount($cashAmount);
     }
 
     /**
@@ -402,7 +397,7 @@ class POS extends Controller
     protected function loadTerminal()
     {
         $id = $this->request->request->get('terminal', '');
-        $this->getSession()->getTerminal($id);
+        $this->session->getTerminal($id);
     }
 
     /**

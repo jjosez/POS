@@ -1,10 +1,15 @@
-<div class="p-4">
-    <label class="input-icon text-gray-400">
+<div class="flex p-4">
+    <label class="flex-1 input-icon text-gray-400">
         <span><i class="fa fa-sm fa-search"></i></span>
         <input type="search" id="productSearchBox" placeholder="{{ i18n.trans('search') }}">
     </label>
+    <button id="productFilterButton" class="ml-2 btn bg-gray-200 text-slate-800 focus:ring-gray-600"
+            data-action="setProductFilter" data-toggle="modal" data-target="productFilterModal">
+        <i class="fa fa-tags"></i>
+        <span id="productFilterLabel" class="mx-2">{{ i18n.trans('filters') }}</span>
+    </button>
 </div>
-{# <div class="px-4 overflow-hidden">
+{#<div class="px-4 overflow-hidden">
     <div id="productTagList" class="flex overflow-x-auto pl-2 py-2 space-x-4">
         {% for element in fsc.getCategories() %}
             <button class="product-tag" data-code="{{ element.code }}">
@@ -13,7 +18,7 @@
             </button>
         {% endfor %}
     </div>
-</div> #}
+</div>#}
 <div class="flex-1 mb-4 px-4 overflow-y-auto">
     <div id="productSearchResult" role="list">
         <div role="listitem" class="product-add-btn bg-white cursor-pointer shadow-sm rounded-lg p-4 mb-4 flex"

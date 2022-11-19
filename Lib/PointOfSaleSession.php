@@ -3,6 +3,9 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\ToolBox;
+use FacturaScripts\Core\Model\Base\BusinessDocument;
+use FacturaScripts\Dinamic\Model\OperacionPausada;
+use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
@@ -10,14 +13,14 @@ use FacturaScripts\Dinamic\Model\User;
 class PointOfSaleSession
 {
     /**
+     * @var OrdenPuntoVenta
+     */
+    protected $lastOrder;
+
+    /**
      * @var SesionPuntoVenta
      */
     protected $session;
-
-    /**
-     * @var PointOfSaleStorage
-     */
-    protected $storage;
 
     /**
      * @var TerminalPuntoVenta
@@ -35,26 +38,24 @@ class PointOfSaleSession
     public function __construct(User $user)
     {
         $this->user = $user;
+        $this->terminal = new TerminalPuntoVenta();
+        $this->session = new SesionPuntoVenta();
 
         $this->loadSession($user->nick);
     }
 
     protected function loadSession(string $nick): void
     {
-        $this->session = new SesionPuntoVenta();
-        $this->terminal = new TerminalPuntoVenta();
-        $this->storage = new PointOfSaleStorage($this->session);
-
-        if (false === $this->session->loadFromUser($nick)) {
+        if (false === $this->session->getUserSession($nick)) {
             return;
         }
 
         $this->loadTerminal($this->session->idterminal);
     }
 
-    protected function loadTerminal(string $id): bool
+    protected function loadTerminal(string $code): bool
     {
-        if (false === $this->terminal->loadFromCode($id)) {
+        if (false === $this->terminal->loadFromCode($code)) {
             ToolBox::i18nLog()->warning('cash-register-not-found');
             return false;
         }
@@ -70,16 +71,6 @@ class PointOfSaleSession
     public function getSession(): SesionPuntoVenta
     {
         return $this->session;
-    }
-
-    /**
-     * Return current session OrderStorage.
-     *
-     * @return PointOfSaleStorage
-     */
-    public function getStorage(): PointOfSaleStorage
-    {
-        return $this->storage;
     }
 
     /**
@@ -117,24 +108,18 @@ class PointOfSaleSession
         return $this->isOpen() ? '/Block/POS/Main' : '/Block/POS/Login';
     }
 
-    public function openSession(string $terminalID, float $amount = 0.0)
+    public function openSession(string $terminal, float $amount = 0.0)
     {
         if (true === $this->session->abierto) {
             ToolBox::i18nLog()->info('till-session-allready-opened');
             return;
         }
 
-        if (false === $this->loadTerminal($terminalID)) {
+        if (false === $this->loadTerminal($terminal)) {
             return;
         }
 
-        $this->session->abierto = true;
-        $this->session->idterminal = $terminalID;
-        $this->session->nickusuario = $this->user->nick;
-        $this->session->saldoinicial = $amount;
-        $this->session->saldoesperado = $amount;
-
-        if ($this->session->save()) {
+        if ($this->session->openSession($this->terminal, $amount, $this->user->nick)) {
             $params = [
                 '%terminalName%' => $this->terminal->nombre,
                 '%userNickname%' => $this->user->nick,
@@ -181,6 +166,58 @@ class PointOfSaleSession
             $this->terminal->save();
             $this->open = false;
         }
+    }
+
+    public function completePausedOrder(string $code): bool
+    {
+        return $this->session->completePausedOrder($code);
+    }
+
+    public function deletePausedOrder(string $code): bool
+    {
+        return $this->session->deletePausedOrder($code);
+    }
+
+    public function getLastOrder(): OrdenPuntoVenta
+    {
+        return $this->lastOrder;
+    }
+
+    public function getOrder($code): OrdenPuntoVenta
+    {
+        return $this->session->getOrder($code);
+    }
+
+    public function getOrders(): array
+    {
+        return $this->session->getOrders();
+    }
+
+    public function getPausedOrder($code): OperacionPausada
+    {
+        return $this->session->getPausedOrder($code);
+    }
+
+    public function getPausedOrders(): array
+    {
+        return $this->session->getPausedOrders();
+    }
+
+    /**
+     * @param BusinessDocument $document
+     * @return bool
+     */
+    public function saveOrder(BusinessDocument $document): bool
+    {
+        $this->lastOrder = new OrdenPuntoVenta();
+
+        if (false === $this->session->saveOrder($document, $this->lastOrder)) {
+            return false;
+        }
+
+        $this->completePausedOrder($document->idpausada);
+
+        return true;
     }
 
     /**

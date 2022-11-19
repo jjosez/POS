@@ -8,6 +8,11 @@ namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Core\Model\Base\BusinessDocument;
+use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
+use FacturaScripts\Dinamic\Model\OperacionPausada;
+use FacturaScripts\Dinamic\Model\TerminalPuntoVenta as TerminalPuntoVenta;
+use FacturaScripts\Dinamic\Model\User;
 
 /**
  * Sesion en la que se registran las operaciones de las terminales POS.
@@ -51,47 +56,45 @@ class SesionPuntoVenta extends Base\ModelClass
         return parent::install();
     }
 
-    public function loadFromUser(string $nickname): bool
+    public static function primaryColumn(): string
     {
-        $where = [
-            new DataBaseWhere('nickusuario', $nickname, '='),
-            new DataBaseWhere('abierto', true, '=')
-        ];
-
-        return $this->loadFromCode('', $where);
+        return 'idsesion';
     }
 
-    public function getTerminal(): TerminalPuntoVenta
+    public static function tableName(): string
     {
-        $terminal = new TerminalPuntoVenta();
-        $terminal->loadFromCode($this->idterminal);
-
-        return $terminal;
+        return 'sesionespos';
     }
 
-    public function isOpen($search, $value): bool
+    /**
+     * @param string|null $code
+     * @return bool
+     */
+    public function completePausedOrder(?string $code): bool
     {
-        switch ($search) {
-            case 'terminal':
-                $where = [
-                    new DataBaseWhere('idterminal', $value, '='),
-                    new DataBaseWhere('abierto', true, '=')
-                ];
-                break;
+        $pausedOrder = new OperacionPausada();
 
-            case 'user':
-                $where = [
-                    new DataBaseWhere('nickusuario', $value, '='),
-                    new DataBaseWhere('abierto', true, '=')
-                ];
-                break;
+        if ($code && $pausedOrder->loadFromCode($code)) {
+            $pausedOrder->idestado = 3;
 
-            default:
-                // code...
-                break;
+            return $pausedOrder->save();
+        }
+        return false;
+    }
+
+    /**
+     * @param string $code
+     * @return bool
+     */
+    public function deletePausedOrder(string $code): bool
+    {
+        $pausedOrder = new OperacionPausada();
+
+        if ($code && $pausedOrder->loadFromCode($code)) {
+            return $pausedOrder->delete();
         }
 
-        return $this->loadFromCode('', $where);
+        return false;
     }
 
     /**
@@ -99,19 +102,72 @@ class SesionPuntoVenta extends Base\ModelClass
      *
      * @return MovimientoPuntoVenta[]
      */
-    public function getOperaciones(): array
+    public function getCashMovments(): array
     {
         $operacion = new MovimientoPuntoVenta();
         $where = [new DataBaseWhere('idsesion', $this->idsesion)];
-        $order = ['idsesion' => 'ASC'];
 
-        return $operacion->all($where, $order, 0, 0);
+        return $operacion->all($where);
+    }
+
+    /**
+     * @param string $code
+     * @return OrdenPuntoVenta|false
+     */
+    public function getOrder(string $code): OrdenPuntoVenta
+    {
+        $order = new OrdenPuntoVenta();
+
+        return $order->get($code);
+    }
+
+    /**
+     * @return OrdenPuntoVenta[]
+     */
+    public function getOrders(): array
+    {
+        $order = new OrdenPuntoVenta();
+        $where = [new DataBaseWhere('idsesion', $this->idsesion)];
+
+        return $order->all($where);
+    }
+
+    /**
+     * @param string $code
+     * @return OperacionPausada
+     */
+    public function getPausedOrder(string $code): OperacionPausada
+    {
+        $order = new OperacionPausada();
+        $order->loadFromCode($code);
+
+        $order->codigo = null;
+        $order->fecha = date($order::DATE_STYLE);
+        $order->hora = date($order::HOUR_STYLE);
+
+        return $order;
+    }
+
+    /**
+     * @return OrdenPuntoVenta[]
+     */
+    public function getPausedOrders($ownOrders = false): array
+    {
+        $pausedOrder = new OperacionPausada();
+
+        $where = [new DataBaseWhere('editable', true)];
+
+        if (true === $ownOrders) {
+            $where[] = new DataBaseWhere('idsesion', $this->idsesion);
+        }
+
+        return $pausedOrder->all($where);
     }
 
     /**
      * @return PagoPuntoVenta[]
      */
-    public function getPagos(): array
+    public function getPayments(): array
     {
         $pago = new PagoPuntoVenta();
         $where = [new DataBaseWhere('idsesion', $this->idsesion)];
@@ -122,10 +178,10 @@ class SesionPuntoVenta extends Base\ModelClass
     /**
      * @return array
      */
-    public function getPagosTotales(): array
+    public function getPaymentsAmount(): array
     {
         $result = [];
-        foreach ($this->getPagos() as $pago) {
+        foreach ($this->getPayments() as $pago) {
             if (array_key_exists($pago->codpago, $result)) {
                 $result[$pago->codpago]['total'] += $pago->pagoNeto();
             } else {
@@ -137,13 +193,68 @@ class SesionPuntoVenta extends Base\ModelClass
         return $result;
     }
 
-    public static function primaryColumn(): string
+    /**
+     * @return TerminalPuntoVenta
+     */
+    public function getTerminal(): TerminalPuntoVenta
     {
-        return 'idsesion';
+        $terminal = new TerminalPuntoVenta();
+        $terminal->loadFromCode($this->idterminal);
+
+        return $terminal;
     }
 
-    public static function tableName(): string
+    /**
+     * @param string $nickname
+     * @return bool
+     */
+    public function getUserSession(string $nickname): bool
     {
-        return 'sesionespos';
+        $where = [
+            new DataBaseWhere('nickusuario', $nickname, '='),
+            new DataBaseWhere('abierto', true, '=')
+        ];
+
+        return $this->loadFromCode('', $where);
+    }
+
+    public function openSession(TerminalPuntoVenta $terminal, float $amount, string $nick): bool
+    {
+        $this->abierto = true;
+        $this->idterminal = $terminal->idterminal;
+        $this->nickusuario = $nick;
+        $this->saldoinicial = $amount;
+        $this->saldoesperado = $amount;
+
+        return $this->save();
+    }
+
+    /**
+     * @param BusinessDocument $document
+     * @param $order
+     * @return bool
+     */
+    public function saveOrder(BusinessDocument $document, $order): bool
+    {
+        $order->codigo = $document->codigo;
+        $order->codcliente = $document->codcliente;
+        $order->fecha = $document->fecha;
+        $order->iddocumento = $document->primaryColumnValue();
+        $order->idsesion = $this->idsesion;
+        $order->tipodoc = $document->modelClassName();
+        $order->total = $document->total;
+
+        return $order->save();
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function updateUser(User $user): bool
+    {
+        $this->nickusuario = $user->nick;
+
+        return $this->save();
     }
 }

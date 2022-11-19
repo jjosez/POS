@@ -11,57 +11,30 @@ use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 
 class PointOfSalePayments
 {
-    /**
-     * @var array
-     */
-    protected $payments = [];
-
-    /**
-     * @var float
-     */
-    protected $cashPaymentAmount = 0.0;
-
-    /**
-     * @var OrdenPuntoVenta
-     */
-    protected $order;
-    /**
-     * @var string
-     */
-    protected $cashPaymentMethod;
-
-    public function __construct(OrdenPuntoVenta $order, string $cashPaymentMethod)
+    public static function saveOrderPayments($cashMethod, $order, $payments): float
     {
-        $this->cashPaymentMethod = $cashPaymentMethod;
-        $this->order = $order;
-    }
+        $cashAmount = 0.0;
 
-    /**
-     * @return float
-     */
-    public function getCashPaymentAmount(): float
-    {
-        return $this->cashPaymentAmount;
-    }
-
-    public function savePayments(array $payments = []): void
-    {
         foreach ($payments as $payment) {
-            if ($payment['method'] === $this->cashPaymentMethod) {
-                $this->cashPaymentAmount += $payment['amount'] - $payment['change'];
+            if ($payment['method'] === $cashMethod) {
+                $cashAmount += $payment['amount'] - $payment['change'];
             }
-            $this->savePayment($payment);
+
+            self::savePayment($payment, $order);
         }
+
+        return $cashAmount;
     }
 
-    protected function savePayment(array $payment): void
+    protected static function savePayment(array $payment, OrdenPuntoVenta $order)
     {
         $pago = new PagoPuntoVenta();
+
         $pago->cantidad = $payment['amount'];
         $pago->cambio = $payment['change'];
         $pago->codpago = $payment['method'];
-        $pago->idoperacion = $this->order->idoperacion;
-        $pago->idsesion = $this->order->idsesion;
+        $pago->idoperacion = $order->idoperacion;
+        $pago->idsesion = $order->idsesion;
 
         $pago->save();
     }

@@ -29,7 +29,7 @@
                     </tr>
                     </thead>
                     <tbody id="lastOrdersList" class="font-semibold text-slate-gray-700">
-                    {% for operation in fsc.session.getStorage().getLastOrders() %}
+                    {% for operation in fsc.session.getOrders() %}
                         <tr class="px-3 bg-blue-100 hover:bg-yellow-200">
                             <td class="px-3 text-center py-3">{{ operation.codigo }}</td>
                             <td class="px-3 text-center">{{ i18n.trans(operation.tipodoc) }}</td>
