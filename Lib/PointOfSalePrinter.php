@@ -7,6 +7,7 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Model\Base\BusinessDocument;
+use FacturaScripts\Dinamic\Lib\Ticket\Builder\SalesTicket;
 use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Plugins\PrintTicket\Lib\PrintingService;
@@ -26,7 +27,7 @@ class PointOfSalePrinter
 
     public static function salesTicket(BusinessDocument $document, int $width)
     {
-        $ticketBuilder = new SalesTicketBuilder($document, $width);
+        $ticketBuilder = new SalesTicket($document, $width);
 
         $salesTicket = new PrintingService($ticketBuilder);
         $salesTicket->savePrintJob();

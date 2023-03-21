@@ -122,6 +122,10 @@ class POS extends Controller
                 $this->buildResponse();
                 return false;
 
+            case 'set-family-filter':
+                $this->setFamilyFilter();
+                return false;
+
             default:
                 $this->setResponse('Funcion no encontrada');
                 return true;
@@ -386,7 +390,7 @@ class POS extends Controller
 
     protected function savePayments(array $payments, $order)
     {
-        $cashAmount = PointOfSalePayments::saveOrderPayments($this->getCashPaymentMethod(), $order, $payments);
+        $cashAmount = PointOfSalePayments::savePayments($this->getCashPaymentMethod(), $order, $payments);
 
         $this->getSession()->updateCashAmount($cashAmount);
     }

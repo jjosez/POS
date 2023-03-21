@@ -4,7 +4,6 @@ namespace FacturaScripts\Plugins\POS;
 
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\InitClass;
-use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Plugins\POS\Model\TerminalPuntoVenta;
 
 class Init extends InitClass
@@ -12,6 +11,7 @@ class Init extends InitClass
     public function init()
     {
         $this->loadExtension(new Extension\Controller\EditFamilia());
+        $this->loadExtension(new Extension\Model\Base\SalesDocument());
     }
 
     public function update()

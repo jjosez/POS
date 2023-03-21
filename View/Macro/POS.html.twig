@@ -21,7 +21,7 @@
         <div class="mr-4 flex items-center">
             <% if (item.image) { %>
             <img class="pointer-events-auto object-scale-down h-32 w-32" src="<%= item.image %>"
-                             data-action="productImageAction" data-id="<%= item.id %>" data-code="<%= item.code %>">
+                 data-action="productImageAction" data-id="<%= item.id %>" data-code="<%= item.code %>">
             <% } else { %>
             <span><i class="fas fa-3x fa-box"></i></span>
             <% } %>
@@ -97,7 +97,8 @@
                        data-action="editProductFieldAction" data-field="cantidad" data-index="<%= index %>"
                        value="<%= value.cantidad %>">
             </label>
-            <div class="flex-1 mx-2">
+            <div role="listitem" class="flex-1 mx-2 cursor-pointer" data-action="quickEditProductAction"
+                 data-index="<%= index %>">
                 <h4 class="text-sm uppercase font-semibold text-gray-800"><%= value.referencia %></h4>
                 <p><%= value.descripcion %></p>
                 {# <span class="text-blue-500 uppercase">
@@ -151,6 +152,28 @@
     </tr>
     <% }) %>
 {% endmacro %}
+
+{% macro familyListTemplate() %}
+    <% if (it.items.madre.codfamilia){ %>
+    <div role="listitem"
+         class="text-white bg-blue-500 p-4 shadow-sm rounded-lg font-semibold cursor-pointer align-middle	"
+         data-action="setProductFamilyAction"
+         data-code="<%= it.items.madre.madre ?? '' %>"
+         data-madre="<%= it.items.madre.madre ?? '' %>">
+        REGRESAR
+    </div>
+    <% } %>
+    <% it.items.children.forEach(function(familia){ %>
+    <div role="listitem"
+         class="bg-slate-100 p-4 shadow-sm rounded-lg font-semibold cursor-pointer"
+         data-action="setProductFamilyAction"
+         data-code="<%= familia.codfamilia %>"
+         data-madre="<%= familia.madre %>">
+        <%= familia.descripcion %>
+    </div>
+    <% }) %>
+{% endmacro %}
+
 
 {% macro productEditTemplate(columns) %}
     {% for column in columns %}

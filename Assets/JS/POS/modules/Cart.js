@@ -36,6 +36,14 @@ function editProductAction({index}) {
 }
 
 /**
+ * @param {{index:int}} data
+ */
+function quickEditProductAction({index}) {
+    cartView().updateEditForm(Cart.getProduct(index));
+    cartView().showQuickEditView();
+}
+
+/**
  * @param {{index:int, field:string}} data
  * @param value
  */
@@ -120,6 +128,9 @@ function clickCartEventHandler(event) {
         case 'editProductAction':
             return editProductAction(data);
 
+        case 'quickEditProductAction':
+            return quickEditProductAction(data);
+
         case 'setCustomerAction':
             return setCustomerAction(data);
 
@@ -142,6 +153,7 @@ function editCartEventHandler(event) {
     switch (action) {
         case 'editDiscountAction':
             return editDiscountAction(event.target.value);
+
         case 'editProductFieldAction':
             return editProductFieldAction(data, event.target.value);
     }

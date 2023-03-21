@@ -95,6 +95,10 @@ async function showProductImagesAction({id, code}) {
     mainView().toggleProductImageModal();
 }
 
+async function showProductFamiliesAction({code, madre}) {
+    mainView().updateFamilyListView(await Core.getProductFamilyChild(code, madre));
+}
+
 /**
  * @param {Event} event
  */
@@ -142,6 +146,9 @@ async function appEventHandler(event) {
 
         case 'setProductFilter':
             return console.log('FiltroProducto');
+
+        case 'setProductFamilyAction':
+            return showProductFamiliesAction(data);
     }
 }
 

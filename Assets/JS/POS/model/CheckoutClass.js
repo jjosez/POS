@@ -66,7 +66,7 @@ class CheckoutClass {
                 return true;
             }
             return false;
-        }) && amount > 0) {
+        }) && amount !== 0) {
             this.payments.push({amount: amount, method: method, description: description, change: 0});
         }
 

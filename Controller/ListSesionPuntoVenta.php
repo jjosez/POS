@@ -14,13 +14,17 @@ use FacturaScripts\Core\Lib\ExtendedController;
  */
 class ListSesionPuntoVenta extends ExtendedController\ListController
 {
+    protected function getClassName(): string
+    {
+        return parent::getClassName();
+    }
 
     /**
      * Returns basic page attributes
      *
      * @return array
      */
-    public function getPageData()
+    public function getPageData(): array
     {
         $pagedata = parent::getPageData();
         $pagedata['title'] = 'till-sessions';

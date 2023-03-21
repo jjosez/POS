@@ -34,9 +34,14 @@ export const cartView = () => {
         'total': getElement('orderTotal'),
         'holdButton': getElement('orderHoldButton'),
         'productEditModal': getElement('productEditModal'),
+        'productQuickEditModal': getElement('productQuickEditModal'),
 
         showEditView: function () {
             toggleModal(this.productEditModal);
+        },
+
+        showQuickEditView: function () {
+            toggleModal(this.productQuickEditModal);
         },
 
         toggleEditView: function () {
@@ -144,6 +149,8 @@ export const mainView = () => {
         'stockDetailModal': getElement('stockDetailModal'),
         'stockDetailList': getElement('stockDetailList'),
         'stockDetailListTemplate': getTemplate('stockDetailListTemplate'),
+        'familyList': getElement('familyList'),
+        'familyListTemplate': getTemplate('familyListTemplate'),
 
         toggleMainView: function () {
             this.main.classList.toggle('hidden');
@@ -207,6 +214,10 @@ export const mainView = () => {
 
         updateStockListView: function (data = []) {
             this.stockDetailList.innerHTML = this.stockDetailListTemplate({items: data}, Eta.config);
+        },
+
+        updateFamilyListView: function (data = []) {
+            this.familyList.innerHTML = this.familyListTemplate({items: data}, Eta.config);
         }
     }
 }
@@ -287,7 +298,7 @@ document.addEventListener('click', function (event) {
 }, false);
 
 window.addEventListener("click", function (event) {
-    var menu = getElement('navbarMenu');
+    let menu = getElement('navbarMenu');
 
     if (!menu.contains(event.target) && !menu.classList.contains('hidden')) {
         menu.classList.add('hidden');

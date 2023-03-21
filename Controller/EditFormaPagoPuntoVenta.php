@@ -20,7 +20,7 @@ class EditFormaPagoPuntoVenta extends ExtendedController\EditController
     /**
      * Returns the model name
      */
-    public function getModelClassName()
+    public function getModelClassName(): string
     {
         return 'FormaPagoPuntoVenta';
     }
@@ -30,7 +30,7 @@ class EditFormaPagoPuntoVenta extends ExtendedController\EditController
      *
      * @return array
      */
-    public function getPageData()
+    public function getPageData(): array
     {
         $pagedata = parent::getPageData();
         $pagedata['title'] = 'cash-register-payment-method';

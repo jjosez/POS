@@ -35,6 +35,7 @@
     {{ include('Modal/POS/LastOrders.html.twig') }}
     {{ include('Modal/POS/PausedOrders.html.twig') }}
     {{ include('Modal/POS/ProductEdit.html.twig') }}
+    {{ include('Modal/POS/ProductQuickEdit.html.twig') }}
     {{ include('Modal/POS/ProductFilter.html.twig') }}
     {{ include('Modal/POS/ProductStockDetail.html.twig') }}
     {{ include('Modal/POS/ProductImages.html.twig') }}
@@ -58,6 +59,12 @@
     <script id="customerListTemplate" type="text/template">
         {{ pos.customerSearchTemplate() }}
     </script>
+    <script id="familyListTemplate" type="text/template">
+        {{ pos.familyListTemplate() }}
+    </script>
+    <script id="lastOrdersListTemplate" type="text/template">
+        {{ pos.lastOrdersTemplate() }}
+    </script>
     <script id="paymentListTemplate" type="text/template">
         {{ pos.paymentListTemplate(i18n) }}
     </script>
@@ -69,9 +76,6 @@
     </script>
     <script id="pausedOrdersListTemplate" type="text/template">
         {{ pos.pausedOrdersTemplate() }}
-    </script>
-    <script id="lastOrdersListTemplate" type="text/template">
-        {{ pos.lastOrdersTemplate() }}
     </script>
     <script id="stockDetailListTemplate" type="text/template">
         {{ pos.stockDetailTemplate() }}

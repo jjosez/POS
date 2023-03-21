@@ -20,7 +20,7 @@ class ListTerminalPuntoVenta extends ExtendedController\ListController
      *
      * @return array
      */
-    public function getPageData()
+    public function getPageData(): array
     {
         $pagedata = parent::getPageData();
         $pagedata['title'] = 'cash-registers';

@@ -18,7 +18,7 @@ class EditDenominacionMoneda extends ExtendedController\EditController
     /**
      * Returns the model name
      */
-    public function getModelClassName()
+    public function getModelClassName(): string
     {
         return 'DenominacionMoneda';
     }
@@ -28,7 +28,7 @@ class EditDenominacionMoneda extends ExtendedController\EditController
      *
      * @return array
      */
-    public function getPageData()
+    public function getPageData(): array
     {
         $pagedata = parent::getPageData();
         $pagedata['title'] = 'currency-denomination';

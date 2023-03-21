@@ -29,7 +29,7 @@ function paymentRecalculateAction({value}) {
  * Set new payment from dialog.
  */
 function paymentSetAction(data) {
-    if (checkoutView().paymentInput.value === 0 || checkoutView().paymentInput.value === '') {
+    if (checkoutView().paymentInput.valueAsNumber === 0 || checkoutView().paymentInput.value === '') {
         checkoutView().paymentInput.value = Checkout.getOutstandingBalance();
     }
 
@@ -53,7 +53,7 @@ function updateTotals({detail}) {
  * Update checkout view, when new payment was added.
  */
 function updateView() {
-    checkoutView().enableConfirmButton(Checkout.change >= 0 && Checkout.total > 0);
+    checkoutView().enableConfirmButton(Checkout.change >= 0 && Checkout.total !== 0);
     checkoutView().updateTotals(Checkout);
     checkoutView().updatePaymentList(Checkout);
 }

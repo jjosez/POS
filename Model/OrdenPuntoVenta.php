@@ -3,11 +3,13 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
+
 namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
 use FacturaScripts\Core\Model\Base\BusinessDocument;
+use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 
 /**
  * Operaciones realizadas terminales POS.
@@ -20,11 +22,11 @@ class OrdenPuntoVenta extends Base\ModelClass
 
     public $codcliente;
     public $fecha;
-    public $hora; 
-    public $iddocumento;   
+    public $hora;
+    public $iddocumento;
     public $idoperacion;
     public $idsesion;
-    public $tipodoc; 
+    public $tipodoc;
     public $total;
 
     public function clear()
@@ -44,6 +46,31 @@ class OrdenPuntoVenta extends Base\ModelClass
         return 'operacionespos';
     }
 
+    /**
+     * @param string $doctype
+     * @param string $code
+     * @return bool
+     */
+    public function loadFromDocument(string $doctype, string $code): bool
+    {
+        $where = [
+            new DataBaseWhere('iddocumento', $code),
+            new DataBaseWhere('tipodoc', $doctype)
+        ];
+
+        return $this->loadFromCode('', $where);
+    }
+
+    /**
+     * @return PagoPuntoVenta[]
+     */
+    public function getPayments(): array
+    {
+        $where = [new DataBaseWhere('idoperacion', $this->idoperacion)];
+
+        return (new PagoPuntoVenta())->all($where);
+    }
+
     public function getDocument(): BusinessDocument
     {
         $className = '\\FacturaScripts\\Dinamic\\Model\\' . $this->tipodoc;
@@ -57,9 +84,9 @@ class OrdenPuntoVenta extends Base\ModelClass
      *
      * @param string $code
      *
-     * @return MovimientoPuntoVenta[]
+     * @return OrdenPuntoVenta[]
      */
-    public function allFromSession(string $code)
+    public function allFromSession(string $code): array
     {
         $where = [new DataBaseWhere('idsesion', $code)];
 

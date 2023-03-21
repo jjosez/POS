@@ -6,6 +6,7 @@
 
 namespace FacturaScripts\Plugins\POS\Lib;
 
+use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\Familia;
@@ -23,9 +24,10 @@ trait PointOfSaleTrait
     /**
      * @return array
      */
-    public function getFamilies(): array
+    public function getParentFamilies(): array
     {
-        return (new Familia())->all();
+        $where = [new DataBaseWhere('madre', NULL, 'IS')];
+        return (new Familia())->all($where);
     }
 
     /**
@@ -132,6 +134,8 @@ trait PointOfSaleTrait
     /**
      * Return some products for initial view
      *
+     * @param string $id
+     * @param string $code
      * @return array
      */
     public function getProductImage(string $id, string $code): array
@@ -144,6 +148,8 @@ trait PointOfSaleTrait
     /**
      * Return product images url list
      *
+     * @param string $id
+     * @param string $code
      * @return array
      */
     public function getProductImageList(string $id, string $code): array
@@ -257,6 +263,26 @@ trait PointOfSaleTrait
             $this->getTerminal()->anchopapel);
 
         $this->toolBox()->log()->info($message);
+    }
+
+    /**
+     *
+     */
+    public function setFamilyFilter(): void
+    {
+        $codfamilia = $this->request->request->get('code', '');
+
+        $where = [new DataBaseWhere('madre', $codfamilia)];
+
+        $familia = new Familia();
+        $familia->loadFromCode($codfamilia);
+
+        $result = [
+            'madre' => $familia->codfamilia ? $familia : '',
+            'children' => $codfamilia ? $familia->all($where) : $this->getParentFamilies()
+        ];
+
+        $this->setResponse($result);
     }
 
     protected function setNewToken(): void

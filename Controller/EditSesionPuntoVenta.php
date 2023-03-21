@@ -17,11 +17,18 @@ use FacturaScripts\Core\Lib\ExtendedController;
 class EditSesionPuntoVenta extends ExtendedController\EditController
 {
     /**
+     * Returns the model name
+     */
+    public function getModelClassName(): string
+    {
+        return 'SesionPuntoVenta';
+    }
+    /**
      * Returns basic page attributes
      *
      * @return array
      */
-    public function getPageData()
+    public function getPageData(): array
     {
         $pagedata = parent::getPageData();
         $pagedata['title'] = 'till-session';
@@ -76,14 +83,6 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
         $this->setSettings($viewName, 'btnNew', false);
         $this->setSettings($viewName, 'btnDelete', false);
         $this->setSettings($viewName, 'clickable', false);
-    }
-
-    /**
-     * Returns the model name
-     */
-    public function getModelClassName()
-    {
-        return 'SesionPuntoVenta';
     }
 
     protected function loadData($viewName, $view)

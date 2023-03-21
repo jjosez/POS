@@ -87,6 +87,20 @@ export function getProductImages(id, code) {
 }
 
 /**
+ * @param {string} code
+ * @param {string} madre
+ */
+export function getProductFamilyChild(code, madre) {
+    const data = new FormData();
+
+    data.set('action', 'set-family-filter');
+    data.set('code', code);
+    data.set('madre', madre);
+
+    return postRequest(data);
+}
+
+/**
  * @param {string} action
  * @param {string} query
  */

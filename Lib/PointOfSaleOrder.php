@@ -102,9 +102,11 @@ class PointOfSaleOrder
             throw new UnexpectedValueException("Class $className is not a valid BusinessDocument");
         }
 
-        $exclude = ['neto', 'total', 'totalirpf', 'totaliva', 'totalrecargo', 'totalsuplidos'];
+        //$exclude = ['neto', 'total', 'totalirpf', 'totaliva', 'totalrecargo', 'totalsuplidos'];
 
-        $this->document->loadFromData($data, $exclude);
+        //$this->document->loadFromData($data, $exclude);
+        $this->document->loadFromData($data);
+        $this->document->posorder = true;
         $this->document->updateSubject();
     }
 
