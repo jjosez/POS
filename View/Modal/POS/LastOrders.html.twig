@@ -32,7 +32,7 @@
                     {% for operation in fsc.session.getOrders() %}
                         <tr class="px-3 bg-blue-100 hover:bg-yellow-200">
                             <td class="px-3 text-center py-3">{{ operation.codigo }}</td>
-                            <td class="px-3 text-center">{{ i18n.trans(operation.tipodoc) }}</td>
+                            <td class="px-3 text-center">{{ operation.tipodocumento }}</td>
                             <td class="px-3 text-right">{{ operation.fecha }}</td>
                             <td class="px-3 text-right">{{ operation.hora }}</td>
                             <td class="px-3 text-right">{{ fsc.toolBox().coins().format(operation.total) }}</td>

@@ -24,6 +24,18 @@ export function reprintRequest(code) {
     return postRequest(data);
 }
 
+/**
+ * @param {string} code
+ */
+export function reprintPausedOrderRequest(code) {
+    const data = new FormData();
+
+    data.set('action', 'reprint-paused-order');
+    data.set('code', code);
+
+    return postRequest(data);
+}
+
 export function getLastOrders(){
     const data = new FormData();
 

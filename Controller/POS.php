@@ -95,6 +95,7 @@ class POS extends Controller
 
             case 'save-order':
                 $this->saveOrder();
+                $this->buildResponse();
                 return false;
 
             case 'get-orders-on-hold':
@@ -115,6 +116,10 @@ class POS extends Controller
 
             case 'reprint-order':
                 $this->reprintOrder();
+                return false;
+
+            case 'reprint-paused-order':
+                $this->reprintPausedOrder();
                 return false;
 
             case 'print-closing-voucher':
@@ -287,7 +292,21 @@ class POS extends Controller
 
         if ($code) {
             $order = $this->getSession()->getOrder($code);
-            $this->printVoucher($order->getDocument());
+            $this->printVoucher($order->getDocument(), []);
+            $this->buildResponse();
+        }
+    }
+
+    /**
+     * Reprint order by code.
+     */
+    protected function reprintPausedOrder()
+    {
+        $code = $this->request->request->get('code', '');
+
+        if ($code) {
+            $document = $this->getSession()->getPausedOrder($code);
+            $this->printVoucher($document, []);
             $this->buildResponse();
         }
     }
@@ -344,22 +363,18 @@ class POS extends Controller
 
         if (false === $saleOrder->saveDocument()) {
             $this->dataBase->rollback();
-            $this->buildResponse();
             return;
         }
 
         if (false === $this->getSession()->saveOrder($saleOrder->getDocument())) {
             $this->dataBase->rollback();
-            $this->buildResponse();
             return;
         }
 
         $this->dataBase->commit();
 
         $this->savePayments($saleRequest->getPaymentList(), $this->getSession()->getLastOrder());
-        $this->printVoucher($saleOrder->getDocument());
-
-        $this->buildResponse();
+        $this->printVoucher($saleOrder->getDocument(), $saleRequest->getPaymentList());
     }
 
     /**

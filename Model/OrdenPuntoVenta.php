@@ -61,6 +61,13 @@ class OrdenPuntoVenta extends Base\ModelClass
         return $this->loadFromCode('', $where);
     }
 
+    public function loadFromData(array $data = [], array $exclude = [])
+    {
+        parent::loadFromData($data, $exclude);
+
+        $this->tipodocumento = self::toolBox()::i18n()->trans($this->tipodoc);
+    }
+
     /**
      * @return PagoPuntoVenta[]
      */

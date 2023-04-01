@@ -3,6 +3,7 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Dinamic\Model\Empresa;
+use FacturaScripts\Dinamic\Model\FormatoTicket;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Plugins\PrintTicket\Lib\Ticket\Builder\AbstractTicketBuilder;
 
@@ -11,9 +12,9 @@ class PointOfSaleClosingVoucher extends AbstractTicketBuilder
     protected $company;
     protected $session;
 
-    public function __construct(SesionPuntoVenta $session, Empresa $company, int $width)
+    public function __construct(SesionPuntoVenta $session, Empresa $company, ?FormatoTicket $formato = null)
     {
-        parent::__construct($width);
+        parent::__construct($formato);
 
         $this->session = $session;
         $this->company = $company;
@@ -25,47 +26,47 @@ class PointOfSaleClosingVoucher extends AbstractTicketBuilder
     {
         $this->printer->lineBreak();
 
-        $this->printer->lineSplitter('=');
-        $this->printer->text($this->company->nombrecorto, true, true);
-        $this->printer->bigText($this->company->direccion, true, true);
+        $this->printer->lineSeparator('=');
+        $this->printer->textCentered($this->company->nombrecorto);
+        $this->printer->textCentered($this->company->direccion);
 
         if ($this->company->telefono1) {
-            $this->printer->text('TEL: ' . $this->company->telefono1, true, true);
+            $this->printer->textCentered('TEL: ' . $this->company->telefono1);
         }
         if ($this->company->telefono2) {
-            $this->printer->text('TEL: ' . $this->company->telefono2, true, true);
+            $this->printer->textCentered('TEL: ' . $this->company->telefono2);
         }
 
-        $this->printer->text($this->company->cifnif, true, true);
-        $this->printer->LineSplitter('=');
+        $this->printer->textCentered($this->company->cifnif, true, true);
+        $this->printer->lineSeparator('=');
     }
 
     protected function buildBody(): void
     {
-        $this->printer->text('CIERRE', true, true);
-        $this->printer->keyValueText('DESDE', $this->session->fechainicio);
-        $this->printer->keyValueText('HASTA', $this->session->fechafin);
-        $this->printer->lineSplitter('=');
+        $this->printer->textCentered('CIERRE');
+        $this->printer->textColumns('DESDE', $this->session->fechainicio);
+        $this->printer->textColumns('HASTA', $this->session->fechafin);
+        $this->printer->lineSeparator('=');
 
-        $this->printer->keyValueText('SALDO INICIAL', $this->session->saldoinicial);
-        $this->printer->lineSplitter();
+        $this->printer->textColumns('SALDO INICIAL', $this->session->saldoinicial);
+        $this->printer->lineSeparator();
 
-        $this->printer->text('RESUMEN DE PAGOS', true, true);
+        $this->printer->textCentered('RESUMEN DE PAGOS');
         $this->printer->lineBreak();
 
         foreach ($this->session->getPaymentsAmount() as $payment) {
-            $this->printer->keyValueText(strtoupper($payment['descripcion']), $payment['total']);
+            $this->printer->textColumns(strtoupper($payment['descripcion']), $payment['total'], 'L', 'R');
         }
 
-        $this->printer->lineSplitter('=');
-        $this->printer->keyValueText('TOTAL ESPERADO', $this->session->saldoesperado);
-        $this->printer->keyValueText('TOTAL CONTADO', $this->session->saldocontado);
+        $this->printer->lineSeparator('=');
+        $this->printer->textColumns('TOTAL ESPERADO', $this->session->saldoesperado, 'L', 'R');
+        $this->printer->textColumns('TOTAL CONTADO', $this->session->saldocontado, 'L', 'R');
     }
 
     protected function buildFooter(): void
     {
         $this->printer->lineBreak(3);
-        $this->printer->text('FIRMA', true, true);
+        $this->printer->textCentered('FIRMA');
     }
 
     public function getResult(): string
@@ -74,8 +75,9 @@ class PointOfSaleClosingVoucher extends AbstractTicketBuilder
         $this->buildBody();
         $this->buildFooter();
 
-        $this->printer->lineBreak(3);
+        $this->printer->lineFeed(3);
+        $this->printer->textCentered('.');
 
-        return $this->printer->output();
+        return $this->printer->getBuffer();
     }
 }

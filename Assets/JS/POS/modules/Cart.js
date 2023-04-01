@@ -16,7 +16,7 @@ const Cart = new CartClass({
 /**
  * @param {{index:int}} data
  */
-function deleteProductAction({index}) {
+function productDeleteAction({index}) {
     Cart.deleteProduct(index);
 }
 
@@ -30,7 +30,7 @@ function editDiscountAction(value) {
 /**
  * @param {{index:int}} data
  */
-function editProductAction({index}) {
+function productShowEditDialog({index}) {
     cartView().updateEditForm(Cart.getProduct(index));
     cartView().showEditView();
 }
@@ -38,21 +38,42 @@ function editProductAction({index}) {
 /**
  * @param {{index:int}} data
  */
-function quickEditProductAction({index}) {
-    cartView().updateEditForm(Cart.getProduct(index));
-    cartView().showQuickEditView();
+function productShowQuantityEditDialog({index}) {
+    const product = Cart.getProduct(index);
+    cartView().updateEditForm(product);
+    cartView().showQuantityEditView(product);
 }
 
 /**
- * @param {{index:int, field:string}} data
+ * @param {{index:string, field:string}} data
  * @param value
  */
-function editProductFieldAction({index, field}, value) {
+function productEditFieldAction({index, field}, value) {
     Cart.editProduct(index, field, value);
 
     onChangeCartAction().then(() => {
         cartView().updateEditForm(Cart.getProduct(index));
     });
+}
+
+function productQuantityDecreaseAction() {
+    let value = cartView().productQuantityInput.valueAsNumber;
+    let index = cartView().productQuantityInput.dataset.index
+    value -= 1;
+
+    cartView().productQuantityInput.valueAsNumber = value;
+
+    productEditFieldAction({index: index, field: 'cantidad'}, value);
+}
+
+function productQuantityIncreaseAction() {
+    let value = cartView().productQuantityInput.valueAsNumber++;
+    let index = cartView().productQuantityInput.dataset.index
+    value += 1;
+
+    cartView().productQuantityInput.valueAsNumber = value;
+
+    productEditFieldAction({index: index, field: 'cantidad'}, value);
 }
 
 /**
@@ -63,6 +84,7 @@ function setCustomerAction({code, description}) {
         return;
     }
     Cart.setCustomer(code);
+    mainView().toggleCustomerListModal();
     mainView().updateCustomer(description);
 }
 
@@ -74,6 +96,7 @@ function setDocumentAction({code, serie, description}) {
         return;
     }
     Cart.setDocumentType(code, serie);
+    mainView().toggleDoctypeListModal();
     mainView().updateDocument(description);
 }
 
@@ -123,13 +146,19 @@ function clickCartEventHandler(event) {
 
     switch (action) {
         case 'deleteProductAction':
-            return deleteProductAction(data);
+            return productDeleteAction(data);
 
         case 'editProductAction':
-            return editProductAction(data);
+            return productShowEditDialog(data);
 
-        case 'quickEditProductAction':
-            return quickEditProductAction(data);
+        case 'editProductQuantityAction':
+            return productShowQuantityEditDialog(data);
+
+        case 'quantityDecreaseAction':
+            return productQuantityDecreaseAction(data);
+
+        case 'quantityIncreaseAction':
+            return productQuantityIncreaseAction(data);
 
         case 'setCustomerAction':
             return setCustomerAction(data);
@@ -155,7 +184,7 @@ function editCartEventHandler(event) {
             return editDiscountAction(event.target.value);
 
         case 'editProductFieldAction':
-            return editProductFieldAction(data, event.target.value);
+            return productEditFieldAction(data, event.target.value);
     }
 }
 

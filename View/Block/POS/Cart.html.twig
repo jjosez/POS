@@ -50,9 +50,12 @@
             <span class="mr-auto">{{ i18n.trans('hold') }}</span>
             <i class="fa fa-hourglass-start"></i>
         </button>
-        <button class="flex-1 btn btn-success" data-toggle="modal" data-target="checkoutModal">
-            <span class="mr-auto">{{ i18n.trans('charge') }}</span>
-            <i class="fa fa-calculator"></i>
-        </button>
+        {#{{ terminal | json_encode(constant('JSON_PRETTY_PRINT')) }}#}
+        {% if terminal.aceptapagos %}
+            <button class="flex-1 btn btn-success" data-toggle="modal" data-target="checkoutModal">
+                <span class="mr-auto">{{ i18n.trans('charge') }}</span>
+                <i class="fa fa-calculator"></i>
+            </button>
+        {% endif %}
     </div>
 </div>

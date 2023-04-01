@@ -86,6 +86,10 @@ class CartClass {
         this.updateCartViewEvent(this);
     }
 
+    updateDocumentClass() {
+        this.doc['tipo-documento'] = this.doc['generadocumento'];
+    }
+
     updateCartViewEvent(data) {
         document.dispatchEvent(new CustomEvent('onCartUpdate', { detail: data }));
     }

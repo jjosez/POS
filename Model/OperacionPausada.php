@@ -22,6 +22,11 @@ class OperacionPausada extends Base\SalesDocument
     public $idpausada;
 
     /**
+     * @var string
+     */
+    public $generadocumento;
+
+    /**
      * @return OperacionPausada[]
      */
     public function allOpen()

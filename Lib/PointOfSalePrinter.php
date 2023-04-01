@@ -7,17 +7,15 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Model\Base\BusinessDocument;
-use FacturaScripts\Dinamic\Lib\Ticket\Builder\SalesTicket;
 use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Plugins\PrintTicket\Lib\PrintingService;
-use FacturaScripts\Plugins\PrintTicket\Lib\Ticket\Builder\SalesTicketBuilder;
 
 class PointOfSalePrinter
 {
-    public static function cashupTicket(SesionPuntoVenta $session, Empresa $company, int $width)
+    public static function cashupTicket(SesionPuntoVenta $session, Empresa $company)
     {
-        $ticketBuilder = new PointOfSaleClosingVoucher($session, $company, $width);
+        $ticketBuilder = new PointOfSaleClosingVoucher($session, $company);
 
         $cashupTicket = new PrintingService($ticketBuilder);
         $cashupTicket->savePrintJob();
@@ -25,9 +23,9 @@ class PointOfSalePrinter
         return $cashupTicket->getMessage();
     }
 
-    public static function salesTicket(BusinessDocument $document, int $width)
+    public static function salesTicket(BusinessDocument $document, $payments)
     {
-        $ticketBuilder = new SalesTicket($document, $width);
+        $ticketBuilder = new PointOfSaleVoucher($document, $payments);
 
         $salesTicket = new PrintingService($ticketBuilder);
         $salesTicket->savePrintJob();

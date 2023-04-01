@@ -55,6 +55,7 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
         $this->createPaymenthMethodView();
         $this->createDocumentTypeView();
         $this->createTerminalFieldsView();
+        $this->createTerminalSessionView();
     }
 
     protected function createDocumentTypeView(string $viewName = 'EditTipoDocumentoPuntoVenta')
@@ -71,6 +72,15 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
     protected function createTerminalFieldsView(string $viewName = 'EditTerminalFields')
     {
         $this->addHtmlView($viewName, 'Master/EditTerminalFieldOption', 'TerminalPuntoVenta', 'pos-field-options', 'fas fa-users');
+    }
+
+    protected function createTerminalSessionView($viewName = 'ListSesionPuntoVenta')
+    {
+        $this->addListView($viewName, 'SesionPuntoVenta', 'Sesiones', 'fas fa-user');
+
+        $this->setSettings($viewName, 'btnNew', false);
+        $this->setSettings($viewName, 'btnDelete', false);
+        $this->setSettings($viewName, 'checkBoxes', false);
     }
 
     /**
@@ -91,13 +101,17 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
 
     protected function loadData($viewName, $view)
     {
+        $where = [new DataBaseWhere('idterminal', $this->getModel()->primaryColumnValue())];
+
         switch ($viewName) {
             case 'EditTipoDocumentoPuntoVenta':
             case 'EditFormaPagoPuntoVenta':
-                $where = [new DataBaseWhere('idterminal', $this->getModel()->primaryColumnValue())];
                 $view->loadData('', $where);
                 break;
-
+            case 'ListSesionPuntoVenta':
+                $orderBy = ['fechainicio' => 'DESC'];
+                $view->loadData('', $where, $orderBy);
+                break;
             case 'EditTerminalFields':
 
                 break;

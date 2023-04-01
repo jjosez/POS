@@ -40,6 +40,8 @@ class PointOfSaleRequest
         $this->request = $request->request;
 
         if ($orderHold) {
+            $oldDocumentType = $this->request->get('tipo-documento', self::DEFAULT_ORDER);
+            $this->request->set('generadocumento', $oldDocumentType);
             $this->request->set('tipo-documento', self::ORDER_ON_HOLD);
         }
 

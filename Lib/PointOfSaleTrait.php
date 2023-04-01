@@ -244,9 +244,9 @@ trait PointOfSaleTrait
      * @param $document
      * @return void;
      */
-    protected function printVoucher($document)
+    protected function printVoucher($document, $payments)
     {
-        $message = PointOfSalePrinter::salesTicket($document, $this->getTerminal()->anchopapel);
+        $message = PointOfSalePrinter::salesTicket($document, $payments);
 
         $this->toolBox()->log()->info($message);
     }

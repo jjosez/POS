@@ -29,31 +29,42 @@ async function orderPrintAction({code}) {
 /**
  * @param {{code:string}} data
  */
+async function pausedOrderPrintAction({code}) {
+    await Order.reprintPausedOrderRequest(code);
+    mainView().toggleHoldOrdersModal();
+}
+
+/**
+ * @param {{code:string}} data
+ */
 async function orderResumeAction({code}) {
     Cart.update(await Order.resumeRequest(code));
+    Cart.updateDocumentClass();
+    mainView().updateCustomer(Cart.doc.nombrecliente);
+
     mainView().toggleHoldOrdersModal();
 }
 
 async function orderSaveAction() {
-    const wasOnHold = Cart.doc.idpausada;
+    //const wasOnHold = Cart.doc.idpausada;
     if (Cart.lines.length < 1) return;
 
     Cart.update(await Order.saveRequest(Cart, Checkout.payments));
     Checkout.clear();
 
     //mainView().updateProductListView(await Core.searchProduct(''));
-    mainView().updateLastOrdersListView(await Order.getLastOrders());
+    //mainView().updateLastOrdersListView(await Order.getLastOrders());
 
-    if (wasOnHold) {
+    /*if (wasOnHold) {
         mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
-    }
+    }*/
 }
 
 async function orderSuspendAction() {
     if (Cart.lines.length < 1) return;
 
     Cart.update(await Order.holdRequest(Cart));
-    mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
+    //mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
 }
 
 async function searchBarcodeAction(code) {
@@ -99,6 +110,16 @@ async function showProductFamiliesAction({code, madre}) {
     mainView().updateFamilyListView(await Core.getProductFamilyChild(code, madre));
 }
 
+async function showPausedOrdersAction() {
+    mainView().toggleHoldOrdersModal();
+    mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
+}
+
+async function showLastOrdersAction() {
+    mainView().toggleLastOrdersModal();
+    mainView().updateLastOrdersListView(await Order.getLastOrders());
+}
+
 /**
  * @param {Event} event
  */
@@ -129,6 +150,9 @@ async function appEventHandler(event) {
         case 'printOrderAction':
             return orderPrintAction(data);
 
+        case 'printPausedOrderAction':
+            return pausedOrderPrintAction(data);
+
         case 'printClosingVoucher':
             return sessionPrintClosingVoucherAction(data);
 
@@ -149,6 +173,12 @@ async function appEventHandler(event) {
 
         case 'setProductFamilyAction':
             return showProductFamiliesAction(data);
+
+        case 'showPausedOrders':
+            return showPausedOrdersAction();
+
+        case 'showLastOrders':
+            return showLastOrdersAction();
     }
 }
 

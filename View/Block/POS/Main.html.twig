@@ -8,6 +8,7 @@
 {% import 'Macro/POS.html.twig' as pos %}
 
 {% set grid = fsc.getFieldOptions() %}
+{% set terminal = fsc.getTerminal() %}
 {% block body %}
     <div class="flex h-full h-screen antialiased">
         <div id="mainView" class="flex flex-1 overflow-auto">
@@ -35,7 +36,7 @@
     {{ include('Modal/POS/LastOrders.html.twig') }}
     {{ include('Modal/POS/PausedOrders.html.twig') }}
     {{ include('Modal/POS/ProductEdit.html.twig') }}
-    {{ include('Modal/POS/ProductQuickEdit.html.twig') }}
+    {{ include('Modal/POS/ProductQuantity.html.twig') }}
     {{ include('Modal/POS/ProductFilter.html.twig') }}
     {{ include('Modal/POS/ProductStockDetail.html.twig') }}
     {{ include('Modal/POS/ProductImages.html.twig') }}

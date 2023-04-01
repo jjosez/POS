@@ -34,14 +34,17 @@ export const cartView = () => {
         'total': getElement('orderTotal'),
         'holdButton': getElement('orderHoldButton'),
         'productEditModal': getElement('productEditModal'),
-        'productQuickEditModal': getElement('productQuickEditModal'),
+        'productQuantityEditModal': getElement('productQuantityEditModal'),
+        'productQuantityInput': getElement('productQuantityInput'),
 
         showEditView: function () {
             toggleModal(this.productEditModal);
         },
 
-        showQuickEditView: function () {
-            toggleModal(this.productQuickEditModal);
+        showQuantityEditView: function (producto) {
+            this.productQuantityInput.dataset.index = producto.index;
+            this.productQuantityInput.value = producto.cantidad;
+            toggleModal(this.productQuantityEditModal);
         },
 
         toggleEditView: function () {
@@ -160,6 +163,15 @@ export const mainView = () => {
             toggleModal(this.closeSessionModal);
         },
 
+        toggleCustomerListModal: function () {
+            toggleModal(this.customerSearchModal);
+        },
+
+        toggleDoctypeListModal: function () {
+            toggleModal(this.customerSearchModal);
+            toggleModal(this.documentTypeModal);
+        },
+
         toggleHoldOrdersModal: function () {
             toggleModal(this.holdOrdersModal);
         },
@@ -178,7 +190,6 @@ export const mainView = () => {
 
         updateCustomer: function (name = '') {
             this.customerNameLabel.textContent = name;
-            toggleModal(this.customerSearchModal);
         },
 
         updateCustomerListView: function (data = []) {
@@ -187,7 +198,6 @@ export const mainView = () => {
 
         updateDocument: function (name = '') {
             this.documentNamelLabel.textContent = name;
-            toggleModal(this.documentTypeModal);
         },
 
         updateHoldOrdersList: function (data = []) {

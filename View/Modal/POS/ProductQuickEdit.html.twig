@@ -19,16 +19,15 @@
             <div id="productQuickEditForm" class="flex-col items-center">
                 <label class="font-semibold uppercase mb-2">{{ i18n.trans('quantity') }}</label>
                 <div class="flex">
-                    <button class="btn btn-icon btn-warning" data-toggle="modal"
+                    <button class="btn btn-icon btn-warning flex-none" data-toggle="modal"
                             data-target="productQuickEditModal">
                         <i class="fa fw fa-minus"></i>
                     </button>
-                    <div class="form-group mx-2 flex-auto">
-                        <input type="number" class="form-control" value="0"
-                               data-action="editProductFieldAction" data-index="<%= it.index %>"
-                               data-field="cantidad">
-                    </div>
-                    <button class="btn btn-icon btn-secondary flex-none" data-toggle="modal" data-target="productQuickEditModal">
+                    <input type="number" class="form-control flex-1 mx-3" value="0"
+                           data-action="editProductFieldAction" data-index="<%= it.index %>"
+                           data-field="cantidad">
+                    <button class="btn btn-icon btn-secondary flex-none" data-toggle="modal"
+                            data-target="productQuickEditModal">
                         <i class="fa fw fa-plus"></i>
                     </button>
                 </div>

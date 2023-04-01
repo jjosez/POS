@@ -8,7 +8,8 @@ module.exports = {
     safelist: [
         'modal-backdrop',
         'selected',
-        'd-none'
+        'd-none',
+        'form-control'
     ],
     theme: {
         extend: {
