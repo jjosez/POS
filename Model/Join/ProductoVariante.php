@@ -43,7 +43,7 @@ class ProductoVariante extends JoinModel
             'description' => 'P.descripcion',
             'price' => 'V.precio',
             'stock' => 'SUM(S.disponible)',
-            'detail' => 'CONCAT_WS(" - ", A1.descripcion, A2.descripcion, A3.descripcion, A4.descripcion)',
+            'detail' => 'CONCAT_WS(\' - \', A1.descripcion, A2.descripcion, A3.descripcion, A4.descripcion)',
             'atribute1' => 'A1.descripcion',
             'atribute2' => 'A2.descripcion',
             'atribute3' => 'A3.descripcion',
@@ -53,7 +53,7 @@ class ProductoVariante extends JoinModel
 
     protected function getGroupFields(): string
     {
-        return 'V.referencia';
+        return 'p.idproducto, V.referencia, V.codbarras, P.descripcion, V.precio, CONCAT_WS(\' - \', A1.descripcion, A2.descripcion, A3.descripcion, A4.descripcion), a1.descripcion, a2.descripcion, a3.descripcion, a4.descripcion';
     }
 
     /**
