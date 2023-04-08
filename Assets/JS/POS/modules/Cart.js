@@ -125,7 +125,7 @@ function onUpdateCartAction({detail}) {
 /**
  * @param {{detail}} data
  */
-function onCartCustomFieldUpdateAction({detail}) {
+function cartCustomFieldUpdateAction({detail}) {
     if (typeof detail.field === 'undefined' || detail.value === null) {
         return;
     }
@@ -136,7 +136,7 @@ function onCartCustomFieldUpdateAction({detail}) {
 /**
  * @param {Event} event
  */
-function clickCartEventHandler(event) {
+function clickCartLineEventHandler(event) {
     const data = event.target.dataset;
     const action = data.action;
 
@@ -171,7 +171,7 @@ function clickCartEventHandler(event) {
     }
 }
 
-function editCartEventHandler(event) {
+function editCartLineEventHandler(event) {
     const data = event.target.dataset;
     const action = data.action;
 
@@ -180,19 +180,33 @@ function editCartEventHandler(event) {
     }
 
     switch (action) {
-        case 'editDiscountAction':
-            return editDiscountAction(event.target.value);
-
         case 'editProductFieldAction':
             return productEditFieldAction(data, event.target.value);
     }
 }
 
-document.addEventListener('click', clickCartEventHandler);
-document.addEventListener('change', editCartEventHandler);
+function editCartDocumentEventHandler(event) {
+    const data = event.target.dataset;
+    const action = data.action;
+
+    if (typeof action === 'undefined' || action === null) {
+        return;
+    }
+
+    switch (action) {
+        case 'editDocumentFieldAction':
+            return Cart.setCustomField(data.field, event.target.value);
+        case 'editDocumentDiscountAction':
+            return editDiscountAction(event.target.value);
+    }
+}
+
+document.addEventListener('click', clickCartLineEventHandler);
+document.addEventListener('change', editCartLineEventHandler);
+document.addEventListener('change', editCartDocumentEventHandler);
 document.addEventListener('onCartChange', onChangeCartAction);
 document.addEventListener('onCartUpdate', onUpdateCartAction);
-document.addEventListener('onCartCustomFieldUpdate', onCartCustomFieldUpdateAction);
+document.addEventListener('onCartCustomFieldUpdate', cartCustomFieldUpdateAction);
 
 export default Cart;
 

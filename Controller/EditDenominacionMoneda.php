@@ -32,7 +32,7 @@ class EditDenominacionMoneda extends ExtendedController\EditController
     {
         $pagedata = parent::getPageData();
         $pagedata['title'] = 'currency-denomination';
-        $pagedata['menu'] = 'admin';
+        $pagedata['menu'] = 'point-of-sale';
         $pagedata['icon'] = 'fas fa-money-bill-alt';
         $pagedata['showonmenu'] = false;
 

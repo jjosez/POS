@@ -96,18 +96,10 @@
             </button>
         </div>
         <div class="mx-2 flex flex-auto">
-            {#<label class="flex items-center">
-                <input class="h-12 w-12 rounded-lg text-center font-medium bg-slate-gray-200" type="number"
-                       data-action="quickEditProductAction" data-field="cantidad" data-index="<%= index %>"
-                       value="<%= value.cantidad %>">
-            </label>#}
-            <div role="listitem" class="flex-1 cursor-pointer" data-action="quickEditProductAction"
-                 data-index="<%= index %>">
-                <h4 class="text-sm font-semibold uppercase text-gray-800"><%= value.referencia %></h4>
-                <p><%= value.descripcion %></p>
-                {# <span class="uppercase text-blue-500">
-                    {{ i18n.trans('pvp') }}: <%= value.pvpunitario %> / {{ i18n.trans('total') }}: <%= value.pvptotal %>
-                </span> #}
+            <div role="listitem" class="flex-1">
+                <p>
+                    <span class="font-semibold uppercase text-gray-800"><%= value.referencia %></span>
+                    &#8674;&nbsp;<%= value.descripcion %></p>
                 <div class="flex gap-2">
                     {% for column in columns %}
                         {%- if column.data == 'referencia' or column.data == 'descripcion' or column.data == 'cantidad' -%}
@@ -116,9 +108,14 @@
                             <div class="w-24 flex-auto items-center self-center">
                                 <label>
                                     <span class="text-sm font-semibold">{{ column.tittle }}</span>
-                                    <input class="w-full rounded-lg border-2 p-2 focus:border-blue-500 focus:outline-none"
+                                    {#<input class="w-full rounded-lg border-2 p-2 focus:border-blue-500 focus:outline-none"
                                            type="{{ column.type }}" value="<%= value.{{ column.data }} %>"
                                            step=".001" data-index="<%= index %>"
+                                           data-action="{{ column.readonly ? '' : 'editProductFieldAction' }}"
+                                           data-field="{{ column.data }}" {% if column.readonly %} readonly {% endif %}>#}
+                                    <input class="form-control pointer-events-auto"
+                                           type="{{ column.type }}" value="<%= value.{{ column.data }} %>"
+                                           data-index="<%= index %>"
                                            data-action="{{ column.readonly ? '' : 'editProductFieldAction' }}"
                                            data-field="{{ column.data }}" {% if column.readonly %} readonly {% endif %}>
                                 </label>
@@ -220,20 +217,22 @@
     <% it.items.forEach(function(order){ %>
     <tr class="bg-blue-100 hover:bg-yellow-200">
         <td class="px-3 text-center"><%= order.codigo %></td>
-        <td class="px-3"><%= order.nombrecliente %></td>
+        <td class="px-3"><%= order.nombrecliente %>
+            <p><%= order.observaciones || '' %></p></td>
         <td class="whitespace-nowrap px-3 text-right"><%= order.fecha %></td>
         <td class="whitespace-nowrap px-3 text-right"><%= order.hora %></td>
         <td class="whitespace-nowrap px-3 text-right"><%= order.total %></td>
         <td class="px-3">
             <div class="flex justify-center py-1">
-                <button type="button" class="mr-2 btn btn-icon btn-primary resume-order-btn"
+                <button type="button" class="btn btn-icon btn-light mr-2"
                         data-action="printPausedOrderAction" data-code="<%= order.idpausada %>">
                     <i class="fas fa-print fa-sm"></i>
-                </button><button type="button" class="mr-2 btn btn-icon btn-primary resume-order-btn"
+                </button>
+                <button type="button" class="mr-2 btn btn-icon btn-primary"
                         data-action="resumeOrderAction" data-code="<%= order.idpausada %>">
                     <i class="fas fa-file-signature fa-sm"></i>
                 </button>
-                <button type="button" class="btn btn-icon btn-danger delete-order-btn"
+                <button type="button" class="btn btn-icon btn-danger"
                         data-action="deleteOrderAction" data-code="<%= order.idpausada %>">
                     <i class="fas fa-trash fa-sm"></i>
                 </button>

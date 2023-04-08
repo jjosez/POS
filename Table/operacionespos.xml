@@ -37,7 +37,6 @@
         <name>idoperacion</name>
         <type>serial</type>
         <null>NO</null>
-        <default>nextval('operacionespos_idoperacion_seq'::regclass)</default>
     </column>
     <column>
         <name>idsesion</name>

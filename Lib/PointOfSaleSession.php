@@ -3,9 +3,9 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\ToolBox;
-use FacturaScripts\Core\Model\Base\BusinessDocument;
-use FacturaScripts\Dinamic\Model\OperacionPausada;
+use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
+use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
@@ -61,6 +61,16 @@ class PointOfSaleSession
         }
 
         return true;
+    }
+
+    /**
+     * Return current SesionPuntoVenta ID.
+     *
+     * @return string
+     */
+    public function getID(): string
+    {
+        return $this->session->idsesion;
     }
 
     /**
@@ -168,46 +178,16 @@ class PointOfSaleSession
         }
     }
 
-    public function completePausedOrder(string $code): bool
-    {
-        return $this->session->completePausedOrder($code);
-    }
-
-    public function deletePausedOrder(string $code): bool
-    {
-        return $this->session->deletePausedOrder($code);
-    }
-
     public function getLastOrder(): OrdenPuntoVenta
     {
         return $this->lastOrder;
     }
 
-    public function getOrder($code): OrdenPuntoVenta
-    {
-        return $this->session->getOrder($code);
-    }
-
-    public function getOrders(): array
-    {
-        return $this->session->getOrders();
-    }
-
-    public function getPausedOrder($code): OperacionPausada
-    {
-        return $this->session->getPausedOrder($code);
-    }
-
-    public function getPausedOrders(): array
-    {
-        return $this->session->getPausedOrders();
-    }
-
     /**
-     * @param BusinessDocument $document
+     * @param SalesDocument $document
      * @return bool
      */
-    public function saveOrder(BusinessDocument $document): bool
+    public function saveOrder(SalesDocument $document): bool
     {
         $this->lastOrder = new OrdenPuntoVenta();
 
@@ -215,9 +195,27 @@ class PointOfSaleSession
             return false;
         }
 
-        $this->completePausedOrder($document->idpausada);
-
         return true;
+    }
+
+    /**
+     * @param SalesDocument $document
+     * @param PagoPuntoVenta[] $payments
+     * @return void
+     */
+    public function savePayments(SalesDocument $document, array $payments)
+    {
+        PointOfSalePayments::cleanInvoiceReceipts($document);
+
+        $counter = 1;
+        foreach ($payments as $payment) {
+            $payment->idoperacion = $this->getLastOrder()->idoperacion;
+            $payment->idsesion = $this->getID();
+
+            if ($payment->save()) {
+                PointOfSalePayments::saveInvoiceReceipt($document, $payment, $counter++);
+            }
+        }
     }
 
     /**
@@ -231,12 +229,6 @@ class PointOfSaleSession
         $this->user = $user;
 
         $this->session->nickusuario = $this->user->nick;
-        $this->session->save();
-    }
-
-    public function updateCashAmount(float $amount = 0)
-    {
-        $this->session->saldoesperado += $amount;
         $this->session->save();
     }
 }

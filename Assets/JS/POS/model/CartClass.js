@@ -16,7 +16,7 @@ class CartClass {
 
     editProduct(index, field, value) {
         if ('pvpunitarioiva' === field) {
-            this.lines[index].pvpunitario = Money.priceWithoutTax(value, this.lines[index].iva);
+            this.lines[index].pvpunitario = Money.priceWithoutTax(value, this.lines[index]);
         }
         this.lines[index][field] = value;
 

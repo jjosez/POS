@@ -34,15 +34,15 @@
                             <td class="px-3 text-right whitespace-nowrap">{{ fsc.toolBox().coins().format(operation.total) }}</td>
                             <td class="px-3">
                                 <div class="flex justify-center py-1">
-                                    <button type="button" class="btn btn-icon btn-primary mr-2 resume-order-btn"
+                                    <button type="button" class="btn btn-icon btn-light mr-2"
                                             data-action="printPausedOrderAction" data-code="{{ operation.idpausada }}">
                                         <i class="fas fa-print fa-sm"></i>
                                     </button>
-                                    <button type="button" class="btn btn-icon btn-primary mr-2 resume-order-btn"
+                                    <button type="button" class="btn btn-icon btn-primary mr-2"
                                             data-action="resumeOrderAction" data-code="{{ operation.idpausada }}">
                                         <i class="fas fa-file-signature fa-sm"></i>
                                     </button>
-                                    <button type="button" class="btn btn-icon btn-danger delete-order-btn"
+                                    <button type="button" class="btn btn-icon btn-danger"
                                             data-action="deleteOrderAction" data-code="{{ operation.idpausada }}">
                                         <i class="fas fa-trash fa-sm"></i>
                                     </button>

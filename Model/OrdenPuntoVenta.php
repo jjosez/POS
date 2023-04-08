@@ -8,7 +8,7 @@ namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
-use FacturaScripts\Core\Model\Base\BusinessDocument;
+use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 
 /**
@@ -21,6 +21,7 @@ class OrdenPuntoVenta extends Base\ModelClass
     use Base\ModelTrait;
 
     public $codcliente;
+    public $codigo;
     public $fecha;
     public $hora;
     public $iddocumento;
@@ -66,6 +67,7 @@ class OrdenPuntoVenta extends Base\ModelClass
         parent::loadFromData($data, $exclude);
 
         $this->tipodocumento = self::toolBox()::i18n()->trans($this->tipodoc);
+        $this->descuadre = $this->testDescuadre();
     }
 
     /**
@@ -78,9 +80,11 @@ class OrdenPuntoVenta extends Base\ModelClass
         return (new PagoPuntoVenta())->all($where);
     }
 
-    public function getDocument(): BusinessDocument
+    public function getDocument(): SalesDocument
     {
         $className = '\\FacturaScripts\\Dinamic\\Model\\' . $this->tipodoc;
+
+        /** @var SalesDocument $document */
         $document = new $className;
 
         return $document->get($this->iddocumento);
@@ -98,6 +102,17 @@ class OrdenPuntoVenta extends Base\ModelClass
         $where = [new DataBaseWhere('idsesion', $code)];
 
         return $this->all($where);
+    }
+
+    protected function testDescuadre()
+    {
+        $pagos = 0;
+
+        foreach ($this->getPayments() as $payment) {
+            $pagos += $payment->pagoNeto();
+        }
+
+        return self::toolBox()::utils()::floatcmp($this->total, $pagos);
     }
 
     /**

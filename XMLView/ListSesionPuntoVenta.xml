@@ -33,7 +33,7 @@
     </columns>
     <rows>
         <row type='status'>
-            <option color='warning' fieldname='abierto'>1</option>
+            <option color='info' title="Abierto" fieldname='abierto'>1</option>
         </row>
     </rows>
 </view>

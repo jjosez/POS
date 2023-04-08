@@ -32,7 +32,7 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
     {
         $pagedata = parent::getPageData();
         $pagedata['title'] = 'till-session';
-        $pagedata['menu'] = 'admin';
+        $pagedata['menu'] = 'point-of-sale';
         $pagedata['icon'] = 'fas fa-suitcase';
         $pagedata['showonmenu'] = false;
 
@@ -59,6 +59,7 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
         $this->addListView($viewName, 'MovimientoPuntoVenta', 'till-session-cash-movments', 'fas fa-wallet');
         $this->views[$viewName]->addOrderBy(['fecha', 'hora'], 'date');
         $this->disableButtons($viewName);
+        $this->setSettings($viewName, 'clickable', false);
     }
 
     protected function createOrdenesView(string $viewName = 'ListOrdenPuntoVenta')
@@ -70,10 +71,15 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
 
     protected function createPagosView(string $viewName = 'ListPagoPuntoVenta')
     {
+        $formaspago = $this->codeModel->all('formaspago', 'codpago', 'descripcion');
+
         $this->addListView($viewName, 'PagoPuntoVenta', 'till-session-payments', 'fas fa-credit-card');
         $this->views[$viewName]->addOrderBy(['total'], 'Total', 2);
         $this->views[$viewName]->addOrderBy(['idoperacion'], 'No. operacion', 2);
+        $this->views[$viewName]->addFilterSelect('formapago', 'Metodo de pago', 'codpago', $formaspago);
+
         $this->disableButtons($viewName);
+        $this->setSettings($viewName, 'clickable', false);
     }
 
     protected function disableButtons(string $viewName)
@@ -82,7 +88,7 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
         $this->setSettings($viewName, 'btnDelete', false);
         $this->setSettings($viewName, 'btnNew', false);
         $this->setSettings($viewName, 'btnDelete', false);
-        $this->setSettings($viewName, 'clickable', false);
+        //$this->setSettings($viewName, 'clickable', false);
     }
 
     protected function loadData($viewName, $view)

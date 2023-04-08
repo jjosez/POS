@@ -28,6 +28,7 @@ export const cartView = () => {
         'subtotal': getElement('orderSubtotal'),
         'discountPercent': getElement('orderDiscount'),
         'discountAmount': getElement('orderDiscountAmount'),
+        'observations': getElement('orderObservations'),
         'taxes': getElement('orderTaxes'),
         'totalNet': getElement('orderTotalNet'),
         'cartTotal': getElement('cartTotal'),
@@ -60,6 +61,7 @@ export const cartView = () => {
         },
 
         updateTotals: function (data = {}) {
+            this.observations.value = data.doc.observaciones;
             this.cartTotal.textContent = Money.roundFixed(data.doc.total);
             this.itemsNumber.textContent = data.count;
             this.subtotal.textContent = Money.roundFixed(data.doc.netosindto);
@@ -130,13 +132,13 @@ export const mainView = () => {
         'customerSearchModal': getElement('customerSearchModal'),
         'customerSaveButton': getElement('newCustomerSaveButton'),
         'customerListView': getElement('customerSearchResult'),
+        'customerListTemplate': getTemplate('customerListTemplate'),
         'closeSessionButton': getElement('closeSessionButton'),
         'closeSessionForm': getElement('closeSessionForm'),
         'closeSessionModal': getElement('closeSessionModal'),
         'documentTypeModal': getElement('documentTypeModal'),
         'documentNamelLabel': getElement('documentTypeLabel'),
         'documentTypeListView': getElement('documentTypeList'),
-        'customerListTemplate': getTemplate('customerListTemplate'),
         'holdOrdersList': getElement('pausedOrdersList'),
         'holdOrdersListTemplate': getTemplate('pausedOrdersListTemplate'),
         'holdOrdersModal': getElement('holdOrdersModal'),
@@ -168,7 +170,6 @@ export const mainView = () => {
         },
 
         toggleDoctypeListModal: function () {
-            toggleModal(this.customerSearchModal);
             toggleModal(this.documentTypeModal);
         },
 

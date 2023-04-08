@@ -7,7 +7,7 @@ namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
-use FacturaScripts\Dinamic\Model\LineaOperacionPausada as LineaOperacion;
+use FacturaScripts\Dinamic\Model\LineaOperacionPausada;
 
 class OperacionPausada extends Base\SalesDocument
 {
@@ -29,9 +29,13 @@ class OperacionPausada extends Base\SalesDocument
     /**
      * @return OperacionPausada[]
      */
-    public function allOpen()
+    public function allOpened(?string $sessionID = null): array
     {
         $where = [new DataBaseWhere('editable', true)];
+
+        if ($sessionID) {
+            $where[] = new DataBaseWhere('idsesion', $sessionID);
+        }
 
         return $this->all($where);
     }
@@ -43,7 +47,7 @@ class OperacionPausada extends Base\SalesDocument
      */
     public function getLines(): array
     {
-        $lineaModel = new LineaOperacion();
+        $lineaModel = new LineaOperacionPausada();
         $where = [new DataBaseWhere('idpausada', $this->idpausada)];
         $order = ['orden' => 'DESC', 'idlinea' => 'ASC'];
 
@@ -56,11 +60,11 @@ class OperacionPausada extends Base\SalesDocument
      * @param array $data
      * @param array $exclude
      * 
-     * @return LineaOperacion
+     * @return LineaOperacionPausada
      */
-    public function getNewLine(array $data = [], array $exclude = ['actualizastock', 'idlinea', 'idpausada'])
+    public function getNewLine(array $data = [], array $exclude = ['actualizastock', 'idlinea', 'idpausada']): LineaOperacionPausada
     {
-        $newLine = new LineaOperacion();
+        $newLine = new LineaOperacionPausada();
         $newLine->idpausada = $this->idpausada;
         $newLine->irpf = $this->irpf;
         $newLine->actualizastock = 0;

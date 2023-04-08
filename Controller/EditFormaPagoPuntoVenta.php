@@ -33,7 +33,7 @@ class EditFormaPagoPuntoVenta extends ExtendedController\EditController
     public function getPageData(): array
     {
         $pagedata = parent::getPageData();
-        $pagedata['title'] = 'cash-register-payment-method';
+        $pagedata['title'] = 'pos-payment-method';
         $pagedata['menu'] = 'point-of-sale';
         $pagedata['icon'] = 'fas fa-cash-register';
         $pagedata['showonmenu'] = false;

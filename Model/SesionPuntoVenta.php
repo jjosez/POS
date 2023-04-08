@@ -8,10 +8,9 @@ namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
-use FacturaScripts\Core\Model\Base\BusinessDocument;
-use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
+use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Dinamic\Model\OperacionPausada;
-use FacturaScripts\Dinamic\Model\TerminalPuntoVenta as TerminalPuntoVenta;
+use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 
 /**
@@ -23,17 +22,64 @@ class SesionPuntoVenta extends Base\ModelClass
 {
     use Base\ModelTrait;
 
+    /**
+     * @var bool
+     */
     public $abierto;
+
+    /**
+     * @var string
+     */
     public $conteo;
+
+    /**
+     * @var string
+     */
     public $fechainicio;
+
+    /**
+     * @var string
+     */
     public $fechafin;
+
+    /**
+     * @var string
+     */
     public $horainicio;
+
+    /**
+     * @var string
+     */
     public $horafin;
+
+    /**
+     * @var string
+     */
     public $idsesion;
+
+    /**
+     * @var string
+     */
     public $idterminal;
+
+    /**
+     * @var string
+     */
     public $nickusuario;
+
+    /**
+     * @var float
+     */
     public $saldocontado;
+
+    /**
+     * @var float
+     */
     public $saldoesperado;
+
+    /**
+     * @var float
+     */
     public $saldoinicial;
     public $saldomovimientos;
     public $saldoretirado;
@@ -67,37 +113,6 @@ class SesionPuntoVenta extends Base\ModelClass
     }
 
     /**
-     * @param string|null $code
-     * @return bool
-     */
-    public function completePausedOrder(?string $code): bool
-    {
-        $pausedOrder = new OperacionPausada();
-
-        if ($code && $pausedOrder->loadFromCode($code)) {
-            $pausedOrder->idestado = 3;
-
-            return $pausedOrder->save();
-        }
-        return false;
-    }
-
-    /**
-     * @param string $code
-     * @return bool
-     */
-    public function deletePausedOrder(string $code): bool
-    {
-        $pausedOrder = new OperacionPausada();
-
-        if ($code && $pausedOrder->loadFromCode($code)) {
-            return $pausedOrder->delete();
-        }
-
-        return false;
-    }
-
-    /**
      * Returns the operations associated with the sessionpos.
      *
      * @return MovimientoPuntoVenta[]
@@ -108,60 +123,6 @@ class SesionPuntoVenta extends Base\ModelClass
         $where = [new DataBaseWhere('idsesion', $this->idsesion)];
 
         return $operacion->all($where);
-    }
-
-    /**
-     * @param string $code
-     * @return OrdenPuntoVenta|false
-     */
-    public function getOrder(string $code): OrdenPuntoVenta
-    {
-        $order = new OrdenPuntoVenta();
-
-        return $order->get($code);
-    }
-
-    /**
-     * @return OrdenPuntoVenta[]
-     */
-    public function getOrders(): array
-    {
-        $order = new OrdenPuntoVenta();
-        $where = [new DataBaseWhere('idsesion', $this->idsesion)];
-
-        return $order->all($where);
-    }
-
-    /**
-     * @param string $code
-     * @return OperacionPausada
-     */
-    public function getPausedOrder(string $code): OperacionPausada
-    {
-        $order = new OperacionPausada();
-        $order->loadFromCode($code);
-
-        $order->codigo = null;
-        $order->fecha = date($order::DATE_STYLE);
-        $order->hora = date($order::HOUR_STYLE);
-
-        return $order;
-    }
-
-    /**
-     * @return OrdenPuntoVenta[]
-     */
-    public function getPausedOrders($ownOrders = false): array
-    {
-        $pausedOrder = new OperacionPausada();
-
-        $where = [new DataBaseWhere('editable', true)];
-
-        if (true === $ownOrders) {
-            $where[] = new DataBaseWhere('idsesion', $this->idsesion);
-        }
-
-        return $pausedOrder->all($where);
     }
 
     /**
@@ -230,11 +191,11 @@ class SesionPuntoVenta extends Base\ModelClass
     }
 
     /**
-     * @param BusinessDocument $document
+     * @param SalesDocument $document
      * @param $order
      * @return bool
      */
-    public function saveOrder(BusinessDocument $document, $order): bool
+    public function saveOrder(SalesDocument $document, $order): bool
     {
         $order->codigo = $document->codigo;
         $order->codcliente = $document->codcliente;

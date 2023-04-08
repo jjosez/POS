@@ -69,14 +69,7 @@ class PointOfSaleRequest
 
     protected function setPaymentList(): void
     {
-        $action = $this->request->get('action');
         $payments = $this->request->get('payments');
-
-       /* if ('recalculate-order' !== $action) {
-            $this->paymentList = json_decode($payments, true);
-            return;
-        }*/
-
         $this->paymentList = json_decode($payments, true);
     }
 
@@ -85,7 +78,7 @@ class PointOfSaleRequest
      */
     public function getDocumentData(): array
     {
-        return $this->documentData;
+        return $this->documentData ?? [];
     }
 
     /**
@@ -93,7 +86,7 @@ class PointOfSaleRequest
      */
     public function getProductList(): array
     {
-        return $this->productList;
+        return $this->productList ?? [];
     }
 
     /**

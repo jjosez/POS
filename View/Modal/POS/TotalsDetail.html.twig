@@ -1,13 +1,18 @@
 <div class="modal hidden" id="totalsDetailModal">
     <div class="modal-content md:modal-content-sm">
         <div class="modal-header">
-            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('totals') }}</h2>
+            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('detail') }}</h2>
             <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="totalsDetailModal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
         <div class="modal-body">
             <div class="flex flex-col place-content-between text-xl font-medium">
+                <span>{{ i18n.trans('observations') }}</span>
+                <label class="input-icon text-sm">
+                    <textarea id="orderObservations" cols="30" rows="4"
+                    data-action="editDocumentFieldAction" data-field="observaciones"></textarea>
+                </label>
                 <div class="p-4 flex justify-between">
                     <span><i class="fas fa-shopping-cart"></i></span>
                     <span id="orderItemsNumber" class="text-right">0</span>
@@ -22,7 +27,7 @@
                         <label class="input-icon text-gray-400">
                             <span><i class="fa fa-sm fa-percent"></i></span>
                             <input id="orderDiscount" type="number" class="flex-grow-0" value="0"
-                                   data-action="editDiscountAction">
+                                   data-action="editDocumentDiscountAction">
                         </label>
                     </div>
                     <span id="orderDiscountAmount" class="flex-1 self-center text-right">0.000</span>

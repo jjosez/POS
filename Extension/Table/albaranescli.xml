@@ -5,7 +5,7 @@
         <type>integer</type>
     </column>
     <constraint>
-        <name>ca_facturacliente_pos</name>
+        <name>ca_albaranescliente_pos</name>
         <type>FOREIGN KEY (idpos) REFERENCES operacionespos (idoperacion) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
 </table>

@@ -3,28 +3,29 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\Calculator;
-use FacturaScripts\Core\Model\Base\BusinessDocument;
-use FacturaScripts\Core\Model\Base\BusinessDocumentLine;
+use FacturaScripts\Core\Model\Base\SalesDocument;
+use FacturaScripts\Core\Model\Base\SalesDocumentLine;
+use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use RuntimeException;
 use UnexpectedValueException;
 
-class PointOfSaleOrder
+class PointOfSaleTransaction
 {
-    const BASE_BUSINESS_DOCUMENT_CLASS = '\\FacturaScripts\\Core\\Model\\Base\\BusinessDocument';
+    const SALES_DOCUMENT_CLASS = '\\FacturaScripts\\Core\\Model\\Base\\SalesDocument';
     const MODEL_NAMESPACE = '\\FacturaScripts\\Dinamic\\Model\\';
 
     /**
-     * @var BusinessDocument
+     * @var SalesDocument
      */
     protected $document;
 
     /**
-     * @var BusinessDocumentLine;
+     * @var SalesDocumentLine;
      */
     protected $documentLines = [];
 
     /**
-     * @var array
+     * @var PagoPuntoVenta[]
      */
     protected $payments = [];
 
@@ -41,20 +42,21 @@ class PointOfSaleOrder
     public function __construct(PointOfSaleRequest $request)
     {
         $this->setDocument($request->getDocumentData(), $request->getDocumentType());
-        $this->payments = $request->getPaymentList();
+        $this->setPayments($request->getPaymentList());
+
         $this->products = $request->getProductList();
     }
 
     /**
-     * @return BusinessDocument
+     * @return SalesDocument
      */
-    public function getDocument(): BusinessDocument
+    public function getDocument(): SalesDocument
     {
         return $this->document;
     }
 
     /**
-     * @return array
+     * @return PagoPuntoVenta[]
      */
     public function getPayments(): array
     {
@@ -98,15 +100,14 @@ class PointOfSaleOrder
 
         $this->document = new $className;
 
-        if (false === is_subclass_of($this->document, self::BASE_BUSINESS_DOCUMENT_CLASS)) {
-            throw new UnexpectedValueException("Class $className is not a valid BusinessDocument");
+        if (false === is_subclass_of($this->document, self::SALES_DOCUMENT_CLASS)) {
+            throw new UnexpectedValueException("Class $className is not a valid SalesDocument");
         }
 
         //$exclude = ['neto', 'total', 'totalirpf', 'totaliva', 'totalrecargo', 'totalsuplidos'];
 
         //$this->document->loadFromData($data, $exclude);
         $this->document->loadFromData($data);
-        $this->document->posorder = true;
         $this->document->updateSubject();
     }
 
@@ -129,6 +130,19 @@ class PointOfSaleOrder
         }
     }
 
+    protected function setPayments(array $list)
+    {
+        foreach ($list as $element) {
+            $payment = new PagoPuntoVenta();
+
+            $payment->cantidad = $element['amount'];
+            $payment->cambio = $element['change'];
+            $payment->codpago = $element['method'];
+
+            $this->payments[] = $payment;
+        }
+    }
+
     protected function setPaymentMethod()
     {
         $this->document->codpago = $this->getPaymentMethod();
@@ -137,19 +151,14 @@ class PointOfSaleOrder
     protected function getPaymentMethod(): string
     {
         $amount = 0;
-        $paymentMethod = '';
+        $method = '';
         foreach ($this->payments as $payment) {
-            $currentAmount = $payment['amount'];
-            /*if ($payment['method'] === 'CONT') {
-                $currentAmount = $payment['amount'] - $payment['change'];
-            }*/
-
-            if ($currentAmount > $amount) {
-                $paymentMethod = $payment['method'];
-                $amount = $currentAmount;
+            if ($payment->pagoNeto() > $amount) {
+                $method = $payment->codpago;
+                $amount = $payment->pagoNeto();
             }
         }
 
-        return $paymentMethod;
+        return $method;
     }
 }

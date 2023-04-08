@@ -39,5 +39,14 @@
         <column name="total" display="right" order="100">
             <widget type="money" decimal="2" fieldname="total"/>
         </column>
+        <column name="imbalance" display="none" order="100">
+            <widget type="text" fieldname="descuadre"/>
+        </column>
     </columns>
+    <rows>
+        <row type="status">
+            <option color="danger" title="Descuadre" fieldname="descuadre">neq:1</option>
+            <option color='warning' title="Devolucion" fieldname='total'>lte:0</option>
+        </row>
+    </rows>
 </view>

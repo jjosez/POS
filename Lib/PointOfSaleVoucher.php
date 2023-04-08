@@ -3,23 +3,27 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\NumberTools;
-use FacturaScripts\Core\Model\Base\BusinessDocument;
-use FacturaScripts\Dinamic\Model\FormaPago;
+use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Dinamic\Model\FormatoTicket;
+use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use FacturaScripts\Plugins\PrintTicket\Lib\Ticket\Builder\AbstractTicketBuilder;
 
 class PointOfSaleVoucher extends AbstractTicketBuilder
 {
 
     /**
-     * @var BusinessDocument
+     * @var SalesDocument
      */
     protected $document;
 
+
+    /**
+     * @var PagoPuntoVenta[]
+     */
     protected $payments;
 
 
-    public function __construct(BusinessDocument $document, array $payments = [], ?FormatoTicket $formato = null)
+    public function __construct(SalesDocument $document, array $payments, ?FormatoTicket $formato = null)
     {
         parent::__construct($formato);
 
@@ -119,14 +123,12 @@ class PointOfSaleVoucher extends AbstractTicketBuilder
     {
         $this->printer->lineSeparator();
 
-        $paymentMethod = new FormaPago();
         foreach ($this->payments as $payment) {
-            $paymentMethod->loadFromCode($payment['method']);
-            $this->printer->textCentered($paymentMethod->descripcion);
+            $this->printer->textCentered($payment->descripcion());
 
             $this->printer->textColumns(
-                'Recibido: ' . $payment['amount'],
-                'Cambio: ' . $payment['change'], 'L', 'R');
+                'Recibido: ' . $payment->cantidad,
+                'Cambio: ' . $payment->cambio, 'L', 'R');
         }
 
         $this->printer->lineBreak(2);

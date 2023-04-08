@@ -6,8 +6,8 @@
 
 <view>
     <columns>
-        <column name="Operacion" order="100">
-            <widget type="text" fieldname="idoperacion"/>
+        <column name="Operacion" display="none" order="100">
+            <widget type="text" fieldname="idoperacion" readonly="true"/>
         </column>
         <column name="payment-method" order="100">
             <widget type="select" fieldname="codpago">
@@ -21,9 +21,4 @@
             <widget type="money" decimal="2" fieldname="cambio"/>
         </column>
     </columns>
-    <rows>
-        <row type="status">
-            <option color='warning' title="Devolucion" fieldname='cantidad'>lte:0</option>
-        </row>
-    </rows>
 </view>

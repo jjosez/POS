@@ -7,7 +7,6 @@ namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
-use FacturaScripts\Core\Model\Base\BusinessDocument;
 
 /**
  * Operaciones realizadas terminales POS.

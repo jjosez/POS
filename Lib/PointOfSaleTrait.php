@@ -246,7 +246,7 @@ trait PointOfSaleTrait
      */
     protected function printVoucher($document, $payments)
     {
-        $message = PointOfSalePrinter::salesTicket($document, $payments);
+        $message = self::printDocumentTicket($document, $payments);
 
         $this->toolBox()->log()->info($message);
     }
@@ -258,9 +258,7 @@ trait PointOfSaleTrait
      */
     protected function printClosingVoucher()
     {
-        $message = PointOfSalePrinter::cashupTicket(
-            $this->session->getSession(), $this->empresa,
-            $this->getTerminal()->anchopapel);
+        $message = self::printCashupTicket($this->session->getSession(), $this->empresa);
 
         $this->toolBox()->log()->info($message);
     }
