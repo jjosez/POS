@@ -3,13 +3,18 @@ const colors = require('tailwindcss/colors')
 module.exports = {
     content: [
         './View/**/*.*.twig',
-        './View/POS/**/*.*.twig'
+        './View/Block/POS/*.*.twig',
+        './View/Modal/POS/*.*.twig'
     ],
     safelist: [
         'modal-backdrop',
         'selected',
         'd-none',
-        'form-control'
+        'form-control',
+        {
+            pattern: /bg-(red|green|blue|yellow)-(50|100|200|500)/,
+            variants: ['hover', 'even', 'odd'],
+        },
     ],
     theme: {
         extend: {

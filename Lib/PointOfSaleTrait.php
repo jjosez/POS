@@ -7,10 +7,12 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
+use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\Familia;
 use FacturaScripts\Dinamic\Model\FormaPago;
+use FacturaScripts\Dinamic\Model\FormatoTicket;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Plugins\POS\Model\TipoDocumentoPuntoVenta;
 
@@ -240,13 +242,22 @@ trait PointOfSaleTrait
         return self::toolBox()::appSettings()::get('pointofsale', $key);
     }
 
+    protected function getVoucherFormat(): FormatoTicket
+    {
+        $format = new FormatoTicket();
+        $format->loadFromCode($this->getTerminal()->idformatoticket);
+
+        return $format;
+    }
+
         /**
      * @param $document
      * @return void;
      */
-    protected function printVoucher($document, $payments)
+    protected function printVoucher(SalesDocument $document, array $payments)
     {
-        $message = self::printDocumentTicket($document, $payments);
+
+        $message = self::printDocumentTicket($document, $payments, $this->getVoucherFormat());
 
         $this->toolBox()->log()->info($message);
     }
@@ -258,7 +269,7 @@ trait PointOfSaleTrait
      */
     protected function printClosingVoucher()
     {
-        $message = self::printCashupTicket($this->session->getSession(), $this->empresa);
+        $message = self::printCashupTicket($this->session->getSession(), $this->empresa, $this->getVoucherFormat());
 
         $this->toolBox()->log()->info($message);
     }
@@ -296,6 +307,16 @@ trait PointOfSaleTrait
     {
         $response = $encode ? json_encode($content) : $content;
         $this->response->setContent($response);
+    }
+
+    protected function validateDelete(): bool
+    {
+        if (false === $this->permissions->allowDelete) {
+            self::toolBox()::i18nLog()->warning('not-allowed-delete');
+            return false;
+        }
+
+        return true;
     }
 
     /**

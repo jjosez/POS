@@ -8,6 +8,7 @@ use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Dinamic\Model\OperacionPausada;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
+use FacturaScripts\Plugins\PrintTicket\Model\FormatoTicket;
 
 trait PointOfSaleActionsTrait
 {
@@ -24,7 +25,7 @@ trait PointOfSaleActionsTrait
 
             return $document->save();
         }
-        return false;
+        return true;
     }
 
     /**
@@ -88,9 +89,9 @@ trait PointOfSaleActionsTrait
         return $order->allFromSession($sessionID);
     }
 
-    public static function printCashupTicket(SesionPuntoVenta $session, Empresa $company)
+    public static function printCashupTicket(SesionPuntoVenta $session, Empresa $company, ?FormatoTicket $format = null)
     {
-        $ticketBuilder = new PointOfSaleClosingVoucher($session, $company);
+        $ticketBuilder = new PointOfSaleClosingVoucher($session, $company, $format);
 
         $cashupTicket = new PrintingService($ticketBuilder);
         $cashupTicket->savePrintJob();
@@ -103,9 +104,9 @@ trait PointOfSaleActionsTrait
      * @param array $payments
      * @return mixed|string
      */
-    public static function printDocumentTicket(SalesDocument $document, array $payments)
+    public static function printDocumentTicket(SalesDocument $document, array $payments, ?FormatoTicket $format = null)
     {
-        $ticketBuilder = new PointOfSaleVoucher($document, $payments);
+        $ticketBuilder = new PointOfSaleVoucher($document, $payments, $format);
 
         $ticket = new PrintingService($ticketBuilder);
         $ticket->savePrintJob();
@@ -113,10 +114,10 @@ trait PointOfSaleActionsTrait
         return $ticket->getMessage();
     }
 
-    public static function printOrderTicket(string $code)
+    public static function printOrderTicket(string $code, ?FormatoTicket $format = null)
     {
         $order = self::getOrder($code);
 
-        return self::printDocumentTicket($order->getDocument(), []);
+        return self::printDocumentTicket($order->getDocument(), [], $format);
     }
 }

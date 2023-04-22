@@ -70,6 +70,7 @@ class PointOfSaleRequest
     protected function setPaymentList(): void
     {
         $payments = $this->request->get('payments');
+
         $this->paymentList = json_decode($payments, true);
     }
 

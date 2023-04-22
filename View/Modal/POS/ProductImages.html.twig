@@ -8,8 +8,21 @@
         </div>
         <div class="modal-body">
             <div id="productImageListView">
-
             </div>
         </div>
     </div>
 </div>
+<script id="productImageListTemplate" type="text/template">
+    <% if(it.items.length === 0) { %>
+    <tr>
+        <td colspan="20" class="p-4">No se encontraron imagenes</td>
+    </tr>
+    <% } %>
+    <div class="divide-y-4 divide-dotted">
+        <% it.items.forEach(function(item){ %>
+        <div class="flex-1">
+            <img class="mx-auto py-2" src="<%= item %>" alt="Imagen Producto">
+        </div>
+        <% }) %>
+    </div>
+</script>

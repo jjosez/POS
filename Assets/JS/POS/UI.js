@@ -11,7 +11,7 @@ export const alertView = () => {
         'listTemplate': getTemplate('message-template'),
 
         updateAlertListView: function (data) {
-            this.container.innerHTML = this.listTemplate(data, Eta.config);
+            this.container.innerHTML = this.listTemplate(data, eta.config);
         }
     }
 }
@@ -53,11 +53,11 @@ export const cartView = () => {
         },
 
         updateListView: function (data = []) {
-            this.listView.innerHTML = this.listTemplate(data, Eta.config);
+            this.listView.innerHTML = this.listTemplate(data, eta.config);
         },
 
         updateEditForm: function (data = []) {
-            this.editForm.innerHTML = this.editTemplate(data, Eta.config);
+            this.editForm.innerHTML = this.editTemplate(data, eta.config);
         },
 
         updateTotals: function (data = {}) {
@@ -111,7 +111,7 @@ export const checkoutView = () => {
         },
 
         updatePaymentList: function (data = []) {
-            this.listView.innerHTML = this.listTemplate(data, Eta.config);
+            this.listView.innerHTML = this.listTemplate(data, eta.config);
         },
 
         updateTotals: function (data = {}) {
@@ -194,7 +194,7 @@ export const mainView = () => {
         },
 
         updateCustomerListView: function (data = []) {
-            this.customerListView.innerHTML = this.customerListTemplate({items: data}, Eta.config);
+            this.customerListView.innerHTML = this.customerListTemplate({items: data}, eta.config);
         },
 
         updateDocument: function (name = '') {
@@ -202,7 +202,7 @@ export const mainView = () => {
         },
 
         updateHoldOrdersList: function (data = []) {
-            this.holdOrdersList.innerHTML = this.holdOrdersListTemplate({items: data}, Eta.config);
+            this.holdOrdersList.innerHTML = this.holdOrdersListTemplate({items: data}, eta.config);
         },
 
         /*updateProductListView: async function (data = []) {
@@ -212,23 +212,23 @@ export const mainView = () => {
         },*/
 
         updateProductListView: function (data = []) {
-            this.productListView.innerHTML = this.productListTemplate({items: data}, Eta.config);
+            this.productListView.innerHTML = this.productListTemplate({items: data}, eta.config);
         },
 
         updateProductImageListView: function (data = []) {
-            this.productImageListView.innerHTML = this.productImageListTemplate({items: data}, Eta.config);
+            this.productImageListView.innerHTML = this.productImageListTemplate({items: data}, eta.config);
         },
 
         updateLastOrdersListView: function (data = []) {
-            this.lastOrdersList.innerHTML = this.lastOrdersListTemplate({items: data}, Eta.config);
+            this.lastOrdersList.innerHTML = this.lastOrdersListTemplate({items: data}, eta.config);
         },
 
         updateStockListView: function (data = []) {
-            this.stockDetailList.innerHTML = this.stockDetailListTemplate({items: data}, Eta.config);
+            this.stockDetailList.innerHTML = this.stockDetailListTemplate({items: data}, eta.config);
         },
 
         updateFamilyListView: function (data = []) {
-            this.familyList.innerHTML = this.familyListTemplate({items: data}, Eta.config);
+            this.familyList.innerHTML = this.familyListTemplate({items: data}, eta.config);
         }
     }
 }
@@ -237,7 +237,7 @@ export const mainView = () => {
  * @param {string} id
  */
 function getTemplate(id) {
-    return Eta.compile(getElement(id).innerHTML);
+    return eta.compile(getElement(id).innerHTML);
 }
 
 /**

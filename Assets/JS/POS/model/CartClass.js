@@ -45,7 +45,6 @@ class CartClass {
     setDocumentType(code, serie) {
         this.doc['tipo-documento'] = code;
         this.doc['codserie'] = serie;
-        this.updateCartEvent();
     }
 
     setDiscountPercent(value = 0) {
@@ -88,6 +87,11 @@ class CartClass {
 
     updateDocumentClass() {
         this.doc['tipo-documento'] = this.doc['generadocumento'];
+    }
+
+    updateDocumentType(code, serie) {
+        this.setDocumentType(code, serie)
+        this.updateCartEvent();
     }
 
     updateCartViewEvent(data) {

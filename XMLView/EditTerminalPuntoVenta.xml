@@ -35,13 +35,16 @@
             </column>
         </group>
         <group name="extra" title="other-settings" numcolumns="12" valign="bottom">
-            <column name="ticket-line-lenght" numcolumns="3" order="100">
-                <widget type="number" fieldname="anchopapel"/>
+            <column name="ticket-format" numcolumns="3" order="100">
+                <widget type="select" fieldname="idformatoticket" required='true' onclick="EditFormatoTicket"
+                        icon="fas fa-print">
+                    <values source="FormatoTicket" fieldcode="id" fieldtitle="nombre"/>
+                </widget>
             </column>
-            <column name="Numero tickets" numcolumns="3" order="100">
+            <column name="Numero tickets" numcolumns="3" order="110">
                 <widget type="number" fieldname="numerotickets"/>
             </column>
-            <column name="pos-checkout-available" numcolumns="3" order='110'>
+            <column name="pos-checkout-available" numcolumns="3" order='120'>
                 <widget type="checkbox" fieldname="aceptapagos"/>
             </column>
         </group>

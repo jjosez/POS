@@ -4,11 +4,11 @@ namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\NumberTools;
 use FacturaScripts\Core\Model\Base\SalesDocument;
+use FacturaScripts\Dinamic\Lib\Ticket\Builder\SalesTicket;
 use FacturaScripts\Dinamic\Model\FormatoTicket;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
-use FacturaScripts\Plugins\PrintTicket\Lib\Ticket\Builder\AbstractTicketBuilder;
 
-class PointOfSaleVoucher extends AbstractTicketBuilder
+class PointOfSaleVoucher extends SalesTicket
 {
 
     /**
@@ -25,7 +25,7 @@ class PointOfSaleVoucher extends AbstractTicketBuilder
 
     public function __construct(SalesDocument $document, array $payments, ?FormatoTicket $formato = null)
     {
-        parent::__construct($formato);
+        parent::__construct($document, $formato);
 
         $this->document = $document;
         $this->payments = $payments;
@@ -60,60 +60,6 @@ class PointOfSaleVoucher extends AbstractTicketBuilder
 
         $this->resetFontStyle();
         $this->printer->lineSeparator('=');
-    }
-
-    /**
-     * Builds the ticket body
-     */
-    protected function buildBody(): void
-    {
-        $this->printer->textCentered($this->document->codigo);
-        $fechacompleta = $this->document->fecha . ' ' . $this->document->hora;
-        $this->printer->textCentered($fechacompleta);
-
-        $this->printer->textCentered('CLIENTE: ' . $this->document->nombrecliente);
-        $this->printer->lineSeparator();
-
-        $this->printer->setFontBold();
-        $this->printer->textCentered('ARTICULO');
-        $this->printer->textColumns("PVP", "TOTAL");
-        $this->printer->setFontBold(false);
-
-        $this->printer->lineSeparator();
-
-        $this->setBodyFontSize();
-        foreach ($this->document->getLines() as $line) {
-            if (self::PRICE_AFTER_TAX === $this->formato->formato_precio) {
-                $printablePrice = $this->getPriceWithTax($line);
-            } else {
-                $printablePrice = $line->pvpunitario;
-            }
-
-            $printableTotal = $printablePrice * $line->cantidad;
-
-            $this->printer->text("$line->cantidad x $line->referencia - $line->descripcion");
-
-            if (self::PRICE_NO_PRICE !== $this->formato->formato_precio) {
-                $this->printer->textColumns(
-                    NumberTools::format($printablePrice),
-                    NumberTools::format($printableTotal),
-                    'R',
-                    'R'
-                );
-            }
-
-            $this->printer->lineBreak();
-        }
-
-        $this->printer->lineSeparator();
-
-        if (self::PRICE_NO_PRICE === $this->formato->formato_precio) {
-            return;
-        }
-
-        $this->printer->textColumns('BASE:', NumberTools::format($this->document->neto), 'L', 'R');
-        $this->printer->textColumns('IVA:', NumberTools::format($this->document->totaliva), 'L', 'R');
-        $this->printer->textColumns('TOTAL DEL DOCUMENTO:', NumberTools::format($this->document->total), 'L', 'R');
     }
 
     /**
@@ -154,10 +100,5 @@ class PointOfSaleVoucher extends AbstractTicketBuilder
         $this->printer->textCentered('.');
 
         return $this->printer->getBuffer();
-    }
-
-    protected function getPriceWithTax($line): string
-    {
-        return floatval($line->pvpunitario) * (100 + floatval($line->iva)) / 100;
     }
 }

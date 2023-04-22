@@ -13,7 +13,6 @@
             <div class="overflow-hidden">
                 <table class="w-full">
                     <tbody id="stockDetailList" class="font-semibold text-slate-gray-700">
-
                     </tbody>
                 </table>
             </div>
@@ -23,3 +22,20 @@
         </div>
     </div>
 </div>
+<script id="stockDetailListTemplate" type="text/template">
+    <% if(it.items.length === 0) { %>
+    <tr>
+        <td colspan="20" class="p-4">No se encontro stock</td>
+    </tr>
+    <% } %>
+    <% it.items.forEach(function(stock){ %>
+    <tr class="bg-blue-100">
+        <td class="p-4 font-medium">
+            <%= stock.warehouse %>
+        </td>
+        <td class="p-4 font-medium">
+            <%= stock.stock %> disponibles
+        </td>
+    </tr>
+    <% }) %>
+</script>

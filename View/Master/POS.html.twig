@@ -7,7 +7,7 @@
 {% extends 'Master/MicroTemplate.html.twig' %}
 {% block css %}
     <link rel="stylesheet" href="{{ asset('node_modules/@fortawesome/fontawesome-free/css/all.min.css') }}"/>
-    <link rel="stylesheet" href="{{ asset('Plugins/POS/Assets/CSS/pos.app.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('Dinamic/Assets/CSS/pos.app.min.css') }}"/>
     <link rel="manifest" href="{{ asset('Plugins/POS/Assets/JS/manifest.json') }}" />
 {% endblock %}
 {% block javascripts %}
@@ -15,11 +15,10 @@
 {% block fullBody %}
     <body class="bg-slate-100 text-slate-800">
     {% block messages %}
-        {% from 'Macro/POS.html.twig' import message as alert %}
         <div id="alert-container" class="alert-container">
-            {{- alert(log, ['warning', 'error', 'critical'], 'warning') -}}
-            {{- alert(log, ['notice'], 'success') -}}
-            {{- alert(log, ['info'], 'info') -}}
+            {{- _self.alert(log, ['warning', 'error', 'critical'], 'warning') -}}
+            {{- _self.alert(log, ['notice'], 'success') -}}
+            {{- _self.alert(log, ['info'], 'info') -}}
         </div>
     {% endblock %}
     {% block body %}
@@ -30,3 +29,14 @@
     {% endblock %}
     </body>
 {% endblock %}
+
+{% macro alert(log, types, style) %}
+    {%- set messages = log.read('', types) -%}
+    {%- if messages | length > 0 -%}
+        <div class="alert alert-{{ style }}" role="alert" data-delay="2000">
+            {% for msg in messages %}
+                <div>{{ msg.message | raw }}</div>
+            {% endfor %}
+        </div>
+    {%- endif -%}
+{% endmacro %}

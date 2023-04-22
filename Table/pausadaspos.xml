@@ -96,6 +96,10 @@
         <null>NO</null>
     </column>
     <column>
+        <name>fecharegistro</name>
+        <type>date</type>
+    </column>
+    <column>
         <name>femail</name>
         <type>date</type>
     </column>
@@ -105,6 +109,10 @@
     </column>
     <column>
         <name>hora</name>
+        <type>time</type>
+    </column>
+    <column>
+        <name>horaregistro</name>
         <type>time</type>
     </column>
     <column>

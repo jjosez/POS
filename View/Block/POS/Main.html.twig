@@ -10,7 +10,7 @@
 {% set grid = fsc.getFieldOptions() %}
 {% set terminal = fsc.getTerminal() %}
 {% block body %}
-    <div class="flex h-full h-screen antialiased">
+    <div class="flex h-screen antialiased">
         <div id="mainView" class="flex flex-1 overflow-auto">
             <div id="productMainView" class="md:w-3/5 app-container">
                 {{ include('Block/POS/Navbar.html.twig') }}
@@ -20,14 +20,10 @@
                 {{ include('Block/POS/Cart.html.twig') }}
             </div>
         </div>
-        {# <div id="checkoutView" class="hidden app-container md:flex-row">
-            {{ include('Block/POS/Checkout.html.twig') }}
-        </div> #}
     </div>
 {% endblock %}
 
 {% block modals %}
-    {# {{ include('Modal/POS/AddPayment.html.twig') }} #}
     {{ include('Modal/POS/CashMovments.html.twig') }}
     {{ include('Modal/POS/Checkout.html.twig') }}
     {{ include('Modal/POS/CloseSession.html.twig') }}
@@ -49,52 +45,59 @@
 
 {% block js %}
     <script id="message-template" type="text/template">
-        {{ pos.messageTemplate() }}
-    </script>
-    <script id="cartEditTemplate" type="text/template">
-        {{ pos.productEditTemplate(grid) }}
-    </script>
-    <script id="cartListTemplate" type="text/template">
-        {{ pos.cartTemplate(i18n, grid) }}
-    </script>
-    <script id="customerListTemplate" type="text/template">
-        {{ pos.customerSearchTemplate() }}
+        <% it.messages.forEach(function(message){ %>
+        <div class="alert alert-<%= message.type %>" role="alert">
+            <div>
+                <%~ message.message %>
+            </div>
+        </div>
+        <% }) %>
     </script>
     <script id="familyListTemplate" type="text/template">
-        {{ pos.familyListTemplate() }}
     </script>
-    <script id="lastOrdersListTemplate" type="text/template">
-        {{ pos.lastOrdersTemplate() }}
-    </script>
-    <script id="paymentListTemplate" type="text/template">
-        {{ pos.paymentListTemplate(i18n) }}
-    </script>
-    <script id="productListTemplate" type="text/template">
-        {{ pos.productSearchTemplate(i18n) }}
-    </script>
-    <script id="productImageListTemplate" type="text/template">
-        {{ pos.productImageListTemplate() }}
-    </script>
-    <script id="pausedOrdersListTemplate" type="text/template">
-        {{ pos.pausedOrdersTemplate() }}
-    </script>
-    <script id="stockDetailListTemplate" type="text/template">
-        {{ pos.stockDetailTemplate() }}
-    </script>
+    {# <script id="familyListTemplate" type="text/template">
+        <% if (it.items.madre.codfamilia){ %>
+        <div role="listitem"
+             class="cursor-pointer rounded-lg bg-blue-500 p-4 align-middle font-semibold text-white shadow-sm"
+             data-action="setProductFamilyAction"
+             data-code="<%= it.items.madre.madre ?? '' %>"
+             data-madre="<%= it.items.madre.madre ?? '' %>">
+            REGRESAR
+        </div>
+        <% } %>
+        <% it.items.children.forEach(function(familia){ %>
+        <div role="listitem"
+             class="cursor-pointer rounded-lg bg-slate-100 p-4 font-semibold shadow-sm"
+             data-action="setProductFamilyAction"
+             data-code="<%= familia.codfamilia %>"
+             data-madre="<%= familia.madre %>">
+            <%= familia.descripcion %>
+        </div>
+        <% }) %>
+    </script> #}
     {# TODO: Change to dynamic for release #}
     {{ parent() }}
-    <script src="{{ asset('Plugins/POS/Assets/JS/modules/eta.min.js?v=1') }}"></script>
-    <script src="{{ asset('Plugins/POS/Assets/JS/modules/onscan.min.js?v=1') }}"></script>
+    <script src="{{ asset('Dinamic/Assets/JS/modules/eta.min.js?v=2') }}"></script>
+    <script src="{{ asset('Dinamic/Assets/JS/modules/onscan.min.js?v=1') }}"></script>
     <script type="module" src="{{ asset('Dinamic/Assets/JS/POS/App.js') }}"></script>
     <script type="application/javascript">
-        const settings = {
+        const AppSettings = {
             'cash': '{{ fsc.getCashPaymentMethod() }}',
-            'customer': '{{ fsc.getDefaultCustomer().codcliente }}',
-            'document': '{{ fsc.getDefaultDocument().tipodoc }}',
-            'serie': '{{ fsc.getDefaultDocument().codserie }}',
             'token': '{{ fsc.getNewToken() }}',
             'url': 'POS',
-            'warehouse': '{{ fsc.getDefaultWarehouse() }}',
+            'codalmacen': '{{ fsc.getDefaultWarehouse() }}',
+            'customer': {
+                'codcliente': '{{ fsc.getDefaultCustomer().codcliente }}',
+                'nombre': '{{ fsc.getDefaultCustomer().nombre }}'
+            },
+            'document': {
+                'code': '{{ fsc.getDefaultDocument().tipodoc }}',
+                'serie': '{{ fsc.getDefaultDocument().codserie }}',
+                'description': '{{ fsc.getDefaultDocument().primaryDescription() }}',
+            },
+            'payment': {
+                'codpago': '{{ fsc.getCashPaymentMethod() }}'
+            }
         }
 
         window.POS = {

@@ -4,18 +4,18 @@
  *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
-<div id="lastOrdersModal" class="modal hidden">
+<div id="lastOrdersModal" class="hidden modal">
     <!--content-->
-    <div class="modal-content md:modal-content-lg h-full">
+    <div class="h-full modal-content md:modal-content-lg">
         <!--header-->
         <div class="modal-header">
-            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('last-orders') }}</h2>
-            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="lastOrdersModal">
+            <h2 class="text-2xl font-semibold text-slate-gray-700">{{ i18n.trans('last-orders') }}</h2>
+            <button class="ml-2 btn btn-icon btn-danger" data-toggle="modal" data-target="lastOrdersModal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
         <!--body-->
-        <div class="modal-body p-0">
+        <div class="p-0 modal-body">
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="bg-blue-500">
@@ -30,15 +30,15 @@
                     </thead>
                     <tbody id="lastOrdersList" class="font-semibold text-slate-gray-700">
                     {% for operation in fsc.session.getOrders() %}
-                        <tr class="px-3 bg-blue-100 hover:bg-yellow-200">
-                            <td class="px-3 text-center py-3">{{ operation.codigo }}</td>
+                        <tr class="bg-blue-100 px-3 hover:bg-yellow-200">
+                            <td class="px-3 py-3 text-center">{{ operation.codigo }}</td>
                             <td class="px-3 text-center">{{ operation.tipodocumento }}</td>
                             <td class="px-3 text-right">{{ operation.fecha }}</td>
                             <td class="px-3 text-right">{{ operation.hora }}</td>
                             <td class="px-3 text-right">{{ fsc.toolBox().coins().format(operation.total) }}</td>
                             <td class="px-3">
                                 <div class="flex justify-center py-1">
-                                    <button type="button" class="btn btn-icon btn-primary resume-order-btn"
+                                    <button type="button" class="btn btn-icon btn-primary"
                                             data-action="printOrderAction" data-code="{{ operation.idoperacion }}">
                                         <i class="fas fa-print fa-sm"></i>
                                     </button>
@@ -61,3 +61,32 @@
         </div>
     </div>
 </div>
+<script id="lastOrdersListTemplate" type="text/template">
+    <% if(it.items.length === 0) { %>
+    <tr>
+        <td colspan="20" class="p-4">
+            Ninguna operacion registrada
+        </td>
+    </tr>
+    <% } %>
+    <% it.items.forEach(function(order){ %>
+    <tr class="hover:bg-yellow-200">
+        <td class="text-center"><%= order.codigo %></td>
+        <td class="text-center"><%= order.tipodocumento %></td>
+        <td class="text-right"><%= order.fecha %></td>
+        <td class="text-right"><%= order.hora %></td>
+        <td class="text-right"><%= order.total %></td>
+        <td class="px-3">
+            <div class="flex justify-center py-1">
+                <button type="button" class="mr-2 btn btn-icon btn-light"
+                        data-action="printOrderAction" data-code="<%= order.idoperacion %>">
+                    <i class="fas fa-print fa-sm"></i>
+                </button>
+                <a href="<%= order.url %>" type="button" target="_blank" class="btn btn-icon btn-primary">
+                    <i class="fas fa-file-invoice fa-sm"></i>
+                </a>
+            </div>
+        </td>
+    </tr>
+    <% }) %>
+</script>

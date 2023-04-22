@@ -68,6 +68,7 @@ class OrdenPuntoVenta extends Base\ModelClass
 
         $this->tipodocumento = self::toolBox()::i18n()->trans($this->tipodoc);
         $this->descuadre = $this->testDescuadre();
+        $this->url = $this->url('edit');
     }
 
     /**
@@ -104,7 +105,7 @@ class OrdenPuntoVenta extends Base\ModelClass
         return $this->all($where);
     }
 
-    protected function testDescuadre()
+    protected function testDescuadre(): bool
     {
         $pagos = 0;
 

@@ -4,13 +4,13 @@ import CartClass from "../model/CartClass.js";
 
 const Cart = new CartClass({
     'doc': {
-        'codserie': settings.serie,
-        'codalmacen': settings.warehouse,
-        'codcliente': settings.customer,
+        'codserie': AppSettings.document.serie,
+        'codalmacen': AppSettings.codalmacen,
+        'codcliente': AppSettings.customer.codcliente,
         'idpausada': 'false',
-        'tipo-documento': settings.document
+        'tipo-documento': AppSettings.document.code
     },
-    'token': settings.token
+    'token': AppSettings.token
 });
 
 /**
@@ -95,7 +95,7 @@ function setDocumentAction({code, serie, description}) {
     if (typeof code === 'undefined' || code === null) {
         return;
     }
-    Cart.setDocumentType(code, serie);
+    Cart.updateDocumentType(code, serie);
     mainView().toggleDoctypeListModal();
     mainView().updateDocument(description);
 }

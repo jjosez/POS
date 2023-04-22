@@ -25,37 +25,6 @@
                     </tr>
                     </thead>
                     <tbody id="pausedOrdersList" class="font-semibold text-slate-gray-700">
-                    {% for operation in fsc.session.getPausedOrders() %}
-                        <tr class="bg-blue-100 hover:bg-yellow-200">
-                            <td class="px-3 text-center">{{ operation.codigo }}</td>
-                            <td class="px-3">{{ i18n.trans(operation.nombrecliente) }}</td>
-                            <td class="px-3 text-right whitespace-nowrap">{{ operation.fecha }}</td>
-                            <td class="px-3 text-right">{{ operation.hora }}</td>
-                            <td class="px-3 text-right whitespace-nowrap">{{ fsc.toolBox().coins().format(operation.total) }}</td>
-                            <td class="px-3">
-                                <div class="flex justify-center py-1">
-                                    <button type="button" class="btn btn-icon btn-light mr-2"
-                                            data-action="printPausedOrderAction" data-code="{{ operation.idpausada }}">
-                                        <i class="fas fa-print fa-sm"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-icon btn-primary mr-2"
-                                            data-action="resumeOrderAction" data-code="{{ operation.idpausada }}">
-                                        <i class="fas fa-file-signature fa-sm"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-icon btn-danger"
-                                            data-action="deleteOrderAction" data-code="{{ operation.idpausada }}">
-                                        <i class="fas fa-trash fa-sm"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="20" class="p-4">
-                                Ninguna operacion registrada
-                            </td>
-                        </tr>
-                    {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -65,3 +34,38 @@
         </div>
     </div>
 </div>
+<script id="pausedOrdersListTemplate" type="text/template">
+    <% if(it.items.length === 0) { %>
+    <tr>
+        <td colspan="20" class="p-4">
+            Ninguna operacion registrada
+        </td>
+    </tr>
+    <% } %>
+    <% it.items.forEach(function(order){ %>
+    <tr class="hover:bg-yellow-200">
+        <td class="px-3 text-center"><%= order.codigo %></td>
+        <td class="px-3"><%= order.nombrecliente %>
+            <p><%= order.observaciones || '' %></p></td>
+        <td class="whitespace-nowrap px-3 text-right"><%= order.fecha %></td>
+        <td class="whitespace-nowrap px-3 text-right"><%= order.hora %></td>
+        <td class="whitespace-nowrap px-3 text-right"><%= order.total %></td>
+        <td class="px-3">
+            <div class="flex justify-center py-1">
+                <button type="button" class="mr-2 btn btn-icon btn-light"
+                        data-action="printPausedOrderAction" data-code="<%= order.idpausada %>">
+                    <i class="fas fa-print fa-sm"></i>
+                </button>
+                <button type="button" class="mr-2 btn btn-icon btn-primary"
+                        data-action="resumeOrderAction" data-code="<%= order.idpausada %>">
+                    <i class="fas fa-file-signature fa-sm"></i>
+                </button>
+                <button type="button" class="btn btn-icon btn-danger"
+                        data-action="deleteOrderAction" data-code="<%= order.idpausada %>">
+                    <i class="fas fa-trash fa-sm"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+    <% }) %>
+</script>

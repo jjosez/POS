@@ -21,6 +21,7 @@ class TipoDocumentoPuntoVenta extends Base\ModelClass
     public $idterminal;
     public $preferido;
     public $tipodoc;
+    public $descripcion;
 
     public function clear()
     {
@@ -37,5 +38,10 @@ class TipoDocumentoPuntoVenta extends Base\ModelClass
     public static function tableName(): string
     {
         return 'tiposdocpos';
+    }
+
+    public function primaryDescription()
+    {
+        return $this->descripcion ?: self::toolBox()::i18n()->trans($this->tipodoc);
     }
 }

@@ -38,13 +38,13 @@ class POS extends Controller
     {
         parent::privateCore($response, $user, $permissions);
         $this->setTemplate(false);
-
-        $this->session = new PointOfSaleSession($user);
         $action = $this->request->request->get('action', '');
 
         if ($action && true === $this->execCartQueryAction($action)) {
             return;
         }
+
+        $this->session = new PointOfSaleSession($user);
 
         if ($action && false === $this->execAction($action)) {
             return;
@@ -110,6 +110,14 @@ class POS extends Controller
                 $this->setFamilyFilter();
                 return false;
 
+            case 'reprint-order':
+                $this->reprintOrder();
+                return false;
+
+            case 'reprint-paused-order':
+                $this->reprintPausedOrder();
+                return false;
+
             default:
                 $this->setResponse('Funcion no encontrada');
                 return true;
@@ -144,14 +152,6 @@ class POS extends Controller
 
             case 'resume-order':
                 $this->resumeOrder();
-                return true;
-
-            case 'reprint-order':
-                $this->reprintOrder();
-                return true;
-
-            case 'reprint-paused-order':
-                $this->reprintPausedOrder();
                 return true;
 
             case 'save-new-customer':
@@ -258,10 +258,15 @@ class POS extends Controller
     }
 
     /**
-     * Set a held order as complete to remove from list.
+     * Remove paused order from list.
      */
     protected function deleteOrderOnHold()
     {
+        if (false === $this->validateDelete()) {
+            $this->buildResponse();
+            return;
+        }
+
         $code = $this->request->request->get('code', '');
 
         if (self::deletePausedDocument($code)) {
@@ -293,7 +298,7 @@ class POS extends Controller
         $code = $this->request->request->get('code', '');
         $order = self::getPausedDocument($code);
 
-        $result = ['doc' => $order->toArray(), 'lines' => $order->getLines()];
+        $result = ['doc' => $order, 'lines' => $order->getLines()];
 
         $this->setNewToken();
         $this->buildResponse($result);
@@ -307,8 +312,8 @@ class POS extends Controller
         $code = $this->request->request->get('code', '');
 
         if ($code) {
-            $message = self::printOrderTicket($code);
-            $this->toolBox()->log()->info($message);
+            $order = self::getOrder($code);
+            $this->printVoucher($order->getDocument(), []);
 
             $this->buildResponse();
         }

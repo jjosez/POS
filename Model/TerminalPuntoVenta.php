@@ -30,6 +30,9 @@ class TerminalPuntoVenta extends Base\ModelClass
     public $defaultdocument;
     public $disponible;
     public $idempresa;
+
+    public $idformatoticket;
+
     public $idterminal;   
     public $nombre; 
     public $numerotickets;
@@ -82,6 +85,14 @@ class TerminalPuntoVenta extends Base\ModelClass
     public function getPaymenthMethods(): array
     {
         return (new FormaPagoPuntoVenta)->all([new DataBaseWhere('idterminal', $this->idterminal)]);
+    }
+
+    public function getCashPaymentMethod(): string
+    {
+        foreach ($this->getPaymenthMethods() as $element) if ($element->recibecambio) {
+            return $element->codpago;
+        }
+        return '';
     }
 
     /**

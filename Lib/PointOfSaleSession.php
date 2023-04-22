@@ -206,9 +206,15 @@ class PointOfSaleSession
     public function savePayments(SalesDocument $document, array $payments)
     {
         PointOfSalePayments::cleanInvoiceReceipts($document);
+        $cashMethodCode = $this->getTerminal()->getCashPaymentMethod();
 
         $counter = 1;
+        $cashAmount = 0;
         foreach ($payments as $payment) {
+            if ($cashMethodCode === $payment->codpago) {
+                $cashAmount += $payment->pagoNeto();
+            }
+
             $payment->idoperacion = $this->getLastOrder()->idoperacion;
             $payment->idsesion = $this->getID();
 
@@ -216,6 +222,9 @@ class PointOfSaleSession
                 PointOfSalePayments::saveInvoiceReceipt($document, $payment, $counter++);
             }
         }
+
+        $this->getSession()->saldoesperado += $cashAmount;
+        $this->getSession()->save();
     }
 
     /**

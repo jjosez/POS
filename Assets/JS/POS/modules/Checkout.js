@@ -2,7 +2,7 @@ import {checkoutView} from "../UI.js";
 import CheckoutClass from "../model/CheckoutClass.js";
 
 const Checkout = new CheckoutClass({
-    cashMethod: settings.cash
+    cashMethod: AppSettings.cash
 });
 
 /**

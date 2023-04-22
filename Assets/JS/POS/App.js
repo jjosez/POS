@@ -40,31 +40,37 @@ async function pausedOrderPrintAction({code}) {
 async function orderResumeAction({code}) {
     Cart.update(await Order.resumeRequest(code));
     Cart.updateDocumentClass();
-    mainView().updateCustomer(Cart.doc.nombrecliente);
 
+    const elements = document.querySelectorAll('[data-serie]');
+
+    for (const element of elements) {
+        if (element.dataset.code === Cart.doc.generadocumento && element.dataset.serie === Cart.doc.codserie) {
+            mainView().updateDocument(element.dataset.description);
+            break;
+        }
+    }
+
+    mainView().updateCustomer(Cart.doc.nombrecliente);
     mainView().toggleHoldOrdersModal();
 }
 
 async function orderSaveAction() {
-    //const wasOnHold = Cart.doc.idpausada;
     if (Cart.lines.length < 1) return;
 
     Cart.update(await Order.saveRequest(Cart, Checkout.payments));
     Checkout.clear();
 
-    //mainView().updateProductListView(await Core.searchProduct(''));
-    //mainView().updateLastOrdersListView(await Order.getLastOrders());
-
-    /*if (wasOnHold) {
-        mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
-    }*/
+    Cart.setDocumentType(AppSettings.document.code, AppSettings.document.serie)
+    mainView().updateDocument(AppSettings.document.description);
 }
 
 async function orderSuspendAction() {
     if (Cart.lines.length < 1) return;
 
     Cart.update(await Order.holdRequest(Cart));
-    //mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
+
+    Cart.setDocumentType(AppSettings.document.code, AppSettings.document.serie)
+    mainView().updateDocument(AppSettings.document.description);
 }
 
 async function searchBarcodeAction(code) {

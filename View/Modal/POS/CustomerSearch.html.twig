@@ -32,7 +32,8 @@
                     <input type="text" class="form-control" id="newCustomerName">
                 </div>
                 <div class="form-group my-4">
-                    <button class="btn justify-center bg-blue-500 hover:bg-blue-600" type="button" id="newCustomerSaveButton"
+                    <button class="btn justify-center bg-blue-500 hover:bg-blue-600" type="button"
+                            id="newCustomerSaveButton"
                             data-action="saveCustomerAction">{{ i18n.trans('save') }}</button>
                 </div>
             </div>
@@ -48,3 +49,18 @@
         </div>
     </div>
 </div>
+<script id="customerListTemplate" type="text/template">
+    <% if(it.items.length === 0) { %>
+    <tr>
+        <td colspan="20" class="p-4">No se encontraron clientes</td>
+    </tr>
+    <% } %>
+    <% it.items.forEach(function(customer){ %>
+    <tr class="cursor-pointer bg-blue-100 hover:bg-blue-500 hover:text-white">
+        <td class="p-4 font-medium add-customer-btn" data-action="setCustomerAction"
+            data-code="<%= customer.code %>" data-description="<%= customer.description %>">
+            <%= customer.description %>
+        </td>
+    </tr>
+    <% }) %>
+</script>

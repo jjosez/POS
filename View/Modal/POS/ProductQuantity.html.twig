@@ -18,11 +18,11 @@
         <div class="modal-body">
             <div id="productQuantityForm" class="flex-col items-center">
                 <label class="mb-2 font-semibold uppercase">{{ i18n.trans('quantity') }}</label>
-                <div class="flex">
+                <div class="flex space-x-3">
                     <button class="flex-none btn btn-icon btn-warning" data-action="quantityDecreaseAction">
                         <i class="fa fw fa-minus"></i>
                     </button>
-                    <input id="productQuantityInput" type="number" class="mx-3 flex-1 form-control" value="0"
+                    <input id="productQuantityInput" type="number" class="flex-1 form-control" value="0"
                            data-action="editProductFieldAction" data-index=""
                            data-field="cantidad">
                     <button class="flex-none btn btn-icon btn-secondary" data-action="quantityIncreaseAction">

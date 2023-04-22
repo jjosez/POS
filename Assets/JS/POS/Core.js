@@ -17,7 +17,7 @@ export async function postRequest(data) {
     if (!response.ok) requestErrorHandler(response.status);
 
     let result = await response.json();
-    await showMessage(result);
+    showMessage(result);
 
     return result;
 }
@@ -120,9 +120,8 @@ export function searchRequest(action, query) {
 export function showMessage(response) {
     if (null != response.messages) {
         alertView().updateAlertListView(response);
+        autoCloseMessage();
     }
-
-    autoCloseMessage();
 }
 
 /**

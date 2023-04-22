@@ -24,6 +24,17 @@ class OperacionPausada extends Base\SalesDocument
     /**
      * @var string
      */
+    public $fecharegistro;
+
+
+    /**
+     * @var string
+     */
+    public $horaregistro;
+
+    /**
+     * @var string
+     */
     public $generadocumento;
 
     /**
@@ -38,6 +49,14 @@ class OperacionPausada extends Base\SalesDocument
         }
 
         return $this->all($where);
+    }
+
+    public function clear()
+    {
+        parent::clear();
+
+        $this->fecharegistro = date(self::DATE_STYLE);
+        $this->horaregistro = date(self::HOUR_STYLE);
     }
 
     /**
