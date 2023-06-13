@@ -22,6 +22,15 @@ trait PointOfSaleTrait
      * @var PointOfSaleSession
      */
     protected $session;
+    /**
+     * @var mixed
+     */
+    protected $customNavbarElements;
+
+    /**
+     * @var array|array[]
+     */
+    protected $customFields;
 
     /**
      * @return array
@@ -121,6 +130,16 @@ trait PointOfSaleTrait
         $product = new PointOfSaleProduct();
 
         return $product->search('', []);
+    }
+
+    public function getCustomInput(string $hook)
+    {
+        return $this->customFields[$hook] ?? [];
+    }
+
+    public function getCustomNavbarElements(string $groupKey): array
+    {
+        return $this->customNavbarElements[$groupKey] ?? [];
     }
 
     /**
@@ -250,7 +269,19 @@ trait PointOfSaleTrait
         return $format;
     }
 
-        /**
+    protected function loadCustomFields(): void
+    {
+        $this->customFields = ['detail' => []];
+        $this->pipe('loadCustomFields');
+    }
+
+    protected function loadCustomNavbarElements(): void
+    {
+        $this->customNavbarElements = ['link' => [], 'action' => [], 'button' => []];
+        $this->pipe('loadCustomNavbarElements');
+    }
+
+    /**
      * @param $document
      * @return void;
      */
@@ -307,6 +338,16 @@ trait PointOfSaleTrait
     {
         $response = $encode ? json_encode($content) : $content;
         $this->response->setContent($response);
+    }
+
+    protected function addCustomField(string $hook, array $element)
+    {
+        $this->customFields[$hook][] = $element;
+    }
+
+    protected function addNavbarElement(string $type, array $element)
+    {
+        $this->customNavbarElements[$type][] = $element;
     }
 
     protected function validateDelete(): bool

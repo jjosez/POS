@@ -52,6 +52,8 @@ class POS extends Controller
         }
 
         $this->execAfterAction($action);
+        $this->loadCustomFields();
+        $this->loadCustomNavbarElements();
 
         $template = $this->session->getView();
         $this->setTemplate($template);

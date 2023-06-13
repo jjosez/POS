@@ -9,63 +9,52 @@
             <span class="flex font-medium"><i class="fa fa-bars"></i></span>
         </button>
     </div>
-
     <div class="hidden w-auto md:block" id="navbarMenu">
         <ul class="ml-auto flex w-full list-none flex-col md:space-x-2 md:w-auto md:flex-row md:p-0">
-            <li class="nav-item">
-                <button class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
-                        data-action="showPausedOrders">
-                    <i class="text-lg fas fa-hourglass-half fa-fw leading-lg"></i>
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="btn hover:bg-slate-300 hover:text-slate-800 focus:bg-slate-300 focus:ring-slate-100"
-                        data-action="showLastOrders">
-                    <i class="text-lg fas fa-history fa-fw leading-lg"></i>
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
-                        data-toggle="modal" data-target="closeSessionModal">
-                    <i class="text-lg fas fa-cash-register fa-fw leading-lg"></i>
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
-                        data-toggle="modal" data-target="moneyInOutModal">
-                    <i class="text-lg fas fa-wallet fa-fw leading-lg"></i>
-                </button>
-            </li>
-            <li>
-                <button class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
-                        data-toggle="modal" data-target="userModal">
-                    <i class="text-lg fas fa-user-circle fa-fw leading-lg"></i>
-                    <span class="ml-2">{{ fsc.user.nick }}</span>
-                </button>
-                {# <span class="inline-block whitespace-nowrap py-2 font-semibold leading-normal text-slate-50">
-                <i class="fa fa-user-circle"></i> {{ fsc.user.nick }}
-            </span> #}
-            </li>
-            {{ _self.menuElement('modal', 'moneyInOutModal', 'fa-wallet') }}
-            {{ _self.menuElement('modal', 'userModal', 'fa-user-circle', fsc.user.nick) }}
-            <li class="nav-item">
-                <a class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
-                   href="{{ fsc.getTerminal().url('edit') }}" target="_blank">
-                    <i class="text-lg fas fa-desktop fa-fw leading-lg"></i>
-                    <span class="ml-2">{{ fsc.getTerminal().nombre }}</span>
-                </a>
-            </li>
+            {% for element in fsc.getCustomNavbarElements('link') %}
+                {{ _self.menuLinkElement(asset(element.url), element.icon, element.text, element.title) }}
+            {% endfor %}
+            {{ _self.menuActionElement('showPausedOrders', 'fas fa-hourglass-half') }}
+            {{ _self.menuActionElement('showLastOrders', 'fas fa-history') }}
+            {{ _self.menuElement('modal', 'closeSessionModal', 'fas fa-cash-register') }}
+            {{ _self.menuElement('modal', 'moneyInOutModal', 'fas fa-wallet') }}
+            {{ _self.menuElement('modal', 'userModal', 'fas fa-user-circle', fsc.user.nick) }}
+            {{ _self.menuLinkElement(fsc.getTerminal().url('edit'), 'fas fa-desktop', fsc.getTerminal().nombre) }}
         </ul>
     </div>
 </nav>
-{% macro menuElement(toggle, target, icon, text) %}
+{% macro menuElement(toggle, target, icon, text, title) %}
     <li>
         <button class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
-                data-toggle="{{ toggle }}" data-target="{{ target }}">
-            <i class="text-lg fas {{ icon }} fa-fw leading-lg"></i>
+                data-toggle="{{ toggle }}" data-target="{{ target }}" title="{{ title }}">
+            <i class="text-lg leading-lg {{ icon }} fa-fw"></i>
             {% if text %}
                 <span class="ml-2">{{ text }}</span>
             {% endif %}
         </button>
+    </li>
+{% endmacro %}
+
+{% macro menuActionElement(action, icon, text, title) %}
+    <li>
+        <button class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
+                data-action="{{ action }}" title="{{ title }}">
+            <i class="text-lg leading-lg {{ icon }} fa-fw"></i>
+            {% if text %}
+                <span class="ml-2">{{ text }}</span>
+            {% endif %}
+        </button>
+    </li>
+{% endmacro %}
+
+{% macro menuLinkElement(url, icon, text, title) %}
+    <li>
+        <a class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100" href="{{ url }}"
+           target="_blank" title="{{ title }}">
+            <i class="text-lg leading-lg {{ icon }} fa-fw"></i>
+            {% if text %}
+                <span class="ml-2">{{ text }}</span>
+            {% endif %}
+        </a>
     </li>
 {% endmacro %}

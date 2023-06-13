@@ -8,11 +8,18 @@
         </div>
         <div class="modal-body">
             <div class="flex flex-col place-content-between text-xl font-medium">
-                <span>{{ i18n.trans('observations') }}</span>
-                <label class="input-icon text-sm">
+                {% for element in fsc.getCustomInput('detail') %}
+                    {% if element.type == 'checkbox' %}
+                        {{ _self.checkBoxInput(element) }}
+                    {% else %}
+                        {{ _self.textInput(element) }}
+                    {% endif %}
+                {% endfor %}
+                <div class="form-group text-sm mb-2">
+                    <label for="orderObservations" class="font-semibold capitalize mb-1.5">{{ i18n.trans('observations') }}</label>
                     <textarea id="orderObservations" cols="30" rows="4"
                               data-action="editDocumentFieldAction" data-field="observaciones"></textarea>
-                </label>
+                </div>
                 <div class="p-4 flex justify-between">
                     <span><i class="fas fa-shopping-cart"></i></span>
                     <span id="orderItemsNumber" class="text-right">0</span>
@@ -48,3 +55,19 @@
         </div>
     </div>
 </div>
+{% macro checkBoxInput(element) %}
+    <div class="flex items-center text-sm mb-2">
+        <input id="{{ element.id }}" name="{{ element.name }}" type="checkbox" class="mr-2"
+               data-action="editDocumentFieldAction" data-field="{{ element.name }}">
+        <label for="{{ element.id }}">{{ element.label }}</label>
+    </div>
+{% endmacro %}
+
+{% macro textInput(element) %}
+    <div class="form-group text-sm mb-2">
+        <label class="font-semibold capitalize mb-1.5">{{ element.label }}</label>
+        <input id="{{ element.id }}" name="{{ element.name }}" class="form-control" type="{{ element.type }}"
+               data-action="editDocumentFieldAction" data-field="{{ element.name }}">
+    </div>
+{% endmacro %}
+

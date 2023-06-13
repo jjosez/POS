@@ -130,7 +130,6 @@ function cartCustomFieldUpdateAction({detail}) {
         return;
     }
     Cart.setCustomField(detail.field, detail.value);
-    console.log(Cart.doc);
 }
 
 /**
@@ -185,6 +184,20 @@ function editCartLineEventHandler(event) {
     }
 }
 
+function editCustomFieldAction(field, target) {
+    if (typeof field === 'undefined' || target === undefined) {
+        return;
+    }
+
+    switch (target.type) {
+        case 'checkbox':
+            Cart.setCustomField(field, target.checked ?? false);
+            break;
+        default:
+            Cart.setCustomField(field, target.value);
+    }
+}
+
 function editCartDocumentEventHandler(event) {
     const data = event.target.dataset;
     const action = data.action;
@@ -195,7 +208,8 @@ function editCartDocumentEventHandler(event) {
 
     switch (action) {
         case 'editDocumentFieldAction':
-            return Cart.setCustomField(data.field, event.target.value);
+            console.log(data.field, event.target.type)
+            return editCustomFieldAction(data.field, event.target);
         case 'editDocumentDiscountAction':
             return editDiscountAction(event.target.value);
     }
