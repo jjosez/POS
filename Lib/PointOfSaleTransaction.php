@@ -7,7 +7,6 @@ use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Model\Base\SalesDocumentLine;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use RuntimeException;
-use UnexpectedValueException;
 
 class PointOfSaleTransaction
 {
@@ -101,14 +100,15 @@ class PointOfSaleTransaction
         $this->document = new $className;
 
         if (false === is_subclass_of($this->document, self::SALES_DOCUMENT_CLASS)) {
-            throw new UnexpectedValueException("Class $className is not a valid SalesDocument");
+            throw new RuntimeException("Class $className is not a valid SalesDocument");
         }
 
         //$exclude = ['neto', 'total', 'totalirpf', 'totaliva', 'totalrecargo', 'totalsuplidos'];
 
         //$this->document->loadFromData($data, $exclude);
         $this->document->loadFromData($data);
-        $this->document->updateSubject();
+        //$this->document->updateSubject();
+        $this->setDocumentSubject();
     }
 
     protected function setDocumentLines()
@@ -127,6 +127,13 @@ class PointOfSaleTransaction
             }
 
             $this->documentLines[] = $this->document->getNewProductLine($product['referencia']);
+        }
+    }
+
+    protected function setDocumentSubject()
+    {
+        if (empty($this->document->nombrecliente)) {
+            $this->document->updateSubject();
         }
     }
 

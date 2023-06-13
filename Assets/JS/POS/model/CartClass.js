@@ -1,12 +1,13 @@
 import * as Money from "./../Money.js";
 
 class CartClass {
-    constructor({ doc, token } = {}) {
+    constructor({doc, token} = {}) {
         this.init = doc;
         this.doc = doc;
         this.lines = [];
         this.count = 0;
         this.token = token
+        this.linesMap = new Map();
     }
 
     deleteProduct(index) {
@@ -33,6 +34,7 @@ class CartClass {
     }
 
     setCustomer(codcliente) {
+        this.doc.nombrecliente = '';
         this.doc.codcliente = codcliente;
         this.updateCartEvent();
     }
@@ -63,15 +65,26 @@ class CartClass {
         } else if (this.lines.some(element => {
             return element.referencia === code ? element.cantidad++ : false;
         })) {
-            this.updateCartEvent();
-            return;
         } else {
             this.lines.unshift({referencia: code, descripcion: description});
         }
+
+        /*if ('' === code) {
+            this.linesMap.set(this.linesMap.size, {referencia: code, descripcion: description});
+        } else {
+            let line = this.linesMap.get(code)
+
+            if (undefined !== line) {
+                line.cantidad = (line.cantidad || 0) + 1;
+            } else {
+                this.linesMap.set(code, {referencia: code, descripcion: description});
+            }
+        }*/
+
         this.updateCartEvent();
     }
 
-    update({doc = this.init, lines = [], token = '' }) {
+    update({doc = this.init, lines = [], token = ''}) {
         this.doc = doc;
         this.lines = lines;
         this.count = 0;
@@ -95,10 +108,14 @@ class CartClass {
     }
 
     updateCartViewEvent(data) {
-        document.dispatchEvent(new CustomEvent('onCartUpdate', { detail: data }));
+        document.dispatchEvent(new CustomEvent('onCartUpdate', {detail: data}));
     }
 
     updateCartEvent() {
+        //console.log('Map', this.linesMap);
+        //console.log('Object', this.lines);
+        //console.log('Object JSON', JSON.stringify(this.lines));
+        //console.log('Map JSON', JSON.stringify(Object.fromEntries(this.linesMap)))
         document.dispatchEvent(new Event('onCartChange'));
     }
 }

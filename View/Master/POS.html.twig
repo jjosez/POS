@@ -15,7 +15,7 @@
 {% block fullBody %}
     <body class="bg-slate-100 text-slate-800">
     {% block messages %}
-        <div id="alert-container" class="alert-container">
+        <div id="alert-container" class="alert-container opacity-90">
             {{- _self.alert(log, ['warning', 'error', 'critical'], 'warning') -}}
             {{- _self.alert(log, ['notice'], 'success') -}}
             {{- _self.alert(log, ['info'], 'info') -}}

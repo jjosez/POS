@@ -11,7 +11,7 @@
     }
 
     .alert-container {
-        @apply absolute bottom-0 left-0 z-auto p-4 w-full md:w-1/4 space-y-2;
+        @apply absolute bottom-0 left-0 z-auto p-4 w-full md:w-3/5 space-y-2;
     }
 
     .alert {
@@ -35,11 +35,11 @@
     }
 
     .btn {
-        @apply text-white flex flex-shrink-0 px-4 py-2.5 items-center font-medium rounded-lg focus:ring select-none;
+        @apply text-white flex flex-shrink-0 px-4 py-2.5 items-center font-medium rounded-lg focus:ring select-none outline-none;
     }
 
     .btn-block {
-        @apply flex inline-flex items-center px-4 py-3 w-full font-medium rounded-lg;
+        @apply px-4 py-2.5 w-full;
     }
 
     .btn-icon {
@@ -211,6 +211,14 @@
 
     :disabled {
         @apply opacity-50 cursor-auto bg-slate-200 hover:bg-slate-200;
+    }
+
+    .table-row-red {
+        @apply even:bg-red-100 odd:bg-red-100 hover:bg-red-200;
+    }
+
+    .table-row-default {
+        @apply odd:bg-blue-50 hover:bg-yellow-200;
     }
 
 }

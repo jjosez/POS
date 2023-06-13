@@ -149,13 +149,13 @@ class PointOfSaleSession
     /**
      * Close current session.
      *
-     * @return void
+     * @return bool
      */
-    public function closeSession(array $cash)
+    public function closeSession(array $cash): bool
     {
         if (false === $this->session->abierto) {
-            ToolBox::i18nLog()->info('there-is-no-open-till-session');
-            return;
+            ToolBox::i18nLog()->info('till-session-not-opened');
+            return false;
         }
 
         $this->session->abierto = false;
@@ -175,7 +175,11 @@ class PointOfSaleSession
             $this->terminal->disponible = true;
             $this->terminal->save();
             $this->open = false;
+
+            return true;
         }
+
+        return false;
     }
 
     public function getLastOrder(): OrdenPuntoVenta

@@ -53,6 +53,7 @@ class PointOfSaleRequest
     protected function setProductList(): void
     {
         $lines = $this->request->get('lines', []);
+        //$lines = $this->request->get('linesMap', []);
 
         $this->productList = json_decode($lines, true);
     }
@@ -61,10 +62,14 @@ class PointOfSaleRequest
     {
         $data = $this->request->all();
 
-        unset($data['action'], $data['lines'], $data['payments']);
+        unset($data['action'], $data['lines'], $data['linesMap'], $data['objectRaw'],$data['payments']);
 
         $this->documentData = $data;
         $this->orderType = $this->request->get('tipo-documento', '');
+
+        /*$data = $this->request->get('document', '{}');
+        $this->documentData = json_decode($data, true);
+        $this->orderType =$this->documentData['tipo-documento'];*/
     }
 
     protected function setPaymentList(): void

@@ -52,21 +52,35 @@ export function getOnHoldRequest() {
     return postRequest(data);
 }
 
-export function holdRequest({doc, lines, token}) {
+export function holdRequest({doc, lines, linesMap, token}) {
     const data = getFormData(doc);
 
     data.set('token', token);
     data.set('action', 'hold-order');
     data.set('lines', JSON.stringify(lines));
 
+    /*const data = new FormData();
+
+    data.set('action', 'hold-order');
+    data.set('document', JSON.stringify(doc));
+    data.set('linesMap', JSON.stringify(Object.fromEntries(linesMap)));
+    data.set('token', token);*/
+
     return postRequest(data);
 }
 
-export function recalculateRequest({ doc, lines }) {
+export function recalculateRequest({ doc, lines, linesMap }) {
     const data = getFormData(doc);
+
 
     data.set('action', "recalculate-order");
     data.set('lines', JSON.stringify(lines));
+
+    /*const data = new FormData();
+
+    data.set('action', "recalculate-order");
+    data.set('document', JSON.stringify(doc));
+    data.set('linesMap', JSON.stringify(Object.fromEntries(linesMap)));*/
 
     return postRequest(data);
 }

@@ -102,6 +102,7 @@ trait PointOfSaleActionsTrait
     /**
      * @param SalesDocument $document
      * @param array $payments
+     * @param FormatoTicket|null $format
      * @return mixed|string
      */
     public static function printDocumentTicket(SalesDocument $document, array $payments, ?FormatoTicket $format = null)

@@ -1,14 +1,11 @@
 <div id="holdOrdersModal" class="modal hidden">
-    <!--content-->
     <div class="modal-content md:modal-content-lg h-full">
-        <!--header-->
         <div class="modal-header">
             <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('pos-orders-on-hold') }}</h2>
             <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="holdOrdersModal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
-        <!--body-->
         <div class="modal-body p-0">
             <div class="overflow-x-auto">
                 <table class="w-full">
@@ -43,7 +40,8 @@
     </tr>
     <% } %>
     <% it.items.forEach(function(order){ %>
-    <tr class="hover:bg-yellow-200">
+    {#<tr class="hover:bg-yellow-200">#}
+    <tr class="<% if (order.dtomecanico) { %>table-row-red<% } else { %>hover:bg-yellow-200<% } %>">
         <td class="px-3 text-center"><%= order.codigo %></td>
         <td class="px-3"><%= order.nombrecliente %>
             <p><%= order.observaciones || '' %></p></td>

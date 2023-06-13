@@ -2,7 +2,6 @@
 
 namespace FacturaScripts\Plugins\POS\Lib;
 
-use FacturaScripts\Core\Base\NumberTools;
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Dinamic\Lib\Ticket\Builder\SalesTicket;
 use FacturaScripts\Dinamic\Model\FormatoTicket;

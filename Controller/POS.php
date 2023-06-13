@@ -17,6 +17,7 @@ use FacturaScripts\Plugins\POS\Lib\PointOfSaleSession;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleTrait;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleTransaction;
 use FacturaScripts\Plugins\POS\Model\MovimientoPuntoVenta;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 
 class POS extends Controller
@@ -127,6 +128,9 @@ class POS extends Controller
     protected function execAfterAction(string $action)
     {
         switch ($action) {
+            case 'change-user':
+                $this->changeUser();
+                break;
             case 'open-session':
                 $this->initSession();
                 break;
@@ -252,9 +256,10 @@ class POS extends Controller
     protected function closeSession()
     {
         $cash = $this->request->request->get('cash');
-        $this->session->closeSession($cash);
 
-        $this->printClosingVoucher();
+        if ($this->session->closeSession($cash)) {
+            $this->printClosingVoucher();
+        }
     }
 
     /**
@@ -436,6 +441,40 @@ class POS extends Controller
     {
         $id = $this->request->request->get('terminal', '');
         $this->session->getTerminal($id);
+    }
+
+    protected function changeUser(): void
+    {
+        /*$user = new User();
+        $nick = $this->request->request->get('userNick', '');
+        $password = $this->request->request->get('userPassword', '');
+
+        if ($nick === '' || $password === '') {
+            return;
+        }
+
+        if ($user->loadFromCode($nick) && $user->enabled) {
+            if ($user->verifyPassword($password)) {
+                $user->newLogkey($this->user->lastip, $this->user->lastbrowser);
+                $user->save();
+                $this->session->updateUser($user);
+
+                $expire = time() + FS_COOKIES_EXPIRE;
+                $this->response->headers->setCookie(new Cookie('fsNick', $user->nick, $expire, FS_ROUTE));
+                $this->response->headers->setCookie(new Cookie('fsLogkey', $user->logkey, $expire, FS_ROUTE));
+                $this->response->headers->setCookie(new Cookie('fsLang', $user->langcode, $expire, FS_ROUTE));
+                $this->response->headers->setCookie(new Cookie('fsCompany', $user->idempresa, $expire, FS_ROUTE));
+
+                $this->toolBox()->i18nLog()->info('login-ok', ['%nick%' => $user->nick]);
+                header("Refresh:0");
+                return;
+            }
+
+            $ipFilter = $this->toolBox()->ipFilter();
+            $ipFilter->setAttempt($this->user->lastip);
+
+            $this->toolBox()->i18nLog()->warning('login-password-fail');
+        }*/
     }
 
     /**

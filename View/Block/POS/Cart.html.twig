@@ -85,14 +85,18 @@
                         {%- if column.data == 'referencia' or column.data == 'descripcion' or column.data == 'cantidad' -%}
                         {% elseif not column.eneabled -%}
                         {% elseif column.carrito -%}
-                            <div class="w-24 flex-auto">
+                            <div class="w-24 flex-auto m-auto">
                                 <label>
                                     <span class="text-sm font-semibold">{{ column.tittle }}</span>
-                                    <input class="pointer-events-auto form-control"
-                                           type="{{ column.type }}" value="<%= value.{{ column.data }} %>"
-                                           data-index="<%= index %>"
-                                           data-action="{{ column.readonly ? '' : 'editProductFieldAction' }}"
-                                           data-field="{{ column.data }}" {% if column.readonly %} readonly {% endif %}>
+                                    {% if column.readonly %}
+                                        <p><%= value.{{ column.data }} %></p>
+                                    {% else %}
+                                        <input class="pointer-events-auto form-control" tabindex="0"
+                                               type="{{ column.type }}" value="<%= value.{{ column.data }} %>"
+                                               data-index="<%= index %>"
+                                               data-action="editProductFieldAction"
+                                               data-field="{{ column.data }}">
+                                    {% endif %}
                                 </label>
                             </div>
                         {% endif -%}

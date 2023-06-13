@@ -10,10 +10,8 @@
 {% set grid = fsc.getFieldOptions() %}
 {% set terminal = fsc.getTerminal() %}
 {% block body %}
-    {#{{ include('Block/POS/NewNavbar.html.twig') }}#}
     <div class="flex h-screen antialiased">
         <div id="mainView" class="flex flex-1 overflow-auto">
-            {#{{ include('Block/POS/NewNavbar.html.twig') }}#}
             <div id="productMainView" class="md:w-3/5 app-container">
                 {{ include('Block/POS/Navbar.html.twig') }}
                 {{ include('Block/POS/Products.html.twig') }}
