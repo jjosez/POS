@@ -1,3 +1,4 @@
+{% import 'Macro/POS.html.twig' as form %}
 <div class="modal hidden" id="totalsDetailModal">
     <div class="modal-content md:modal-content-sm">
         <div class="modal-header">
@@ -10,16 +11,14 @@
             <div class="flex flex-col place-content-between text-xl font-medium">
                 {% for element in fsc.getCustomInput('detail') %}
                     {% if element.type == 'checkbox' %}
-                        {{ _self.checkBoxInput(element) }}
-                    {% else %}
-                        {{ _self.textInput(element) }}
+                        {{ form.customCheckboxInput(element.id, element.name, element.label, element.value) }}
+                    {% elseif element.type == 'text' %}
+                        {{ form.customTextInput(element.id, element.name, element.label, element.value) }}
+                    {% elseif element.type == 'number' %}
+                        {{ form.customNumberInput(element.id, element.name, element.label, element.value) }}
                     {% endif %}
                 {% endfor %}
-                <div class="form-group text-sm mb-2">
-                    <label for="orderObservations" class="font-semibold capitalize mb-1.5">{{ i18n.trans('observations') }}</label>
-                    <textarea id="orderObservations" cols="30" rows="4"
-                              data-action="editDocumentFieldAction" data-field="observaciones"></textarea>
-                </div>
+                {{ form.customTextArea('orderObservations', 'observaciones', i18n.trans('observations')) }}
                 <div class="p-4 flex justify-between">
                     <span><i class="fas fa-shopping-cart"></i></span>
                     <span id="orderItemsNumber" class="text-right">0</span>
@@ -29,11 +28,11 @@
                     <span id="orderSubtotal" class="text-right">0.000</span>
                 </div>
                 <div class="p-4 flex justify-between border-t-2 border-dashed">
-                    <div class="w-1/2">
-                        <span class="text-sm">{{ i18n.trans('dto') }}</span>
+                    <div class="w-1/2 text-sm">
+                        <span>{{ i18n.trans('dto') }}</span>
                         <label class="input-icon text-gray-400">
                             <span><i class="fa fa-sm fa-percent"></i></span>
-                            <input id="orderDiscount" type="number" class="flex-grow-0" value="0"
+                            <input id="orderDiscount" type="number" class="flex-grow-0 text-red-500" value="0"
                                    data-action="editDocumentDiscountAction">
                         </label>
                     </div>
@@ -55,19 +54,4 @@
         </div>
     </div>
 </div>
-{% macro checkBoxInput(element) %}
-    <div class="flex items-center text-sm mb-2">
-        <input id="{{ element.id }}" name="{{ element.name }}" type="checkbox" class="mr-2"
-               data-action="editDocumentFieldAction" data-field="{{ element.name }}">
-        <label for="{{ element.id }}">{{ element.label }}</label>
-    </div>
-{% endmacro %}
-
-{% macro textInput(element) %}
-    <div class="form-group text-sm mb-2">
-        <label class="font-semibold capitalize mb-1.5">{{ element.label }}</label>
-        <input id="{{ element.id }}" name="{{ element.name }}" class="form-control" type="{{ element.type }}"
-               data-action="editDocumentFieldAction" data-field="{{ element.name }}">
-    </div>
-{% endmacro %}
 

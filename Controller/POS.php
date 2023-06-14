@@ -96,7 +96,7 @@ class POS extends Controller
                 return false;
 
             case 'get-orders-on-hold':
-                $this->setResponse(self::getPausedDocuments());
+                $this->setResponse(self::getPausedOrders());
                 return false;
 
             case 'get-last-orders':

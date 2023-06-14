@@ -71,7 +71,7 @@ trait PointOfSaleActionsTrait
      * @param string|null $sessionID
      * @return OperacionPausada[]
      */
-    protected static function getPausedDocuments(?string $sessionID = null): array
+    protected static function getPausedOrders(?string $sessionID = null): array
     {
         $document = new OperacionPausada();
 

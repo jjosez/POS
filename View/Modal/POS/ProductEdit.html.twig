@@ -25,27 +25,30 @@
     {% for column in grid %}
         {%- if column.data == 'referencia' -%}
             <div class="col-span-2 form-group">
-                <label class="font-semibold uppercase">{{ column.tittle }}</label>
-                <input type="{{ column.type }}" class="form-control" value="<%= it.referencia %>"
-                       data-action="editProductFieldAction" data-index="<%= it.index %>" data-field="{{ column.data }}"
-                       readonly>
+                <label class="font-semibold uppercase">{{ column.tittle }}
+                    <input id="{{ column.data }}" type="{{ column.type }}" class=" font-normal form-control"
+                           value="<%= it.referencia %>" data-action="editProductFieldAction"
+                           data-index="<%= it.index %>" data-field="{{ column.data }}" readonly>
+                </label>
             </div>
         {%- elseif column.data == 'descripcion' %}
             <div class="col-span-2 form-group">
-                <label class="font-semibold uppercase">{{ column.tittle }}</label>
-                <textarea class="form-control" rows="3" data-action="editProductFieldAction"
-                          data-index="<%= it.index %>" data-field="{{ column.data }}"
+                <label class="font-semibold uppercase">{{ column.tittle }}
+                    <textarea id="{{ column.data }}" class="font-normal form-control" rows="3" data-action="editProductFieldAction"
+                              data-index="<%= it.index %>" data-field="{{ column.data }}"
                         {% if column.readonly %} readonly {% endif %}><%= it.descripcion %>
-                </textarea>
+                    </textarea>
+                </label>
             </div>
         {% elseif column.eneabled -%}
             <div class="form-group">
-                <label class="font-semibold uppercase">{{ column.tittle }}</label>
-                <input class="form-control" type="{{ column.type }}"
-                       value="<%= it.{{ column.data }} %>"
-                       step=".001" data-index="<%= it.index %>"
-                       data-action="{{ column.readonly ? '' : 'editProductFieldAction' }}"
-                       data-field="{{ column.data }}" {% if column.readonly %} readonly {% endif %}>
+                <label class="font-semibold uppercase">{{ column.tittle }}
+                    <input id="{{ column.data }}" class="font-normal form-control" type="{{ column.type }}"
+                           value="<%= it.{{ column.data }} %>"
+                           step=".001" data-index="<%= it.index %>"
+                           data-action="{{ column.readonly ? '' : 'editProductFieldAction' }}"
+                           data-field="{{ column.data }}" {% if column.readonly %} readonly {% endif %}>
+                </label>
             </div>
         {% endif -%}
     {% endfor %}

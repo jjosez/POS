@@ -1,290 +1,31 @@
-{% macro productSearchTemplate(i18n) %}
-    <div role="listitem" class="mb-4 flex cursor-pointer rounded-lg bg-white p-4 shadow-sm product-add-btn"
-         data-action="setProductAction" data-code="" data-description="Producto Generico">
-        <div class="mr-4 flex items-center">
-            <span class="text-sky-500"><i class="fas fa-2x fa-tags"></i></span>
-        </div>
-        <div class="flex-1">
-            <p class="text-sm font-semibold uppercase text-gray-800">XXX-XXX</p>
-            <p class="text-base text-gray-600">PRODUCTO DE ENTRDA LIBRE</p>
-        </div>
-        <div class="ml-4 w-1/4 flex-col items-center">
-            <div class="rounded-full bg-gray-200 px-3 text-sm font-semibold uppercase text-gray-800 py-0.5">0</div>
-            <div class="mt-2 rounded-full bg-gray-200 px-3 text-sm font-semibold lowercase text-gray-800 py-0.5">
-                &infin;
-            </div>
-        </div>
-    </div>
-    <% it.items.forEach(function(item){ %>
-    <div role="listitem" class="mb-4 flex cursor-pointer rounded-lg bg-white p-4 shadow-sm"
-         data-action="setProductAction" data-code="<%= item.code %>" data-description="<%= item.description %>">
-        <div class="mr-4 flex items-center">
-            <% if (item.image) { %>
-            <img class="pointer-events-auto h-32 w-32 object-scale-down" src="<%= item.image %>"
-                 data-action="productImageAction" data-id="<%= item.id %>" data-code="<%= item.code %>">
-            <% } else { %>
-            <span><i class="fas fa-3x fa-box"></i></span>
-            <% } %>
-        </div>
-        <div class="flex-1">
-            <p class="text-sm font-semibold uppercase text-gray-800">{{ i18n.trans('code') }} : <%= item.code %></p>
-            <p class="text-base text-gray-600"><%= item.description %></p>
-            <% if(item.detail) { %>
-            <p><%= item.detail %></p>
-            <% } %>
-        </div>
-        <div class="ml-4 w-1/4 flex-col items-center">
-            <div class="rounded-full bg-gray-200 px-3 text-sm font-semibold text-gray-800 py-0.5">
-                <%= item.price %>
-            </div>
-            <div class="text-sm lowercase font-semibold mt-2 px-3 py-0.5 bg-gray-200 text-gray-800 rounded-full
-            pointer-events-auto" data-action="stockDetailAction" data-code="<%= item.code %>">
-                <%= item.stock | 0 %> {{ i18n.trans('available') }}
-            </div>
-        </div>
-    </div>
-    <% }) %>
-{% endmacro %}
-
-{% macro productImageListTemplate() %}
-    <% if(it.items.length === 0) { %>
-    <tr>
-        <td colspan="20" class="p-4">No se encontraron imagenes</td>
-    </tr>
-    <% } %>
-    <div class="divide-y-4 divide-dotted">
-        <% it.items.forEach(function(item){ %>
-        <div class="flex-1">
-            <img class="mx-auto py-2" src="<%= item %>" alt="Imagen Producto">
-        </div>
-        <% }) %>
+{% macro customCheckboxInput(id, name, label, value) %}
+    <div class="flex items-center text-sm mb-2">
+        <input id="{{ id }}" name="{{ name }}" type="checkbox" class="mr-2"
+               data-action="editDocumentFieldAction" data-field="{{ name }}">
+        <label for="{{ id }}">{{ label }}</label>
     </div>
 {% endmacro %}
 
-{% macro customerSearchTemplate() %}
-    <% if(it.items.length === 0) { %>
-    <tr>
-        <td colspan="20" class="p-4">No se encontraron clientes</td>
-    </tr>
-    <% } %>
-    <% it.items.forEach(function(customer){ %>
-    <tr class="cursor-pointer bg-blue-100 hover:bg-blue-500 hover:text-white">
-        <td class="p-4 font-medium add-customer-btn" data-action="setCustomerAction"
-            data-code="<%= customer.code %>" data-description="<%= customer.description %>">
-            <%= customer.description %>
-        </td>
-    </tr>
-    <% }) %>
-{% endmacro %}
-
-{% macro cartTemplate(i18n, columns) %}
-    <% if(it.lines.length === 0) { %>
-    <div class="flex h-full items-center justify-center">
-        <i class="fa fa-shopping-cart fa-5x text-slate-gray-300"></i>
+{% macro customTextInput(id, name, label, value) %}
+    <div class="form-group text-sm mb-2">
+        <label for="{{ id }}" class="font-semibold capitalize mb-1.5">{{ label }}</label>
+        <input id="{{ id }}" name="{{ name }}" class="form-control" type="text"
+               data-action="editDocumentFieldAction" data-field="{{ name }}">
     </div>
-    <% } %>
-    <% it.lines.forEach(function(value, index) { %>
-    <div class="flex min-w-fit flex-auto select-none border-b-4 border-dotted border-opacity-50 py-2 text-slate-gray-700">
-        <div class="flex items-center space-x-2">
-            <button class="bg-gray-200 text-slate-800 btn btn-icon focus:ring-gray-600"
-                    data-action="editProductAction" data-index="<%= index %>">
-                <i class="fas fa-pen-alt"></i>
-            </button>
-            <button class="bg-gray-200 text-slate-800 btn btn-icon focus:ring-gray-600"
-                    data-action="editProductQuantityAction" data-index="<%= index %>">
-                <span><%= value.cantidad %></span>
-            </button>
-        </div>
-        <div class="mx-2 flex flex-auto">
-            <div role="listitem" class="flex-1">
-                <p>
-                    <span class="font-semibold uppercase text-gray-800"><%= value.referencia %></span>
-                    &#8674;&nbsp;<%= value.descripcion %></p>
-                <div class="flex gap-2">
-                    {% for column in columns %}
-                        {%- if column.data == 'referencia' or column.data == 'descripcion' or column.data == 'cantidad' -%}
-                        {% elseif not column.eneabled -%}
-                        {% elseif column.carrito -%}
-                            <div class="w-24 flex-auto items-center self-center">
-                                <label>
-                                    <span class="text-sm font-semibold">{{ column.tittle }}</span>
-                                    {#<input class="w-full rounded-lg border-2 p-2 focus:border-blue-500 focus:outline-none"
-                                           type="{{ column.type }}" value="<%= value.{{ column.data }} %>"
-                                           step=".001" data-index="<%= index %>"
-                                           data-action="{{ column.readonly ? '' : 'editProductFieldAction' }}"
-                                           data-field="{{ column.data }}" {% if column.readonly %} readonly {% endif %}>#}
-                                    <input class="pointer-events-auto form-control"
-                                           type="{{ column.type }}" value="<%= value.{{ column.data }} %>"
-                                           data-index="<%= index %>"
-                                           data-action="{{ column.readonly ? '' : 'editProductFieldAction' }}"
-                                           data-field="{{ column.data }}" {% if column.readonly %} readonly {% endif %}>
-                                </label>
-                            </div>
-                        {% endif -%}
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        <div class="flex items-center">
-            <button class="btn btn-icon btn-danger" data-action="deleteProductAction" data-index="<%= index %>">
-                <i class="fas fa-trash-alt"></i>
-            </button>
-        </div>
+{% endmacro %}
+
+{% macro customNumberInput(id, name, label, value) %}
+    <div class="form-group text-sm mb-2">
+        <label for="{{ id }}" class="font-semibold capitalize mb-1.5">{{ label }}</label>
+        <input id="{{ id }}" name="{{ name }}" class="form-control" type="number"
+               data-action="editDocumentFieldAction" data-field="{{ name }}">
     </div>
-    <% }) %>
 {% endmacro %}
 
-{% macro lastOrdersTemplate() %}
-    <% if(it.items.length === 0) { %>
-    <tr>
-        <td colspan="20" class="p-4">
-            Ninguna operacion registrada
-        </td>
-    </tr>
-    <% } %>
-    <% it.items.forEach(function(order){ %>
-    <tr class="hover:bg-yellow-200">
-        <td class="text-center"><%= order.codigo %></td>
-        <td class="text-center"><%= order.tipodocumento %></td>
-        <td class="text-right"><%= order.fecha %></td>
-        <td class="text-right"><%= order.hora %></td>
-        <td class="text-right"><%= order.total %></td>
-        <td class="px-3">
-            <div class="flex justify-center py-1">
-                <button type="button" class="btn btn-icon btn-light"
-                        data-action="printOrderAction" data-code="<%= order.idoperacion %>">
-                    <i class="fas fa-print fa-sm"></i>
-                </button>
-            </div>
-        </td>
-    </tr>
-    <% }) %>
-{% endmacro %}
-
-{% macro familyListTemplate() %}
-    <% if (it.items.madre.codfamilia){ %>
-    <div role="listitem"
-         class="cursor-pointer rounded-lg bg-blue-500 p-4 align-middle font-semibold text-white shadow-sm"
-         data-action="setProductFamilyAction"
-         data-code="<%= it.items.madre.madre ?? '' %>"
-         data-madre="<%= it.items.madre.madre ?? '' %>">
-        REGRESAR
+{% macro customTextArea(id, name, label, value) %}
+    <div class="form-group text-sm mb-2">
+        <label for="{{ id }}" class="font-semibold capitalize mb-1.5">{{ label }}</label>
+        <textarea id="{{ id }}" name="{{ name }}" cols="30" rows="4"
+                  data-action="editDocumentFieldAction" data-field="{{ name }}"></textarea>
     </div>
-    <% } %>
-    <% it.items.children.forEach(function(familia){ %>
-    <div role="listitem"
-         class="cursor-pointer rounded-lg bg-slate-100 p-4 font-semibold shadow-sm"
-         data-action="setProductFamilyAction"
-         data-code="<%= familia.codfamilia %>"
-         data-madre="<%= familia.madre %>">
-        <%= familia.descripcion %>
-    </div>
-    <% }) %>
-{% endmacro %}
-
-
-{% macro productEditTemplate(columns) %}
-    {% for column in columns %}
-        {%- if column.data == 'referencia' -%}
-            <div class="col-span-2 form-group">
-                <label class="font-semibold uppercase">{{ column.tittle }}</label>
-                <input type="{{ column.type }}" class="form-control" value="<%= it.referencia %>"
-                       data-action="editProductFieldAction" data-index="<%= it.index %>" data-field="{{ column.data }}"
-                       readonly>
-            </div>
-        {%- elseif column.data == 'descripcion' %}
-            <div class="col-span-2 form-group">
-                <label class="font-semibold uppercase">{{ column.tittle }}</label>
-                <textarea class="form-control" rows="3" data-action="editProductFieldAction"
-                          data-index="<%= it.index %>" data-field="{{ column.data }}"
-                        {% if column.readonly %} readonly {% endif %}><%= it.descripcion %>
-                </textarea>
-            </div>
-        {% elseif column.eneabled -%}
-            <div class="form-group">
-                <label class="font-semibold uppercase">{{ column.tittle }}</label>
-                <input class="form-control" type="{{ column.type }}"
-                       value="<%= it.{{ column.data }} %>"
-                       step=".001" data-index="<%= it.index %>"
-                       data-action="{{ column.readonly ? '' : 'editProductFieldAction' }}"
-                       data-field="{{ column.data }}" {% if column.readonly %} readonly {% endif %}>
-            </div>
-        {% endif -%}
-    {% endfor %}
-{% endmacro %}
-
-{% macro pausedOrdersTemplate() %}
-    <% if(it.items.length === 0) { %>
-    <tr>
-        <td colspan="20" class="p-4">
-            Ninguna operacion registrada
-        </td>
-    </tr>
-    <% } %>
-    <% it.items.forEach(function(order){ %>
-    <tr class="hover:bg-yellow-200">
-        <td class="px-3 text-center"><%= order.codigo %></td>
-        <td class="px-3"><%= order.nombrecliente %>
-            <p><%= order.observaciones || '' %></p></td>
-        <td class="whitespace-nowrap px-3 text-right"><%= order.fecha %></td>
-        <td class="whitespace-nowrap px-3 text-right"><%= order.hora %></td>
-        <td class="whitespace-nowrap px-3 text-right"><%= order.total %></td>
-        <td class="px-3">
-            <div class="flex justify-center py-1">
-                <button type="button" class="mr-2 btn btn-icon btn-light"
-                        data-action="printPausedOrderAction" data-code="<%= order.idpausada %>">
-                    <i class="fas fa-print fa-sm"></i>
-                </button>
-                <button type="button" class="mr-2 btn btn-icon btn-primary"
-                        data-action="resumeOrderAction" data-code="<%= order.idpausada %>">
-                    <i class="fas fa-file-signature fa-sm"></i>
-                </button>
-                <button type="button" class="btn btn-icon btn-danger"
-                        data-action="deleteOrderAction" data-code="<%= order.idpausada %>">
-                    <i class="fas fa-trash fa-sm"></i>
-                </button>
-            </div>
-        </td>
-    </tr>
-    <% }) %>
-{% endmacro %}
-
-{% macro paymentListTemplate(i18n) %}
-    <% it.payments.forEach(function(value, index) { %>
-    <div class="my-4 flex rounded-lg bg-slate-100 p-4 shadow">
-        <div class="mr-4 flex items-center">
-            <span class="bg-slate-gray-200"><i class="fas fa-1x fa-plus-circle"></i></span>
-        </div>
-        <div class="flex-1">
-            <p class="text-sm font-bold uppercase text-gray-600"><%= value.description %></p>
-            <p class="text-lg font-bold text-blue-500"><%= value.amount %></p>
-        </div>
-        <div class="flex items-center">
-            <button class="btn btn-icon btn-danger" data-action="deletePaymentAction" data-index="<%= index %>">
-                <i class="fas fa-trash-alt"></i>
-            </button>
-        </div>
-    </div>
-    <% }) %>
-{% endmacro %}
-
-{% macro message(log, types, style) %}
-    {%- set messages = log.read('', types) -%}
-    {%- if messages | length > 0 -%}
-        <div class="alert alert-{{ style }}" role="alert" data-delay="2000">
-            {% for msg in messages %}
-                <div>{{ msg.message | raw }}</div>
-            {% endfor %}
-        </div>
-    {%- endif -%}
-{% endmacro %}
-
-{% macro messageTemplate() %}
-    <% it.messages.forEach(function(message){ %>
-    <div class="alert alert-<%= message.type %>" role="alert">
-        <div>
-            <%~ message.message %>
-        </div>
-    </div>
-    <% }) %>
 {% endmacro %}

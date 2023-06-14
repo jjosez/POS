@@ -45,7 +45,8 @@
                  data-description="{{ element.description }}">
                 <div class="mr-4 flex items-center">
                     {% if element.image %}
-                        <img class="pointer-events-auto object-scale-down h-32 w-32" src="{{ element.image }}" alt="{{ element.code }}"
+                        <img class="pointer-events-auto object-scale-down h-32 w-32" src="{{ element.image }}"
+                             alt="{{ element.code }}"
                              data-action="productImageAction" data-id="{{ element.id }}" data-code="{{ element.code }}">
                     {% else %}
                         <span><i class="fas fa-3x fa-box"></i></span>
