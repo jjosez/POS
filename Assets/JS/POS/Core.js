@@ -1,9 +1,17 @@
 /**
  * This file is part of POS plugin for FacturaScripts
- * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ * Copyright (C) Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 
 import {templates} from "./View.js";
+
+/**
+ * Short for document.getElementById
+ * @param {string} id
+ */
+export function getElement(id) {
+    return document.getElementById(id);
+}
 
 /**
  * Send request to controller url
@@ -18,7 +26,7 @@ export async function postRequest(data) {
     if (!response.ok) requestErrorHandler(response.status);
 
     let result = await response.json();
-    showMessage(result);
+    showMessages(result);
 
     return result;
 }
@@ -118,45 +126,25 @@ export function searchRequest(action, query) {
  * Show alerts in response
  * @param {Promise} response
  */
-export function showMessage(response) {
+function showMessages(response) {
     if (null != response.messages) {
-        templates().renderAlertList(response);
-        autoCloseMessage();
+        templates().renderMessageList(response);
+        cleanMessages();
     }
 }
 
 /**
- * Close all messages by timeout
+ * Close all messages after 1800ms timeout
  */
-export function autoCloseMessage() {
+function cleanMessages() {
     let container = getElement("alert-container");
 
-    if (container.firstElementChild) {
-        setTimeout(function () {
-            if (container.firstChild) {
-                container.removeChild(container.firstChild);
-            }
-            autoCloseMessage();
-        }, 1800);
-    } else {
-        clearTimeout();
-    }
-}
-
-/**
- * Short for document.getElementById *
- * @param {string} id
- */
-export function getElement(id) {
-    console.log('Get -element', id);
-    return document.getElementById(id);
-}
-
-/**
- * @param {string} id
- */
-export function getTemplate(id) {
-    return eta.compile(getElement(id).innerHTML);
+    let pid = setTimeout(function () {
+        if (container.firstElementChild) {
+            container.firstElementChild.remove();
+            cleanMessages();
+        }
+    }, 1800);
 }
 
 /**

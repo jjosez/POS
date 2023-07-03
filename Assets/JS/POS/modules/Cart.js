@@ -1,4 +1,3 @@
-import {cartView, mainView} from "../UI.js";
 import {recalculateRequest} from "../Order.js";
 import CartClass from "../model/CartClass.js";
 import * as view from "../View.js";
@@ -25,8 +24,7 @@ function productDeleteAction({index}) {
  * @param {{index:int}} data
  */
 function productShowEditDialog({index}) {
-    view.templates().renderCartEdit(Cart.getProduct(index));
-    view.modals().productEditModal().show();
+    view.cart().showProductEditModal(Cart.getProduct(index));
 }
 
 /**
@@ -34,7 +32,7 @@ function productShowEditDialog({index}) {
  */
 function productShowQuantityEditDialog({index}) {
     const product = Cart.getProduct(index);
-    cartView().showQuantityEditView(product);
+    view.cart().showQuantityEditModal(product)
 }
 
 /**
@@ -45,7 +43,7 @@ function productEditFieldAction({index, field}, value) {
     Cart.editProduct(index, field, value);
 
     onChangeCartAction().then(() => {
-        view.templates().renderCartEdit(Cart.getProduct(index));
+        view.cart().updateLinesView(Cart.getProduct(index));
     });
 }
 
@@ -78,7 +76,7 @@ function setCustomerAction({code, description}) {
     }
     Cart.setCustomer(code);
     view.modals().customerSearchModal().hide();
-    mainView().updateCustomer(description);
+    view.main().updateCustomerNameLabel(description);
 }
 
 /**
@@ -90,7 +88,7 @@ function setDocumentAction({code, serie, description}) {
     }
     Cart.updateDocumentType(code, serie);
     view.modals().documentTypeModal().hide();
-    mainView().updateDocument(description);
+    view.main().updateDocumentNameLabel(description);
 }
 
 /**
@@ -111,9 +109,8 @@ async function onChangeCartAction() {
  * @param {{detail}} data
  */
 function onUpdateCartAction({detail}) {
-    view.templates().renderCartList(detail);
-    cartView().updateTotals(detail);
-    mainView().updateViewFields(detail);
+    view.cart().updateView(detail);
+    view.main().updateView(detail);
 }
 
 /**

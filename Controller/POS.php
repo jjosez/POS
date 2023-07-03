@@ -161,7 +161,7 @@ class POS extends Controller
 
             case 'save-new-customer':
                 $this->saveNewCustomer();
-                return false;
+                return true;
 
             case 'search-customer':
                 $this->searchCustomer();
@@ -346,13 +346,15 @@ class POS extends Controller
 
         $taxID = $this->request->request->get('taxID');
         $name = $this->request->request->get('name');
+        $result = [];
 
         if ($customer->saveNew($taxID, $name)) {
-            $this->setResponse($customer->getCustomer());
-            return;
+            self::toolBox()::log()->info('Nuevo cliente registrado');
+            $result = ['customer' => $customer->getCustomer()];
+            //$this->setResponse($customer->getCustomer());
         }
 
-        $this->buildResponse();
+        $this->buildResponse($result);
     }
 
     protected function saveMovments()

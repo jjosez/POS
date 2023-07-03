@@ -4,8 +4,7 @@
  */
 import * as Core from './Core.js';
 import * as Order from "./Order.js";
-import * as view from "./View.js";
-import {mainView} from "./UI.js";
+import * as View from "./View.js";
 import Cart from "./modules/Cart.js"
 import Checkout from "./modules/Checkout.js";
 
@@ -17,8 +16,7 @@ async function orderDeleteAction(data) {
 
     if ((data.code * 1) === (Cart.doc.idpausada * 1)) location.reload();
 
-    mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
-    view.modals().holdOrdersModal().hide();
+    View.modals().pausedOrdersModal().hide();
 }
 
 /**
@@ -26,7 +24,7 @@ async function orderDeleteAction(data) {
  */
 async function orderPrintAction({code}) {
     await Order.reprintRequest(code);
-    view.modals().lastOrdersModal().hide();
+    View.modals().lastOrdersModal().hide();
 }
 
 /**
@@ -34,7 +32,7 @@ async function orderPrintAction({code}) {
  */
 async function pausedOrderPrintAction({code}) {
     await Order.reprintPausedOrderRequest(code);
-    view.modals().holdOrdersModal().hide();
+    View.modals().pausedOrdersModal().hide();
 }
 
 /**
@@ -48,13 +46,13 @@ async function orderResumeAction({code}) {
 
     for (const element of elements) {
         if (element.dataset.code === Cart.doc.generadocumento && element.dataset.serie === Cart.doc.codserie) {
-            mainView().updateDocument(element.dataset.description);
+            View.main().updateDocumentNameLabel(element.dataset.description);
             break;
         }
     }
 
-    mainView().updateCustomer(Cart.doc.nombrecliente);
-    view.modals().holdOrdersModal().hide();
+    View.main().updateCustomerNameLabel(Cart.doc.nombrecliente);
+    View.modals().pausedOrdersModal().hide();
 }
 
 async function orderSaveAction() {
@@ -64,7 +62,7 @@ async function orderSaveAction() {
     Checkout.clear();
 
     Cart.setDocumentType(AppSettings.document.code, AppSettings.document.serie)
-    mainView().updateDocument(AppSettings.document.description);
+    View.main().updateDocumentNameLabel(AppSettings.document.description);
 }
 
 async function orderSuspendAction() {
@@ -73,7 +71,20 @@ async function orderSuspendAction() {
     Cart.update(await Order.holdRequest(Cart));
 
     Cart.setDocumentType(AppSettings.document.code, AppSettings.document.serie)
-    mainView().updateDocument(AppSettings.document.description);
+    View.main().updateDocumentNameLabel(AppSettings.document.description);
+}
+
+async function saveCustomerAction() {
+    const taxID = Core.getElement('newCustomerTaxID').value;
+    const name = Core.getElement('newCustomerName').value;
+    const response = await Core.saveNewCustomer(taxID, name);
+
+
+    if (response.customer.codcliente) {
+        Cart.setCustomer(response.customer.codcliente);
+        View.main().updateCustomerNameLabel(response.customer.razonsocial);
+        View.modals().customerSearchModal().hide();
+    }
 }
 
 async function searchBarcodeAction(code) {
@@ -85,48 +96,44 @@ async function searchBarcodeAction(code) {
 }
 
 async function searchCustomerAction() {
-    mainView().updateCustomerListView(await Core.searchCustomer(this.value));
+    View.main().updateCustomerListView(await Core.searchCustomer(this.value));
 }
 
 async function searchProductAction() {
-    mainView().updateProductSearchResult(await Core.searchProduct(this.value));
+    View.main().updateProductSearchResult(await Core.searchProduct(this.value));
 }
 
 function sessionCloseAction() {
-    mainView().closeSessionForm.submit();
+    View.main().closeSessionForm().submit();
 }
 
 function sessionMoneyMovmentAction() {
-    mainView().cashMovmentForm.submit();
+    View.main().cashMovmentForm().submit();
 }
 
 async function sessionPrintClosingVoucherAction() {
     await Core.printClosingVoucher();
-    view.modals().closeSessionModal().hide();
+    View.modals().closeSessionModal().hide();
 }
 
 async function showStockDetailAction({code}) {
-    mainView().updateProductStockDetail(await Core.getProductStock(code));
-    view.modals().stockDetailModal().show();
+    View.main().showProductStockDetailModal(await Core.getProductStock(code));
 }
 
 async function showProductImagesAction({id, code}) {
-    mainView().updateProductImageList(await Core.getProductImages(id, code));
-    mainView().toggleProductImageModal();
+    View.main().showProductImagesModal(await Core.getProductImages(id, code));
 }
 
 async function showProductFamiliesAction({code, madre}) {
-    mainView().updateProductFamilyList(await Core.getProductFamilyChild(code, madre));
+    View.main().updateProductFamilyList(await Core.getProductFamilyChild(code, madre));
 }
 
 async function showPausedOrdersAction() {
-    mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
-    view.modals().holdOrdersModal().show();
+    View.main().showPausedOrdersModal(await Order.getOnHoldRequest());
 }
 
 async function showLastOrdersAction() {
-    mainView().updateLastOrdersList(await Order.getLastOrders());
-    view.modals().lastOrdersModal().show();
+    View.main().showLastOrdersModal(await Order.getLastOrders());
 }
 
 /**
@@ -169,7 +176,7 @@ async function appEventHandler(event) {
             return showProductImagesAction(data);
 
         case 'saveCustomerAction':
-            return saveCustomerHandler();
+            return saveCustomerAction();
 
         case 'saveOrderAction':
             return orderSaveAction();
@@ -191,22 +198,6 @@ async function appEventHandler(event) {
     }
 }
 
-async function saveCustomerHandler() {
-    const taxID = Core.getElement('newCustomerTaxID').value;
-    const name = Core.getElement('newCustomerName').value;
-    const response = await Core.saveNewCustomer(taxID, name);
-
-
-    if (response.codcliente) {
-        Cart.setCustomer(response.codcliente);
-        mainView().updateCustomer(response.razonsocial);
-    }
-}
-
-window.setCartCustomField = function (field, value) {
-    Cart.doc[field] = value;
-}
-
 document.addEventListener("DOMContentLoaded", () => {
     /* global onScan*/
     onScan.attachTo(document);
@@ -216,6 +207,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-mainView().customerSearchBox.addEventListener('keyup', searchCustomerAction);
-mainView().productSearchBox.addEventListener('keyup', searchProductAction);
+View.main().customerSearchBox().addEventListener('keyup', searchCustomerAction);
+View.main().productSearchBox().addEventListener('keyup', searchProductAction);
 document.addEventListener('click', appEventHandler);

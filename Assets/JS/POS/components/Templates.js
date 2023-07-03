@@ -5,13 +5,13 @@ const templateEngine = new eta.Eta();
 let instance;
 
 const templates = {
-    alertList: getElement('message-template').innerHTML,
     cartEdit: getElement('cartEditTemplate').innerHTML,
     cartList: getElement('cartListTemplate').innerHTML,
     customerList: getElement('customerListTemplate').innerHTML,
     lastOrdersList: getElement('lastOrdersListTemplate').innerHTML,
-    paymentList: getElement('paymentListTemplate').innerHTML,
+    messageList: getElement('message-template').innerHTML,
     pausedOrdersList: getElement('pausedOrdersListTemplate').innerHTML,
+    paymentList: getElement('paymentListTemplate').innerHTML,
     productFamilyList: getElement('familyListTemplate').innerHTML,
     productImageList: getElement('productImageListTemplate').innerHTML,
     productSearchResult: getElement('productListTemplate').innerHTML,
@@ -19,13 +19,13 @@ const templates = {
 }
 
 const views = {
-    alertList: getElement('alert-container'),
-    cartList: getElement('cartListView'),
     cartEdit: getElement('productEditForm'),
+    cartList: getElement('cartListView'),
     customerList: getElement('customerSearchResult'),
     lastOrdersList: getElement('lastOrdersList'),
-    paymentList: getElement('paymentList'),
+    messageList: getElement('alert-container'),
     pausedOrdersList: getElement('pausedOrdersList'),
+    paymentList: getElement('paymentList'),
     productFamilyList: getElement('familyList'),
     productImageList: getElement('productImageListView'),
     productSearchResult: getElement('productSearchResult'),
@@ -43,7 +43,7 @@ class Templates {
         views[name].innerHTML = templateEngine.renderString(templates[name], data);
     };
 
-    renderAlertList = (data) => this.render('alertList', data);
+    renderMessageList = (data) => this.render('messageList', data);
     renderCartEdit = (data) => this.render('cartEdit', data);
     renderCartList = (data) => this.render('cartList', data);
     renderCustomerList = (data) => this.render('customerList', data);

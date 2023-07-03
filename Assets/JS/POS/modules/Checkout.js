@@ -1,4 +1,3 @@
-import {checkoutView} from "../UI.js";
 import CheckoutClass from "../model/CheckoutClass.js";
 import {checkout} from "../View.js";
 
@@ -20,28 +19,26 @@ function paymentDeleteAction({index}) {
 function paymentRecalculateAction({value}) {
     if (value === 'balance') {
         checkout().paymentAmountInput().value = Checkout.getOutstandingBalance();
-        /*checkoutView().paymentInput.value = Checkout.getOutstandingBalance();*/
         return;
     }
 
-    /*checkoutView().paymentInput.value = checkoutView().getCurrentPaymentInput() + parseFloat(value) || 0;*/
-    checkout().paymentAmountInput().value = checkoutView().getCurrentPaymentInput() + parseFloat(value) || 0;
+    checkout().paymentAmountInput().value = checkout().getCurrentPaymentValue() + parseFloat(value) || 0;
 }
 
 /**
  * Set new payment from dialog.
  */
 function paymentSetAction(data) {
-    if (checkout().paymentAmountInput().valueAsNumber === 0 || checkout().paymentAmountInput().value === '') {
+    if (checkout().getCurrentPaymentValue() === 0) {
         checkout().paymentAmountInput().value = Checkout.getOutstandingBalance();
     }
 
-    Checkout.setPayment(checkoutView().getCurrentPaymentData(data));
+    Checkout.setPayment(checkout().getCurrentPaymentData(data));
     checkout().paymentAmountInput().value = 0;
 }
 
 function showPaymentModalAction(data) {
-    checkoutView().showPaymentModal(data);
+    checkout().showPaymentModal(data);
 }
 
 /**
@@ -49,16 +46,14 @@ function showPaymentModalAction(data) {
  */
 function updateTotals({detail}) {
     Checkout.updateTotal(detail.doc.total);
-    checkoutView().enableConfirmButton(false);
+    checkout().enableConfirmButton(false);
 }
 
 /**
  * Update checkout view, when new payment was added.
  */
 function updateView() {
-    checkoutView().enableConfirmButton(Checkout.change >= 0 && Checkout.total !== 0);
-    checkoutView().updateTotals(Checkout);
-    checkoutView().updatePaymentList(Checkout);
+    checkout().updateView(Checkout);
 }
 
 /**

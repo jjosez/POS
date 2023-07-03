@@ -67,11 +67,27 @@ class Modals {
         return backdrop;
     }
 
+    /**
+     * @param {HTMLElement} element
+     */
+    toggleModal = element => {
+        if (!element) return;
+
+        element.classList.toggle("flex");
+
+        if (element.classList.toggle("hidden")) {
+            backdrop.hide();
+            return;
+        }
+
+        backdrop.show();
+    };
+
     documentTypeModal = () => modals['documentType'];
     closeSessionModal = () => modals['closeSession'];
     customerSearchModal = () => modals['customerSearch'];
     lastOrdersModal = () => modals['lastOrders'];
-    holdOrdersModal = () => modals['holdOrders'];
+    pausedOrdersModal = () => modals['holdOrders'];
     stockDetailModal = () => modals['productStockDetail'];
     paymentModal = () => modals['paymentDetail'];
     productEditModal = () => modals['productEdit'];
