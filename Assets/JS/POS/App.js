@@ -4,6 +4,7 @@
  */
 import * as Core from './Core.js';
 import * as Order from "./Order.js";
+import * as view from "./View.js";
 import {mainView} from "./UI.js";
 import Cart from "./modules/Cart.js"
 import Checkout from "./modules/Checkout.js";
@@ -14,8 +15,10 @@ import Checkout from "./modules/Checkout.js";
 async function orderDeleteAction(data) {
     await Order.deleteHoldRequest(data.code);
 
+    if ((data.code * 1) === (Cart.doc.idpausada * 1)) location.reload();
+
     mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
-    mainView().toggleHoldOrdersModal();
+    view.modals().holdOrdersModal().hide();
 }
 
 /**
@@ -23,7 +26,7 @@ async function orderDeleteAction(data) {
  */
 async function orderPrintAction({code}) {
     await Order.reprintRequest(code);
-    mainView().toggleLastOrdersModal();
+    view.modals().lastOrdersModal().hide();
 }
 
 /**
@@ -31,7 +34,7 @@ async function orderPrintAction({code}) {
  */
 async function pausedOrderPrintAction({code}) {
     await Order.reprintPausedOrderRequest(code);
-    mainView().toggleHoldOrdersModal();
+    view.modals().holdOrdersModal().hide();
 }
 
 /**
@@ -51,7 +54,7 @@ async function orderResumeAction({code}) {
     }
 
     mainView().updateCustomer(Cart.doc.nombrecliente);
-    mainView().toggleHoldOrdersModal();
+    view.modals().holdOrdersModal().hide();
 }
 
 async function orderSaveAction() {
@@ -86,7 +89,7 @@ async function searchCustomerAction() {
 }
 
 async function searchProductAction() {
-    mainView().updateProductListView(await Core.searchProduct(this.value));
+    mainView().updateProductSearchResult(await Core.searchProduct(this.value));
 }
 
 function sessionCloseAction() {
@@ -99,31 +102,31 @@ function sessionMoneyMovmentAction() {
 
 async function sessionPrintClosingVoucherAction() {
     await Core.printClosingVoucher();
-    mainView().toggleCloseSessionModal();
+    view.modals().closeSessionModal().hide();
 }
 
 async function showStockDetailAction({code}) {
-    mainView().updateStockListView(await Core.getProductStock(code));
-    mainView().toggleStockDetailModal();
+    mainView().updateProductStockDetail(await Core.getProductStock(code));
+    view.modals().stockDetailModal().show();
 }
 
 async function showProductImagesAction({id, code}) {
-    mainView().updateProductImageListView(await Core.getProductImages(id, code));
+    mainView().updateProductImageList(await Core.getProductImages(id, code));
     mainView().toggleProductImageModal();
 }
 
 async function showProductFamiliesAction({code, madre}) {
-    mainView().updateFamilyListView(await Core.getProductFamilyChild(code, madre));
+    mainView().updateProductFamilyList(await Core.getProductFamilyChild(code, madre));
 }
 
 async function showPausedOrdersAction() {
-    mainView().toggleHoldOrdersModal();
     mainView().updateHoldOrdersList(await Order.getOnHoldRequest());
+    view.modals().holdOrdersModal().show();
 }
 
 async function showLastOrdersAction() {
-    mainView().toggleLastOrdersModal();
-    mainView().updateLastOrdersListView(await Order.getLastOrders());
+    mainView().updateLastOrdersList(await Order.getLastOrders());
+    view.modals().lastOrdersModal().show();
 }
 
 /**

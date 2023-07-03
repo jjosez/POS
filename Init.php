@@ -18,7 +18,6 @@ class Init extends InitClass
 
     public function update()
     {
-        new Model\SesionPuntoVenta();
         $this->updateTerminaPuntoVentaTable();
         $this->updateTerminals();
     }

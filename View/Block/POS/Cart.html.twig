@@ -65,7 +65,7 @@
     </div>
     <% } %>
     <% it.lines.forEach(function(value, index) { %>
-    <div class="flex min-w-fit flex-auto select-none border-b-4 border-dotted border-opacity-50 py-2 text-slate-gray-700">
+    <div class="flex min-w-fit flex-auto select-none border-b-2 border-dotted border-opacity-50 py-2 text-slate-gray-700">
         <div class="flex items-center space-x-2">
             <button class="bg-gray-200 text-slate-800 btn btn-icon focus:ring-gray-600"
                     data-action="editProductAction" data-index="<%= index %>">
@@ -76,9 +76,9 @@
                 <span><%= value.cantidad %></span>
             </button>
         </div>
-        <div class="mx-2 flex flex-auto">
+        <div class="mx-2 flex flex-auto text-sm">
             <div role="listitem" class="flex-1">
-                <p><span class="font-semibold uppercase text-gray-800"><%= value.referencia %></span>
+                <p class="text-sm"><span class="font-semibold uppercase text-gray-800"><%= value.referencia %></span>
                     &#8674;&nbsp;<%= value.descripcion %></p>
                 <div class="flex items-end gap-2">
                     {% for column in grid %}

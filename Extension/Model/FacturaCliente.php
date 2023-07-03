@@ -3,6 +3,7 @@
 namespace FacturaScripts\Plugins\POS\Extension\Model;
 
 use Closure;
+use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Model\Base\TransformerDocument;
 use FacturaScripts\Dinamic\Lib\PointOfSalePayments;
 use FacturaScripts\Dinamic\Lib\ReceiptGenerator;

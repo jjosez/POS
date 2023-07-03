@@ -41,9 +41,9 @@ class PointOfSaleTransaction
     public function __construct(PointOfSaleRequest $request)
     {
         $this->setDocument($request->getDocumentData(), $request->getDocumentType());
-        $this->setPayments($request->getPaymentList());
+        $this->setPayments($request->getPaymentData());
 
-        $this->products = $request->getProductList();
+        $this->products = $request->getDocumentLinesData();
     }
 
     /**
@@ -121,6 +121,7 @@ class PointOfSaleTransaction
             if (true === empty($product)) {
                 continue;
             }
+
             if (true === isset($product['cantidad'])) {
                 $this->documentLines[] = $this->document->getNewLine($product);
                 continue;
@@ -132,7 +133,7 @@ class PointOfSaleTransaction
 
     protected function setDocumentSubject()
     {
-        if (empty($this->document->nombrecliente)) {
+        if (empty($this->document->nombrecliente) || empty($this->document->cifnif)) {
             $this->document->updateSubject();
         }
     }

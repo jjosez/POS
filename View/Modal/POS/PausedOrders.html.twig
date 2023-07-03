@@ -1,69 +1,86 @@
-<div id="holdOrdersModal" class="modal hidden">
-    <div class="modal-content md:modal-content-lg h-full">
+{#
+/**
+ *  This file is part of POS plugin for FacturaScripts
+ *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
+#}
+<div id="holdOrdersModal" class="hidden modal">
+    <div class="h-full modal-content md:modal-content-lg">
         <div class="modal-header">
-            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('pos-orders-on-hold') }}</h2>
-            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="holdOrdersModal">
+            <h2 class="text-2xl font-semibold text-slate-gray-700">{{ i18n.trans('pos-orders-on-hold') }}</h2>
+            <button class="ml-2 btn btn-icon btn-danger" data-toggle="modal" data-target="holdOrdersModal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
-        <div class="modal-body p-0">
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-blue-500">
-                    <tr>
-                        <th class="p-3 text-lg text-white" scope="col">{{ i18n.trans('code') }}</th>
-                        <th class="p-3 text-lg text-white" scope="col">{{ i18n.trans('customer') }}</th>
-                        <th class="p-3 text-lg text-white" scope="col">{{ i18n.trans('date') }}</th>
-                        <th class="p-3 text-lg text-white" scope="col">{{ i18n.trans('time') }}</th>
-                        <th class="p-3 text-lg text-white" scope="col">{{ i18n.trans('total') }}</th>
-                        <th class="p-3 text-lg text-white text-center" scope="col">
-                            <i class="fas fa-exclamation-circle fa-lg"></i>
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody id="pausedOrdersList" class="font-semibold text-slate-gray-700">
-                    </tbody>
-                </table>
+        <div class="m-4 hidden items-center rounded-lg bg-blue-500 p-4 text-white md:flex">
+            <div class="flex-1 text-center">
+                <span class="font-semibold capitalize italic">{{ i18n.trans('code') }}</span>
+            </div>
+            <div class="flex-1 text-center">
+                <span class="font-semibold capitalize italic">{{ i18n.trans('customer') }}</span>
+            </div>
+            <div class="flex-1 text-center">
+                <span class="font-semibold capitalize italic">{{ i18n.trans('total') }}</span>
+            </div>
+            <div class="flex-1 text-center">
+                <span class="font-semibold capitalize italic">{{ i18n.trans('date') }}</span>
+            </div>
+            <div class="flex w-24 justify-center">
+                <span class="font-semibold capitalize italic"><i class="fas fa-tools"></i></span>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div id="pausedOrdersList" class="p-0">
             </div>
         </div>
         <div class="modal-footer">
-            <span><i class="fas fa-arrow-down"></i> Deslice para ver mas operaciones</span>
+            <span><i class="fas fa-arrow-down"></i> Deslice para ver mas registros</span>
         </div>
     </div>
 </div>
 <script id="pausedOrdersListTemplate" type="text/template">
     <% if(it.items.length === 0) { %>
-    <tr>
-        <td colspan="20" class="p-4">
-            Ninguna operacion registrada
-        </td>
-    </tr>
+    <div class="flex flex-1 rounded-lg bg-blue-100 p-2 shadow-sm md:flex-row">
+        <span>{{ i18n.trans('no-data') }}</span>
+    </div>
     <% } %>
     <% it.items.forEach(function(order){ %>
-    {#<tr class="hover:bg-yellow-200">#}
-    <tr class="<% if (order.dtomecanico) { %>table-row-red<% } else { %>hover:bg-yellow-200<% } %>">
-        <td class="px-3 text-center"><%= order.codigo %></td>
-        <td class="px-3"><%= order.nombrecliente %>
-            <p><%= order.observaciones || '' %></p></td>
-        <td class="whitespace-nowrap px-3 text-right"><%= order.fecha %></td>
-        <td class="whitespace-nowrap px-3 text-right"><%= order.hora %></td>
-        <td class="whitespace-nowrap px-3 text-right"><%= order.total %></td>
-        <td class="px-3">
-            <div class="flex justify-center py-1">
-                <button type="button" class="mr-2 btn btn-icon btn-light"
-                        data-action="printPausedOrderAction" data-code="<%= order.idpausada %>">
-                    <i class="fas fa-print fa-sm"></i>
-                </button>
-                <button type="button" class="mr-2 btn btn-icon btn-primary"
-                        data-action="resumeOrderAction" data-code="<%= order.idpausada %>">
-                    <i class="fas fa-file-signature fa-sm"></i>
-                </button>
-                <button type="button" class="btn btn-icon btn-danger"
-                        data-action="deleteOrderAction" data-code="<%= order.idpausada %>">
-                    <i class="fas fa-trash fa-sm"></i>
-                </button>
+    <div class="mb-4 flex flex-col rounded-lg bg-slate-100 p-2 shadow-sm hover:bg-yellow-100 md:flex-row">
+        <div role="listitem" class="flex-1 flex-col self-center"
+             data-action="resumeOrderAction" data-code="<%= order.idpausada %>">
+            <div class="flex flex-1 flex-col text-center md:flex-row md:text-left">
+                <div class="flex-1">
+                    <span class="font-semibold capitalize italic md:hidden">{{ i18n.trans('code') }}: </span>
+                    <%= order.codigo %>
+                </div>
+                <div class="flex-1">
+                    <span class="font-semibold capitalize italic md:hidden">{{ i18n.trans('customer') }}:</span>
+                    <%= order.nombrecliente %>
+                </div>
+                <div class="flex-1">
+                    <span class="font-semibold capitalize italic md:hidden">{{ i18n.trans('total') }}: </span>
+                    <span class="<% if (order.total <= 0) { %>text-red-500<% } %>">
+                    <%= order.total %></span>
+                </div>
+                <div class="flex-1">
+                    <span class="font-semibold capitalize italic md:hidden">{{ i18n.trans('date') }}: </span>
+                    <%= order.fecha %> <%= order.hora %>
+                </div>
             </div>
-        </td>
-    </tr>
+            <span class="text-sm italic">
+                <%= order.observaciones || '' %>
+            </span>
+        </div>
+        <div class="mt-4 flex items-center justify-between md:mt-0">
+            <button type="button" class="mr-2 btn btn-icon btn-light"
+                    data-action="printPausedOrderAction" data-code="<%= order.idpausada %>">
+                <i class="fas fa-print fa-sm"></i>
+            </button>
+            <button type="button" class="btn btn-icon btn-danger"
+                    data-action="deleteOrderAction" data-code="<%= order.idpausada %>">
+                <i class="fas fa-trash fa-sm"></i>
+            </button>
+        </div>
+    </div>
     <% }) %>
 </script>

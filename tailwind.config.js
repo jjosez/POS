@@ -12,7 +12,7 @@ module.exports = {
         'd-none',
         'form-control',
         {
-            pattern: /bg-(red|green|blue|yellow)-(50|100|200|500)/,
+            pattern: /bg-(red|green|blue|yellow)-(100|200|500)/,
             variants: ['hover', 'even', 'odd'],
         },
     ],

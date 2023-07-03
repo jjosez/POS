@@ -4,197 +4,85 @@
  */
 import {getElement} from "./Core.js";
 import * as Money from "./Money.js";
-
-export const alertView = () => {
-    return {
-        'container': getElement("alert-container"),
-        'listTemplate': getTemplate('message-template'),
-
-        updateAlertListView: function (data) {
-            this.container.innerHTML = this.listTemplate(data, eta.config);
-        }
-    }
-}
+import * as view from "./View.js";
 
 export const cartView = () => {
     return {
-        'main': getElement('cartMainView'),
-        'editForm': getElement('productEditForm'),
-        'editView': getElement('cartEditView'),
-        'listView': getElement('cartListView'),
-        'editTemplate': getTemplate('cartEditTemplate'),
-        'listTemplate': getTemplate('cartListTemplate'),
-        'itemsNumber': getElement('orderItemsNumber'),
-        'subtotal': getElement('orderSubtotal'),
-        'discountPercent': getElement('orderDiscount'),
-        'discountAmount': getElement('orderDiscountAmount'),
-        'observations': getElement('orderObservations'),
-        'taxes': getElement('orderTaxes'),
-        'totalNet': getElement('orderTotalNet'),
-        'cartTotal': getElement('cartTotal'),
-        'total': getElement('orderTotal'),
-        'holdButton': getElement('orderHoldButton'),
-        'productEditModal': getElement('productEditModal'),
-        'productQuantityEditModal': getElement('productQuantityEditModal'),
-        'productQuantityInput': getElement('productQuantityInput'),
-
-        showEditView: function () {
-            toggleModal(this.productEditModal);
-        },
-
         showQuantityEditView: function (producto) {
-            this.productQuantityInput.dataset.index = producto.index;
-            this.productQuantityInput.value = producto.cantidad;
-            toggleModal(this.productQuantityEditModal);
-        },
-
-        toggleEditView: function () {
-            this.editView.classList.toggle('hidden');
-        },
-
-        updateListView: function (data = []) {
-            this.listView.innerHTML = this.listTemplate(data, eta.config);
-        },
-
-        updateEditForm: function (data = []) {
-            this.editForm.innerHTML = this.editTemplate(data, eta.config);
+            view.cart().productQuantityInput().dataset.index = producto.index;
+            view.cart().productQuantityInput().value = producto.cantidad;
+            view.modals().productQuantityEditModal().show();
         },
 
         updateTotals: function (data = {}) {
-            this.observations.value = data.doc.observaciones;
-            this.cartTotal.textContent = Money.roundFixed(data.doc.total);
-            this.itemsNumber.textContent = data.count;
-            this.subtotal.textContent = Money.roundFixed(data.doc.netosindto);
-            this.discountPercent.value = data.doc.dtopor1 || 0;
-            this.discountAmount.textContent = Money.roundFixed(data.getDiscountAmount());
-            this.totalNet.textContent = Money.roundFixed(data.doc.neto);
-            this.taxes.textContent = Money.roundFixed(data.doc.totaliva);
-            this.total.textContent = Money.roundFixed(data.doc.total);
+            view.cart().cartTotalLabel().textContent = Money.roundFixed(data.doc.total);
+            view.cart().orderItemsNumberLabel().textContent = Money.roundFixed(data.count);
+            view.cart().orderSubtotalLabel().textContent = Money.roundFixed(data.doc.netosindto);
+            view.cart().orderDiscountAmountInput().value = data.doc.dtopor1 || 0;
+            view.cart().orderDiscountAmountLabel().textContent = Money.roundFixed(data.doc.neto);
+            view.cart().orderNetoLabel().textContent = Money.roundFixed(data.getDiscountAmount());
+            view.cart().orderTaxesLabel().textContent = Money.roundFixed(data.doc.totaliva);
+            view.cart().orderTotalLabel().textContent = Money.roundFixed(data.doc.total);
         }
     };
 }
 
 export const checkoutView = () => {
     return {
-        'listView': getElement('paymentList'),
-        'listTemplate': getTemplate('paymentListTemplate'),
-        'confirmButton': getElement('orderSaveButton'),
-        'change': getElement('checkoutChangeAmount'),
-        'tendered': getElement('checkoutTenderedAmount'),
-        'total': getElement('checkoutTotal'),
-        'paymentModal': getElement('paymentModal'),
-        'paymentModalButton': document.querySelectorAll('.payment-modal-btn'),
-        'paymentAmounButton': document.querySelectorAll('.payment-add-btn'),
-        'paymentApplyButton': getElement('paymentApplyButton'),
-        'paymentInput': getElement('paymentApplyInput'),
-
         enableConfirmButton: function (enable = true) {
-            this.confirmButton.disabled = !enable;
+            view.checkout().confirmOrderButton().disabled = !enable;
         },
 
         getCurrentPaymentData: function ({code, description}) {
             return {
-                amount: this.paymentInput.value,
+                amount: view.checkout().paymentAmountInput().value,
                 method: code,
                 description: description
             };
         },
 
         getCurrentPaymentInput: function () {
-            return parseFloat(this.paymentInput.value) || 0;
+            return parseFloat(view.checkout().paymentAmountInput().value) || 0;
         },
 
         showPaymentModal: function (data = {}) {
-            this.paymentInput.dataset.method = data.code;
-            this.paymentInput.dataset.description = data.description;
-            toggleModal(this.paymentModal);
+            view.checkout().paymentAmountInput().dataset.method = data.code;
+            view.checkout().paymentAmountInput().dataset.description = data.description;
+            view.modals().paymentModal().show();
         },
 
         updatePaymentList: function (data = []) {
-            this.listView.innerHTML = this.listTemplate(data, eta.config);
+            view.templates().renderPaymentList(data);
         },
 
         updateTotals: function (data = {}) {
-            this.change.textContent = data.change;
-            this.tendered.textContent = data.getPaymentsTotal();
-            this.total.textContent = data.total;
+            view.checkout().changeAmountLabel().textContent = data.change;
+            view.checkout().changeAmountLabel().textContent = data.getPaymentsTotal();
+            view.checkout().totalAmountLabel().textContent = data.total;
         }
     }
 }
 
 export const mainView = () => {
     return {
-        'main': getElement('productMainView'),
-        'cashMovmentForm': getElement('cashMovmentForm'),
         'cashMovmentButton': getElement('cashMovmentSaveButton'),
-        'customerNameLabel': getElement('customerNameLabel'),
-        'customerSearchBox': getElement('customerSearchBox'),
-        'customerSearchModal': getElement('customerSearchModal'),
-        'customerSaveButton': getElement('newCustomerSaveButton'),
-        'customerListView': getElement('customerSearchResult'),
-        'customerListTemplate': getTemplate('customerListTemplate'),
+        'cashMovmentForm': getElement('cashMovmentForm'),
         'closeSessionButton': getElement('closeSessionButton'),
         'closeSessionForm': getElement('closeSessionForm'),
-        'closeSessionModal': getElement('closeSessionModal'),
-        'documentTypeModal': getElement('documentTypeModal'),
+        'customerNameLabel': getElement('customerNameLabel'),
+        'customerSaveButton': getElement('newCustomerSaveButton'),
+        'customerSearchBox': getElement('customerSearchBox'),
         'documentNamelLabel': getElement('documentTypeLabel'),
-        'documentTypeListView': getElement('documentTypeList'),
-        'holdOrdersList': getElement('pausedOrdersList'),
-        'holdOrdersListTemplate': getTemplate('pausedOrdersListTemplate'),
-        'holdOrdersModal': getElement('holdOrdersModal'),
-        'lastOrdersList': getElement('lastOrdersList'),
-        'lastOrdersListTemplate': getTemplate('lastOrdersListTemplate'),
-        'lastOrdersModal': getElement('lastOrdersModal'),
-        'productImagesModal': getElement('productImagesModal'),
+        'main': getElement('productMainView'),
+        'mainContent': getElement('mainContent'),
         'productSearchBox': getElement('productSearchBox'),
-        'productListView': getElement('productSearchResult'),
-        'productListTemplate': getTemplate('productListTemplate'),
-        'productImageListView': getElement('productImageListView'),
-        'productImageListTemplate': getTemplate('productImageListTemplate'),
-        'stockDetailModal': getElement('stockDetailModal'),
-        'stockDetailList': getElement('stockDetailList'),
-        'stockDetailListTemplate': getTemplate('stockDetailListTemplate'),
-        'familyList': getElement('familyList'),
-        'familyListTemplate': getTemplate('familyListTemplate'),
-
-        toggleMainView: function () {
-            this.main.classList.toggle('hidden');
-        },
-
-        toggleCloseSessionModal: function () {
-            toggleModal(this.closeSessionModal);
-        },
-
-        toggleCustomerListModal: function () {
-            toggleModal(this.customerSearchModal);
-        },
-
-        toggleDoctypeListModal: function () {
-            toggleModal(this.documentTypeModal);
-        },
-
-        toggleHoldOrdersModal: function () {
-            toggleModal(this.holdOrdersModal);
-        },
-
-        toggleLastOrdersModal: function () {
-            toggleModal(this.lastOrdersModal);
-        },
-
-        toggleStockDetailModal: function () {
-            toggleModal(this.stockDetailModal);
-        },
-
-        toggleProductImageModal: function () {
-            toggleModal(this.productImagesModal);
-        },
 
         updateCustomer: function (name = '') {
             this.customerNameLabel.textContent = name;
         },
 
         updateCustomerListView: function (data = []) {
-            this.customerListView.innerHTML = this.customerListTemplate({items: data}, eta.config);
+            view.templates().renderCustomerList({items: data});
         },
 
         updateDocument: function (name = '') {
@@ -202,42 +90,57 @@ export const mainView = () => {
         },
 
         updateHoldOrdersList: function (data = []) {
-            this.holdOrdersList.innerHTML = this.holdOrdersListTemplate({items: data}, eta.config);
+            view.templates().renderPausedOrderList({items: data});
         },
 
-        /*updateProductListView: async function (data = []) {
-            this.productListView.innerHTML = await Eta.renderAsync(
-                this.productoListTemplateHtml, {items: data}
-            )
-        },*/
-
-        updateProductListView: function (data = []) {
-            this.productListView.innerHTML = this.productListTemplate({items: data}, eta.config);
+        updateLastOrdersList: function (data = []) {
+            view.templates().renderLastOrderList({items: data});
         },
 
-        updateProductImageListView: function (data = []) {
-            this.productImageListView.innerHTML = this.productImageListTemplate({items: data}, eta.config);
+        updateProductFamilyList: function (data = []) {
+            view.templates().renderProductFamilyList({items: data});
         },
 
-        updateLastOrdersListView: function (data = []) {
-            this.lastOrdersList.innerHTML = this.lastOrdersListTemplate({items: data}, eta.config);
+        updateProductImageList: function (data = []) {
+            view.templates().renderProductImageList({items: data});
         },
 
-        updateStockListView: function (data = []) {
-            this.stockDetailList.innerHTML = this.stockDetailListTemplate({items: data}, eta.config);
+        updateProductSearchResult: function (data = []) {
+            view.templates().renderProductSearchList({items: data});
         },
 
-        updateFamilyListView: function (data = []) {
-            this.familyList.innerHTML = this.familyListTemplate({items: data}, eta.config);
+        updateProductStockDetail: function (data = []) {
+            view.templates().renderProductStockList({items: data});
+        },
+
+        updateViewFields: function ({doc}) {
+            for (let i = 0; i < fields.length; i++) {
+                setDocumentFieldFromData(doc, fields[i])
+            }
         }
     }
 }
 
-/**
- * @param {string} id
- */
-function getTemplate(id) {
-    return eta.compile(getElement(id).innerHTML);
+const fields = document.querySelectorAll('[data-document-field]');
+
+const setDocumentFieldFromData = (data = {}, element) => {
+    const fieldName = element.getAttribute('data-document-field');
+
+    switch (element.type) {
+        case 'text':
+        case 'textarea':
+            element.value = data[fieldName];
+            break
+        case 'number':
+        case 'decimal':
+            element.value = Money.roundFixed(data[fieldName]);
+            break;
+        case'checkbox':
+            element.checked = data[fieldName] === true || data[fieldName] === "true";
+            break;
+        default:
+            element.textContent = data[fieldName];
+    }
 }
 
 /**
@@ -263,12 +166,11 @@ export function toggleModal(element) {
     element.classList.toggle("flex");
 
     if (element.classList.toggle("hidden")) {
-        document.querySelector('.modal-backdrop').remove();
-    } else {
-        const backdrop = document.createElement('div');
-        backdrop.classList.add('modal-backdrop');
-        document.querySelector('body').append(backdrop);
+        view.modals().backdrop().hide();
+        return;
     }
+
+    view.modals().backdrop().show();
 }
 
 /**
@@ -276,6 +178,8 @@ export function toggleModal(element) {
  */
 export function toggle(element) {
     let target = getElement(element.dataset.target);
+
+    if (!target) return;
 
     target.classList.toggle('hidden');
 
@@ -308,11 +212,11 @@ document.addEventListener('click', function (event) {
     }
 }, false);
 
-window.addEventListener("click", function (event) {
+/*window.addEventListener("click", function (event) {
     let menu = getElement('navbarMenu');
 
-    if (!menu.contains(event.target) && !menu.classList.contains('hidden')) {
+    /!*if (!menu.contains(event.target) && !menu.classList.contains('hidden')) {
         menu.classList.add('hidden');
-    }
-})
+    }*!/
+})*/
 

@@ -1,9 +1,7 @@
-{#
-/**
+{#/**
  *  This file is part of POS plugin for FacturaScripts
  *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
- */
-#}
+ */#}
 {% extends 'Master/POS.html.twig' %}
 {% import 'Macro/POS.html.twig' as pos %}
 
@@ -13,10 +11,10 @@
     {#{{ include('Block/POS/NewNavbar.html.twig') }}#}
     <div class="flex flex-row h-screen antialiased">
         <div id="mainView" class="flex flex-1 overflow-auto">
-            {#{{ include('Block/POS/NewNavbar.html.twig') }}#}
             <div id="productMainView" class="md:w-3/5 app-container">
                 {{ include('Block/POS/Navbar.html.twig') }}
                 {{ include('Block/POS/Products.html.twig') }}
+                {#{{ include('Block/POS/MainContent.html.twig') }}#}
             </div>
             <div id="cartMainView" class="hidden md:flex md:w-2/5 app-container">
                 {{ include('Block/POS/Cart.html.twig') }}
@@ -30,6 +28,7 @@
     {{ include('Modal/POS/Checkout.html.twig') }}
     {{ include('Modal/POS/CloseSession.html.twig') }}
     {{ include('Modal/POS/CustomerSearch.html.twig') }}
+    {{ include('Modal/POS/DocumentDetail.html.twig') }}
     {{ include('Modal/POS/DocumentType.html.twig') }}
     {{ include('Modal/POS/LastOrders.html.twig') }}
     {{ include('Modal/POS/PausedOrders.html.twig') }}
@@ -38,7 +37,6 @@
     {{ include('Modal/POS/ProductFilter.html.twig') }}
     {{ include('Modal/POS/ProductStockDetail.html.twig') }}
     {{ include('Modal/POS/ProductImages.html.twig') }}
-    {{ include('Modal/POS/TotalsDetail.html.twig') }}
     {{ include('Modal/POS/User.html.twig') }}
     {% for modal in fsc.getCustomModals() %}
         {{ include(modal) }}
@@ -79,7 +77,7 @@
     </script> #}
     {# TODO: Change to dynamic for release #}
     {{ parent() }}
-    <script src="{{ asset('Dinamic/Assets/JS/modules/eta.min.js?v=2') }}"></script>
+    <script src="{{ asset('Dinamic/Assets/JS/modules/eta.min.js?v=3.0.3') }}"></script>
     <script src="{{ asset('Dinamic/Assets/JS/modules/onscan.min.js?v=1') }}"></script>
     <script type="module" src="{{ asset('Dinamic/Assets/JS/POS/App.js') }}"></script>
     <script type="application/javascript">

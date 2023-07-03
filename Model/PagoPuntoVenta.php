@@ -34,8 +34,10 @@ class PagoPuntoVenta extends Base\ModelClass
 
     public function install()
     {
-        new MovimientoPuntoVenta();
         new SesionPuntoVenta();
+        new OrdenPuntoVenta();
+        new MovimientoPuntoVenta();
+
         return parent::install();
     }
 

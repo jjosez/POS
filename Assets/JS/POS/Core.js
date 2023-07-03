@@ -2,7 +2,8 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-import {alertView} from "./UI.js";
+
+import {templates} from "./View.js";
 
 /**
  * Send request to controller url
@@ -119,7 +120,7 @@ export function searchRequest(action, query) {
  */
 export function showMessage(response) {
     if (null != response.messages) {
-        alertView().updateAlertListView(response);
+        templates().renderAlertList(response);
         autoCloseMessage();
     }
 }
@@ -128,7 +129,7 @@ export function showMessage(response) {
  * Close all messages by timeout
  */
 export function autoCloseMessage() {
-    let container = alertView().container;
+    let container = getElement("alert-container");
 
     if (container.firstElementChild) {
         setTimeout(function () {
@@ -147,7 +148,15 @@ export function autoCloseMessage() {
  * @param {string} id
  */
 export function getElement(id) {
+    console.log('Get -element', id);
     return document.getElementById(id);
+}
+
+/**
+ * @param {string} id
+ */
+export function getTemplate(id) {
+    return eta.compile(getElement(id).innerHTML);
 }
 
 /**

@@ -1,6 +1,7 @@
-<nav id="navbar" class="relative flex flex-wrap items-center justify-between bg-gray-900 px-4 py-2">
-    <div class="relative flex w-full justify-between md:w-auto lg:static">
-        <a class="inline-block whitespace-nowrap py-2 font-semibold leading-normal text-slate-50"
+{% import 'Macro/POS.html.twig' as pos %}
+<nav id="navbar" class="flex flex-col justify-between bg-gray-900 px-4 py-2 md:flex-row">
+    <div class="flex flex-1 justify-between">
+        <a class="inline-block whitespace-nowrap py-2 ml-4 font-semibold leading-normal text-slate-50"
            href="{{ asset('') }}">
             <i class="text-xl fa fa-home"></i>
         </a>
@@ -9,52 +10,42 @@
             <span class="flex font-medium"><i class="fa fa-bars"></i></span>
         </button>
     </div>
-    <div class="hidden w-auto md:block" id="navbarMenu">
-        <ul class="ml-auto flex w-full list-none flex-col md:space-x-2 md:w-auto md:flex-row md:p-0">
-            {% for element in fsc.getCustomNavbarElements('link') %}
-                {{ _self.menuLinkElement(asset(element.url), element.icon, element.text, element.title) }}
+    <div class="hidden md:flex" id="navbarMenu">
+        <ul class="flex list-none flex-col flex-wrap justify-center md:space-x-2 md:flex-row md:p-0">
+            {% for element in fsc.getCustomMenuElements('navbar') %}
+                {% if element.type == 'modal' %}
+                    {{ pos.menuToggleElement('modal', element.action, element.icon, element.text, element.title) }}
+                {% elseif  element.type == 'link' %}
+                    {{ pos.menuLinkElement(asset(element.action), element.icon, element.text, element.title) }}
+                {% elseif  element.type == 'js' %}
+                    {{ pos.menuActionElement(element.action, element.icon, element.text, element.title) }}
+                {% endif %}
             {% endfor %}
-            {{ _self.menuActionElement('showPausedOrders', 'fas fa-hourglass-half') }}
-            {{ _self.menuActionElement('showLastOrders', 'fas fa-history') }}
-            {{ _self.menuElement('modal', 'closeSessionModal', 'fas fa-cash-register') }}
-            {{ _self.menuElement('modal', 'moneyInOutModal', 'fas fa-wallet') }}
-            {{ _self.menuElement('modal', 'userModal', 'fas fa-user-circle', fsc.user.nick) }}
-            {{ _self.menuLinkElement(fsc.getTerminal().url('edit'), 'fas fa-desktop', fsc.getTerminal().nombre) }}
+            {{ pos.menuActionElement('showPausedOrders', 'fas fa-hourglass-half') }}
+            {{ pos.menuActionElement('showLastOrders', 'fas fa-history') }}
+            {{ pos.menuToggleElement('modal', 'closeSessionModal', 'fas fa-cash-register') }}
+            {{ pos.menuToggleElement('modal', 'moneyInOutModal', 'fas fa-wallet') }}
+            {{ pos.menuToggleElement('modal', 'userModal', 'fas fa-user-circle', fsc.user.nick) }}
+            {{ pos.menuLinkElement(fsc.getTerminal().url('edit'), 'fas fa-desktop', fsc.getTerminal().nombre) }}
         </ul>
     </div>
 </nav>
-{% macro menuElement(toggle, target, icon, text, title) %}
-    <li>
-        <button class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
-                data-toggle="{{ toggle }}" data-target="{{ target }}" title="{{ title }}">
-            <i class="text-lg leading-lg {{ icon }} fa-fw"></i>
-            {% if text %}
-                <span class="ml-2">{{ text }}</span>
-            {% endif %}
-        </button>
-    </li>
-{% endmacro %}
+{% set contentMenuElements = fsc.getCustomMenuElements('content-navbar') %}
+{% if contentMenuElements is not empty %}
+    <nav id="contentNavbar" class="flex bg-emerald-500 px-4 py-2">
+        <div class="hidden md:flex mx-auto" id="contentNavbarMenu">
+            <ul class="flex list-none flex-col flex-wrap justify-center md:space-x-2 md:flex-row md:p-0">
+                {% for element in contentMenuElements %}
+                    {% if element.type == 'modal' %}
+                        {{ pos.menuToggleElement('modal', element.action, element.icon, element.text, element.title) }}
+                    {% elseif  element.type == 'link' %}
+                        {{ pos.menuLinkElement(asset(element.action), element.icon, element.text, element.title) }}
+                    {% elseif  element.type == 'js' %}
+                        {{ pos.menuActionElement(element.action, element.icon, element.text, element.title) }}
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </nav>
+{% endif %}
 
-{% macro menuActionElement(action, icon, text, title) %}
-    <li>
-        <button class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
-                data-action="{{ action }}" title="{{ title }}">
-            <i class="text-lg leading-lg {{ icon }} fa-fw"></i>
-            {% if text %}
-                <span class="ml-2">{{ text }}</span>
-            {% endif %}
-        </button>
-    </li>
-{% endmacro %}
-
-{% macro menuLinkElement(url, icon, text, title) %}
-    <li>
-        <a class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100" href="{{ url }}"
-           target="_blank" title="{{ title }}">
-            <i class="text-lg leading-lg {{ icon }} fa-fw"></i>
-            {% if text %}
-                <span class="ml-2">{{ text }}</span>
-            {% endif %}
-        </a>
-    </li>
-{% endmacro %}

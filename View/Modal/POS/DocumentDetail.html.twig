@@ -9,7 +9,7 @@
         </div>
         <div class="modal-body">
             <div class="flex flex-col place-content-between text-xl font-medium">
-                {% for element in fsc.getCustomInput('detail') %}
+                {% for element in fsc.getCustomDocumentFields('detail') %}
                     {% if element.type == 'checkbox' %}
                         {{ form.customCheckboxInput(element.id, element.name, element.label, element.value) }}
                     {% elseif element.type == 'text' %}
@@ -26,17 +26,18 @@
                 <div class="p-4 flex justify-between border-t-2 border-dashed">
                     <span>{{ i18n.trans('subtotal') }}</span>
                     <span id="orderSubtotal" class="text-right">0.000</span>
+                    <span class="text-right" data-document-field="netosindto">0.000</span>
                 </div>
                 <div class="p-4 flex justify-between border-t-2 border-dashed">
                     <div class="w-1/2 text-sm">
                         <span>{{ i18n.trans('dto') }}</span>
                         <label class="input-icon text-gray-400">
                             <span><i class="fa fa-sm fa-percent"></i></span>
-                            <input id="orderDiscount" type="number" class="flex-grow-0 text-red-500" value="0"
-                                   data-action="editDocumentDiscountAction">
+                            <input id="orderDiscountAmountInput" type="number" class="flex-grow-0 text-red-500" value="0"
+                                   data-action="edit-document-field" data-document-field="dtopor1">
                         </label>
                     </div>
-                    <span id="orderDiscountAmount" class="flex-1 self-center text-right">0.000</span>
+                    <span id="orderDiscountAmountLabel" class="flex-1 self-center text-right">0.000</span>
                 </div>
                 <div class="p-4 flex justify-between border-t-2 border-dashed">
                     <span>{{ i18n.trans('net') }}</span>

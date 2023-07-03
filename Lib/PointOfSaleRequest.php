@@ -18,12 +18,12 @@ class PointOfSaleRequest
     /**
      * @var array
      */
-    protected $productList;
+    protected $documentLinesData;
 
     /**
      * @var array
      */
-    protected $paymentList;
+    protected $paymentData;
 
     /**
      * @var ParameterBag
@@ -45,17 +45,17 @@ class PointOfSaleRequest
             $this->request->set('tipo-documento', self::ORDER_ON_HOLD);
         }
 
-        $this->setProductList();
-        $this->setPaymentList();
+        $this->setDocumentLinesData();
+        $this->setPaymentData();
         $this->setDocumentData();
     }
 
-    protected function setProductList(): void
+    protected function setDocumentLinesData(): void
     {
         $lines = $this->request->get('lines', []);
         //$lines = $this->request->get('linesMap', []);
 
-        $this->productList = json_decode($lines, true);
+        $this->documentLinesData = json_decode($lines, true);
     }
 
     protected function setDocumentData(): void
@@ -72,11 +72,11 @@ class PointOfSaleRequest
         $this->orderType =$this->documentData['tipo-documento'];*/
     }
 
-    protected function setPaymentList(): void
+    protected function setPaymentData(): void
     {
         $payments = $this->request->get('payments');
 
-        $this->paymentList = json_decode($payments, true);
+        $this->paymentData = json_decode($payments, true);
     }
 
     /**
@@ -90,17 +90,17 @@ class PointOfSaleRequest
     /**
      * @return array
      */
-    public function getProductList(): array
+    public function getDocumentLinesData(): array
     {
-        return $this->productList ?? [];
+        return $this->documentLinesData ?? [];
     }
 
     /**
      * @return array
      */
-    public function getPaymentList(): array
+    public function getPaymentData(): array
     {
-        return $this->paymentList ?? [];
+        return $this->paymentData ?? [];
     }
 
     /**

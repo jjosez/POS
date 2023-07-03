@@ -5,88 +5,83 @@
  */
 #}
 <div id="lastOrdersModal" class="hidden modal">
-    <!--content-->
     <div class="h-full modal-content md:modal-content-lg">
-        <!--header-->
         <div class="modal-header">
             <h2 class="text-2xl font-semibold text-slate-gray-700">{{ i18n.trans('last-orders') }}</h2>
             <button class="ml-2 btn btn-icon btn-danger" data-toggle="modal" data-target="lastOrdersModal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
-        <!--body-->
-        <div class="p-0 modal-body">
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-blue-500">
-                    <tr>
-                        <th class="p-3 text-lg text-white" scope="col">{{ i18n.trans('code') }}</th>
-                        <th class="p-3 text-lg text-white" scope="col">{{ i18n.trans('doc-type') }}</th>
-                        <th class="p-3 text-lg text-white" scope="col">{{ i18n.trans('date') }}</th>
-                        <th class="p-3 text-lg text-white" scope="col">{{ i18n.trans('time') }}</th>
-                        <th class="p-3 text-lg text-white" scope="col">{{ i18n.trans('total') }}</th>
-                        <th class="p-3 text-lg text-white"><i class="fas fa-print"></i></th>
-                    </tr>
-                    </thead>
-                    <tbody id="lastOrdersList" class="font-semibold text-slate-gray-700">
-                    {% for operation in fsc.session.getOrders() %}
-                        <tr class="bg-blue-100 px-3 hover:bg-yellow-200">
-                            <td class="px-3 py-3 text-center">{{ operation.codigo }}</td>
-                            <td class="px-3 text-center">{{ operation.tipodocumento }}</td>
-                            <td class="px-3 text-right">{{ operation.fecha }}</td>
-                            <td class="px-3 text-right">{{ operation.hora }}</td>
-                            <td class="px-3 text-right">{{ fsc.toolBox().coins().format(operation.total) }}</td>
-                            <td class="px-3">
-                                <div class="flex justify-center py-1">
-                                    <button type="button" class="btn btn-icon btn-primary"
-                                            data-action="printOrderAction" data-code="{{ operation.idoperacion }}">
-                                        <i class="fas fa-print fa-sm"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="20" class="p-4">
-                                Ninguna operacion registrada
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+        <div class="m-4 hidden items-center rounded-lg bg-blue-500 p-4 text-white md:flex">
+            <div class="flex-1">
+                <span class="font-semibold capitalize italic">{{ i18n.trans('code') }}</span>
+            </div>
+            <div class="flex-1">
+                <span class="font-semibold capitalize italic">{{ i18n.trans('customer') }}</span>
+            </div>
+            <div class="flex-1">
+                <span class="font-semibold capitalize italic">{{ i18n.trans('date') }}</span>
+            </div>
+            <div class="flex-1">
+                <span class="font-semibold capitalize italic">{{ i18n.trans('total') }}</span>
+            </div>
+            <div class="flex justify-center w-24">
+                <span class="font-semibold capitalize italic"><i class="fas fa-tools"></i></span>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div id="lastOrdersList">
+               {# <div class="m-auto w-1/2">
+                    <i class="animate-spin fas fa-circle-notch text-4xl text-sky-500"></i>
+                </div>#}
             </div>
         </div>
         <div class="modal-footer">
-            <span><i class="fas fa-arrow-down"></i> Deslice para ver mas operaciones</span>
+            <span><i class="fas fa-arrow-down"></i> Deslice para ver mas registros</span>
         </div>
     </div>
 </div>
 <script id="lastOrdersListTemplate" type="text/template">
     <% if(it.items.length === 0) { %>
-    <tr>
-        <td colspan="20" class="p-4">
-            Ninguna operacion registrada
-        </td>
-    </tr>
+    <div class="flex flex-1 rounded-lg bg-blue-100 p-2 shadow-sm md:flex-row">
+        <span>{{ i18n.trans('no-data') }}</span>
+    </div>
     <% } %>
     <% it.items.forEach(function(order){ %>
-    <tr class="hover:bg-yellow-200">
-        <td class="text-center"><%= order.codigo %></td>
-        <td class="text-center"><%= order.tipodocumento %></td>
-        <td class="text-right"><%= order.fecha %></td>
-        <td class="text-right"><%= order.hora %></td>
-        <td class="text-right"><%= order.total %></td>
-        <td class="px-3">
-            <div class="flex justify-center py-1">
-                <button type="button" class="mr-2 btn btn-icon btn-light"
-                        data-action="printOrderAction" data-code="<%= order.idoperacion %>">
-                    <i class="fas fa-print fa-sm"></i>
-                </button>
-                <a href="<%= order.url %>" type="button" target="_blank" class="btn btn-icon btn-primary">
-                    <i class="fas fa-file-invoice fa-sm"></i>
-                </a>
+    <div class="mb-4 flex cursor-pointer flex-col rounded-lg bg-slate-100 p-2 shadow-sm md:flex-row
+    <% if (order.dtomecanico) { %>table-row-red<% } else { %>hover:bg-yellow-100<% } %>">
+        <div class="flex flex-1 flex-col items-center md:flex-row">
+            <div class="flex-1">
+                <span class="font-semibold capitalize italic md:hidden">{{ i18n.trans('code') }}: </span>
+                <%= order.codigo %>
             </div>
-        </td>
-    </tr>
+            <div class="flex-1">
+                <span class="font-semibold capitalize italic md:hidden">{{ i18n.trans('customer') }}: </span>
+                <%= order.nombrecliente %>
+            </div>
+            <div class="flex-1">
+                <span class="font-semibold capitalize italic md:hidden">{{ i18n.trans('date') }}: </span>
+                <%= order.fecha %> <%= order.hora %>
+            </div>
+            <div class="flex-1">
+                <span class="font-semibold capitalize italic md:hidden">{{ i18n.trans('total') }}: </span>
+                <%= order.total %>
+            </div>
+            <p><%= order.observaciones || '' %></p>
+        </div>
+        <div class="mt-4 flex items-center justify-between md:mt-0">
+            <button type="button" class="mr-2 btn btn-icon btn-light"
+                    data-toggle="modal" data-target="productQuantityEditModal" data-ontoggle="lastOrdersModal">
+                <i class="fas fa-print fa-sm"></i>
+            </button>
+            <button type="button" class="mr-2 btn btn-icon btn-light"
+                    data-action="printOrderAction" data-code="<%= order.idoperacion %>">
+                <i class="fas fa-print fa-sm"></i>
+            </button>
+            <a href="<%= order.url %>" type="button" target="_blank" class="btn btn-icon btn-primary">
+                <i class="fas fa-file-invoice fa-sm"></i>
+            </a>
+        </div>
+    </div>
     <% }) %>
 </script>

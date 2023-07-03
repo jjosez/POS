@@ -59,6 +59,12 @@ class OperacionPausada extends Base\SalesDocument
         $this->horaregistro = date(self::HOUR_STYLE);
     }
 
+    public function completeDocument(): bool
+    {
+        $this->idestado = 3;
+        return $this->save();
+    }
+
     /**
      * Returns the lines associated with the paused operation.
      *

@@ -15,6 +15,10 @@ use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\FormatoTicket;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Plugins\POS\Model\TipoDocumentoPuntoVenta;
+use FilesystemIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RegexIterator;
 
 trait PointOfSaleTrait
 {
@@ -22,15 +26,13 @@ trait PointOfSaleTrait
      * @var PointOfSaleSession
      */
     protected $session;
-    /**
-     * @var mixed
-     */
-    protected $customNavbarElements;
+
+    protected $customMenuElements;
 
     /**
      * @var array|array[]
      */
-    protected $customFields;
+    protected $customDocumentFields;
 
     /**
      * @return array
@@ -62,12 +64,17 @@ trait PointOfSaleTrait
         return [];
     }
 
-    /**
+     /**
      * @return array
      */
-    public function getCustomFields(): array
+    public function getCustomDocumentFields(string $hook): array
     {
-        return [];
+        return $this->customDocumentFields[$hook] ?? [];
+    }
+
+    public function getCustomMenuElements(string $hook): array
+    {
+        return $this->customMenuElements[$hook] ?? [];
     }
 
     /**
@@ -75,7 +82,26 @@ trait PointOfSaleTrait
      */
     public function getCustomModals(): array
     {
-        return [];
+        $extensionPath = join(DIRECTORY_SEPARATOR, ['Modal', 'POS', 'Extension']);
+        $modalsPath = join(DIRECTORY_SEPARATOR, [FS_FOLDER, 'Dinamic', 'View', $extensionPath]);
+        $modals = [];
+
+        if (false === file_exists($modalsPath)) {
+            return $modals;
+        }
+
+        $directoryIterator = new RecursiveDirectoryIterator($modalsPath);
+        $fileIterator = new RecursiveIteratorIterator($directoryIterator);
+
+        foreach ($fileIterator as $filename) {
+            if ($filename->isDir()) continue;
+
+            if (! strpos($filename->getFilename(), '.html.twig')) continue;
+
+            $modals[] = $extensionPath . DIRECTORY_SEPARATOR . $filename->getFilename();
+        }
+
+        return $modals;
     }
 
     /**
@@ -129,17 +155,7 @@ trait PointOfSaleTrait
     {
         $product = new PointOfSaleProduct();
 
-        return $product->search('', []);
-    }
-
-    public function getCustomInput(string $hook)
-    {
-        return $this->customFields[$hook] ?? [];
-    }
-
-    public function getCustomNavbarElements(string $groupKey): array
-    {
-        return $this->customNavbarElements[$groupKey] ?? [];
+        return $product->search('');
     }
 
     /**
@@ -228,6 +244,16 @@ trait PointOfSaleTrait
         return $this->session->getTerminal()->allAvailable($this->user->idempresa);
     }
 
+    protected function addCustomDocumentField(string $hook, array $element)
+    {
+        $this->customDocumentFields[$hook][] = $element;
+    }
+
+    protected function addCustomMenuElement(string $hook, array $element)
+    {
+        $this->customMenuElements[$hook][] = $element;
+    }
+
     /**
      * Read the log.
      *
@@ -269,25 +295,25 @@ trait PointOfSaleTrait
         return $format;
     }
 
-    protected function loadCustomFields(): void
+    protected function loadCustomDocumentFields(): void
     {
-        $this->customFields = ['detail' => []];
-        $this->pipe('loadCustomFields');
+        $this->customDocumentFields = ['detail' => [], 'cart' => []];
+        $this->pipe('loadCustomDocumentFields');
     }
 
-    protected function loadCustomNavbarElements(): void
+    protected function loadCustomMenuElements(): void
     {
-        $this->customNavbarElements = ['link' => [], 'action' => [], 'button' => []];
-        $this->pipe('loadCustomNavbarElements');
+        $this->customMenuElements = ['navbar' => [], 'content-navbar' => []];
+        $this->pipe('loadCustomMenuElements');
     }
 
     /**
-     * @param $document
+     * @param SalesDocument $document
+     * @param array $payments
      * @return void;
      */
     protected function printVoucher(SalesDocument $document, array $payments)
     {
-
         $message = self::printDocumentTicket($document, $payments, $this->getVoucherFormat());
 
         $this->toolBox()->log()->info($message);
@@ -338,16 +364,6 @@ trait PointOfSaleTrait
     {
         $response = $encode ? json_encode($content) : $content;
         $this->response->setContent($response);
-    }
-
-    protected function addCustomField(string $hook, array $element)
-    {
-        $this->customFields[$hook][] = $element;
-    }
-
-    protected function addNavbarElement(string $type, array $element)
-    {
-        $this->customNavbarElements[$type][] = $element;
     }
 
     protected function validateDelete(): bool
@@ -401,7 +417,7 @@ trait PointOfSaleTrait
         }
 
         $cashMethod = $this->getCashPaymentMethod();
-        if ($cashMethod === null || trim($cashMethod) === '') {
+        if (trim($cashMethod) === '') {
             $this->toolBox()->Log('POS')->warning('No se configuro el metodo de pago que se usara para pagos en efectivo.');
             $result = false;
         }

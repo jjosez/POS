@@ -21,9 +21,7 @@ trait PointOfSaleActionsTrait
         $document = new OperacionPausada();
 
         if ($code && $document->loadFromCode($code)) {
-            $document->idestado = 3;
-
-            return $document->save();
+            return $document->completeDocument();
         }
         return true;
     }
@@ -71,7 +69,7 @@ trait PointOfSaleActionsTrait
      * @param string|null $sessionID
      * @return OperacionPausada[]
      */
-    protected static function getPausedOrders(?string $sessionID = null): array
+    protected static function getPausedDocuments(?string $sessionID = null): array
     {
         $document = new OperacionPausada();
 

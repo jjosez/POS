@@ -1,6 +1,7 @@
 import {cartView, mainView} from "../UI.js";
 import {recalculateRequest} from "../Order.js";
 import CartClass from "../model/CartClass.js";
+import * as view from "../View.js";
 
 const Cart = new CartClass({
     'doc': {
@@ -21,18 +22,11 @@ function productDeleteAction({index}) {
 }
 
 /**
- * @param value
- */
-function editDiscountAction(value) {
-    Cart.setDiscountPercent(value);
-}
-
-/**
  * @param {{index:int}} data
  */
 function productShowEditDialog({index}) {
-    cartView().updateEditForm(Cart.getProduct(index));
-    cartView().showEditView();
+    view.templates().renderCartEdit(Cart.getProduct(index));
+    view.modals().productEditModal().show();
 }
 
 /**
@@ -40,7 +34,6 @@ function productShowEditDialog({index}) {
  */
 function productShowQuantityEditDialog({index}) {
     const product = Cart.getProduct(index);
-    cartView().updateEditForm(product);
     cartView().showQuantityEditView(product);
 }
 
@@ -52,28 +45,28 @@ function productEditFieldAction({index, field}, value) {
     Cart.editProduct(index, field, value);
 
     onChangeCartAction().then(() => {
-        cartView().updateEditForm(Cart.getProduct(index));
+        view.templates().renderCartEdit(Cart.getProduct(index));
     });
 }
 
 function productQuantityDecreaseAction() {
-    let value = cartView().productQuantityInput.valueAsNumber;
-    let index = cartView().productQuantityInput.dataset.index
+    let value = view.cart().productQuantityInput().valueAsNumber;
+    let index = view.cart().productQuantityInput().dataset.index;
     value -= 1;
 
-    cartView().productQuantityInput.valueAsNumber = value;
+    view.cart().productQuantityInput().valueAsNumber = value;
 
-    productEditFieldAction({index: index, field: 'cantidad'}, value);
+    productEditFieldAction({field: 'cantidad', index: index}, value);
 }
 
 function productQuantityIncreaseAction() {
-    let value = cartView().productQuantityInput.valueAsNumber++;
-    let index = cartView().productQuantityInput.dataset.index
+    let value = view.cart().productQuantityInput().valueAsNumber;
+    let index = view.cart().productQuantityInput().dataset.index;
     value += 1;
 
-    cartView().productQuantityInput.valueAsNumber = value;
+    view.cart().productQuantityInput().valueAsNumber = value;
 
-    productEditFieldAction({index: index, field: 'cantidad'}, value);
+    productEditFieldAction({field: 'cantidad', index: index}, value);
 }
 
 /**
@@ -84,7 +77,7 @@ function setCustomerAction({code, description}) {
         return;
     }
     Cart.setCustomer(code);
-    mainView().toggleCustomerListModal();
+    view.modals().customerSearchModal().hide();
     mainView().updateCustomer(description);
 }
 
@@ -96,7 +89,7 @@ function setDocumentAction({code, serie, description}) {
         return;
     }
     Cart.updateDocumentType(code, serie);
-    mainView().toggleDoctypeListModal();
+    view.modals().documentTypeModal().hide();
     mainView().updateDocument(description);
 }
 
@@ -118,18 +111,9 @@ async function onChangeCartAction() {
  * @param {{detail}} data
  */
 function onUpdateCartAction({detail}) {
-    cartView().updateListView(detail);
+    view.templates().renderCartList(detail);
     cartView().updateTotals(detail);
-}
-
-/**
- * @param {{detail}} data
- */
-function cartCustomFieldUpdateAction({detail}) {
-    if (typeof detail.field === 'undefined' || detail.value === null) {
-        return;
-    }
-    Cart.setCustomField(detail.field, detail.value);
+    mainView().updateViewFields(detail);
 }
 
 /**
@@ -170,7 +154,7 @@ function clickCartLineEventHandler(event) {
     }
 }
 
-function editCartLineEventHandler(event) {
+function editDocumentLineEventHandler(event) {
     const data = event.target.dataset;
     const action = data.action;
 
@@ -184,7 +168,7 @@ function editCartLineEventHandler(event) {
     }
 }
 
-function editCustomFieldAction(field, target) {
+function editDocumentFieldAction(field, target) {
     if (typeof field === 'undefined' || target === undefined) {
         return;
     }
@@ -198,7 +182,7 @@ function editCustomFieldAction(field, target) {
     }
 }
 
-function editCartDocumentEventHandler(event) {
+function editDocumentFieldEventHandler(event) {
     const data = event.target.dataset;
     const action = data.action;
 
@@ -207,20 +191,16 @@ function editCartDocumentEventHandler(event) {
     }
 
     switch (action) {
-        case 'editDocumentFieldAction':
-            console.log(data.field, event.target.type)
-            return editCustomFieldAction(data.field, event.target);
-        case 'editDocumentDiscountAction':
-            return editDiscountAction(event.target.value);
+        case 'edit-document-field':
+            return editDocumentFieldAction(data.documentField, event.target);
     }
 }
 
 document.addEventListener('click', clickCartLineEventHandler);
-document.addEventListener('change', editCartLineEventHandler);
-document.addEventListener('change', editCartDocumentEventHandler);
+document.addEventListener('change', editDocumentLineEventHandler);
+document.addEventListener('change', editDocumentFieldEventHandler);
 document.addEventListener('onCartChange', onChangeCartAction);
 document.addEventListener('onCartUpdate', onUpdateCartAction);
-document.addEventListener('onCartCustomFieldUpdate', cartCustomFieldUpdateAction);
 
 export default Cart;
 

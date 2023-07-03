@@ -1,7 +1,7 @@
 {% macro customCheckboxInput(id, name, label, value) %}
     <div class="flex items-center text-sm mb-2">
         <input id="{{ id }}" name="{{ name }}" type="checkbox" class="mr-2"
-               data-action="editDocumentFieldAction" data-field="{{ name }}">
+               data-action="edit-document-field" data-document-field="{{ name }}">
         <label for="{{ id }}">{{ label }}</label>
     </div>
 {% endmacro %}
@@ -10,7 +10,7 @@
     <div class="form-group text-sm mb-2">
         <label for="{{ id }}" class="font-semibold capitalize mb-1.5">{{ label }}</label>
         <input id="{{ id }}" name="{{ name }}" class="form-control" type="text"
-               data-action="editDocumentFieldAction" data-field="{{ name }}">
+               data-action="edit-document-field" data-document-field="{{ name }}">
     </div>
 {% endmacro %}
 
@@ -18,7 +18,7 @@
     <div class="form-group text-sm mb-2">
         <label for="{{ id }}" class="font-semibold capitalize mb-1.5">{{ label }}</label>
         <input id="{{ id }}" name="{{ name }}" class="form-control" type="number"
-               data-action="editDocumentFieldAction" data-field="{{ name }}">
+               data-action="edit-document-field" data-document-field="{{ name }}">
     </div>
 {% endmacro %}
 
@@ -26,6 +26,42 @@
     <div class="form-group text-sm mb-2">
         <label for="{{ id }}" class="font-semibold capitalize mb-1.5">{{ label }}</label>
         <textarea id="{{ id }}" name="{{ name }}" cols="30" rows="4"
-                  data-action="editDocumentFieldAction" data-field="{{ name }}"></textarea>
+                  data-action="edit-document-field" data-document-field="{{ name }}"></textarea>
     </div>
+{% endmacro %}
+
+{% macro menuToggleElement(toggle, target, icon, text, title) %}
+    <li>
+        <button class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
+                data-toggle="{{ toggle }}" data-target="{{ target }}" title="{{ title }}">
+            <i class="text-lg leading-lg {{ icon }} fa-fw"></i>
+            {% if text %}
+                <span class="ml-2">{{ text }}</span>
+            {% endif %}
+        </button>
+    </li>
+{% endmacro %}
+
+{% macro menuActionElement(action, icon, text, title) %}
+    <li>
+        <button class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
+                data-action="{{ action }}" title="{{ title }}">
+            <i class="text-lg leading-lg {{ icon }} fa-fw"></i>
+            {% if text %}
+                <span class="ml-2">{{ text }}</span>
+            {% endif %}
+        </button>
+    </li>
+{% endmacro %}
+
+{% macro menuLinkElement(url, icon, text, title) %}
+    <li>
+        <a class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100" href="{{ url }}"
+           target="_blank" title="{{ title }}">
+            <i class="text-lg leading-lg {{ icon }} fa-fw"></i>
+            {% if text %}
+                <span class="ml-2">{{ text }}</span>
+            {% endif %}
+        </a>
+    </li>
 {% endmacro %}

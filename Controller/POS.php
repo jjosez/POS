@@ -17,7 +17,6 @@ use FacturaScripts\Plugins\POS\Lib\PointOfSaleSession;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleTrait;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleTransaction;
 use FacturaScripts\Plugins\POS\Model\MovimientoPuntoVenta;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 
 class POS extends Controller
@@ -52,8 +51,8 @@ class POS extends Controller
         }
 
         $this->execAfterAction($action);
-        $this->loadCustomFields();
-        $this->loadCustomNavbarElements();
+        $this->loadCustomDocumentFields();
+        $this->loadCustomMenuElements();
 
         $template = $this->session->getView();
         $this->setTemplate($template);
@@ -96,7 +95,7 @@ class POS extends Controller
                 return false;
 
             case 'get-orders-on-hold':
-                $this->setResponse(self::getPausedOrders());
+                $this->setResponse(self::getPausedDocuments());
                 return false;
 
             case 'get-last-orders':
@@ -303,9 +302,9 @@ class POS extends Controller
     protected function resumeOrder()
     {
         $code = $this->request->request->get('code', '');
-        $order = self::getPausedDocument($code);
+        $document = self::getPausedDocument($code);
 
-        $result = ['doc' => $order, 'lines' => $order->getLines()];
+        $result = ['doc' => $document, 'lines' => $document->getLines()];
 
         $this->setNewToken();
         $this->buildResponse($result);
@@ -388,6 +387,10 @@ class POS extends Controller
         $request = new PointOfSaleRequest($this->request);
         $transaction = new PointOfSaleTransaction($request);
 
+        if ($this->pipeFalse('saveRequest', $this->request) === false) {
+            return;
+        }
+
         $this->dataBase->beginTransaction();
 
         if (false === $transaction->saveDocument()) {
@@ -409,6 +412,7 @@ class POS extends Controller
         $this->dataBase->commit();
 
         $this->getSession()->savePayments($document, $transaction->getPayments());
+        $this->pipe('save', $document, $transaction->getPayments());
         $this->printVoucher($document, $transaction->getPayments());
     }
 

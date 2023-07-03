@@ -7,7 +7,7 @@ class CartClass {
         this.lines = [];
         this.count = 0;
         this.token = token
-        this.linesMap = new Map();
+        //this.linesMap = new Map();
     }
 
     deleteProduct(index) {

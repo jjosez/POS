@@ -51,27 +51,27 @@
     }
 
     .btn-primary {
-        @apply bg-blue-500 focus:ring-blue-600;
+        @apply bg-blue-500 focus:ring-blue-600 hover:bg-blue-500/90;
     }
 
     .btn-secondary {
-        @apply bg-gray-500 focus:ring-gray-600;
+        @apply bg-gray-500 focus:ring-gray-600 hover:bg-gray-500/90;
     }
 
     .btn-success {
-        @apply bg-green-500 focus:ring-green-600;
+        @apply bg-green-500 focus:ring-green-600 hover:bg-green-500/90;
     }
 
     .btn-danger {
-        @apply bg-red-500 focus:ring-red-600;
+        @apply bg-red-500 focus:ring-red-600 hover:bg-red-500/90;
     }
 
     .btn-warning {
-        @apply bg-yellow-500 focus:ring-yellow-600;
+        @apply bg-yellow-500 focus:ring-yellow-600 hover:bg-yellow-500/90;
     }
 
     .btn-light {
-        @apply text-slate-800 bg-gray-200 focus:ring-gray-600;
+        @apply text-slate-800 bg-gray-200 focus:ring-gray-600 hover:bg-gray-200/90;
     }
 
     .input-icon {
@@ -147,7 +147,7 @@
     }
 
     .modal-content {
-        @apply flex relative flex-col m-auto md:w-3/5 md:max-w-lg md:max-h-4/5 bg-white rounded-lg border-0;
+        @apply flex relative flex-col m-auto w-full md:w-3/5 md:max-w-lg md:max-h-4/5 bg-white rounded-lg border-0;
         max-height: calc(100% - 3.5rem);
         max-width: calc(100% - 3.5rem);
     }
