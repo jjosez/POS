@@ -20,6 +20,9 @@ class TerminalPuntoVenta extends Base\ModelClass
     use Base\ModelTrait;
     use Base\CompanyRelationTrait;
 
+    public const PRODUCTS_FROM_COMPANY = 1;
+    public const PRODUCTS_FROM_WAREHOUSE = 2;
+
     public $anchopapel;
     public $aceptapagos;
     public $codalmacen;

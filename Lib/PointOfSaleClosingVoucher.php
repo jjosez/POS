@@ -37,30 +37,30 @@ class PointOfSaleClosingVoucher extends AbstractTicketBuilder
             $this->printer->textCentered('TEL: ' . $this->company->telefono2);
         }
 
-        $this->printer->textCentered($this->company->cifnif, true, true);
+        $this->printer->textCentered($this->company->cifnif);
         $this->printer->lineSeparator('=');
     }
 
     protected function buildBody(): void
     {
         $this->printer->textCentered('CIERRE');
-        $this->printer->textColumns('DESDE', $this->session->fechainicio);
-        $this->printer->textColumns('HASTA', $this->session->fechafin);
+        $this->printer->textKeyValue('DESDE', $this->session->fechainicio);
+        $this->printer->textKeyValue('HASTA', $this->session->fechafin);
         $this->printer->lineSeparator('=');
 
-        $this->printer->textColumns('SALDO INICIAL', $this->session->saldoinicial);
+        $this->printer->textKeyValue('SALDO INICIAL', $this->session->saldoinicial);
         $this->printer->lineSeparator();
 
         $this->printer->textCentered('RESUMEN DE PAGOS');
         $this->printer->lineBreak();
 
         foreach ($this->session->getPaymentsAmount() as $payment) {
-            $this->printer->textColumns(strtoupper($payment['descripcion']), $payment['total'], 'L', 'R');
+            $this->printer->textKeyValue(strtoupper($payment['descripcion']), $payment['total']);
         }
 
         $this->printer->lineSeparator('=');
-        $this->printer->textColumns('TOTAL ESPERADO', $this->session->saldoesperado, 'L', 'R');
-        $this->printer->textColumns('TOTAL CONTADO', $this->session->saldocontado, 'L', 'R');
+        $this->printer->textKeyValue('TOTAL ESPERADO', $this->session->saldoesperado);
+        $this->printer->textKeyValue('TOTAL CONTADO', $this->session->saldocontado);
     }
 
     protected function buildFooter(): void

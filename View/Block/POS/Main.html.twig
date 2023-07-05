@@ -73,11 +73,10 @@
         </div>
         <% }) %>
     </script> #}
-    {# TODO: Change to dynamic for release #}
     {{ parent() }}
     <script src="{{ asset('Dinamic/Assets/JS/vendor/eta.min.js?v=3.0.3') }}"></script>
     <script src="{{ asset('Dinamic/Assets/JS/vendor/onscan.min.js?v=1') }}"></script>
-    <script type="module" src="{{ asset('Dinamic/Assets/JS/POS/App.js') }}"></script>
+    <script type="module" src="{{ asset('Dinamic/Assets/JS/POS/App.js?v=2.2') }}"></script>
     <script type="application/javascript">
         const AppSettings = {
             'cash': '{{ fsc.getCashPaymentMethod() }}',
@@ -92,6 +91,11 @@
                 'code': '{{ fsc.getDefaultDocument().tipodoc }}',
                 'serie': '{{ fsc.getDefaultDocument().codserie }}',
                 'description': '{{ fsc.getDefaultDocument().primaryDescription() }}',
+            },
+            'currency': {
+                'divisa': '{{ settings('default', 'coddivisa') }}',
+                'decimals': '{{ settings('default', 'decimals') }}',
+                'separator': '{{ settings('default', 'decimal_separator') }}',
             },
             'payment': {
                 'codpago': '{{ fsc.getCashPaymentMethod() }}'

@@ -209,10 +209,10 @@ class POS extends Controller
 
         if ($source) {
             switch ($source) {
-                case 1:
+                case $this->getTerminal()::PRODUCTS_FROM_COMPANY:
                     $company = $this->getTerminal()->idempresa;
                     break;
-                case 2:
+                case $this->getTerminal()::PRODUCTS_FROM_WAREHOUSE:
                     $warehouse = $this->getTerminal()->codalmacen;
             }
         }

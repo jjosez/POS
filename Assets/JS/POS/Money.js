@@ -3,6 +3,7 @@
  * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 const ROUND_RATE = 100000;
+const DECIMALS_RATE = parseInt(AppSettings.currency.decimals);
 
 export function priceWithTax(base, rate) {
     const subtotal = base * (1 + rate / 100);
@@ -20,5 +21,5 @@ export function roundDecimals(amount) {
 }
 
 export function roundFixed(amount) {
-    return roundDecimals(amount || 0).toFixed(2);
+    return roundDecimals(amount || 0).toFixed(DECIMALS_RATE);
 }

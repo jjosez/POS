@@ -70,10 +70,7 @@ class PointOfSaleVoucher extends SalesTicket
 
         foreach ($this->payments as $payment) {
             $this->printer->textCentered($payment->descripcion());
-
-            $this->printer->textColumns(
-                'Recibido: ' . $payment->cantidad,
-                'Cambio: ' . $payment->cambio, 'L', 'R');
+            $this->printer->textKeyValue('Recibido: ' . $payment->cantidad, 'Cambio: ' . $payment->cambio);
         }
 
         $this->printer->lineBreak(2);

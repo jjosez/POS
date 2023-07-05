@@ -157,7 +157,6 @@ class Main {
         templates().renderProductSearchList({items: data});
     };
     updateView = ({doc}) => {
-        console.log('loading fields')
         const documentFields = mainElements['documentFieldList'];
 
         for (let i = 0; i < documentFields.length; i++) {

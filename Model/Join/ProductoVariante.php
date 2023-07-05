@@ -3,11 +3,31 @@
 namespace FacturaScripts\Plugins\POS\Model\Join;
 
 use FacturaScripts\Core\Model\Base\JoinModel;
+use FacturaScripts\Core\Model\Base\TaxRelationTrait;
+use FacturaScripts\Core\Tools;
 use JsonSerializable;
 
 //class ProductoVariante extends JoinModel implements JsonSerializable
+
 class ProductoVariante extends JoinModel
 {
+    use TaxRelationTrait;
+
+    /**
+     * @var float
+     */
+    public $price;
+
+    /**
+     * @var float
+     */
+    public $priceWithTax;
+
+    /**
+     * @var string
+     */
+    public $priceWithFormat;
+
     /**
     * @property-read $name
     * @property-read $barcode
@@ -39,6 +59,7 @@ class ProductoVariante extends JoinModel
         return [
             'id' => 'P.idproducto',
             'code' => 'V.referencia',
+            'codimpuesto' => 'P.codimpuesto',
             'barcode' => 'V.codbarras',
             'description' => 'P.descripcion',
             'price' => 'V.precio',
@@ -74,6 +95,9 @@ class ProductoVariante extends JoinModel
         foreach ($data as $field => $value) {
             $this->{$field} = $value;
         }
+
+        $this->priceWithTax = $this->price  * (100 + $this->getTax()->iva) / 100;
+        $this->priceWithFormat = Tools::money($this->priceWithTax);
     }
 
     public function __set($name, $value)
