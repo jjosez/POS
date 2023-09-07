@@ -42,6 +42,8 @@ class TerminalPuntoVenta extends Base\ModelClass
     public $productsource;
     public $restringealmacen;
 
+    public $productolibre;
+
     public function clear()
     {
         parent::clear();

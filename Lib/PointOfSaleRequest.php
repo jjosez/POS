@@ -74,7 +74,7 @@ class PointOfSaleRequest
 
     protected function setPaymentData(): void
     {
-        $payments = $this->request->get('payments');
+        $payments = $this->request->get('payments', '');
 
         $this->paymentData = json_decode($payments, true);
     }

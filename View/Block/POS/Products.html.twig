@@ -27,58 +27,43 @@
                 <span class="text-sky-500"><i class="fas fa-2x fa-tags"></i></span>
             </div>
             <div class="flex-1 text-sm">
-                <p class="text-gray-600">PRODUCTO DE ENTRDA LIBRE</p>
-                <span class="font-semibold uppercase text-gray-800">XXX-XXX</span>
+                <p class="text-gray-600 text-[.90rem]">
+                    <span class="font-semibold uppercase text-gray-800">XXX-XXX</span> PRODUCTO DE ENTRDA LIBRE</p>
                 <span class="mt-1 inline-block rounded-full bg-green-100 px-3 font-semibold text-green-800 text-[0.85rem] py-0.5">
                     {{ fsc.toolBox().coins().format(0) }}</span>
                 <span class="mt-1 inline-block rounded-full bg-blue-100 px-3 font-semibold text-blue-800 text-[0.85rem] py-0.5">
                     &infin; {{ i18n.trans('unlimited') }}</span>
             </div>
         </div>
-        {% for element in fsc.getHomeProducts() %}
+        {% for product in fsc.getHomeProducts() %}
             <div role="listitem" class="mb-4 flex cursor-pointer rounded-lg bg-white p-4 shadow-sm product-add-btn"
-                 data-action="setProductAction" data-code="{{ element.code }}"
-                 data-description="{{ element.description }}">
+                 data-action="setProductAction" data-code="{{ product.code }}"
+                 data-description="{{ product.description }}">
                 <div class="mr-4 flex items-center">
-                    {% if element.image %}
-                        <img class="pointer-events-auto h-24 w-24 object-scale-down" src="{{ element.image }}"
-                             alt="{{ element.code }}"
-                             data-action="productImageAction" data-id="{{ element.id }}" data-code="{{ element.code }}">
+                    {% if product.image %}
+                        <img class="pointer-events-auto h-24 w-24 object-scale-down" src="{{ product.image }}"
+                             alt="{{ product.code }}"
+                             data-action="productImageAction" data-id="{{ product.id }}" data-code="{{ product.code }}">
                     {% else %}
                         <span><i class="fas fa-3x fa-box"></i></span>
                     {% endif %}
                 </div>
                 <div class="flex-1 text-sm">
-                    <p class="text-gray-600">{{ element.description }}</p>
-                    {#                    <div class="mt-2 w-fit rounded-full bg-gray-200 px-3 font-semibold uppercase text-gray-800 py-0.5">
-                        {{ element.priceWithFormat }}
-                    </div> #}
-                    <span class="font-semibold uppercase text-gray-800">{{ i18n.trans('code') }}
-                        : {{ element.code }}</span>
+                    <p class="text-gray-600 text-[.90rem]">
+                        <span class="font-semibold uppercase text-gray-800">
+                            {{ i18n.trans('code') }}: {{ product.code }}
+                        </span> {{ product.description }}</p>
+                    {% if product.detail %}
+                        <p>{{ product.detail }}</p>
+                    {% endif %}
                     <span class="mt-1 inline-block rounded-full bg-green-100 px-3 font-semibold text-green-800 text-[0.85rem] py-0.5">
-                        {{ element.priceWithFormat }}
+                        {{ product.priceWithFormat }}
                     </span>
                     <span class="mt-1 inline-block rounded-full bg-blue-100 px-3 font-semibold text-blue-800 text-[0.85rem]
-                    py-0.5 pointer-events-auto" data-action="stockDetailAction" data-code="{{ element.code }}">
-                        {{ element.stock | default('0') }} {{ i18n.trans('available') }}
+                    py-0.5 pointer-events-auto" data-action="stockDetailAction" data-code="{{ product.code }}">
+                        {{ product.stock | default('0') }} {{ i18n.trans('available') }}
                     </span>
                 </div>
-                {# <div class="ml-4 w-1/4 flex-col items-center text-sm">
-                    <div class="rounded-full bg-gray-200 px-3 font-semibold uppercase text-gray-800 py-0.5">
-                #}{# {{ fsc.toolBox().coins().format(element.price | default('0')) }} #}{#
-                {{ element.priceWithFormat }}
-            </div>
-            <div class="lowercase font-semibold mt-2 px-3 py-0.5 bg-gray-200 text-gray-800 rounded-full
-            pointer-events-auto" data-action="stockDetailAction" data-code="{{ element.code }}">
-                {{ element.stock | default('0') }} {{ i18n.trans('available') }}
-            </div>
-        </div> #}
-                {# <div class="ml-4 flex w-auto flex-row items-center text-sm">
-                    <div class="lowercase font-semibold px-3 py-0.5 bg-gray-200 text-gray-800 rounded-full
-                    pointer-events-auto" data-action="stockDetailAction" data-code="{{ element.code }}">
-                        {{ element.stock | default('0') }} {{ i18n.trans('available') }}
-                    </div>
-                </div> #}
             </div>
         {% endfor %}
     </div>
@@ -97,8 +82,8 @@
             <span class="text-sky-500"><i class="fas fa-2x fa-tags"></i></span>
         </div>
         <div class="flex-1 text-sm">
-            <p class="font-semibold uppercase text-gray-800">XXX-XXX</p>
-            <p class="text-gray-600">PRODUCTO DE ENTRDA LIBRE</p>
+            <p class="text-gray-600 text-[.90rem]"><span class="font-semibold uppercase text-gray-800">XXX-XXX</span>
+                PRODUCTO DE ENTRDA LIBRE</p>
             <span class="mt-1 inline-block rounded-full bg-green-100 px-3 font-semibold text-green-800 text-[0.85rem] py-0.5">
                 {{ fsc.toolBox().coins().format(0) }}
             </span>
@@ -118,8 +103,9 @@
             <% } %>
         </div>
         <div class="flex-1 text-sm">
-            <p class="font-semibold uppercase text-gray-800">{{ i18n.trans('code') }} : <%= item.code %></p>
-            <p class="text-gray-600"><%= item.description %></p>
+            <p class="text-gray-600 text-[.90rem]">
+                <span class="font-semibold uppercase text-gray-800">
+                    {{ i18n.trans('code') }}: <%= item.code %></span> <%= item.description %></p>
             <% if(item.detail) { %>
             <p><%= item.detail %></p>
             <% } %>

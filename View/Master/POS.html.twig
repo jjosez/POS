@@ -7,7 +7,7 @@
 {% extends 'Master/MicroTemplate.html.twig' %}
 {% block css %}
     <link rel="stylesheet" href="{{ asset('node_modules/@fortawesome/fontawesome-free/css/all.min.css') }}"/>
-    <link rel="stylesheet" href="{{ asset('Dinamic/Assets/CSS/pos.app.min.css?v=2.2') }}"/>
+    <link rel="stylesheet" href="{{ asset('Dinamic/Assets/CSS/pos.app.min.css?v=2.3') }}"/>
     <link rel="manifest" href="{{ asset('Plugins/POS/Assets/JS/manifest.json') }}" />
 {% endblock %}
 {% block javascripts %}
@@ -15,7 +15,7 @@
 {% block fullBody %}
     <body class="bg-slate-100 text-slate-800">
     {% block messages %}
-        <div id="alert-container" class="alert-container opacity-90">
+        <div id="alert-container" class="opacity-90 alert-container">
             {{- _self.alert(log, ['warning', 'error', 'critical'], 'warning') -}}
             {{- _self.alert(log, ['notice'], 'success') -}}
             {{- _self.alert(log, ['info'], 'info') -}}

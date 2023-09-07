@@ -11,7 +11,7 @@
         <button id="customerSearchButton" class="w-full btn btn-primary"
                 data-toggle="modal" data-target="customerSearchModal">
             <i class="fa fa-user"></i>
-            <span id="customerNameLabel" class="mx-2"{# data-document-field="nombrecliente"#}>
+            <span id="customerNameLabel" class="mx-2"{# data-document-field="nombrecliente" #}>
                 {{ fsc.getDefaultCustomer().nombre }}</span>
             <i class="ml-auto fa fa-ellipsis-v"></i>
         </button>
@@ -19,35 +19,35 @@
             {{ include(button) }}
         {% endfor %}
     </div>
-    <div id="cartListView" class="flex-1 overflow-auto px-4">
+    <div id="cartListView" class="flex-1 flex-col overflow-auto px-4 divide-y-2 divide-dotted">
         <div class="flex h-full items-center justify-center">
             <i class="fa fa-shopping-cart fa-5x text-slate-gray-300"></i>
         </div>
     </div>
-    <div class="flex h-auto select-none flex-col font-medium md:place-content-between">
-        <div class="flex justify-between border-t-2 border-dashed p-4">
+    <div class="flex flex-col gap-4 border-t-2 border-dashed p-4">
+        <div class="flex flex-1 items-center justify-between font-medium">
             <button class="text-slate-800 btn btn-light" data-toggle="modal" data-target="totalsDetailModal">
                 <i class="fas fa-ellipsis-v fa-fw"></i> {{ i18n.trans('detail') }} / {{ i18n.trans('payable-amount') }}
             </button>
             <span id="cartTotal" class="text-right text-xl">0.000</span>
         </div>
-    </div>
-    <div class="flex h-auto select-none flex-row gap-4 p-4">
-        <button class="btn btn-icon btn-light md:hidden" data-toggle="block"
-                data-target="cartMainView" data-ontoggle="productMainView">
-            <i class="fa fa-arrow-left"></i>
-        </button>
-        <button class="flex-1 btn btn-warning" data-action="holdOrderAction">
-            <span class="mr-auto">{{ i18n.trans('hold') }}</span>
-            <i class="fa fa-hourglass-start"></i>
-        </button>
-        {# {{ terminal | json_encode(constant('JSON_PRETTY_PRINT')) }} #}
-        {% if terminal.aceptapagos %}
-            <button class="flex-1 btn btn-success" data-toggle="modal" data-target="checkoutModal">
-                <span class="mr-auto">{{ i18n.trans('charge') }}</span>
-                <i class="fa fa-calculator"></i>
+        <div class="flex h-auto select-none flex-row gap-4">
+            <button class="btn btn-icon btn-light md:hidden" data-toggle="block"
+                    data-target="cartMainView" data-ontoggle="productMainView">
+                <i class="fa fa-arrow-left"></i>
             </button>
-        {% endif %}
+            <button class="flex-1 btn btn-warning" data-action="holdOrderAction">
+                <span class="mr-auto">{{ i18n.trans('hold') }}</span>
+                <i class="fa fa-hourglass-start"></i>
+            </button>
+            {# {{ terminal | json_encode(constant('JSON_PRETTY_PRINT')) }} #}
+            {% if terminal.aceptapagos %}
+                <button class="flex-1 btn btn-success" data-toggle="modal" data-target="checkoutModal">
+                    <span class="mr-auto">{{ i18n.trans('charge') }}</span>
+                    <i class="fa fa-calculator"></i>
+                </button>
+            {% endif %}
+        </div>
     </div>
 </div>
 <script id="cartListTemplate" type="text/template">
@@ -57,27 +57,29 @@
     </div>
     <% } %>
     <% it.lines.forEach(function(value, index) { %>
-    <div class="flex min-w-fit flex-auto select-none border-b-2 border-dotted border-opacity-50 py-2 text-slate-gray-700">
+    <div class="flex select-none py-2">
         <div class="flex items-center space-x-2">
-            <button class="bg-gray-200 text-slate-800 btn btn-icon focus:ring-gray-600"
+            <button class="btn btn-icon btn-light"
                     data-action="editProductAction" data-index="<%= index %>">
                 <i class="fas fa-pen-alt"></i>
             </button>
-            <button class="bg-gray-200 text-slate-800 btn btn-icon focus:ring-gray-600"
+            <button class="btn btn-icon btn-light"
                     data-action="editProductQuantityAction" data-index="<%= index %>">
                 <span><%= value.cantidad %></span>
             </button>
         </div>
-        <div class="mx-2 flex flex-auto text-sm">
+        <div class="mx-2 flex flex-1 text-sm">
             <div role="listitem" class="flex-1">
-                <p class="text-sm"><span class="font-semibold uppercase text-gray-800"><%= value.referencia %></span>
-                    &#8674;&nbsp;<%= value.descripcion %></p>
+                <p class="text-sm">
+                    <span class="inline-flex items-center rounded-full bg-slate-100 px-2 font-semibold uppercase py-0.5 text-[0.85rem]">
+                        {#<span class="mr-2 rounded-full bg-blue-500 px-2 text-sm font-semibold uppercase">#}
+                        <%= value.referencia %></span><%= value.descripcion %></p>
                 <div class="flex items-end gap-2">
                     {% for column in grid %}
                         {%- if column.data == 'referencia' or column.data == 'descripcion' or column.data == 'cantidad' -%}
                         {% elseif not column.eneabled -%}
                         {% elseif column.carrito -%}
-                            <div class="w-24 flex-auto m-auto">
+                            <div class="m-auto w-24 flex-auto">
                                 <label>
                                     <span class="text-sm font-semibold">{{ column.tittle }}</span>
                                     {% if column.readonly %}
@@ -96,11 +98,9 @@
                 </div>
             </div>
         </div>
-        <div class="flex items-center">
-            <button class="btn btn-icon btn-danger" data-action="deleteProductAction" data-index="<%= index %>">
-                <i class="fas fa-trash-alt"></i>
-            </button>
-        </div>
+        <button class="my-auto text-sm btn btn-icon btn-danger" data-action="deleteProductAction" data-index="<%= index %>">
+            <i class="fas fa-trash-alt"></i>
+        </button>
     </div>
     <% }) %>
 </script>

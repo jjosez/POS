@@ -2,6 +2,7 @@
 
 namespace FacturaScripts\Plugins\POS\Model\Join;
 
+use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Model\Base\JoinModel;
 use FacturaScripts\Core\Model\Base\TaxRelationTrait;
 use FacturaScripts\Core\Tools;
@@ -97,7 +98,7 @@ class ProductoVariante extends JoinModel
         }
 
         $this->priceWithTax = $this->price  * (100 + $this->getTax()->iva) / 100;
-        $this->priceWithFormat = Tools::money($this->priceWithTax);
+        $this->priceWithFormat = ToolBox::coins()::format($this->priceWithTax);
     }
 
     public function __set($name, $value)
