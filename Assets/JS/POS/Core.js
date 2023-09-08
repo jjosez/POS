@@ -31,6 +31,21 @@ export async function postRequest(data) {
     return result;
 }
 
+/**
+ * Send request to controller url
+ * @param {FormData} data
+ */
+export async function postRequestCore(data) {
+    const response = await fetch('POS', {
+        method: 'POST',
+        body: data
+    });
+
+    if (!response.ok) requestErrorHandler(response.status);
+
+    return response;
+}
+
 export function printClosingVoucher() {
     const data = new FormData();
 
@@ -107,6 +122,12 @@ export function getProductFamilyChild(code, madre) {
     data.set('madre', madre);
 
     return postRequest(data);
+}
+
+export function isAndroidUserAgent() {
+    let userAgent = navigator.userAgent.toLowerCase();
+
+    return userAgent.indexOf("android") > -1; //&& ua.indexOf("mobile");
 }
 
 /**

@@ -1,4 +1,4 @@
-import { postRequest } from "./Core.js";
+import {isAndroidUserAgent, postRequest, postRequestCore} from "./Core.js";
 
 /**
  * @param {string} code
@@ -33,10 +33,14 @@ export function reprintPausedOrderRequest(code) {
     data.set('action', 'reprint-paused-order');
     data.set('code', code);
 
+    if (isAndroidUserAgent()) {
+        data.set('action', 'print-mobile-paused-ticket');
+    }
+
     return postRequest(data);
 }
 
-export function getLastOrders(){
+export function getLastOrders() {
     const data = new FormData();
 
     data.set('action', 'get-last-orders');
@@ -62,7 +66,7 @@ export function holdRequest({doc, lines, token}) {
     return postRequest(data);
 }
 
-export function recalculateRequest({ doc, lines }) {
+export function recalculateRequest({doc, lines}) {
     const data = getFormData(doc);
 
     data.set('action', "recalculate-order");
@@ -89,6 +93,35 @@ export function saveRequest({doc, lines, token}, payments) {
     data.set('payments', JSON.stringify(payments));
 
     return postRequest(data);
+}
+
+export async function printRequest(code) {
+    const data = new FormData();
+    data.set('code', code);
+
+    if (isAndroidUserAgent()) {
+        await printOnAndroid(data);
+        return;
+    }
+
+    await printOnDesktop(data);
+}
+
+async function printOnDesktop(baseData) {
+    baseData.set('action', 'print-desktop-ticket');
+
+    await postRequest(baseData);
+}
+
+async function printOnAndroid(baseData) {
+    /*var S = "#Intent;scheme=rawbt;";
+    var P = "package=ru.a402d.rawbtprinter;end;";
+
+    var textEncoded = encodeURI(result);*/
+    baseData.set('action', 'print-mobile-ticket');
+    let response = await postRequestCore(baseData);
+
+    window.location.href = await response.text();
 }
 
 function getFormData(obj = {}) {

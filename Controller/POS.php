@@ -58,6 +58,123 @@ class POS extends Controller
         $this->setTemplate($template);
     }
 
+    protected function execCartQueryAction(string $action): bool
+    {
+        switch ($action) {
+            case 'delete-order-on-hold':
+                $this->deleteOrderOnHold();
+                return true;
+
+            case 'recalculate-order':
+                $this->recalculateOrder();
+                return true;
+
+            case 'resume-order':
+                $this->resumeOrder();
+                return true;
+
+            case 'save-new-customer':
+                $this->saveNewCustomer();
+                return true;
+
+            case 'search-customer':
+                $this->searchCustomer();
+                return true;
+
+            default:
+                $this->setResponse('Funcion no encontrada');
+                return false;
+        }
+    }
+
+    /**
+     * Remove paused order from list.
+     */
+    protected function deleteOrderOnHold()
+    {
+        if (false === $this->validateDelete()) {
+            $this->buildResponse();
+            return;
+        }
+
+        $code = $this->request->request->get('code', '');
+
+        if (self::deletePausedDocument($code)) {
+            $this->toolBox()->i18nLog()->info('pos-order-on-hold-deleted');
+        }
+
+        $this->setNewToken();
+        $this->buildResponse();
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    protected function buildResponse(array $data = [])
+    {
+        $response = $data;
+        $response['messages'] = $this->getMessages();
+        $response['token'] = $this->token;
+
+        $this->setResponse($response);
+    }
+
+    /**
+     * Recalculate order data.
+     *
+     * @return void
+     */
+    protected function recalculateOrder()
+    {
+        $request = new PointOfSaleRequest($this->request);
+        $transaction = new PointOfSaleTransaction($request);
+
+        $this->setResponse($transaction->recalculate());
+    }
+
+    /**
+     * Load order on hold by code.
+     */
+    protected function resumeOrder()
+    {
+        $code = $this->request->request->get('code', '');
+        $document = self::getPausedDocument($code);
+
+        $result = ['doc' => $document, 'lines' => $document->getLines()];
+
+        $this->setNewToken();
+        $this->buildResponse($result);
+    }
+
+    protected function saveNewCustomer()
+    {
+        $customer = new PointOfSaleCustomer();
+
+        $taxID = $this->request->request->get('taxID');
+        $name = $this->request->request->get('name');
+        $result = [];
+
+        if ($customer->saveNew($taxID, $name)) {
+            self::toolBox()::log()->info('Nuevo cliente registrado');
+            $result = ['customer' => $customer->getCustomer()];
+            //$this->setResponse($customer->getCustomer());
+        }
+
+        $this->buildResponse($result);
+    }
+
+    /**
+     * Search customer by text.
+     */
+    protected function searchCustomer()
+    {
+        $customer = new PointOfSaleCustomer();
+        $query = $this->request->request->get('query');
+
+        $this->setResponse($customer->search($query));
+    }
+
     protected function execAction(string $action): bool
     {
         switch ($action) {
@@ -91,7 +208,8 @@ class POS extends Controller
 
             case 'save-order':
                 $this->saveOrder();
-                $this->buildResponse();
+                $lastOrders = ['last-order' => $this->session->getLastOrder()->idoperacion];
+                $this->buildResponse($lastOrders);
                 return false;
 
             case 'get-orders-on-hold':
@@ -112,64 +230,25 @@ class POS extends Controller
                 $this->setFamilyFilter();
                 return false;
 
-            case 'reprint-order':
-                $this->reprintOrder();
+            case 'print-desktop-ticket':
+                $this->printOrder();
                 return false;
 
             case 'reprint-paused-order':
-                $this->reprintPausedOrder();
+                $this->printPausedDocument();
+                return false;
+
+            case 'print-mobile-ticket':
+                $this->printOrderFromMobile();
+                return false;
+
+            case 'print-mobile-paused-ticket':
+                $this->printPausedTicketFromMobile();
                 return false;
 
             default:
                 $this->setResponse('Funcion no encontrada');
                 return true;
-        }
-    }
-
-    protected function execAfterAction(string $action)
-    {
-        switch ($action) {
-            case 'change-user':
-                $this->changeUser();
-                break;
-            case 'open-session':
-                $this->initSession();
-                break;
-            case 'open-terminal':
-                $this->loadTerminal();
-                break;
-            case 'close-session':
-                $this->closeSession();
-                break;
-        }
-    }
-
-    protected function execCartQueryAction(string $action): bool
-    {
-        switch ($action) {
-            case 'delete-order-on-hold':
-                $this->deleteOrderOnHold();
-                return true;
-
-            case 'recalculate-order':
-                $this->recalculateOrder();
-                return true;
-
-            case 'resume-order':
-                $this->resumeOrder();
-                return true;
-
-            case 'save-new-customer':
-                $this->saveNewCustomer();
-                return true;
-
-            case 'search-customer':
-                $this->searchCustomer();
-                return true;
-
-            default:
-                $this->setResponse('Funcion no encontrada');
-                return false;
         }
     }
 
@@ -182,17 +261,6 @@ class POS extends Controller
         $barcode = $this->request->request->get('query');
 
         $this->setResponse($producto->searchBarcode($barcode));
-    }
-
-    /**
-     * Search customer by text.
-     */
-    protected function searchCustomer()
-    {
-        $customer = new PointOfSaleCustomer();
-        $query = $this->request->request->get('query');
-
-        $this->setResponse($customer->search($query));
     }
 
     /**
@@ -220,143 +288,6 @@ class POS extends Controller
         $this->setResponse($product->search($query, [], $warehouse, $company));
     }
 
-    /**
-     * Search product by text.
-     */
-    protected function searchStock()
-    {
-        $product = new PointOfSaleProduct();
-        $query = $this->request->request->get('query', '');
-
-        $this->setResponse($product->getStock($query));
-    }
-
-    /**
-     * @param array $data
-     * @return void
-     */
-    protected function buildResponse(array $data = [])
-    {
-        $response = $data;
-        $response['messages'] = $this->getMessages();
-        $response['token'] = $this->token;
-
-        $this->setResponse($response);
-    }
-
-    protected function initSession()
-    {
-        $terminal = $this->request->request->get('terminal', '');
-        $amount = $this->request->request->get('saldoinicial', 0) ?: 0;
-        $this->session->openSession($terminal, $amount);
-    }
-
-    /**
-     * Close current user POS session.
-     */
-    protected function closeSession()
-    {
-        $cash = $this->request->request->get('cash');
-
-        if ($this->session->closeSession($cash)) {
-            $this->printClosingVoucher();
-        }
-    }
-
-    /**
-     * Remove paused order from list.
-     */
-    protected function deleteOrderOnHold()
-    {
-        if (false === $this->validateDelete()) {
-            $this->buildResponse();
-            return;
-        }
-
-        $code = $this->request->request->get('code', '');
-
-        if (self::deletePausedDocument($code)) {
-            $this->toolBox()->i18nLog()->info('pos-order-on-hold-deleted');
-        }
-
-        $this->setNewToken();
-        $this->buildResponse();
-    }
-
-    /**
-     * Recalculate order data.
-     *
-     * @return void
-     */
-    protected function recalculateOrder()
-    {
-        $request = new PointOfSaleRequest($this->request);
-        $transaction = new PointOfSaleTransaction($request);
-
-        $this->setResponse($transaction->recalculate());
-    }
-
-    /**
-     * Load order on hold by code.
-     */
-    protected function resumeOrder()
-    {
-        $code = $this->request->request->get('code', '');
-        $document = self::getPausedDocument($code);
-
-        $result = ['doc' => $document, 'lines' => $document->getLines()];
-
-        $this->setNewToken();
-        $this->buildResponse($result);
-    }
-
-    /**
-     * Reprint order by code.
-     */
-    protected function reprintOrder()
-    {
-        $code = $this->request->request->get('code', '');
-
-        if ($code) {
-            $order = self::getOrder($code);
-            $this->printVoucher($order->getDocument(), []);
-
-            $this->buildResponse();
-        }
-    }
-
-    /**
-     * Reprint order by code.
-     */
-    protected function reprintPausedOrder()
-    {
-        $code = $this->request->request->get('code', '');
-
-        if ($code) {
-            $document = self::getPausedDocument($code);
-            $this->printVoucher($document, []);
-
-            $this->buildResponse();
-        }
-    }
-
-    protected function saveNewCustomer()
-    {
-        $customer = new PointOfSaleCustomer();
-
-        $taxID = $this->request->request->get('taxID');
-        $name = $this->request->request->get('name');
-        $result = [];
-
-        if ($customer->saveNew($taxID, $name)) {
-            self::toolBox()::log()->info('Nuevo cliente registrado');
-            $result = ['customer' => $customer->getCustomer()];
-            //$this->setResponse($customer->getCustomer());
-        }
-
-        $this->buildResponse($result);
-    }
-
     protected function saveMovments()
     {
         if (false === $this->validateRequest()) return;
@@ -375,6 +306,41 @@ class POS extends Controller
         }
 
         $this->buildResponse();
+    }
+
+    /**
+     * Search product by text.
+     */
+    protected function searchStock()
+    {
+        $product = new PointOfSaleProduct();
+        $query = $this->request->request->get('query', '');
+
+        $this->setResponse($product->getStock($query));
+    }
+
+    /**
+     * Put order on hold.
+     *
+     * @return void
+     */
+    protected function saveOrderOnHold(): void
+    {
+        if (false === $this->validateRequest()) return;
+
+        $request = new PointOfSaleRequest($this->request, true);
+        $transaction = new PointOfSaleTransaction($request);
+
+        $this->dataBase->beginTransaction();
+
+        if (false === $transaction->saveDocument()) {
+            $this->toolBox()->i18nLog()->warning('pos-order-on-hold-error');
+            $this->dataBase->rollback();
+            return;
+        }
+
+        $this->dataBase->commit();
+        $this->toolBox()->i18nLog()->info('pos-order-on-hold');
     }
 
     /**
@@ -415,40 +381,85 @@ class POS extends Controller
 
         $this->getSession()->savePayments($document, $transaction->getPayments());
         $this->pipe('save', $document, $transaction->getPayments());
-        $this->printVoucher($document, $transaction->getPayments());
+        //$this->printVoucher($document, $transaction->getPayments());
     }
 
     /**
-     * Put order on hold.
-     *
-     * @return void
+     * Reprint order by code.
      */
-    protected function saveOrderOnHold(): void
+    protected function printOrder()
     {
-        if (false === $this->validateRequest()) return;
+        $code = $this->request->request->get('code', '');
 
-        $request = new PointOfSaleRequest($this->request, true);
-        $transaction = new PointOfSaleTransaction($request);
+        if ($code) {
+            $order = self::getOrder($code);
+            $this->printVoucher($order->getDocument(), []);
 
-        $this->dataBase->beginTransaction();
-
-        if (false === $transaction->saveDocument()) {
-            $this->toolBox()->i18nLog()->warning('pos-order-on-hold-error');
-            $this->dataBase->rollback();
-            return;
+            $this->buildResponse();
         }
-
-        $this->dataBase->commit();
-        $this->toolBox()->i18nLog()->info('pos-order-on-hold');
     }
 
     /**
-     * @return void
+     * Reprint order by code.
      */
-    protected function loadTerminal()
+    protected function printPausedDocument()
     {
-        $id = $this->request->request->get('terminal', '');
-        $this->session->getTerminal($id);
+        $code = $this->request->request->get('code', '');
+
+        if ($code) {
+            $document = self::getPausedDocument($code);
+            $this->printVoucher($document, []);
+
+            $this->buildResponse();
+        }
+    }
+
+    /**
+     * Reprint order by code.
+     */
+    protected function printPausedTicketFromMobile()
+    {
+        $code = $this->request->request->get('code', '');
+
+        if ($code) {
+            $document = self::getPausedDocument($code);
+            $ticket = $this->printVoucherMobile($document, []);
+
+            $this->setResponse($ticket, false);
+        }
+    }
+
+    /**
+     * Reprint order by code.
+     */
+    protected function printOrderFromMobile()
+    {
+        $code = $this->request->request->get('code', '');
+
+        if ($code) {
+            $order = self::getOrder($code);
+            $ticket = $this->printVoucherMobile($order->getDocument(), []);
+
+            $this->setResponse($ticket, false);
+        }
+    }
+
+    protected function execAfterAction(string $action)
+    {
+        switch ($action) {
+            case 'change-user':
+                $this->changeUser();
+                break;
+            case 'open-session':
+                $this->initSession();
+                break;
+            case 'open-terminal':
+                $this->loadTerminal();
+                break;
+            case 'close-session':
+                $this->closeSession();
+                break;
+        }
     }
 
     protected function changeUser(): void
@@ -483,6 +494,34 @@ class POS extends Controller
 
             $this->toolBox()->i18nLog()->warning('login-password-fail');
         }*/
+    }
+
+    protected function initSession()
+    {
+        $terminal = $this->request->request->get('terminal', '');
+        $amount = $this->request->request->get('saldoinicial', 0) ?: 0;
+        $this->session->openSession($terminal, $amount);
+    }
+
+    /**
+     * @return void
+     */
+    protected function loadTerminal()
+    {
+        $id = $this->request->request->get('terminal', '');
+        $this->session->getTerminal($id);
+    }
+
+    /**
+     * Close current user POS session.
+     */
+    protected function closeSession()
+    {
+        $cash = $this->request->request->get('cash');
+
+        if ($this->session->closeSession($cash)) {
+            $this->printClosingVoucher();
+        }
     }
 
     /**

@@ -23,7 +23,7 @@ async function orderDeleteAction(data) {
  * @param {{code:string}} data
  */
 async function orderPrintAction({code}) {
-    await Order.reprintRequest(code);
+    await Order.printRequest(code);
     View.modals().lastOrdersModal().hide();
 }
 
@@ -58,7 +58,9 @@ async function orderResumeAction({code}) {
 async function orderSaveAction() {
     if (Cart.lines.length < 1) return;
 
-    Cart.update(await Order.saveRequest(Cart, Checkout.payments));
+    const response = await Order.saveRequest(Cart, Checkout.payments);
+    await Order.printRequest(response['last-order']);
+    Cart.update(response);
     Checkout.clear();
 
     Cart.setDocumentType(AppSettings.document.code, AppSettings.document.serie)

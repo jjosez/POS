@@ -80,7 +80,7 @@ class PointOfSaleVoucher extends SalesTicket
         }
 
         $this->printer->lineBreak();
-        $this->printer->barcode($this->document->codigo);
+        $this->printBarcode($this->document->codigo);
     }
 
     /**

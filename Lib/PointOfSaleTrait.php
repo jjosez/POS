@@ -319,6 +319,13 @@ trait PointOfSaleTrait
         $this->toolBox()->log()->info($message);
     }
 
+    protected function printVoucherMobile(SalesDocument $document, array $payments)
+    {
+        $message = self::printDocumentTicketMobile($document, $payments, $this->getVoucherFormat());
+
+        return $message;
+    }
+
     /**
      * Print closing voucher.
      *

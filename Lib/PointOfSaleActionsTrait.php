@@ -12,6 +12,66 @@ use FacturaScripts\Plugins\PrintTicket\Model\FormatoTicket;
 
 trait PointOfSaleActionsTrait
 {
+    public static function printCashupTicket(
+        SesionPuntoVenta $session,
+        Empresa          $company,
+        ?FormatoTicket   $format = null
+    )
+    {
+        $ticketBuilder = new PointOfSaleClosingVoucher($session, $company, $format);
+
+        $cashupTicket = new PrintingService($ticketBuilder);
+        $cashupTicket->savePrintJob();
+
+        return $cashupTicket->getMessage();
+    }
+
+    public static function printDocumentTicketMobile(
+        SalesDocument  $document,
+        array          $payments,
+        ?FormatoTicket $format = null
+    ): string
+    {
+        $ticketBuilder = new PointOfSaleVoucherAndroid($document, $payments, $format);
+
+        return $ticketBuilder->getResult();
+    }
+
+    public static function printOrderTicket(string $code, ?FormatoTicket $format = null): string
+    {
+        $order = self::getOrder($code);
+
+        return self::printDocumentTicket($order->getDocument(), [], $format);
+    }
+
+    protected static function getOrder(string $code): OrdenPuntoVenta
+    {
+        $order = new OrdenPuntoVenta();
+        $order->loadFromCode($code);
+
+        return $order;
+    }
+
+    /**
+     * @param SalesDocument $document
+     * @param array $payments
+     * @param FormatoTicket|null $format
+     * @return string
+     */
+    public static function printDocumentTicket(
+        SalesDocument  $document,
+        array          $payments,
+        ?FormatoTicket $format = null
+    ): string
+    {
+        $ticketBuilder = new PointOfSaleVoucher($document, $payments, $format);
+
+        $ticket = new PrintingService($ticketBuilder);
+        $ticket->savePrintJob();
+
+        return $ticket->getMessage();
+    }
+
     /**
      * @param string $code
      * @return bool
@@ -39,14 +99,6 @@ trait PointOfSaleActionsTrait
         }
 
         return false;
-    }
-
-    protected static function getOrder(string $code): OrdenPuntoVenta
-    {
-        $order = new OrdenPuntoVenta();
-        $order->loadFromCode($code);
-
-        return $order;
     }
 
     /**
@@ -85,38 +137,5 @@ trait PointOfSaleActionsTrait
         $order = new OrdenPuntoVenta();
 
         return $order->allFromSession($sessionID);
-    }
-
-    public static function printCashupTicket(SesionPuntoVenta $session, Empresa $company, ?FormatoTicket $format = null)
-    {
-        $ticketBuilder = new PointOfSaleClosingVoucher($session, $company, $format);
-
-        $cashupTicket = new PrintingService($ticketBuilder);
-        $cashupTicket->savePrintJob();
-
-        return $cashupTicket->getMessage();
-    }
-
-    /**
-     * @param SalesDocument $document
-     * @param array $payments
-     * @param FormatoTicket|null $format
-     * @return mixed|string
-     */
-    public static function printDocumentTicket(SalesDocument $document, array $payments, ?FormatoTicket $format = null)
-    {
-        $ticketBuilder = new PointOfSaleVoucher($document, $payments, $format);
-
-        $ticket = new PrintingService($ticketBuilder);
-        $ticket->savePrintJob();
-
-        return $ticket->getMessage();
-    }
-
-    public static function printOrderTicket(string $code, ?FormatoTicket $format = null)
-    {
-        $order = self::getOrder($code);
-
-        return self::printDocumentTicket($order->getDocument(), [], $format);
     }
 }
