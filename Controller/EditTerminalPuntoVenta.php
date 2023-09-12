@@ -22,6 +22,10 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
 {
     public $selectedUser = '';
 
+    const EDIT_DOCUMENT_TYPE_VIEW = 'EditTipoDocumentoPuntoVenta';
+    const EDIT_PAYMENT_METHOD_VIEW = 'EditFormaPagoPuntoVenta';
+    const EDIT_TERMINAL_FIELDS_VIEW = 'EditTerminalFields';
+
     /**
      * Returns the model name
      */
@@ -58,20 +62,23 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
         $this->createTerminalSessionView();
     }
 
-    protected function createDocumentTypeView(string $viewName = 'EditTipoDocumentoPuntoVenta')
+    protected function createDocumentTypeView(string $viewName = self::EDIT_DOCUMENT_TYPE_VIEW)
     {
-        $this->addEditListView($viewName, 'TipoDocumentoPuntoVenta', 'doc-type', 'fas fa-file-invoice');
+        $modelName = 'TipoDocumentoPuntoVenta';
+        $this->addEditListView($viewName, $modelName, 'doc-type', 'fas fa-file-invoice');
     }
 
-    protected function createPaymenthMethodView(string $viewName = 'EditFormaPagoPuntoVenta')
+    protected function createPaymenthMethodView(string $viewName = self::EDIT_PAYMENT_METHOD_VIEW)
     {
-        $this->addEditListView($viewName, 'FormaPagoPuntoVenta', 'payment-methods', 'fas fa-credit-card');
+        $modelName = 'FormaPagoPuntoVenta';
+        $this->addEditListView($viewName, $modelName, 'payment-methods', 'fas fa-credit-card');
         $this->views[$viewName]->disableColumn('codpago', false, 'false');
     }
 
-    protected function createTerminalFieldsView(string $viewName = 'EditTerminalFields')
+    protected function createTerminalFieldsView(string $viewName = self::EDIT_TERMINAL_FIELDS_VIEW)
     {
-        $this->addHtmlView($viewName, 'Master/EditTerminalFieldOption', 'TerminalPuntoVenta', 'pos-field-options', 'fas fa-users');
+        $modelName = 'TerminalPuntoVenta';
+        $this->addHtmlView($viewName, 'Master/EditTerminalFieldOption', $modelName, 'pos-field-options', 'fas fa-users');
     }
 
     protected function createTerminalSessionView($viewName = 'ListSesionPuntoVenta')
@@ -92,8 +99,9 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
             return true;
         }
 
-        if ($this->active === 'EditFormaPagoPuntoVenta') {
-            $this->views['EditFormaPagoPuntoVenta']->disableColumn('codpago', false, 'false');
+        if ($this->active === self::EDIT_PAYMENT_METHOD_VIEW) {
+            $view = $this->views[self::EDIT_PAYMENT_METHOD_VIEW];
+            $view->disableColumn('codpago', false, 'false');
         }
 
         return false;
@@ -104,8 +112,8 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
         $where = [new DataBaseWhere('idterminal', $this->getModel()->primaryColumnValue())];
 
         switch ($viewName) {
-            case 'EditTipoDocumentoPuntoVenta':
-            case 'EditFormaPagoPuntoVenta':
+            case self::EDIT_DOCUMENT_TYPE_VIEW:
+            case self::EDIT_PAYMENT_METHOD_VIEW:
                 $view->loadData('', $where);
                 break;
             case 'ListSesionPuntoVenta':
@@ -113,7 +121,6 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
                 $view->loadData('', $where, $orderBy);
                 break;
             case 'EditTerminalFields':
-
                 break;
 
             default:

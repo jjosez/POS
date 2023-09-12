@@ -217,7 +217,7 @@ const updateDocumentFieldValue = (data = {}, element) => {
     switch (element.type) {
         case 'text':
         case 'textarea':
-            element.value = data[field];
+            element.value = data[field] ?? '';
             break
         case 'number':
         case 'decimal':

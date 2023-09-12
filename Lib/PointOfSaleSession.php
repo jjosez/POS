@@ -64,38 +64,13 @@ class PointOfSaleSession
     }
 
     /**
-     * Return current SesionPuntoVenta ID.
+     * Get POS view if session is allready open or Open View.
      *
      * @return string
      */
-    public function getID(): string
+    public function getView(): string
     {
-        return $this->session->idsesion;
-    }
-
-    /**
-     * Return current user SesionPuntoVenta.
-     *
-     * @return SesionPuntoVenta
-     */
-    public function getSession(): SesionPuntoVenta
-    {
-        return $this->session;
-    }
-
-    /**
-     * Return current session terminal.
-     *
-     * @param string $id
-     * @return TerminalPuntoVenta
-     */
-    public function getTerminal(string $id = ''): TerminalPuntoVenta
-    {
-        if (false === empty($id) && false === $this->isOpen()) {
-            $this->loadTerminal($id);
-        }
-
-        return $this->terminal;
+        return $this->isOpen() ? '/Block/POS/Main' : '/Block/POS/Login';
     }
 
     /**
@@ -108,20 +83,12 @@ class PointOfSaleSession
         return $this->session->abierto && $this->session->nickusuario;
     }
 
-    /**
-     * Get POS view if session is allready open or Open View.
-     *
-     * @return string
-     */
-    public function getView(): string
-    {
-        return $this->isOpen() ? '/Block/POS/Main' : '/Block/POS/Login';
-    }
-
     public function openSession(string $terminal, float $amount = 0.0)
     {
         if (true === $this->session->abierto) {
-            ToolBox::i18nLog()->info('till-session-allready-opened');
+            ToolBox::i18nLog()->info('till-session-allready-opened', [
+                    '%userNickname%' => $this->user->nick
+                ]);
             return;
         }
 
@@ -182,11 +149,6 @@ class PointOfSaleSession
         return false;
     }
 
-    public function getLastOrder(): OrdenPuntoVenta
-    {
-        return $this->lastOrder;
-    }
-
     /**
      * @param SalesDocument $document
      * @return bool
@@ -229,6 +191,46 @@ class PointOfSaleSession
 
         $this->getSession()->saldoesperado += $cashAmount;
         $this->getSession()->save();
+    }
+
+    /**
+     * Return current session terminal.
+     *
+     * @param string $id
+     * @return TerminalPuntoVenta
+     */
+    public function getTerminal(string $id = ''): TerminalPuntoVenta
+    {
+        if (false === empty($id) && false === $this->isOpen()) {
+            $this->loadTerminal($id);
+        }
+
+        return $this->terminal;
+    }
+
+    public function getLastOrder(): OrdenPuntoVenta
+    {
+        return $this->lastOrder;
+    }
+
+    /**
+     * Return current SesionPuntoVenta ID.
+     *
+     * @return string
+     */
+    public function getID(): string
+    {
+        return $this->session->idsesion;
+    }
+
+    /**
+     * Return current user SesionPuntoVenta.
+     *
+     * @return SesionPuntoVenta
+     */
+    public function getSession(): SesionPuntoVenta
+    {
+        return $this->session;
     }
 
     /**
