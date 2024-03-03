@@ -8,6 +8,7 @@ namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base\SalesDocument;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\Familia;
@@ -15,10 +16,8 @@ use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\FormatoTicket;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Plugins\POS\Model\TipoDocumentoPuntoVenta;
-use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use RegexIterator;
 
 trait PointOfSaleTrait
 {
@@ -64,7 +63,8 @@ trait PointOfSaleTrait
         return [];
     }
 
-     /**
+    /**
+     * @param string $hook
      * @return array
      */
     public function getCustomDocumentFields(string $hook): array
@@ -153,9 +153,7 @@ trait PointOfSaleTrait
      */
     public function getHomeProducts(): array
     {
-        $product = new PointOfSaleProduct();
-
-        return $product->search('');
+        return PointOfSaleProduct::search('');
     }
 
     /**
@@ -264,7 +262,7 @@ trait PointOfSaleTrait
         $messages = [];
         $level = ['critical', 'warning', 'notice', 'info', 'error'];
 
-        foreach (self::toolBox()::log()::read('master', $level) as $m) {
+        foreach (Tools::log()->read('master', $level) as $m) {
             if (in_array($m['level'], array('warning', 'critical', 'error'))) {
                 $messages[] = ['type' => 'warning', 'message' => $m['message']];
                 continue;
@@ -274,17 +272,6 @@ trait PointOfSaleTrait
         }
 
         return $messages;
-    }
-
-    /**
-     * Return POS setting value by given key.
-     *
-     * @param string $key
-     * @return mixed
-     */
-    protected function getSetting(string $key)
-    {
-        return self::toolBox()::appSettings()::get('pointofsale', $key);
     }
 
     protected function getVoucherFormat(): FormatoTicket
@@ -316,14 +303,12 @@ trait PointOfSaleTrait
     {
         $message = self::printDocumentTicket($document, $payments, $this->getVoucherFormat());
 
-        $this->toolBox()->log()->info($message);
+        Tools::log()->info($message);
     }
 
-    protected function printVoucherMobile(SalesDocument $document, array $payments)
+    protected function printVoucherMobile(SalesDocument $document, array $payments): string
     {
-        $message = self::printDocumentTicketMobile($document, $payments, $this->getVoucherFormat());
-
-        return $message;
+        return self::printDocumentTicketMobile($document, $payments, $this->getVoucherFormat());
     }
 
     /**
@@ -335,7 +320,7 @@ trait PointOfSaleTrait
     {
         $message = self::printCashupTicket($this->session->getSession(), $this->empresa, $this->getVoucherFormat());
 
-        $this->toolBox()->log()->info($message);
+        Tools::log()->info($message);
     }
 
     /**
@@ -376,7 +361,7 @@ trait PointOfSaleTrait
     protected function validateDelete(): bool
     {
         if (false === $this->permissions->allowDelete) {
-            self::toolBox()::i18nLog()->warning('not-allowed-delete');
+            Tools::log()->warning('not-allowed-delete');
             return false;
         }
 
@@ -389,7 +374,7 @@ trait PointOfSaleTrait
     protected function validateRequest(): bool
     {
         if (false === $this->permissions->allowUpdate) {
-            $this->toolBox()->i18nLog()->warning('not-allowed-modify');
+            Tools::log()->warning('not-allowed-modify');
             $this->buildResponse();
             return false;
         }
@@ -397,14 +382,14 @@ trait PointOfSaleTrait
         $this->token = $this->request->request->get('token');
 
         if (empty($this->token) || false === $this->multiRequestProtection->validate($this->token)) {
-            $this->toolBox()->i18nLog()->warning('invalid-request');
-            $this->toolBox()->i18nLog()->warning('invalid-token' . $this->token);
+            Tools::log()->warning('invalid-request');
+            Tools::log()->warning('invalid-token' . $this->token);
             $this->buildResponse();
             return false;
         }
 
         if ($this->multiRequestProtection->tokenExist($this->token)) {
-            $this->toolBox()->i18nLog()->warning('duplicated-request');
+            Tools::log()->warning('duplicated-request');
             $this->buildResponse();
             return false;
         }
@@ -419,24 +404,24 @@ trait PointOfSaleTrait
 
         $paymentMethod = $this->getPaymentMethods();
         if (empty($paymentMethod)) {
-            $this->toolBox()->Log('POS')->warning('No se configuro ningun metodo de pago.');
+            Tools::log('POS')->warning('no-payment-method-established');
             $result = false;
         }
 
         $cashMethod = $this->getCashPaymentMethod();
         if (trim($cashMethod) === '') {
-            $this->toolBox()->Log('POS')->warning('No se configuro el metodo de pago que se usara para pagos en efectivo.');
+            Tools::log('POS')->warning('no-cash-payment-method-established');
             $result = false;
         }
 
         $defaultDocument = $this->getDefaultDocument();
         if ($defaultDocument->tipodoc === false) {
-            $this->toolBox()->Log('POS')->warning('No se configuro el documento predefinido.');
+            Tools::log('POS')->warning('no-default-document-established');
             $result = false;
         }
 
         if (empty($this->getDenominations())) {
-            $this->toolBox()->Log('POS')->warning('No se configuro ninguna moneda, se necesitan para el cierre de arqueo.');
+            Tools::log('POS')->warning('no-currency-denominations');
             $result = false;
         }
 

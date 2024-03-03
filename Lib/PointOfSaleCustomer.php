@@ -25,14 +25,6 @@ class PointOfSaleCustomer
     }
 
     /**
-     * @return array
-     */
-    public function getLastCustomerCode(): array
-    {
-        return ['code' => $this->customer->codcliente, 'description' => $this->customer->nombre];
-    }
-
-    /**
      * @param string $taxID
      * @param string $name
      * @return bool

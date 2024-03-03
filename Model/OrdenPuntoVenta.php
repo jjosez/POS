@@ -125,8 +125,9 @@ class OrdenPuntoVenta extends Base\ModelClass
     public function allFromSession(string $code): array
     {
         $where = [new DataBaseWhere('idsesion', $code)];
+        $orderBy = ['fecha' => 'DESC', 'hora' => 'DESC'];
 
-        return $this->all($where);
+        return $this->all($where, []);
     }
 
     protected function testDescuadre(): bool

@@ -5,10 +5,10 @@ namespace FacturaScripts\Plugins\POS\Lib;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Almacenes;
 use FacturaScripts\Dinamic\Model\CodeModel;
-use FacturaScripts\Dinamic\Model\ProductoImagen;
-use FacturaScripts\Dinamic\Model\Variante;
 use FacturaScripts\Dinamic\Model\Join\ProductoStock;
 use FacturaScripts\Dinamic\Model\Join\ProductoVariante;
+use FacturaScripts\Dinamic\Model\ProductoImagen;
+use FacturaScripts\Dinamic\Model\Variante;
 
 class PointOfSaleProduct
 {
@@ -17,14 +17,15 @@ class PointOfSaleProduct
      */
     protected $product;
 
+    private static $prodcuto;
+
     /**
      * @var Variante
      */
-    protected $variante;
+    private static $variante;
 
     public function __construct()
     {
-        $this->variante = new Variante();
         $this->product = new ProductoVariante();
     }
 
@@ -32,7 +33,7 @@ class PointOfSaleProduct
      * @param string $idempresa
      * @return DataBaseWhere
      */
-    protected function getCompanyDatabaseWhere(string $idempresa): DataBaseWhere
+    protected static function getCompanyDatabaseWhere(string $idempresa): DataBaseWhere
     {
         $almacenes = [];
         foreach (Almacenes::all() as $almacen) if ((string)$almacen->idempresa === $idempresa) {
@@ -45,7 +46,7 @@ class PointOfSaleProduct
     /**
      * @return ProductoImagen[]
      */
-    public function getImages(string $id, string $code): array
+    public static function getImages(string $id, string $code): array
     {
         $where = [
             new DataBaseWhere('idproducto', $id),
@@ -59,11 +60,11 @@ class PointOfSaleProduct
     /**
      * @return String[]
      */
-    public function getImagesURL(string $id, string $code): array
+    public static function getImagesURL(string $id, string $code): array
     {
         $routes = [];
 
-        foreach ($this->getImages($id, $code) as $image) {
+        foreach (self::getImages($id, $code) as $image) {
             $routes[] = FS_ROUTE . '/' . $image->url('download-permanent');
         }
 
@@ -73,10 +74,10 @@ class PointOfSaleProduct
     /**
      * @return ProductoVariante
      */
-    public function getProductoVariante(): ProductoVariante
+    /*public function getProductoVariante(): ProductoVariante
     {
         return $this->product;
-    }
+    }*/
 
     /**
      * @param string $code
@@ -96,19 +97,12 @@ class PointOfSaleProduct
     /**
      * @return Variante
      */
-    public function getVariante(): Variante
+    /*public function getVariante(): Variante
     {
         return $this->variante;
-    }
+    }*/
 
-    /**
-     * @param string $text
-     * @param array $tags
-     * @param string $wharehouse
-     * @param string $company
-     * @return array
-     */
-    public function search(string $text, array $tags = [], string $wharehouse = '', string $company = ''): array
+    public static function search(string $text, array $tags = [], string $wharehouse = '', string $company = ''): array
     {
         $where = [
             new DataBaseWhere('V.codbarras', $text, 'LIKE'),
@@ -117,7 +111,7 @@ class PointOfSaleProduct
         ];
 
         if ($company) {
-            $where[] = $this->getCompanyDatabaseWhere($company);
+            $where[] = self::getCompanyDatabaseWhere($company);
         } elseif ($wharehouse) {
             $where[] = new DataBaseWhere('S.codalmacen', $wharehouse);
             $where[] = new DataBaseWhere('S.codalmacen', NULL, 'IS', 'OR');
@@ -126,10 +120,10 @@ class PointOfSaleProduct
         /*foreach ($tags as $tag) {
             $where[] = new DataBaseWhere('codfamilia', $tag, '=', 'AND');
         }*/
-        $products = $this->getProductoVariante()->all($where, [], 0, FS_ITEM_LIMIT);
+        $products = self::getProduct()->all($where, [], 0, FS_ITEM_LIMIT);
 
         foreach ($products as $product) {
-            $images = $this->getImagesURL($product->id, $product->code);
+            $images = self::getImagesURL($product->id, $product->code);
             $product->image = $images ? $images[0] : '';
         }
 
@@ -137,13 +131,38 @@ class PointOfSaleProduct
     }
 
     /**
-     * @param string $text
-     * @return false|CodeModel
+     * @return \FacturaScripts\Core\Model\CodeModel|false
      */
-    public function searchBarcode(string $text)
+    public static function searchBarcode(string $text)
     {
-        $result = $this->getVariante()->codeModelSearch($text, 'referencia');
+        $result = self::getVariante()->codeModelSearch($text, 'referencia');
 
         return empty($result) ? false : current($result);
+    }
+
+    /**
+     *
+     * @return ProductoVariante
+     */
+    protected static function getProduct(): ProductoVariante
+    {
+        if (!isset(self::$prodcuto)) {
+            self::$prodcuto = new ProductoVariante();
+        }
+
+        return self::$prodcuto;
+    }
+
+    /**
+     *
+     * @return Variante
+     */
+    protected static function getVariante(): Variante
+    {
+        if (!isset(self::$variante)) {
+            self::$variante = new Variante();
+        }
+
+        return self::$variante;
     }
 }

@@ -16,8 +16,7 @@ trait PointOfSaleActionsTrait
         SesionPuntoVenta $session,
         Empresa          $company,
         ?FormatoTicket   $format = null
-    )
-    {
+    ) {
         $ticketBuilder = new PointOfSaleClosingVoucher($session, $company, $format);
 
         $cashupTicket = new PrintingService($ticketBuilder);
@@ -30,8 +29,7 @@ trait PointOfSaleActionsTrait
         SalesDocument  $document,
         array          $payments,
         ?FormatoTicket $format = null
-    ): string
-    {
+    ): string {
         $ticketBuilder = new PointOfSaleVoucherAndroid($document, $payments, $format);
 
         return $ticketBuilder->getResult();
@@ -62,8 +60,7 @@ trait PointOfSaleActionsTrait
         SalesDocument  $document,
         array          $payments,
         ?FormatoTicket $format = null
-    ): string
-    {
+    ): string {
         $ticketBuilder = new PointOfSaleVoucher($document, $payments, $format);
 
         $ticket = new PrintingService($ticketBuilder);

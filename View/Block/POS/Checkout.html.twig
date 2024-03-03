@@ -48,7 +48,8 @@
             <div class="flex flex-wrap justify-center gap-4">
                 {% for element in fsc.getPaymentMethods() %}
                     <button class="btn btn-primary payment-modal-btn" data-code="{{ element.codpago }}"
-                            data-description="{{ element.descripcion }}" data-action="showPaymentModalAction">
+                            data-description="{{ element.descripcion }}" data-action="showPaymentModalAction"
+                            data-paid="{{ element.formaPago().pagado }}">
                         <i class="fas fa-plus-circle mr-2"></i>
                         <span class="w-full text-center">{{ element.descripcion }}</span>
                     </button>

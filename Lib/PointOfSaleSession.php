@@ -4,6 +4,7 @@ namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Model\Base\SalesDocument;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
@@ -56,7 +57,7 @@ class PointOfSaleSession
     protected function loadTerminal(string $code): bool
     {
         if (false === $this->terminal->loadFromCode($code)) {
-            ToolBox::i18nLog()->warning('cash-register-not-found');
+            Tools::log()->warning('cash-register-not-found');
             return false;
         }
 
@@ -115,8 +116,6 @@ class PointOfSaleSession
 
     /**
      * Close current session.
-     *
-     * @return bool
      */
     public function closeSession(array $cash): bool
     {
@@ -157,11 +156,15 @@ class PointOfSaleSession
     {
         $this->lastOrder = new OrdenPuntoVenta();
 
-        if (false === $this->session->saveOrder($document, $this->lastOrder)) {
-            return false;
-        }
+        $this->lastOrder->codigo = $document->codigo;
+        $this->lastOrder->codcliente = $document->codcliente;
+        $this->lastOrder->fecha = $document->fecha;
+        $this->lastOrder->iddocumento = $document->primaryColumnValue();
+        $this->lastOrder->idsesion = $this->session->primaryColumnValue();
+        $this->lastOrder->tipodoc = $document->modelClassName();
+        $this->lastOrder->total = $document->total;
 
-        return true;
+        return $this->lastOrder->save();
     }
 
     /**
@@ -178,7 +181,7 @@ class PointOfSaleSession
         $cashAmount = 0;
         foreach ($payments as $payment) {
             if ($cashMethodCode === $payment->codpago) {
-                $cashAmount += $payment->pagoNeto();
+                $this->getSession()->saldoesperado += $payment->pagoNeto();
             }
 
             $payment->idoperacion = $this->getLastOrder()->idoperacion;

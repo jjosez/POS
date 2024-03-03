@@ -37,4 +37,9 @@ class FormaPagoPuntoVenta extends Base\ModelClass
     {
         return FormasPago::get($this->codpago)->descripcion;
     }
+
+    public function formaPago()
+    {
+        return FormasPago::get($this->codpago);
+    }
 }

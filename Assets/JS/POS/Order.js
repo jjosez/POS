@@ -121,7 +121,11 @@ async function printOnAndroid(baseData) {
     baseData.set('action', 'print-mobile-ticket');
     let response = await postRequestCore(baseData);
 
-    window.location.href = await response.text();
+    try {
+        window.location.href = await response.text();
+    } catch (e) {
+        alert(e);
+    }
 }
 
 function getFormData(obj = {}) {

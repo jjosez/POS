@@ -17,9 +17,19 @@ class TipoDocumentoPuntoVenta extends Base\ModelClass
 {
     use Base\ModelTrait;
 
-    public $codeserie;
+    /**
+     * @var string
+     */
+    public $codserie;
 
+    /**
+     * @var int
+     */
     public $idterminal;
+
+    /**
+     * @var bool
+     */
     public $preferido;
 
     public $tipodoc;

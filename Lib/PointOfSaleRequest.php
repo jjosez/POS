@@ -7,9 +7,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class PointOfSaleRequest
 {
-    const DEFAULT_ORDER = 'FacturaCliente';
-    const ORDER_ON_HOLD = 'OperacionPausada';
-
     /**
      * @var array
      */
@@ -33,17 +30,11 @@ class PointOfSaleRequest
     /**
      * @var string
      */
-    protected $orderType;
+    protected $documentType;
 
-    public function __construct(Request $request, bool $orderHold = false)
+    public function __construct(Request $request)
     {
         $this->request = $request->request;
-
-        if ($orderHold) {
-            $oldDocumentType = $this->request->get('tipo-documento', self::DEFAULT_ORDER);
-            $this->request->set('generadocumento', $oldDocumentType);
-            $this->request->set('tipo-documento', self::ORDER_ON_HOLD);
-        }
 
         $this->setDocumentLinesData();
         $this->setPaymentData();
@@ -62,10 +53,10 @@ class PointOfSaleRequest
     {
         $data = $this->request->all();
 
-        unset($data['action'], $data['lines'], $data['linesMap'], $data['objectRaw'],$data['payments']);
+        unset($data['action'], $data['lines'], $data['linesMap'], $data['objectRaw'], $data['payments']);
 
         $this->documentData = $data;
-        $this->orderType = $this->request->get('tipo-documento', '');
+        $this->documentType = $this->request->get('tipo-documento');
 
         /*$data = $this->request->get('document', '{}');
         $this->documentData = json_decode($data, true);
@@ -108,6 +99,6 @@ class PointOfSaleRequest
      */
     public function getDocumentType(): string
     {
-        return empty($this->orderType) ? self::DEFAULT_ORDER : $this->orderType;
+        return $this->documentType ?? 'FacturaCliente';
     }
 }

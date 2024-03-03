@@ -9,7 +9,6 @@ namespace FacturaScripts\Plugins\POS\Model;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
 use FacturaScripts\Core\Model\Base\SalesDocument;
-use FacturaScripts\Dinamic\Model\OperacionPausada;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 
@@ -62,6 +61,8 @@ class SesionPuntoVenta extends Base\ModelClass
      */
     public $idterminal;
 
+    public $open;
+
     /**
      * @var string
      */
@@ -92,6 +93,7 @@ class SesionPuntoVenta extends Base\ModelClass
         $this->fechainicio = date(self::DATE_STYLE);
         $this->horainicio = date(self::HOUR_STYLE);
         $this->nickusuario = false;
+        $this->open = false;
         $this->saldocontado = 0.0;
         $this->saldoesperado = 0.0;
     }

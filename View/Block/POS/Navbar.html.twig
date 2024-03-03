@@ -21,8 +21,8 @@
                     {{ pos.menuActionElement(element.action, element.icon, element.text, element.title) }}
                 {% endif %}
             {% endfor %}
-            {{ pos.menuActionElement('showPausedOrders', 'fas fa-hourglass-half', trans('paused-orders')) }}
-            {{ pos.menuActionElement('showLastOrders', 'fas fa-history', trans('last-orders')) }}
+            {{ pos.menuActionElement('showPausedOrders', 'fas fa-hourglass-half', '') }}
+            {{ pos.menuActionElement('showLastOrders', 'fas fa-history', '') }}
             {{ pos.menuToggleElement('modal', 'closeSessionModal', 'fas fa-cash-register') }}
             {{ pos.menuToggleElement('modal', 'moneyInOutModal', 'fas fa-wallet') }}
             {{ pos.menuToggleElement('modal', 'userModal', 'fas fa-user-circle', fsc.user.nick) }}

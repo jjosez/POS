@@ -99,7 +99,8 @@
             },
             'payment': {
                 'codpago': '{{ fsc.getCashPaymentMethod() }}'
-            }
+            },
+            'document-types' : {{(terminal.getDocumentTypes()|json_encode|raw)}}
         }
 
         window.POS = {
