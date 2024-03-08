@@ -7,7 +7,7 @@ const Cart = new CartClass({
         'codserie': AppSettings.document.serie,
         'codalmacen': AppSettings.codalmacen,
         'codcliente': AppSettings.customer.codcliente,
-        'idpausada': 'false',
+        'idpausada': null,
         'tipo-documento': AppSettings.document.code
     },
     'token': AppSettings.token

@@ -36,7 +36,7 @@ class PointOfSaleVoucher extends SalesTicket
      */
     protected function buildHeader(): void
     {
-        $this->printLogo();
+        //$this->printLogo();
         $company = $this->document->getCompany();
 
         $this->printer->lineBreak();
@@ -96,6 +96,7 @@ class PointOfSaleVoucher extends SalesTicket
         $this->printer->lineFeed(3);
         $this->printer->textCentered('.');
 
-        return base64_encode($this->printer->getBuffer());
+        //return base64_encode($this->printer->getBuffer());
+        return $this->printer->getBuffer();
     }
 }

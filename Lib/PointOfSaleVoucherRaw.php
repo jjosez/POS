@@ -2,7 +2,7 @@
 
 namespace FacturaScripts\Plugins\POS\Lib;
 
-class PointOfSaleVoucherAndroid extends PointOfSaleVoucher
+class PointOfSaleVoucherRaw extends PointOfSaleVoucher
 {
     /**
      * Base64 encoded string for Rawbt App

@@ -23,16 +23,20 @@ async function orderDeleteAction(data) {
  * @param {{code:string}} data
  */
 async function orderPrintAction({code}) {
-    await Order.printRequest(code);
+    const response = await Order.printRequest(code);
     View.modals().lastOrdersModal().hide();
+
+    await Core.printerServerRequest(response);
 }
 
 /**
  * @param {{code:string}} data
  */
 async function pausedOrderPrintAction({code}) {
-    await Order.reprintPausedOrderRequest(code);
+    const response = await Order.printPausedOrderRequest(code);
     View.modals().pausedOrdersModal().hide();
+
+    await Core.printerServerRequest(response);
 }
 
 /**
@@ -59,12 +63,14 @@ async function orderSaveAction() {
     if (Cart.lines.length < 1) return;
 
     const response = await Order.saveRequest(Cart, Checkout.payments);
-    await Order.printRequest(response['last-order']);
+
     Cart.update(response);
     Checkout.clear();
 
     Cart.setDocumentType(AppSettings.document.code, AppSettings.document.serie)
     View.main().updateDocumentNameLabel(AppSettings.document.description);
+
+    await Core.printerServerRequest(response);
 }
 
 async function orderSuspendAction() {
@@ -114,7 +120,9 @@ function sessionMoneyMovmentAction() {
 }
 
 async function sessionPrintClosingVoucherAction() {
-    await Core.printClosingVoucher();
+    const response = await Core.printClosingVoucher();
+    await Core.printerServerRequest(response);
+
     View.modals().closeSessionModal().hide();
 }
 

@@ -9,13 +9,15 @@ namespace FacturaScripts\Plugins\POS\Controller;
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\KernelException;
+use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\User;
-use FacturaScripts\Plugins\POS\Lib\PointOfSaleActionsTrait;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleCustomer;
+use FacturaScripts\Plugins\POS\Lib\PointOfSalePrinter;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleProduct;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleRequest;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleSession;
+use FacturaScripts\Plugins\POS\Lib\PointOfSaleStorage;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleTrait;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleTransaction;
 use FacturaScripts\Plugins\POS\Model\MovimientoPuntoVenta;
@@ -24,7 +26,6 @@ use Symfony\Component\HttpFoundation\Response;
 class POS extends Controller
 {
     use PointOfSaleTrait;
-    use PointOfSaleActionsTrait;
 
     const DEFAULT_POS_DOCUMENT = 'FacturaCliente';
     const PAUSED_POS_DOCUMENT = 'OperacionPausada';
@@ -33,6 +34,11 @@ class POS extends Controller
      * @var string
      */
     protected $token;
+
+    /**
+     * @var array
+     */
+    protected $responseData = [];
 
     /**
      * @param Response $response
@@ -64,8 +70,8 @@ class POS extends Controller
         $this->setTemplate($template);
     }
 
-        protected function execAction(string $action): bool
-        {
+    protected function execAction(string $action): bool
+    {
         switch ($action) {
             case 'search-barcode':
                 $this->searchBarcode();
@@ -97,20 +103,20 @@ class POS extends Controller
 
             case 'save-order':
                 $this->saveOrder();
-                $this->buildResponse(['last-order' => $this->session->getLastOrder()->idoperacion]);
+                $this->buildResponse();
                 return false;
 
             case 'get-orders-on-hold':
-                $this->setResponse(self::getPausedDocuments());
+                $this->setResponse(PointOfSaleStorage::getPausedDocuments());
                 return false;
 
             case 'get-last-orders':
-                $result = self::getSessionOrders($this->getSession()->getID());
+                $result = PointOfSaleStorage::getOrders($this->getSession()->getID());
                 $this->setResponse($result);
                 return false;
 
             case 'print-closing-voucher':
-                $this->printClosingVoucher();
+                $this->printCashup();
                 $this->buildResponse();
                 return false;
 
@@ -122,7 +128,7 @@ class POS extends Controller
                 $this->printOrder();
                 return false;
 
-            case 'reprint-paused-order':
+            case 'print-paused-order':
                 $this->printPausedDocument();
                 return false;
 
@@ -175,7 +181,8 @@ class POS extends Controller
      */
     protected function buildResponse(array $data = [])
     {
-        $response = $data;
+        $response = array_merge($data, $this->responseData);
+
         $response['messages'] = $this->getMessages();
         $response['token'] = $this->token;
 
@@ -196,7 +203,7 @@ class POS extends Controller
 
         $code = $this->request->request->get('code', '');
 
-        if (self::deletePausedDocument($code)) {
+        if (PointOfSaleStorage::deletePausedDocument($code)) {
             Tools::log()->info('pos-order-on-hold-deleted');
         }
 
@@ -223,12 +230,15 @@ class POS extends Controller
     protected function resumeOrder()
     {
         $code = $this->request->request->get('code', '');
-        $document = self::getPausedDocument($code);
 
-        $result = ['doc' => $document, 'lines' => $document->getLines()];
+        if ($code) {
+            $document = PointOfSaleStorage::getPausedDocument($code);
 
-        $this->setNewToken();
-        $this->buildResponse($result);
+            $result = ['doc' => $document, 'lines' => $document->getLines()];
+
+            $this->setNewToken();
+            $this->buildResponse($result);
+        }
     }
 
     /**
@@ -369,7 +379,7 @@ class POS extends Controller
         $request = new PointOfSaleRequest($this->request);
         $transaction = new PointOfSaleTransaction($request);
 
-        if ($this->pipeFalse('saveRequest', $this->request) === false) {
+        if ($this->pipeFalse('saveBefore', $this->request) === false) {
             return;
         }
 
@@ -386,17 +396,39 @@ class POS extends Controller
             return;
         }
 
-        if (isset($document->idpausada) && false === self::completePausedDocument($document->idpausada)) {
+        if (isset($document->idpausada) && false === PointOfSaleStorage::completePausedDocument($document->idpausada)) {
+            Tools::log()->warning('fail-update-paused-document');
             $this->dataBase->rollback();
             return;
         }
-
 
         $this->dataBase->commit();
 
         $this->getSession()->savePayments($document, $transaction->getPayments());
         $this->pipe('save', $document, $transaction->getPayments());
-        //$this->printVoucher($document, $transaction->getPayments());
+
+        $this->printDocument($document, $transaction->getPayments());
+    }
+
+    protected function printCashup()
+    {
+        $this->addResponseData(
+            PointOfSalePrinter::printCashupRequest($this->session->getSession(), $this->empresa, $this->getVoucherFormat())
+        );
+    }
+
+    protected function printDocument(SalesDocument $document, array $payments = []): void
+    {
+        $this->addResponseData(
+            PointOfSalePrinter::printRequest($document, $payments, $this->getVoucherFormat())
+        );
+    }
+
+    protected function printDocumentRaw(SalesDocument $document, array $payments = []): void
+    {
+        $this->setResponse(
+            PointOfSalePrinter::printRawRequest($document, $payments, $this->getVoucherFormat()), false
+        );
     }
 
     /**
@@ -407,24 +439,9 @@ class POS extends Controller
         $code = $this->request->request->get('code', '');
 
         if ($code) {
-            $order = self::getOrder($code);
-            $this->printVoucher($order->getDocument(), []);
+            $order = PointOfSaleStorage::getOrder($code);
 
-            $this->buildResponse();
-        }
-    }
-
-    /**
-     * Reprint order by code.
-     */
-    protected function printPausedDocument()
-    {
-        $code = $this->request->request->get('code', '');
-
-        if ($code) {
-            $document = self::getPausedDocument($code);
-            $this->printVoucher($document, []);
-
+            $this->printDocument($order->getDocument());
             $this->buildResponse();
         }
     }
@@ -437,10 +454,24 @@ class POS extends Controller
         $code = $this->request->request->get('code', '');
 
         if ($code) {
-            $order = self::getOrder($code);
-            $ticket = $this->printVoucherMobile($order->getDocument(), []);
+            $order = PointOfSaleStorage::getOrder($code);
 
-            $this->setResponse($ticket, false);
+            $this->printDocumentRaw($order->getDocument());
+        }
+    }
+
+    /**
+     * Reprint order by code.
+     */
+    protected function printPausedDocument()
+    {
+        $code = $this->request->request->get('code', '');
+
+        if ($code) {
+            $document = PointOfSaleStorage::getPausedDocument($code);
+
+            $this->printDocument($document);
+            $this->buildResponse();
         }
     }
 
@@ -452,10 +483,7 @@ class POS extends Controller
         $code = $this->request->request->get('code', '');
 
         if ($code) {
-            $document = self::getPausedDocument($code);
-            $ticket = $this->printVoucherMobile($document, []);
-
-            $this->setResponse($ticket, false);
+            $this->printDocumentRaw(PointOfSaleStorage::getPausedDocument($code));
         }
     }
 
@@ -535,7 +563,7 @@ class POS extends Controller
         $cash = $this->request->request->get('cash');
 
         if ($this->session->closeSession($cash)) {
-            $this->printClosingVoucher();
+            $this->printCashup();
         }
     }
 

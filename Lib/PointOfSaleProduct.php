@@ -4,7 +4,7 @@ namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Almacenes;
-use FacturaScripts\Dinamic\Model\CodeModel;
+use FacturaScripts\Core\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\Join\ProductoStock;
 use FacturaScripts\Dinamic\Model\Join\ProductoVariante;
 use FacturaScripts\Dinamic\Model\ProductoImagen;
@@ -72,14 +72,6 @@ class PointOfSaleProduct
     }
 
     /**
-     * @return ProductoVariante
-     */
-    /*public function getProductoVariante(): ProductoVariante
-    {
-        return $this->product;
-    }*/
-
-    /**
      * @param string $code
      * @return ProductoStock[]
      */
@@ -95,13 +87,12 @@ class PointOfSaleProduct
     }
 
     /**
-     * @return Variante
+     * @param string $text
+     * @param array $tags
+     * @param string $wharehouse
+     * @param string $company
+     * @return array
      */
-    /*public function getVariante(): Variante
-    {
-        return $this->variante;
-    }*/
-
     public static function search(string $text, array $tags = [], string $wharehouse = '', string $company = ''): array
     {
         $where = [
@@ -122,16 +113,16 @@ class PointOfSaleProduct
         }*/
         $products = self::getProduct()->all($where, [], 0, FS_ITEM_LIMIT);
 
-        foreach ($products as $product) {
+        /*foreach ($products as $product) {
             $images = self::getImagesURL($product->id, $product->code);
             $product->image = $images ? $images[0] : '';
-        }
+        }*/
 
         return $products;
     }
 
     /**
-     * @return \FacturaScripts\Core\Model\CodeModel|false
+     * @return CodeModel|false
      */
     public static function searchBarcode(string $text)
     {

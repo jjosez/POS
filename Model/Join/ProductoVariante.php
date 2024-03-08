@@ -2,10 +2,13 @@
 
 namespace FacturaScripts\Plugins\POS\Model\Join;
 
+use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Model\Base\JoinModel;
 use FacturaScripts\Core\Model\Base\TaxRelationTrait;
+use FacturaScripts\Core\Session;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Dinamic\Model\ProductoImagen;
 use JsonSerializable;
 
 //class ProductoVariante extends JoinModel implements JsonSerializable
@@ -13,6 +16,16 @@ use JsonSerializable;
 class ProductoVariante extends JoinModel
 {
     use TaxRelationTrait;
+
+    /**
+     * @var int
+     */
+    public $id;
+
+    /**
+     * @var string
+     */
+    public $code;
 
     /**
      * @var float
@@ -28,6 +41,11 @@ class ProductoVariante extends JoinModel
      * @var string
      */
     public $priceWithFormat;
+
+    /**
+     * @var string
+     */
+    public $thumbnail;
 
     /**
     * @property-read $name
@@ -99,6 +117,27 @@ class ProductoVariante extends JoinModel
 
         $this->priceWithTax = $this->price  * (100 + $this->getTax()->iva) / 100;
         $this->priceWithFormat = ToolBox::coins()::format($this->priceWithTax);
+        $this->thumbnail = self::getThumbnailUrl($this->id, $this->code);
+    }
+
+    /**
+     * @return ProductoImagen[]
+     */
+    public static function getImages(string $id, string $code): array
+    {
+        $where = [
+            new DataBaseWhere('idproducto', $id),
+            new DataBaseWhere('referencia', null, 'IS', 'AND'),
+            new DataBaseWhere('referencia', $code, '=', 'OR')
+        ];
+
+        return (new ProductoImagen())->all($where);
+    }
+
+    public static function getThumbnailUrl(string $id, string $code): string
+    {
+        $productImages = self::getImages($id, $code);
+        return $productImages ? $productImages[0]->url('download-permanent') : '';
     }
 
     public function __set($name, $value)

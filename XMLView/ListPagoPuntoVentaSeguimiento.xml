@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+-->
+
+<view>
+    <columns>
+        <column name="payment-method" order="100">
+            <widget type="select" fieldname="codpago">
+                <values source="formaspago" fieldcode="codpago" fieldtitle="descripcion"/>
+            </widget>
+        </column>
+        <column name="amount" display="right" order="100">
+            <widget type="money" decimal="2" fieldname="cantidad"/>
+        </column>
+        <column name="pos-payment" display="right" order="100">
+            <widget type="money" decimal="2" fieldname="cantidad"/>
+        </column>
+        <column name="idfrom" display="right" order="150">
+            <widget type="datetime" fieldname="idmodelfrom" readonly="true"/>
+        </column>
+        <column name="modelfrom" display="right" order="160">
+            <widget type="text" fieldname="modelfrom" readonly="true"/>
+        </column>
+    </columns>
+    <rows>
+        <row type="status">
+            <option color='warning' title="Devolucion" fieldname='cantidad'>lte:0</option>
+        </row>
+    </rows>
+</view>

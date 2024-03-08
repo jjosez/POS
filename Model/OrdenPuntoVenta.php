@@ -9,6 +9,7 @@ namespace FacturaScripts\Plugins\POS\Model;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
 use FacturaScripts\Core\Model\Base\SalesDocument;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 
@@ -83,7 +84,7 @@ class OrdenPuntoVenta extends Base\ModelClass
         parent::loadFromData($data, $exclude);
 
         $this->descuadre = $this->testDescuadre();
-        $this->tipodocumento = self::toolBox()::i18n()->trans($this->tipodoc);
+        $this->tipodocumento = Tools::lang()->trans($this->tipodoc);
         $this->nombrecliente = $this->getSubject()->nombre;
         $this->url = $this->url('edit');
     }

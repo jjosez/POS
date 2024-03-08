@@ -15,6 +15,8 @@
   "cashup-total": "Dinero contado en caja: %amount%",
   "change-amount": "Cambio",
   "charge": "Cobrar",
+  "created-at": "Fecha de creación",
+  "created-by": "Creado por",
   "currency-denomination": "Denominación",
   "default-business-document": "Documento predefinido",
   "default-payment-method": "Método de pago predefinido",
@@ -72,5 +74,7 @@
   "till-session-payments": "Pagos del arqueo",
   "till-sessions": "Arqueos",
   "total-counted": "Total contado",
-  "total-expected": "Total esperado"
+  "total-expected": "Total esperado",
+  "updated-at": "Fecha de actualización",
+  "updated-by": "Actualizado por"
 }

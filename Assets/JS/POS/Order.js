@@ -12,34 +12,6 @@ export function deleteHoldRequest(code) {
     return postRequest(data);
 }
 
-/**
- * @param {string} code
- */
-export function reprintRequest(code) {
-    const data = new FormData();
-
-    data.set('action', 'reprint-order');
-    data.set('code', code);
-
-    return postRequest(data);
-}
-
-/**
- * @param {string} code
- */
-export function reprintPausedOrderRequest(code) {
-    const data = new FormData();
-
-    data.set('action', 'reprint-paused-order');
-    data.set('code', code);
-
-    if (isAndroidUserAgent()) {
-        data.set('action', 'print-mobile-paused-ticket');
-    }
-
-    return postRequest(data);
-}
-
 export function getLastOrders() {
     const data = new FormData();
 
@@ -100,32 +72,48 @@ export async function printRequest(code) {
     data.set('code', code);
 
     if (isAndroidUserAgent()) {
-        await printOnAndroid(data);
-        return;
+        data.set('action', 'print-mobile-ticket');
+        return await printOnAndroid(data);
     }
 
-    await printOnDesktop(data);
+    data.set('action', 'print-desktop-ticket');
+    return await printOnDesktop(data);
 }
 
-async function printOnDesktop(baseData) {
-    baseData.set('action', 'print-desktop-ticket');
-
-    await postRequest(baseData);
+async function printOnDesktop(data) {
+    return await postRequest(data);
 }
 
-async function printOnAndroid(baseData) {
+async function printOnAndroid(data) {
     /*var S = "#Intent;scheme=rawbt;";
     var P = "package=ru.a402d.rawbtprinter;end;";
 
     var textEncoded = encodeURI(result);*/
-    baseData.set('action', 'print-mobile-ticket');
-    let response = await postRequestCore(baseData);
+    let response = await postRequestCore(data);
 
     try {
         window.location.href = await response.text();
     } catch (e) {
         alert(e);
     }
+}
+
+
+/**
+ * @param {string} code
+ */
+export async function printPausedOrderRequest(code) {
+    const data = new FormData();
+
+    data.set('code', code);
+
+    if (isAndroidUserAgent()) {
+        data.set('action', 'print-mobile-paused-ticket');
+        return await printOnAndroid(data);
+    }
+
+    data.set('action', 'print-paused-order');
+    return await printOnDesktop(data);
 }
 
 function getFormData(obj = {}) {

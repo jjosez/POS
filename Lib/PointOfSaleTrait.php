@@ -7,7 +7,6 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
@@ -32,6 +31,11 @@ trait PointOfSaleTrait
      * @var array|array[]
      */
     protected $customDocumentFields;
+
+    protected function addResponseData(array $data = [])
+    {
+        $this->responseData = array_merge($this->responseData, $data);
+    }
 
     /**
      * @return array
@@ -292,35 +296,6 @@ trait PointOfSaleTrait
     {
         $this->customMenuElements = ['navbar' => [], 'content-navbar' => []];
         $this->pipe('loadCustomMenuElements');
-    }
-
-    /**
-     * @param SalesDocument $document
-     * @param array $payments
-     * @return void;
-     */
-    protected function printVoucher(SalesDocument $document, array $payments)
-    {
-        $message = self::printDocumentTicket($document, $payments, $this->getVoucherFormat());
-
-        Tools::log()->info($message);
-    }
-
-    protected function printVoucherMobile(SalesDocument $document, array $payments): string
-    {
-        return self::printDocumentTicketMobile($document, $payments, $this->getVoucherFormat());
-    }
-
-    /**
-     * Print closing voucher.
-     *
-     * @return void;
-     */
-    protected function printClosingVoucher()
-    {
-        $message = self::printCashupTicket($this->session->getSession(), $this->empresa, $this->getVoucherFormat());
-
-        Tools::log()->info($message);
     }
 
     /**

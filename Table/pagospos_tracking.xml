@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : pagospos_tracking.xml
+    Author     : Juan José Prieto Dzul
+    Description:
+        Structure for the pagospos_tracking table.
+-->
+<table>
+    <column>
+        <name>cantidad</name>
+        <type>double precision</type>
+    </column>
+    <column>
+        <name>id</name>
+        <type>serial</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>idmodelfrom</name>
+        <type>integer</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>idmodelto</name>
+        <type>integer</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>idpagopos</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>modelfrom</name>
+        <type>character varying(30)</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>modelto</name>
+        <type>character varying(30)</type>
+        <null>YES</null>
+    </column>
+    <constraint>
+        <name>pagospos_tracking_pkey</name>
+        <type>PRIMARY KEY (id)</type>
+    </constraint>
+</table>

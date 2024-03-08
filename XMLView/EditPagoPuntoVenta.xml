@@ -3,22 +3,35 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
 -->
-
 <view>
     <columns>
-        <column name="Operacion" display="none" order="100">
-            <widget type="text" fieldname="idoperacion" readonly="true"/>
-        </column>
-        <column name="payment-method" order="100">
-            <widget type="select" fieldname="codpago">
-                <values source="formaspago" fieldcode="codpago" fieldtitle="descripcion"/>
-            </widget>
-        </column>
-        <column name="amount" display="right" order="100">
-            <widget type="money" decimal="2" fieldname="cantidad"/>
-        </column>
-        <column name="change-amount" display="right" order="100">
-            <widget type="money" decimal="2" fieldname="cambio"/>
-        </column>
+        <group name="payment-data" numcolumns="12">
+            <column name="Operacion" display="none" order="100">
+                <widget type="text" fieldname="idoperacion" readonly="true"/>
+            </column>
+            <column name="payment-method" order="100">
+                <widget type="select" fieldname="codpago">
+                    <values source="formaspago" fieldcode="codpago" fieldtitle="descripcion"/>
+                </widget>
+            </column>
+            <column name="amount" display="right" order="100">
+                <widget type="money" decimal="2" fieldname="cantidad"/>
+            </column>
+            <column name="change-amount" display="right" order="100">
+                <widget type="money" decimal="2" fieldname="cambio"/>
+            </column>
+            <column name="created-at" display="right" order="150">
+                <widget type="datetime" fieldname="createdat" readonly="true"/>
+            </column>
+            <column name="created-by" display="right" order="160">
+                <widget type="text" fieldname="nick" readonly="true"/>
+            </column>
+            <column name="updated-at" display="none" order="170">
+                <widget type="datetime" fieldname="updatedat" readonly="true"/>
+            </column>
+            <column name="updated-by" display="none" order="180">
+                <widget type="text" fieldname="nickupdate" readonly="true"/>
+            </column>
+        </group>
     </columns>
 </view>

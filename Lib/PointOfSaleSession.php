@@ -211,7 +211,10 @@ class PointOfSaleSession
         return $this->terminal;
     }
 
-    public function getLastOrder(): OrdenPuntoVenta
+    /**
+     * @return OrdenPuntoVenta|null
+     */
+    public function getLastOrder(): ?OrdenPuntoVenta
     {
         return $this->lastOrder;
     }

@@ -54,6 +54,20 @@ export function printClosingVoucher() {
     return postRequest(data);
 }
 
+export async function printerServerRequest({print_job_id}) {
+    if (print_job_id == null) return;
+
+    let params = new URLSearchParams({"documento": print_job_id});
+
+    try {
+        await fetch('http://localhost:8089?' + params, {
+            mode: 'no-cors', method: 'GET'
+        });
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 /**
  * @param {string} taxID
  * @param {string} name

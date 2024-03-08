@@ -15,6 +15,8 @@
   "cashup-total": "Dinero contado en caja: %amount%",
   "change-amount": "Cambio",
   "charge": "Cobrar",
+  "created-at": "Fecha de creación",
+  "created-by": "Creado por",
   "currency-denomination": "Denominación",
   "default-business-document": "Documento predefinido",
   "default-payment-method": "Método de pago predefinido",
@@ -24,12 +26,12 @@
   "initial-amount": "Saldo inicial",
   "is-cash-payment": "Es pago en efectivo",
   "last-orders": "Ultimas operaciones",
+  "other-settings": "Otros ajustes",
   "money-movment-ok": "Movimiento de dinero registrado correctamente.",
   "no-cash-payment-method-established": "No se configuro el metodo de pago que se usara para pagos en efectivo.",
   "no-currency-denominations": "No se configuro ninguna moneda, se necesitan para el cierre de arqueo.",
   "no-default-document-established": "No se configuro el documento predefinido.",
   "no-payment-method-established": "No se configuro ningun metodo de pago.",
-  "other-settings": "Otros ajustes",
   "paused-order": "Operación pausada",
   "paused-orders": "Operaciones pausadas",
   "paused-order-delete": "Eliminada operación pausada",
@@ -72,5 +74,7 @@
   "till-session-payments": "Pagos del arqueo",
   "till-sessions": "Arqueos",
   "total-counted": "Total contado",
-  "total-expected": "Total esperado"
+  "total-expected": "Total esperado",
+  "updated-at": "Fecha de actualización",
+  "updated-by": "Actualizado por"
 }
