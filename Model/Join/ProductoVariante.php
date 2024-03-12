@@ -3,13 +3,10 @@
 namespace FacturaScripts\Plugins\POS\Model\Join;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Model\Base\JoinModel;
 use FacturaScripts\Core\Model\Base\TaxRelationTrait;
-use FacturaScripts\Core\Session;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\ProductoImagen;
-use JsonSerializable;
 
 //class ProductoVariante extends JoinModel implements JsonSerializable
 
@@ -48,18 +45,18 @@ class ProductoVariante extends JoinModel
     public $thumbnail;
 
     /**
-    * @property-read $name
-    * @property-read $barcode
-    * @property-read $description
-    * @property-read $stock
-    * @property-read $price
-    * @property-read $atribute1
-    * @property-read $atribute2
-    * @property-read $atribute3
-    * @property-read $atribute4
-    *
-
-    /**
+     * @property-read $name
+     * @property-read $barcode
+     * @property-read $description
+     * @property-read $stock
+     * @property-read $price
+     * @property-read $atribute1
+     * @property-read $atribute2
+     * @property-read $atribute3
+     * @property-read $atribute4
+     *
+     *
+     * /**
      * @inheritDoc
      */
     protected function getTables(): array
@@ -101,12 +98,12 @@ class ProductoVariante extends JoinModel
      */
     protected function getSQLFrom(): string
     {
-         return 'variantes V LEFT JOIN productos P ON V.idproducto = P.idproducto'
-             . ' LEFT JOIN atributos_valores A1 ON V.idatributovalor1 = A1.id'
-             . ' LEFT JOIN atributos_valores A2 ON V.idatributovalor2 = A2.id'
-             . ' LEFT JOIN atributos_valores A3 ON V.idatributovalor3 = A3.id'
-             . ' LEFT JOIN atributos_valores A4 ON V.idatributovalor4 = A4.id'
-             . ' LEFT JOIN stocks S ON V.referencia = S.referencia';
+        return 'variantes V LEFT JOIN productos P ON V.idproducto = P.idproducto'
+            . ' LEFT JOIN atributos_valores A1 ON V.idatributovalor1 = A1.id'
+            . ' LEFT JOIN atributos_valores A2 ON V.idatributovalor2 = A2.id'
+            . ' LEFT JOIN atributos_valores A3 ON V.idatributovalor3 = A3.id'
+            . ' LEFT JOIN atributos_valores A4 ON V.idatributovalor4 = A4.id'
+            . ' LEFT JOIN stocks S ON V.referencia = S.referencia';
     }
 
     protected function loadFromData($data)
@@ -115,8 +112,8 @@ class ProductoVariante extends JoinModel
             $this->{$field} = $value;
         }
 
-        $this->priceWithTax = $this->price  * (100 + $this->getTax()->iva) / 100;
-        $this->priceWithFormat = ToolBox::coins()::format($this->priceWithTax);
+        $this->priceWithTax = $this->price * (100 + $this->getTax()->iva) / 100;
+        $this->priceWithFormat = Tools::money($this->priceWithTax);
         $this->thumbnail = self::getThumbnailUrl($this->id, $this->code);
     }
 
@@ -134,23 +131,28 @@ class ProductoVariante extends JoinModel
         return (new ProductoImagen())->all($where);
     }
 
-    public static function getThumbnailUrl(string $id, string $code): string
+    public static function getThumbnailUrl(?string $id, ?string $code): string
     {
-        $productImages = self::getImages($id, $code);
-        return $productImages ? $productImages[0]->url('download-permanent') : '';
+        if (true === empty($id)) {
+            return '';
+        }
+
+        $productImage = new ProductoImagen();
+
+        if ($productImage->loadFromCode('', [
+            new DataBaseWhere('idproducto', $id),
+            new DataBaseWhere('referencia', null, 'IS', 'AND'),
+            new DataBaseWhere('referencia', $code, '=', 'OR')
+        ])) {
+            return FS_ROUTE . '/' . $productImage->url('download-permanent');
+            //return FS_ROUTE . $productImage->getThumbnail(150, 150, true);
+        }
+
+        return '';
     }
 
     public function __set($name, $value)
     {
-        $this->{$name}= $value;
+        $this->{$name} = $value;
     }
-
-
-    /**
-     * @return array
-     */
-    /*public function jsonSerialize(): array
-    {
-        return $this->values;
-    }*/
 }
