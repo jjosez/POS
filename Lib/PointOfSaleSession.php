@@ -2,7 +2,6 @@
 
 namespace FacturaScripts\Plugins\POS\Lib;
 
-use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
@@ -86,10 +85,10 @@ class PointOfSaleSession
 
     public function openSession(string $terminal, float $amount = 0.0)
     {
-        if (true === $this->session->abierto) {
-            ToolBox::i18nLog()->info('till-session-allready-opened', [
-                    '%userNickname%' => $this->user->nick
-                ]);
+        if (true === $this->isOpen()) {
+            Tools::log()->info('till-session-allready-opened', [
+                '%userNickname%' => $this->user->nick
+            ]);
             return;
         }
 
@@ -97,53 +96,43 @@ class PointOfSaleSession
             return;
         }
 
-        if ($this->session->openSession($this->terminal, $amount, $this->user->nick)) {
+        if ($this->session->open($this->terminal, $amount, $this->user->nick)) {
             $params = [
                 '%terminalName%' => $this->terminal->nombre,
                 '%userNickname%' => $this->user->nick,
             ];
-            ToolBox::i18nLog()->info('till-session-opened', $params);
-            ToolBox::i18nLog()->info('cashup-total', ['%amount%' => $amount]);
 
-            $this->terminal->disponible = false;
-            $this->terminal->save();
+            Tools::log()->info('till-session-opened', $params);
+            Tools::log()->info('cashup-total', ['%amount%' => $amount]);
 
             return;
         }
 
-        ToolBox::i18nLog()->info('error');
+        Tools::log()->info('error');
     }
 
     /**
      * Close current session.
      */
-    public function closeSession(array $cash): bool
+    public function closeSession(array $coinsCount): bool
     {
-        if (false === $this->session->abierto) {
-            ToolBox::i18nLog()->info('till-session-not-opened');
+        if (false === $this->isOpen()) {
+            Tools::log()->info('till-session-not-opened');
             return false;
         }
 
-        $this->session->abierto = false;
-        $this->session->fechafin = date('d-m-Y');
-        $this->session->horafin = date('H:i:s');
-
-        $total = 0.0;
-        foreach ($cash as $value => $count) {
-            $total += (float)$value * (float)$count;
+        $totalCounted = 0.0;
+        foreach ($coinsCount as $value => $count) {
+            $totalCounted += (float)$value * (float)$count;
         }
 
-        ToolBox::i18nLog()->info('cashup-total', ['%amount%' => $total]);
-        $this->session->saldocontado = $total;
-        $this->session->conteo = json_encode($cash);
-
-        if ($this->session->save()) {
-            $this->terminal->disponible = true;
-            $this->terminal->save();
-            $this->open = false;
+        if ($this->session->close($this->terminal, $totalCounted, $coinsCount)) {
+            Tools::log()->info('cashup-total', ['%amount%' => $totalCounted]);
 
             return true;
         }
+
+        Tools::log()->info('error-closing-pos-session');
 
         return false;
     }
@@ -175,10 +164,9 @@ class PointOfSaleSession
     public function savePayments(SalesDocument $document, array $payments)
     {
         PointOfSalePayments::cleanInvoiceReceipts($document);
-        $cashMethodCode = $this->getTerminal()->getCashPaymentMethod();
+        $cashMethodCode = $this->getTerminal()->cashPaymentMethod();
 
         $counter = 1;
-        $cashAmount = 0;
         foreach ($payments as $payment) {
             if ($cashMethodCode === $payment->codpago) {
                 $this->getSession()->saldoesperado += $payment->pagoNeto();
@@ -192,7 +180,6 @@ class PointOfSaleSession
             }
         }
 
-        $this->getSession()->saldoesperado += $cashAmount;
         $this->getSession()->save();
     }
 

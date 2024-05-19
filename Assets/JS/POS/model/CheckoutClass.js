@@ -47,9 +47,13 @@ class CheckoutClass {
 
     setPayment({amount, method, description}) {
         let balance = this.getOutstandingBalance();
+        let isCashMethod = true;
+
         amount = parseFloat(amount);
 
         if (method !== this.cashMethod) {
+            isCashMethod = false;
+
             if (balance < 0 && amount < 0) {
                 amount = 0;
                 return;
@@ -67,7 +71,9 @@ class CheckoutClass {
             }
             return false;
         }) && amount !== 0) {
-            this.payments.push({amount: amount, method: method, description: description, change: 0});
+            this.payments.push({
+                amount: amount, method: method, description: description, change: 0, is_cash: isCashMethod
+            });
         }
 
         this.updateMoneyChange();

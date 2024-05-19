@@ -92,7 +92,7 @@ class TerminalPuntoVenta extends Base\ModelClass
         return (new FormaPagoPuntoVenta)->all([new DataBaseWhere('idterminal', $this->idterminal)]);
     }
 
-    public function getCashPaymentMethod(): string
+    public function cashPaymentMethod(): string
     {
         foreach ($this->getPaymenthMethods() as $element) if ($element->recibecambio) {
             return $element->codpago;
@@ -108,7 +108,7 @@ class TerminalPuntoVenta extends Base\ModelClass
         return (new TipoDocumentoPuntoVenta())->all([new DataBaseWhere('idterminal', $this->idterminal)]);
     }
 
-    public function save()
+    public function save(): bool
     {
         $this->idempresa = $this->getWarehouse()->idempresa;
 

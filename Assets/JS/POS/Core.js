@@ -5,6 +5,13 @@
 
 import {templates} from "./View.js";
 
+export function reloadApp() {
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+    window.location = window.location.href;
+}
+
 /**
  * Short for document.getElementById
  * @param {string} id
@@ -13,22 +20,38 @@ export function getElement(id) {
     return document.getElementById(id);
 }
 
+export function isObjectEmpty(obj) {
+    for (const i in obj) return false;
+
+    return true;
+}
+
 /**
  * Send request to controller url
  * @param {FormData} data
  */
 export async function postRequest(data) {
-    const response = await fetch('POS', {
-        method: 'POST',
-        body: data
-    });
+    try {
+        const response = await fetch('POS', {
+            method: 'POST',
+            body: data
+        });
 
-    if (!response.ok) requestErrorHandler(response.status);
+        if (!response.ok) requestErrorHandler(response.status);
 
-    let result = await response.json();
-    showMessages(result);
+        let result = await response.json();
+        showMessages(result);
 
-    return result;
+        return result;
+    } catch (e) {
+        /*Promise.resolve({
+            messages: [{type: "warning", message: e.name + e.message}]
+        }).then((messages) => showMessages(messages));*/
+
+        console.log("Ocurrio un error.", e.message);
+    }
+
+    return Promise.resolve({});
 }
 
 /**
@@ -36,14 +59,24 @@ export async function postRequest(data) {
  * @param {FormData} data
  */
 export async function postRequestCore(data) {
-    const response = await fetch('POS', {
-        method: 'POST',
-        body: data
-    });
+    try {
+        const response = await fetch('POS', {
+            method: 'POST',
+            body: data
+        });
 
-    if (!response.ok) requestErrorHandler(response.status);
+        if (!response.ok) requestErrorHandler(response.status);
 
-    return response;
+        return response;
+    } catch (e) {
+        /*Promise.resolve({
+            messages: [{type: "warning", message: e.name + e.message}]
+        }).then((messages) => showMessages(messages));*/
+
+        console.log("Ocurrio un error.", e.message);
+    }
+
+    return Promise.resolve({});
 }
 
 export function printClosingVoucher() {
@@ -60,7 +93,7 @@ export async function printerServerRequest({print_job_id}) {
     let params = new URLSearchParams({"documento": print_job_id});
 
     try {
-        await fetch('http://localhost:8089?' + params, {
+        await fetch('http://127.0.0.1:8089?' + params, {
             mode: 'no-cors', method: 'GET'
         });
     } catch (error) {
@@ -162,24 +195,24 @@ export function searchRequest(action, query) {
  * @param {Promise} response
  */
 function showMessages(response) {
-    if (null != response.messages) {
-        templates().renderMessageList(response);
-        cleanMessages();
-    }
+    if (null == response.messages) return;
+
+    templates().renderMessageList(response);
+    cleanMessages();
 }
 
 /**
- * Close all messages after 1800ms timeout
+ * Close all messages after 1000ms timeout
  */
 function cleanMessages() {
     let container = getElement("alert-container");
 
-    let pid = setTimeout(function () {
-        if (container.firstElementChild) {
-            container.firstElementChild.remove();
-            cleanMessages();
-        }
-    }, 1800);
+    if (null === container.firstChild) return;
+
+    setTimeout(() => {
+        container.removeChild(container.firstChild);
+        cleanMessages();
+    }, 1000);
 }
 
 /**

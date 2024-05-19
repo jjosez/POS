@@ -49,7 +49,7 @@ class MovimientoPuntoVenta extends Base\ModelClass
      *
      * @return MovimientoPuntoVenta[]
      */
-    public function allFromSession(string $code)
+    public function allFromSession(string $code): array
     {
         $where = [new DataBaseWhere('idsesion', $code)];
 

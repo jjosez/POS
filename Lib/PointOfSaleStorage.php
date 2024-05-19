@@ -2,23 +2,26 @@
 
 namespace FacturaScripts\Plugins\POS\Lib;
 
+use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Dinamic\Model\OperacionPausada;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
+use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 
 class PointOfSaleStorage
 {
     /**
-     * @param string $code
+     * @param SalesDocument $document
      * @return bool
      */
-    public static function completePausedDocument(string $code): bool
+    public static function completePausedDocument(SalesDocument $document): bool
     {
-        $document = new OperacionPausada();
+        $posDocument = new OperacionPausada();
 
-        if ($code && $document->loadFromCode($code)) {
-            return $document->completeDocument();
+        if (isset($document->idpausada) && $posDocument->loadFromCode($document->idpausada)) {
+            return $posDocument->completeDocument();
         }
-        return false;
+
+        return true;
     }
 
     /**
@@ -80,5 +83,21 @@ class PointOfSaleStorage
         }
 
         return $order->all();
+    }
+
+    public static function saveOrder(
+        OrdenPuntoVenta $order,
+        SalesDocument $document,
+        SesionPuntoVenta $session
+    ): bool {
+        $order->codigo = $document->codigo;
+        $order->codcliente = $document->codcliente;
+        $order->fecha = $document->fecha;
+        $order->iddocumento = $document->primaryColumnValue();
+        $order->idsesion = $session->primaryColumnValue();
+        $order->tipodoc = $document->modelClassName();
+        $order->total = $document->total;
+
+        return $order->save();
     }
 }

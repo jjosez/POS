@@ -23,7 +23,7 @@ class LineaOperacionPausada extends Base\SalesDocumentLine
      * 
      * @return string
      */
-    public function documentColumn()
+    public function documentColumn(): string
     {
         return 'idpausada';
     }
@@ -32,10 +32,11 @@ class LineaOperacionPausada extends Base\SalesDocumentLine
      * 
      * @return OperacionPausada
      */
-    public function getDocument()
+    public function getDocument(): OperacionPausada
     {
         $operacionPausada = new OperacionPausada();
         $operacionPausada->loadFromCode($this->idpausada);
+
         return $operacionPausada;
     }
 

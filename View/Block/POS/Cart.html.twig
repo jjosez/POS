@@ -71,7 +71,7 @@
         <div class="mx-2 flex flex-1 text-sm">
             <div role="listitem" class="flex-1">
                 <p class="text-sm">
-                    <span class="inline-flex items-center rounded-full bg-slate-100 px-2 font-semibold uppercase py-0.5 text-[0.85rem]">
+                    <span class="inline-flex items-center rounded-full bg-slate-100 mr-2 px-2 font-semibold uppercase py-0.5 text-[0.85rem]">
                         {#<span class="mr-2 rounded-full bg-blue-500 px-2 text-sm font-semibold uppercase">#}
                         <%= value.referencia %></span><%= value.descripcion %></p>
                 <div class="flex items-end gap-2">
@@ -81,7 +81,7 @@
                         {% elseif column.carrito -%}
                             <div class="m-auto w-24 flex-auto">
                                 <label>
-                                    <span class="text-sm font-semibold">{{ column.tittle }}</span>
+                                    <span class="text-xs font-semibold">{{ column.tittle }}</span>
                                     {% if column.readonly %}
                                         <p><%= value.{{ column.data }} %></p>
                                     {% else %}

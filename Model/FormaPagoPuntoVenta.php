@@ -8,6 +8,7 @@ namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Model\Base;
 use FacturaScripts\Core\DataSrc\FormasPago;
+use FacturaScripts\Dinamic\Model\FormaPago;
 
 /**
  * Operaciones realizadas terminales POS.
@@ -33,12 +34,12 @@ class FormaPagoPuntoVenta extends Base\ModelClass
         return 'formaspagopos';
     }
 
-    public function descripcion()
+    public function descripcion(): string
     {
         return FormasPago::get($this->codpago)->descripcion;
     }
 
-    public function formaPago()
+    public function formaPago(): FormaPago
     {
         return FormasPago::get($this->codpago);
     }

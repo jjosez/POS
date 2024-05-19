@@ -1,4 +1,4 @@
-import {isAndroidUserAgent, postRequest, postRequestCore} from "./Core.js";
+import {postRequest, postRequestCore} from "./Core.js";
 
 /**
  * @param {string} code
@@ -71,13 +71,8 @@ export async function printRequest(code) {
     const data = new FormData();
     data.set('code', code);
 
-    if (isAndroidUserAgent()) {
-        data.set('action', 'print-mobile-ticket');
-        return await printOnAndroid(data);
-    }
-
     data.set('action', 'print-desktop-ticket');
-    return await printOnDesktop(data);
+    return await postRequest(data);
 }
 
 async function printOnDesktop(data) {
@@ -107,13 +102,8 @@ export async function printPausedOrderRequest(code) {
 
     data.set('code', code);
 
-    if (isAndroidUserAgent()) {
-        data.set('action', 'print-mobile-paused-ticket');
-        return await printOnAndroid(data);
-    }
-
     data.set('action', 'print-paused-order');
-    return await printOnDesktop(data);
+    return await postRequest(data);
 }
 
 function getFormData(obj = {}) {

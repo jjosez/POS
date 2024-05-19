@@ -98,7 +98,7 @@ class SesionPuntoVenta extends Base\ModelClass
         $this->saldoesperado = 0.0;
     }
 
-    public function install()
+    public function install(): string
     {
         new TerminalPuntoVenta();
         return parent::install();
@@ -181,7 +181,7 @@ class SesionPuntoVenta extends Base\ModelClass
         return $this->loadFromCode('', $where);
     }
 
-    public function openSession(TerminalPuntoVenta $terminal, float $amount, string $nick): bool
+    public function open(TerminalPuntoVenta $terminal, float $amount, string $nick): bool
     {
         $this->abierto = true;
         $this->idterminal = $terminal->idterminal;
@@ -189,7 +189,23 @@ class SesionPuntoVenta extends Base\ModelClass
         $this->saldoinicial = $amount;
         $this->saldoesperado = $amount;
 
-        return $this->save();
+        $terminal->disponible = false;
+
+        return $this->save() && $terminal->save();
+    }
+
+    public function close(TerminalPuntoVenta $terminal, float $totalCount, array $coinsCount)
+    {
+        $this->abierto = false;
+        $this->fechafin = date(self::DATE_STYLE);
+        $this->horafin = date(self::HOUR_STYLE);
+        $this->saldocontado = $totalCount;
+        $this->conteo = json_encode($coinsCount);
+
+        $terminal->disponible = true;
+
+
+        return $this->save() && $terminal->save();
     }
 
     /**

@@ -15,6 +15,9 @@ module.exports = {
             pattern: /bg-(red|green|blue|yellow)-(100|200|500)/,
             variants: ['hover', 'even', 'odd'],
         },
+        {
+            pattern: /alert-(success|info|warning|error)/
+        },
     ],
     theme: {
         extend: {

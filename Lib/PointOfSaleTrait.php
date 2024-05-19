@@ -171,34 +171,6 @@ trait PointOfSaleTrait
     }
 
     /**
-     * Return some products for initial view
-     *
-     * @param string $id
-     * @param string $code
-     * @return array
-     */
-    public function getProductImage(string $id, string $code): array
-    {
-        $product = new PointOfSaleProduct();
-
-        return $product->getImages($id, $code);
-    }
-
-    /**
-     * Return product images url list
-     *
-     * @param string $id
-     * @param string $code
-     * @return array
-     */
-    public function getProductImageList(string $id, string $code): array
-    {
-        $product = new PointOfSaleProduct();
-
-        return $product->getImagesURL($id, $code);
-    }
-
-    /**
      * Returns all available payment methods.
      *
      * @return FormaPago[]
@@ -266,13 +238,18 @@ trait PointOfSaleTrait
         $messages = [];
         $level = ['critical', 'warning', 'notice', 'info', 'error'];
 
-        foreach (Tools::log()->read('master', $level) as $m) {
-            if (in_array($m['level'], array('warning', 'critical', 'error'))) {
-                $messages[] = ['type' => 'warning', 'message' => $m['message']];
+        foreach (Tools::log()->read('master', $level) as $message) {
+            if (in_array($message['level'], array('warning', 'critical', 'error'))) {
+                $messages[] = ['type' => 'warning', 'message' => $message['message']];
                 continue;
             }
 
-            $messages[] = ['type' => $m['level'], 'message' => $m['message']];
+            if ($message['level'] = 'notice') {
+                $messages[] = ['type' => 'success', 'message' => $message['message']];
+                continue;
+            }
+
+            $messages[] = ['type' => 'info', 'message' => $message['message']];
         }
 
         return $messages;
@@ -320,7 +297,7 @@ trait PointOfSaleTrait
 
     protected function setNewToken(): void
     {
-        $this->token = $this->getNewToken();
+        $this->token = $this->multiRequestProtection->newToken();
     }
 
     /**

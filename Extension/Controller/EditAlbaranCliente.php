@@ -15,8 +15,8 @@ class EditAlbaranCliente
     public function createViews(): Closure
     {
         return function () {
-            $this->createViewPagosPOS();
-            $this->createViewPagosPOSTracking();
+            return $this->createViewPagosPOS();
+            //$this->createViewPagosPOSTracking();
         };
     }
 
@@ -70,8 +70,12 @@ class EditAlbaranCliente
                     $where = [
                         new DataBaseWhere('idoperacion', $posOrder->primaryColumnValue()),
                     ];
-                    $view->loadData('', $where);
+
+                    $orderBy = ['createdat|updatedat' => 'DESC'];
+
+                    $view->loadData('', $where, $orderBy);
                     break;
+
                 case 'ListPagoPuntoVentaSeguimiento':
                     $where = [
                         new DataBaseWhere('idmodelto', $this->getModel()->primaryColumnValue()),

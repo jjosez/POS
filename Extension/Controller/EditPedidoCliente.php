@@ -15,7 +15,7 @@ class EditPedidoCliente
     public function createViews(): Closure
     {
         return function () {
-            $this->createViewPOS();
+            //$this->createViewPOS();
         };
     }
 

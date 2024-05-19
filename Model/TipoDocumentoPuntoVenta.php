@@ -3,10 +3,11 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
+
 namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Model\Base;
-use FacturaScripts\Dinamic\Model\FormaPago;
+use FacturaScripts\Core\Tools;
 
 /**
  * Operaciones realizadas terminales POS.
@@ -53,8 +54,8 @@ class TipoDocumentoPuntoVenta extends Base\ModelClass
         return 'tiposdocpos';
     }
 
-    public function primaryDescription()
+    public function primaryDescription(): string
     {
-        return $this->descripcion ?: self::toolBox()::i18n()->trans($this->tipodoc);
+        return $this->descripcion ?: Tools::lang()->trans($this->tipodoc);
     }
 }

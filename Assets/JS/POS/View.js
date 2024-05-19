@@ -1,6 +1,6 @@
 import Modals from "./components/Modals.js";
 import Templates from "./components/Templates.js";
-import {getElement} from "./Core.js";
+import {getElement, isObjectEmpty} from "./Core.js";
 import * as Money from "./Money.js";
 
 export const cart = () => {
@@ -165,18 +165,26 @@ class Main {
     };
     showLastOrdersModal = function (data) {
         modals().lastOrdersModal().show();
+
+        if (isObjectEmpty(data)) return;
         templates().renderLastOrderList({items: data});
     }
     showPausedOrdersModal = function (data) {
         modals().pausedOrdersModal().show();
+
+        if (isObjectEmpty(data)) return;
         templates().renderPausedOrderList({items: data});
     }
     showProductImagesModal = function (data) {
         modals().productImagesModal().show();
+
+        if (isObjectEmpty(data)) return;
         templates().renderProductImageList({items: data});
     }
     showProductStockDetailModal = function (data) {
         modals().stockDetailModal().show();
+
+        if (isObjectEmpty(data)) return;
         templates().renderProductStockList({items: data});
     }
 }

@@ -45,6 +45,7 @@
     <column>
         <name>nickupdate</name>
         <type>character varying(50)</type>
+        <null>YES</null>
     </column>
     <column>
         <name>createdat</name>

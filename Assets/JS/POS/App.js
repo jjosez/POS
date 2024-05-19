@@ -111,8 +111,14 @@ async function searchProductAction() {
     View.main().updateProductSearchResult(await Core.searchProduct(this.value));
 }
 
-function sessionCloseAction() {
-    View.main().closeSessionForm().submit();
+async function sessionCloseAction() {
+    const formData = new FormData(View.main().closeSessionForm());
+    const response = await Core.postRequest(formData);
+
+    await Core.printerServerRequest(response);
+
+    //window.location.replace(window.location.href)
+    Core.reloadApp();
 }
 
 function sessionMoneyMovmentAction() {

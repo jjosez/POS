@@ -11,8 +11,10 @@ use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\KernelException;
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleCustomer;
+use FacturaScripts\Plugins\POS\Lib\PointOfSalePayments;
 use FacturaScripts\Plugins\POS\Lib\PointOfSalePrinter;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleProduct;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleRequest;
@@ -93,11 +95,11 @@ class POS extends Controller
                 $id = $this->request->request->get('id', '');
                 $code = $this->request->request->get('code', '');
 
-                $this->setResponse($this->getProductImageList($id, $code));
+                $this->setResponse(PointOfSaleProduct::getImages($id, $code));
                 return false;
 
             case 'hold-order':
-                $this->saveOrderOnHold();
+                $this->holdOrder();
                 $this->buildResponse();
                 return false;
 
@@ -129,7 +131,7 @@ class POS extends Controller
                 return false;
 
             case 'print-paused-order':
-                $this->printPausedDocument();
+                $this->printDocumentOnHold();
                 return false;
 
             case 'print-mobile-ticket':
@@ -137,15 +139,40 @@ class POS extends Controller
                 return false;
 
             case 'print-mobile-paused-ticket':
-                $this->printPausedTicketFromMobile();
+                $this->printDocumentOnHold(true);
+                return false;
+
+            case 'close-session':
+                $this->closeSession();
                 return false;
 
             default:
-                $this->setResponse('Funcion no encontrada');
+                $this->setResponse('not-found-action');
                 return true;
         }
     }
 
+    protected function execAfterAction(string $action)
+    {
+        switch ($action) {
+            case 'change-user':
+                $this->changeUser();
+                break;
+            case 'open-session':
+                $this->initSession();
+                break;
+            case 'open-terminal':
+                $this->loadTerminal();
+                break;
+        }
+    }
+
+    /**
+     * Execute Cart espefic actions.
+     *
+     * @param string $action
+     * @return bool
+     */
     protected function execCartQueryAction(string $action): bool
     {
         switch ($action) {
@@ -170,10 +197,11 @@ class POS extends Controller
                 return true;
 
             default:
-                $this->setResponse('Funcion no encontrada');
+                $this->setResponse('not-found-action');
                 return false;
         }
     }
+
 
     /**
      * @param array $data
@@ -344,7 +372,7 @@ class POS extends Controller
      *
      * @return void
      */
-    protected function saveOrderOnHold(): void
+    protected function holdOrder(): void
     {
         if (false === $this->validateRequest()) return;
 
@@ -391,23 +419,30 @@ class POS extends Controller
         }
 
         $document = $transaction->getDocument();
-        if (false === $this->getSession()->saveOrder($document)) {
+        $payments = $transaction->getPayments();
+        $session = $this->getSession()->getSession();
+
+        $order = new OrdenPuntoVenta();
+        if (false === PointOfSaleStorage::saveOrder($order, $document, $session)) {
             $this->dataBase->rollback();
             return;
         }
 
-        if (isset($document->idpausada) && false === PointOfSaleStorage::completePausedDocument($document->idpausada)) {
+        if ((false === PointOfSaleStorage::completePausedDocument($document))) {
             Tools::log()->warning('fail-update-paused-document');
+
             $this->dataBase->rollback();
             return;
         }
+
+        PointOfSalePayments::savePayments($document, $order, $session, $payments);
 
         $this->dataBase->commit();
 
-        $this->getSession()->savePayments($document, $transaction->getPayments());
-        $this->pipe('save', $document, $transaction->getPayments());
+        $this->pipe('save', $document, $payments);
+        Tools::log()->notice('record-updated-correctly');
 
-        $this->printDocument($document, $transaction->getPayments());
+        $this->printDocument($document, $payments);
     }
 
     protected function printCashup()
@@ -461,48 +496,24 @@ class POS extends Controller
     }
 
     /**
-     * Reprint order by code.
+     * Reprint point of sale document by code.
      */
-    protected function printPausedDocument()
+    protected function printDocumentOnHold(bool $raw = false)
     {
         $code = $this->request->request->get('code', '');
 
-        if ($code) {
-            $document = PointOfSaleStorage::getPausedDocument($code);
-
-            $this->printDocument($document);
-            $this->buildResponse();
+        if (empty($code)) {
+            Tools::log('POS')->warning('cant-print-ticket');
+            return;
         }
-    }
 
-    /**
-     * Reprint order by code.
-     */
-    protected function printPausedTicketFromMobile()
-    {
-        $code = $this->request->request->get('code', '');
-
-        if ($code) {
+        if (true === $raw) {
             $this->printDocumentRaw(PointOfSaleStorage::getPausedDocument($code));
+            return;
         }
-    }
 
-    protected function execAfterAction(string $action)
-    {
-        switch ($action) {
-            case 'change-user':
-                $this->changeUser();
-                break;
-            case 'open-session':
-                $this->initSession();
-                break;
-            case 'open-terminal':
-                $this->loadTerminal();
-                break;
-            case 'close-session':
-                $this->closeSession();
-                break;
-        }
+        $this->printDocument(PointOfSaleStorage::getPausedDocument($code));
+        $this->buildResponse();
     }
 
     protected function changeUser(): void
@@ -541,6 +552,10 @@ class POS extends Controller
 
     protected function initSession()
     {
+        if (false === $this->validateFormToken()) {
+            return;
+        }
+
         $terminal = $this->request->request->get('terminal', '');
         $amount = $this->request->request->get('saldoinicial', 0) ?: 0;
         $this->session->openSession($terminal, $amount);
@@ -565,6 +580,8 @@ class POS extends Controller
         if ($this->session->closeSession($cash)) {
             $this->printCashup();
         }
+
+        $this->buildResponse();
     }
 
     /**

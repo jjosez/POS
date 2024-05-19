@@ -35,6 +35,7 @@
                         {% else %}
                             <input name="action" type="hidden" value="open-session">
                             <input name="terminal" type="hidden" value="{{ terminal.idterminal }}">
+                            <input name="multireqtoken" type="hidden" value="{{ fsc.getNewToken() }}">
                             <p class="mb-3">{{ i18n.trans('cash-initial-amount-input') }}</p>
 
                             <label class="input-icon text-slate-700">
@@ -75,7 +76,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <a href="?logout=TRUE" class="btn btn-danger mr-auto">{{ i18n.trans('logout') }}</a>
+                <a href="{{ asset('login') }}?action=logout&multireqtoken={{ formToken(false) }}"
+                   class="btn btn-danger mr-auto">{{ i18n.trans('logout') }}</a>
                 <a href="{{ asset('') }}" class="btn btn-icon btn-secondary"><i class="fa fa-home"></i></a>
             </div>
         </div>

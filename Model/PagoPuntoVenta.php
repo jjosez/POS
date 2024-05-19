@@ -20,6 +20,8 @@ class PagoPuntoVenta extends Base\ModelClass
 {
     use Base\ModelTrait;
 
+    public $isCashMethod;
+
     /**
      * @var float
      */
@@ -44,7 +46,6 @@ class PagoPuntoVenta extends Base\ModelClass
      * @var int
      */
     public $idpago;
-
 
     /**
      * @var int
@@ -83,9 +84,10 @@ class PagoPuntoVenta extends Base\ModelClass
 
         $this->nick = Session::user()->nick;
         $this->nickupdate = null;
+        $this->isCashMethod = false;
     }
 
-    public function install()
+    public function install(): string
     {
         new SesionPuntoVenta();
         new OrdenPuntoVenta();
@@ -104,7 +106,7 @@ class PagoPuntoVenta extends Base\ModelClass
         return 'pagospos';
     }
 
-    public function pagoNeto()
+    public function pagoNeto(): float
     {
         return $this->cantidad - $this->cambio;
     }
@@ -135,7 +137,7 @@ class PagoPuntoVenta extends Base\ModelClass
 
     protected function saveUpdate(array $values = []): bool
     {
-        $this->nickmodifico = Session::user()->nick;
+        $this->nickupdate = Session::user()->nick;
         $this->updatedat = Tools::dateTime();
 
         return parent::saveUpdate($values);
@@ -149,12 +151,17 @@ class PagoPuntoVenta extends Base\ModelClass
         return $order;
     }
 
-    public function test()
+    public function test(): bool
     {
-        $sesionPOS = new OrdenPuntoVenta();
+        $this->nickupdate = null;
 
-        if ($sesionPOS->loadFromCode($this->idoperacion) && empty($this->idsesion)) {
-            $this->idsesion = $sesionPOS->idsesion;
+
+        if (empty($this->idsesion)) {
+            $orden = new OrdenPuntoVenta();
+
+            if ($orden->loadFromCode($this->idoperacion)) {
+                $this->idsesion = $orden->idsesion;
+            }
         }
 
         return parent::test();

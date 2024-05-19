@@ -7,6 +7,7 @@
 namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
+use FacturaScripts\Core\Base\Utils;
 use FacturaScripts\Core\Model\Base;
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Tools;
@@ -46,6 +47,21 @@ class OrdenPuntoVenta extends Base\ModelClass
      * @var string
      */
     public $nombrecliente;
+
+    /**
+     * @var bool
+     */
+    public $descuadre;
+
+    /**
+     * @var string
+     */
+    public $tipodocumento;
+
+    /**
+     * @var string
+     */
+    public $url;
 
     public function clear()
     {
@@ -109,7 +125,7 @@ class OrdenPuntoVenta extends Base\ModelClass
         return $document->get($this->iddocumento);
     }
 
-    public function getSubject()
+    public function getSubject(): Cliente
     {
         $cliente = new Cliente();
         $cliente->loadFromCode($this->codcliente);
@@ -126,9 +142,9 @@ class OrdenPuntoVenta extends Base\ModelClass
     public function allFromSession(string $code): array
     {
         $where = [new DataBaseWhere('idsesion', $code)];
-        $orderBy = ['fecha' => 'DESC', 'hora' => 'DESC'];
+        //$orderBy = ['fecha' => 'DESC', 'hora' => 'DESC'];
 
-        return $this->all($where, []);
+        return $this->all($where);
     }
 
     protected function testDescuadre(): bool
@@ -139,7 +155,7 @@ class OrdenPuntoVenta extends Base\ModelClass
             $pagos += $payment->pagoNeto();
         }
 
-        return self::toolBox()::utils()::floatcmp($this->total, $pagos);
+        return Utils::floatcmp($this->total, $pagos);
     }
 
     /**

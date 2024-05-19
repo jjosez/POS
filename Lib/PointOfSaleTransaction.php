@@ -146,6 +146,7 @@ class PointOfSaleTransaction
             $payment->cantidad = $element['amount'];
             $payment->cambio = $element['change'];
             $payment->codpago = $element['method'];
+            $payment->isCashMethod = $element['is_cash'] ?? false;
 
             $this->payments[] = $payment;
         }

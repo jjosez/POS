@@ -114,7 +114,7 @@ class ProductoVariante extends JoinModel
 
         $this->priceWithTax = $this->price * (100 + $this->getTax()->iva) / 100;
         $this->priceWithFormat = Tools::money($this->priceWithTax);
-        $this->thumbnail = self::getThumbnailUrl($this->id, $this->code);
+        $this->thumbnail = self::getThumbnail($this->id, $this->code);
     }
 
     /**
@@ -131,7 +131,7 @@ class ProductoVariante extends JoinModel
         return (new ProductoImagen())->all($where);
     }
 
-    public static function getThumbnailUrl(?string $id, ?string $code): string
+    public static function getThumbnail(?string $id, ?string $code): string
     {
         if (true === empty($id)) {
             return '';

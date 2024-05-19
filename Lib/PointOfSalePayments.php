@@ -9,8 +9,10 @@ namespace FacturaScripts\Plugins\POS\Lib;
 use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Dinamic\Model\FacturaCliente;
+use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use FacturaScripts\Dinamic\Model\ReciboCliente;
+use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 
 class PointOfSalePayments
 {
@@ -53,7 +55,7 @@ class PointOfSalePayments
         }
 
         //Eliminamos el recibo generado automáticamente.
-        PointOfSalePayments::cleanInvoiceReceipts($invoice);
+        self::cleanInvoiceReceipts($invoice);
 
         $counter = 1;
         foreach ($payments as $key => $value) {
@@ -71,5 +73,42 @@ class PointOfSalePayments
             $receipt->setPaymentMethod($key);
             $receipt->save();
         }
+    }
+
+    /**
+     * @param SalesDocument $document
+     * @param OrdenPuntoVenta $orden
+     * @param SesionPuntoVenta $session
+     * @param PagoPuntoVenta[] $payments
+     * @return bool
+     */
+    public static function savePayments(
+        SalesDocument $document,
+        OrdenPuntoVenta $orden,
+        SesionPuntoVenta $session,
+        array $payments
+    ): bool {
+        self::cleanInvoiceReceipts($document);
+
+        $counter = 1;
+        $cashAmount = 0.0;
+        foreach ($payments as $payment) {
+            if ($payment->isCashMethod) {
+                $cashAmount += $payment->pagoNeto();
+            }
+
+            $payment->idoperacion = $orden->idoperacion;
+            $payment->idsesion = $orden->idsesion;
+
+            if (false === $payment->save()) {
+                return false;
+            }
+
+            PointOfSalePayments::saveInvoiceReceipt($document, $payment, $counter++);
+        }
+
+        $session->saldoesperado += $cashAmount;
+
+        return $session->save();
     }
 }
