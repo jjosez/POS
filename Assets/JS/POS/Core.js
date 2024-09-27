@@ -151,6 +151,7 @@ export function getProductImages(id, code) {
     const data = new FormData();
 
     data.set('action', 'get-product-images');
+
     data.set('id', id);
     data.set('code', code);
 
@@ -186,6 +187,7 @@ export function searchRequest(action, query) {
 
     data.set('action', action);
     data.set('query', query);
+    data.set('terminal', AppSettings.terminal);
 
     return postRequest(data);
 }
@@ -210,7 +212,13 @@ function cleanMessages() {
     if (null === container.firstChild) return;
 
     setTimeout(() => {
-        container.removeChild(container.firstChild);
+        const child = container.firstChild;
+
+        if (child && child.nodeType)
+        {
+            container.removeChild(container.firstChild);
+        }
+
         cleanMessages();
     }, 1000);
 }

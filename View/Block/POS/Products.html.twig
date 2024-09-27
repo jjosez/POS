@@ -38,7 +38,7 @@
         {% for product in fsc.getHomeProducts() %}
             <div role="listitem" class="mb-4 flex cursor-pointer rounded-lg bg-white p-4 shadow-sm product-add-btn"
                  data-action="setProductAction" data-code="{{ product.code }}"
-                 data-description="{{ product.description }}">
+                 data-description="{{ product.description }}" data-thumbnail="{{ product.thumbnail }}">
                 <div class="mr-4 flex items-center">
                     {% if product.thumbnail %}
                         <img class="pointer-events-auto h-20 w-20 object-scale-down" src="{{ product.thumbnail }}"
@@ -93,10 +93,12 @@
     </div>
     <% it.items.forEach(function(item){ %>
     <div role="listitem" class="mb-4 flex cursor-pointer rounded-lg bg-white p-4 shadow-sm"
-         data-action="setProductAction" data-code="<%= item.code %>" data-description="<%= item.description %>">
+         data-action="setProductAction" data-code="<%= item.code %>" data-description="<%= item.description %>"
+         data-thumbnail="<%= item.thumbnail %>">
         <div class="mr-4 flex items-center">
             <% if (item.thumbnail) { %>
-            <img class="pointer-events-auto h-24 w-24 object-scale-down" src="<%= item.thumbnail %>" alt="<%= item.code %>"
+            <img class="pointer-events-auto h-24 w-24 object-scale-down" src="<%= item.thumbnail %>"
+                 alt="<%= item.code %>"
                  data-action="productImageAction" data-id="<%= item.id %>" data-code="<%= item.code %>">
             <% } else { %>
             <span><i class="fas fa-3x fa-box"></i></span>

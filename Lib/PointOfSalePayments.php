@@ -6,7 +6,6 @@
 
 namespace FacturaScripts\Plugins\POS\Lib;
 
-use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Dinamic\Model\FacturaCliente;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
@@ -59,7 +58,6 @@ class PointOfSalePayments
 
         $counter = 1;
         foreach ($payments as $key => $value) {
-            ToolBox::log('POS')->warning("CODPAGO: $key  IMPORTE: $value");
             $receipt = new ReciboCliente();
 
             $receipt->codcliente = $invoice->codcliente;
@@ -87,7 +85,8 @@ class PointOfSalePayments
         OrdenPuntoVenta $orden,
         SesionPuntoVenta $session,
         array $payments
-    ): bool {
+    ): bool
+    {
         self::cleanInvoiceReceipts($document);
 
         $counter = 1;

@@ -1,7 +1,6 @@
+{% from 'Macro/Forms.html.twig' import simpleSelect as simpleSelect %}
+
 <div class="card shadow">
-    <div class="card-header">
-        <h1>Campos</h1>
-    </div>
     <div class="card-body">
         <form method="post">
             <input type="hidden" name="action" value="load-fields-options">
@@ -12,18 +11,15 @@
                 </div>
                 <div class="col-3">
                     <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">
-                                <i class="fas fa-users"></i>
-                            </span>
-                        </div>
-                        <select id="nick" name="nick" class="form-control" onchange="this.form.submit()">
-                            {% for key,option in {'': i18n.trans('all')} | merge(fsc.getUserList()) %}
-                                <option value="{{ key }}"{% if fsc.selectedUser == key %} selected="selected"{% endif %}>
-                                    {{ option }}
-                                </option>
-                            {% endfor %}
-                        </select>
+                        {{ simpleSelect(
+                            'nick',
+                            'nick',
+                            fsc.selectedUser,
+                            {'': i18n.trans('all')} | merge(fsc.getUserList()),
+                            NULL,
+                            'fas fa-users',
+                            {'onChange': 'this.form.submit()'}
+                        ) }}
                     </div>
                 </div>
             </div>
@@ -35,7 +31,6 @@
         <table class="table">
             <thead>
             <tr>
-                <th>Campo</th>
                 <th>Titulo</th>
                 <th>Decimales</th>
                 <th class="text-center">Disponible</th>
@@ -45,15 +40,16 @@
             </thead>
             <tbody>
             {% for column in fsc.getTerminalFields() %}
+                {% set checkSelectBoxData = {1: trans('yes'), 0:trans('no')} %}
                 <tr>
                     <td>
                         <input type="hidden" name="field[{{ column.name }}][data]" value="{{ column.data }}"/>
                         <input type="hidden" name="field[{{ column.name }}][name]" value="{{ column.name }}"/>
                         <input type="hidden" name="field[{{ column.name }}][type]" value="{{ column.type }}"/>
-                        {{ i18n.trans(column.name) }}</td>
-                    <td>
-                        <input class="form-control" type="text" name="field[{{ column.name }}][tittle]"
-                               value="{{ column.tittle ?: i18n.trans(column.name) }}">
+                        <label class="d-inline">
+                            <input class="form-control" type="text" name="field[{{ column.name }}][tittle]"
+                                   placeholder="{{ column.tittle ?: trans(column.name) }}">
+                        </label>
                     </td>
                     <td>
                         {% if column.type == 'number' %}
@@ -62,23 +58,26 @@
                                    class="form-control">
                         {% endif %}
                     </td>
-                    <td class="text-center">
-                        <div class="form-check form-check-inline mb-2 mr-sm-2 mb-sm-0">
-                            <input class="form-check-input" type="checkbox" name="field[{{ column.name }}][eneabled]"
-                                   value="1" {% if column.eneabled %} checked {% endif %}>
-                        </div>
+                    <td title="{{ trans('available') }}">
+                        {{ simpleSelect(
+                            'field['~column.name~'][eneabled]',
+                            'field['~column.name~'][eneabled]',
+                            column.eneabled,
+                            checkSelectBoxData) }}
+                    </td>
+                    <td title="{{ trans('readonly') }}">
+                        {{ simpleSelect(
+                            'field['~column.name~'][readonly]',
+                            'field['~column.name~'][readonly]',
+                            column.readonly,
+                            checkSelectBoxData) }}
                     </td>
                     <td class="text-center">
-                        <div class="form-check form-check-inline mb-2 mr-sm-2 mb-sm-0">
-                            <input class="form-check-input" type="checkbox" name="field[{{ column.name }}][readonly]"
-                                   value="1" {% if column.readonly %} checked {% endif %}>
-                        </div>
-                    </td>
-                    <td class="text-center">
-                        <div class="form-check form-check-inline mb-2 mr-sm-2 mb-sm-0">
-                            <input class="form-check-input" type="checkbox" name="field[{{ column.name }}][carrito]"
-                                   value="1" {% if column.carrito %} checked {% endif %}>
-                        </div>
+                        {{ simpleSelect(
+                            'field['~column.name~'][carrito]',
+                            'field['~column.name~'][carrito]',
+                            column.carrito,
+                            checkSelectBoxData) }}
                     </td>
                 </tr>
             {% endfor %}

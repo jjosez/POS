@@ -11,13 +11,15 @@ module.exports = {
         'selected',
         'd-none',
         'form-control',
+        'tab',
+        'tab-active',
         {
-            pattern: /bg-(red|green|blue|yellow)-(100|200|500)/,
+            pattern: /bg-(red|green|blue|yellow|slate)-(100|200|500)/,
             variants: ['hover', 'even', 'odd'],
         },
         {
             pattern: /alert-(success|info|warning|error)/
-        },
+        }
     ],
     theme: {
         extend: {

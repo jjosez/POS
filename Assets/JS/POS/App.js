@@ -8,6 +8,14 @@ import * as View from "./View.js";
 import Cart from "./modules/Cart.js"
 import Checkout from "./modules/Checkout.js";
 
+function cashEntryAction() {
+    View.main().cashEntryForm().submit();
+}
+
+function cashWithdrawAction() {
+    View.main().cashWithdrawForm().submit();
+}
+
 /**
  * @param {{code:string}} data
  */
@@ -121,10 +129,6 @@ async function sessionCloseAction() {
     Core.reloadApp();
 }
 
-function sessionMoneyMovmentAction() {
-    View.main().cashMovmentForm().submit();
-}
-
 async function sessionPrintClosingVoucherAction() {
     const response = await Core.printClosingVoucher();
     await Core.printerServerRequest(response);
@@ -164,6 +168,12 @@ async function appEventHandler(event) {
     }
 
     switch (action) {
+        case 'cashEntryAction':
+            return cashEntryAction();
+
+        case 'cashWithdrawAction':
+            return cashWithdrawAction();
+
         case 'closeSessionAction':
             return sessionCloseAction();
 
@@ -172,9 +182,6 @@ async function appEventHandler(event) {
 
         case 'holdOrderAction':
             return orderSuspendAction();
-
-        case 'moneyInOutAction':
-            return sessionMoneyMovmentAction();
 
         case 'resumeOrderAction':
             return orderResumeAction(data);

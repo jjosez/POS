@@ -3,12 +3,14 @@
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2022 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
+
 namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Model\Base;
 use FacturaScripts\Core\DataSrc\Almacenes;
+use FacturaScripts\Core\Model\Base;
 use FacturaScripts\Dinamic\Model\Almacen;
+use FacturaScripts\Dinamic\Model\Cliente;
 
 /**
  * Una terminal POS.
@@ -27,7 +29,7 @@ class TerminalPuntoVenta extends Base\ModelClass
     public $aceptapagos;
     public $codalmacen;
     public $codcliente;
-    public $codserie;    
+    public $codserie;
     public $comandoapertura;
     public $comandocorte;
     public $defaultdocument;
@@ -36,8 +38,8 @@ class TerminalPuntoVenta extends Base\ModelClass
 
     public $idformatoticket;
 
-    public $idterminal;   
-    public $nombre; 
+    public $idterminal;
+    public $nombre;
     public $numerotickets;
     public $productsource;
     public $restringealmacen;
@@ -47,14 +49,14 @@ class TerminalPuntoVenta extends Base\ModelClass
     public function clear()
     {
         parent::clear();
-        
+
         $this->aceptapagos = true;
         $this->anchopapel = 45;
         $this->restringealmacen = false;
         $this->defaultdocument = 'FacturaCliente';
         $this->disponible = true;
         $this->numerotickets = 1;
-    } 
+    }
 
     public static function primaryColumn(): string
     {
@@ -66,10 +68,13 @@ class TerminalPuntoVenta extends Base\ModelClass
         return 'terminalespos';
     }
 
-    public function allAvailable($idempresa = false): array
+    /**
+     * @return TerminalPuntoVenta[]
+     */
+    public function getAvailable($idempresa = null): array
     {
         $where = [
-          new DataBaseWhere('disponible', true, '=')
+            new DataBaseWhere('disponible', true, '=')
         ];
 
         if ($idempresa) {
@@ -79,33 +84,57 @@ class TerminalPuntoVenta extends Base\ModelClass
         return $this->all($where);
     }
 
-    public function getWarehouse(): Almacen
+    /**
+     * @return Cliente
+     */
+    public function getDefaultCustomer(): Cliente
     {
-        return Almacenes::get($this->codalmacen);
+        $customer = new Cliente();
+        $customer->loadFromCode($this->codcliente);
+
+        return $customer;
+    }
+
+    /**
+     * @return TipoDocumentoPuntoVenta
+     */
+    public function getDefaultDocument(): TipoDocumentoPuntoVenta
+    {
+        foreach (self::getSupportedDocuments() as $element) if ($element->preferido) {
+            return $element;
+        }
+
+        return new TipoDocumentoPuntoVenta();
     }
 
     /**
      * @return FormaPagoPuntoVenta[]
      */
-    public function getPaymenthMethods(): array
+    public function getSupportedPaymenthMethods(): array
     {
-        return (new FormaPagoPuntoVenta)->all([new DataBaseWhere('idterminal', $this->idterminal)]);
+        return FormaPagoPuntoVenta::all([new DataBaseWhere('idterminal', $this->idterminal)]);
     }
 
-    public function cashPaymentMethod(): string
+    public function getCashPaymentMethod(): string
     {
-        foreach ($this->getPaymenthMethods() as $element) if ($element->recibecambio) {
+        foreach ($this->getSupportedPaymenthMethods() as $element) if ($element->recibecambio) {
             return $element->codpago;
         }
+
         return '';
     }
 
     /**
      * @return TipoDocumentoPuntoVenta[]
      */
-    public function getDocumentTypes(): array
+    public function getSupportedDocuments(): array
     {
-        return (new TipoDocumentoPuntoVenta())->all([new DataBaseWhere('idterminal', $this->idterminal)]);
+        return TipoDocumentoPuntoVenta::all([new DataBaseWhere('idterminal', $this->idterminal)]);
+    }
+
+    public function getWarehouse(): Almacen
+    {
+        return Almacenes::get($this->codalmacen);
     }
 
     public function save(): bool

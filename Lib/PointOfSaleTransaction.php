@@ -5,6 +5,7 @@ namespace FacturaScripts\Plugins\POS\Lib;
 use FacturaScripts\Core\Base\Calculator;
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Model\Base\SalesDocumentLine;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use RuntimeException;
 
@@ -79,12 +80,13 @@ class PointOfSaleTransaction
      */
     public function saveDocument(): bool
     {
+        $this->setPaymentMethod();
+
         if (empty($this->document->primaryColumnValue()) && false === $this->document->save()) {
             return false;
         }
 
         $this->setDocumentLines();
-        $this->setPaymentMethod();
 
         return Calculator::calculate($this->document, $this->documentLines, true);
     }
@@ -127,7 +129,13 @@ class PointOfSaleTransaction
                 continue;
             }
 
-            $this->documentLines[] = $this->document->getNewProductLine($product['referencia']);
+            $newLine = $this->document->getNewProductLine($product['referencia']);
+
+            if (isset($product['thumbnail'])) {
+                $newLine->thumbnail = $product['thumbnail'];
+            }
+
+            $this->documentLines[] = $newLine;
         }
     }
 
@@ -162,7 +170,7 @@ class PointOfSaleTransaction
         $amount = 0;
         $method = '';
         foreach ($this->payments as $payment) {
-            if ($payment->pagoNeto() > $amount) {
+            if (abs($payment->pagoNeto()) > $amount) {
                 $method = $payment->codpago;
                 $amount = $payment->pagoNeto();
             }

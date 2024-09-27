@@ -8,8 +8,6 @@ use FacturaScripts\Core\Model\Base\TaxRelationTrait;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\ProductoImagen;
 
-//class ProductoVariante extends JoinModel implements JsonSerializable
-
 class ProductoVariante extends JoinModel
 {
     use TaxRelationTrait;
@@ -122,13 +120,14 @@ class ProductoVariante extends JoinModel
      */
     public static function getImages(string $id, string $code): array
     {
-        $where = [
-            new DataBaseWhere('idproducto', $id),
-            new DataBaseWhere('referencia', null, 'IS', 'AND'),
-            new DataBaseWhere('referencia', $code, '=', 'OR')
-        ];
+        $where = [new DataBaseWhere('referencia', $code)];
 
-        return (new ProductoImagen())->all($where);
+        if (!empty($id) && ($id !== 'undefined')) {
+            $where[] = new DataBaseWhere('referencia', null, 'IS', 'OR');
+            $where[] = new DataBaseWhere('idproducto', $id, '=', 'AND');
+        }
+
+        return ProductoImagen::all($where);
     }
 
     public static function getThumbnail(?string $id, ?string $code): string
@@ -144,8 +143,7 @@ class ProductoVariante extends JoinModel
             new DataBaseWhere('referencia', null, 'IS', 'AND'),
             new DataBaseWhere('referencia', $code, '=', 'OR')
         ])) {
-            return FS_ROUTE . '/' . $productImage->url('download-permanent');
-            //return FS_ROUTE . $productImage->getThumbnail(150, 150, true);
+            return FS_ROUTE . $productImage->getThumbnail(150, 150, true);
         }
 
         return '';

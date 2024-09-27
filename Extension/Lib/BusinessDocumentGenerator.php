@@ -28,8 +28,6 @@ class BusinessDocumentGenerator
         return function (BusinessDocument $prototype, BusinessDocument $newDoc, array $lines, array $quantity) {
 
             foreach ($newDoc->parentDocuments() as $parent) {
-                Tools::log()->warning('Parent Name');
-
                 $POSOrder = new OrdenPuntoVenta();
                 $POSOrder->loadFromDocument($parent->modelClassName(), $parent->primaryColumnValue());
 

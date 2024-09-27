@@ -47,22 +47,16 @@ function productEditFieldAction({index, field}, value) {
     });
 }
 
-function productQuantityDecreaseAction() {
-    let value = view.cart().productQuantityInput().valueAsNumber;
-    let index = view.cart().productQuantityInput().dataset.index;
-    value -= 1;
-
-    view.cart().productQuantityInput().valueAsNumber = value;
+function productQuantityDecreaseAction({index}) {
+    let product = Cart.getProduct(index);
+    let value = product.cantidad - 1 || 0;
 
     productEditFieldAction({field: 'cantidad', index: index}, value);
 }
 
-function productQuantityIncreaseAction() {
-    let value = view.cart().productQuantityInput().valueAsNumber;
-    let index = view.cart().productQuantityInput().dataset.index;
-    value += 1;
-
-    view.cart().productQuantityInput().valueAsNumber = value;
+function productQuantityIncreaseAction({index}) {
+    let product = Cart.getProduct(index);
+    let value = product.cantidad + 1;
 
     productEditFieldAction({field: 'cantidad', index: index}, value);
 }
@@ -94,11 +88,11 @@ function setDocumentAction({code, serie, description}) {
 /**
  * @param {{code:string|null, description:string}} data
  */
-function setProductAction({code, description}) {
+function setProductAction({code, description, thumbnail}) {
     if (typeof code === 'undefined' || code === null) {
         return;
     }
-    Cart.setProduct(code, description);
+    Cart.setProduct(code, description, thumbnail);
 }
 
 async function onChangeCartAction() {

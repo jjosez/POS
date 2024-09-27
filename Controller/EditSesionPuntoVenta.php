@@ -49,6 +49,7 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
         $this->createOrdenesView();
         $this->createPagosView();
         $this->createMovimientosView();
+        $this->createDraftView();
 
         $this->setSettings('EditSesionPuntoVenta', 'btnNew', false);
         $this->setTabsPosition('top');
@@ -65,6 +66,13 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
     protected function createOrdenesView(string $viewName = 'ListOrdenPuntoVenta')
     {
         $this->addListView($viewName, 'OrdenPuntoVenta', 'till-session-operations');
+        $this->views[$viewName]->addOrderBy(['fecha', 'hora'], 'Fecha', 2);
+        $this->disableButtons($viewName);
+    }
+
+    private function createDraftView(string $viewName = 'ListBorradorPuntoVenta')
+    {
+        $this->addListView($viewName, 'BorradorPuntoVenta', 'pos-drafts');
         $this->views[$viewName]->addOrderBy(['fecha', 'hora'], 'Fecha', 2);
         $this->disableButtons($viewName);
     }
@@ -100,9 +108,14 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
                 $where = [new DataBaseWhere('idsesion', $this->getModel()->primaryColumnValue())];
                 $view->loadData('', $where);
                 break;
+            case 'ListBorradorPuntoVenta':
+                $view->loadData();
+                break;
             default:
                 parent::loadData($viewName, $view);
                 break;
         }
     }
+
+
 }

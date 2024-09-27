@@ -139,12 +139,9 @@ class OrdenPuntoVenta extends Base\ModelClass
      *
      * @return OrdenPuntoVenta[]
      */
-    public function allFromSession(string $code): array
+    public static function allFromSession(string $sessionID): array
     {
-        $where = [new DataBaseWhere('idsesion', $code)];
-        //$orderBy = ['fecha' => 'DESC', 'hora' => 'DESC'];
-
-        return $this->all($where);
+        return self::all([new DataBaseWhere('idsesion', $sessionID)]);
     }
 
     protected function testDescuadre(): bool

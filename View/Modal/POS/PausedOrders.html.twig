@@ -45,7 +45,8 @@
     </div>
     <% } %>
     <% it.items.forEach(function(order){ %>
-    <div class="mb-4 flex flex-col rounded-lg bg-slate-100 p-2 shadow-sm hover:bg-yellow-100 md:flex-row">
+    <div class="mb-4 flex flex-col rounded-lg bg-<%= order.rowcolor %>-100 p-2 shadow-sm
+                hover:bg-<%= order.rowcolor %>-200 md:flex-row">
         <div role="listitem" class="flex-1 flex-col self-center"
              data-action="resumeOrderAction" data-code="<%= order.idpausada %>">
             <div class="flex flex-1 flex-col text-center md:flex-row md:text-left">

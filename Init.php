@@ -3,13 +3,15 @@
 namespace FacturaScripts\Plugins\POS;
 
 use FacturaScripts\Core\Base\DataBase;
-use FacturaScripts\Core\Base\InitClass;
+use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
+use FacturaScripts\Core\Model\EstadoDocumento;
+use FacturaScripts\Core\Template\InitClass;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Plugins\POS\Model\TerminalPuntoVenta;
 
 class Init extends InitClass
 {
-    public function init()
+    public function init(): void
     {
         //$this->loadExtension(new Extension\Controller\EditFamilia());
         $this->loadExtension(new Extension\Controller\EditAlbaranCliente());
@@ -18,12 +20,55 @@ class Init extends InitClass
         $this->loadExtension(new Extension\Model\FacturaCliente());
         $this->loadExtension(new Extension\Model\Base\SalesDocument());
         $this->loadExtension(new Extension\Model\Base\SalesDocument());
+        $this->loadExtension(new Extension\Controller\EditEstadoDocumento());
     }
 
-    public function update()
+    public function update(): void
     {
         $this->updateTerminaPuntoVentaTable();
         $this->updateTerminals();
+
+        $this->createDraftDocumentOpenStatus();
+        $this->createDraftDocumentCompletedStatus();
+    }
+
+    protected function createDraftDocumentOpenStatus()
+    {
+        $where = [
+            new DataBaseWhere('tipodoc', 'BorradorPuntoVenta'),
+            new DataBaseWhere('nombre', 'Abierto'),
+        ];
+
+        $status = new EstadoDocumento();
+
+        if (false === $status->loadFromCode('', $where)) {
+            $status->icon = 'fas fa-file-pen';
+            $status->nombre = 'Abierto';
+            $status->predeterminado = true;
+            $status->tipodoc = 'BorradorPuntoVenta';
+
+            $status->save();
+        }
+    }
+
+    protected function createDraftDocumentCompletedStatus()
+    {
+        $where = [
+            new DataBaseWhere('tipodoc', 'BorradorPuntoVenta'),
+            new DataBaseWhere('nombre', 'Completado'),
+        ];
+
+        $status = new EstadoDocumento();
+
+        if (false === $status->loadFromCode('', $where)) {
+            $status->icon = 'fas fa-receipt';
+            $status->editable = false;
+            $status->nombre = 'Completado';
+            $status->predeterminado = false;
+            $status->tipodoc = 'BorradorPuntoVenta';
+
+            $status->save();
+        }
     }
 
     private function updateTerminaPuntoVentaTable()
@@ -51,5 +96,10 @@ class Init extends InitClass
             }
             $terminal->save();
         }
+    }
+
+    public function uninstall(): void
+    {
+        // TODO: Implement uninstall() method.
     }
 }

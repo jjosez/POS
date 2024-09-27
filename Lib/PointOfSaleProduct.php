@@ -14,19 +14,12 @@ class PointOfSaleProduct
     /**
      * @var ProductoVariante
      */
-    protected $product;
-
-    private static $prodcuto;
+    private static $product;
 
     /**
      * @var Variante
      */
     private static $variante;
-
-    public function __construct()
-    {
-        $this->product = new ProductoVariante();
-    }
 
     /**
      * @param string $idempresa
@@ -45,7 +38,7 @@ class PointOfSaleProduct
     /**
      * @return String[]
      */
-    public static function getImages(string $id, string $code): array
+    public static function getImagesUrl(string $id, string $code): array
     {
         $routes = [];
 
@@ -60,7 +53,7 @@ class PointOfSaleProduct
      * @param string $code
      * @return ProductoStock[]
      */
-    public function getStock(string $code): array
+    public static function getStock(string $code): array
     {
         $where = [
             new DataBaseWhere('LOWER(S.referencia)', mb_strtolower($code, 'UTF8'))
@@ -114,11 +107,11 @@ class PointOfSaleProduct
      */
     protected static function getProduct(): ProductoVariante
     {
-        if (!isset(self::$prodcuto)) {
-            self::$prodcuto = new ProductoVariante();
+        if (!isset(self::$product)) {
+            self::$product = new ProductoVariante();
         }
 
-        return self::$prodcuto;
+        return self::$product;
     }
 
     /**

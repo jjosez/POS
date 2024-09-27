@@ -9,6 +9,7 @@ namespace FacturaScripts\Plugins\POS\Model;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
 use FacturaScripts\Core\Model\Base\SalesDocument;
+use FacturaScripts\Core\Session;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 
@@ -181,11 +182,11 @@ class SesionPuntoVenta extends Base\ModelClass
         return $this->loadFromCode('', $where);
     }
 
-    public function open(TerminalPuntoVenta $terminal, float $amount, string $nick): bool
+    public function open(TerminalPuntoVenta $terminal, float $amount, User $user): bool
     {
         $this->abierto = true;
         $this->idterminal = $terminal->idterminal;
-        $this->nickusuario = $nick;
+        $this->nickusuario = $user->nick;
         $this->saldoinicial = $amount;
         $this->saldoesperado = $amount;
 
@@ -194,36 +195,23 @@ class SesionPuntoVenta extends Base\ModelClass
         return $this->save() && $terminal->save();
     }
 
-    public function close(TerminalPuntoVenta $terminal, float $totalCount, array $coinsCount)
+    public function close(TerminalPuntoVenta $terminal, array $coinsCount): bool
     {
+        $totalCounted = 0.0;
+        foreach ($coinsCount as $value => $count) {
+            $totalCounted += (float)$value * (float)$count;
+        }
+
         $this->abierto = false;
         $this->fechafin = date(self::DATE_STYLE);
         $this->horafin = date(self::HOUR_STYLE);
-        $this->saldocontado = $totalCount;
+        $this->saldocontado = $totalCounted;
         $this->conteo = json_encode($coinsCount);
 
         $terminal->disponible = true;
 
 
         return $this->save() && $terminal->save();
-    }
-
-    /**
-     * @param SalesDocument $document
-     * @param $order
-     * @return bool
-     */
-    public function saveOrder(SalesDocument $document, $order): bool
-    {
-        $order->codigo = $document->codigo;
-        $order->codcliente = $document->codcliente;
-        $order->fecha = $document->fecha;
-        $order->iddocumento = $document->primaryColumnValue();
-        $order->idsesion = $this->idsesion;
-        $order->tipodoc = $document->modelClassName();
-        $order->total = $document->total;
-
-        return $order->save();
     }
 
     /**

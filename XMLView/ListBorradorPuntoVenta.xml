@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view>
+    <columns>
+        <column name="idpausada" title="ID" display="left" order="100">
+            <widget type="text" fieldname="idpausada"/>
+        </column>
+        <column name="warehouse" display="none" order="110">
+            <widget type="select" fieldname="codalmacen">
+                <values source="almacenes" fieldcode="codalmacen" fieldtitle="nombre"/>
+            </widget>
+        </column>
+        <column name="serie" display="none" order="120">
+            <widget type="select" fieldname="codserie">
+                <values source="series" fieldcode="codserie" fieldtitle="codserie"/>
+            </widget>
+        </column>
+        <column name="exercise" display="none" order="130">
+            <widget type="select" fieldname="codejercicio">
+                <values source="ejercicios" fieldcode="codejercicio" fieldtitle="codejercicio"/>
+            </widget>
+        </column>
+        <column name="number" display="none" order="140">
+            <widget type="text" fieldname="numero"/>
+        </column>
+        <column name="code" order="150">
+            <widget type="text" fieldname="codigo"/>
+        </column>
+        <column name="customer-code" display="none" order="170">
+            <widget type="text" fieldname="codcliente"/>
+        </column>
+        <column name="customer" order="180">
+            <widget type="text" fieldname="nombrecliente"/>
+        </column>
+        <column name="fiscal-number" display="none" order="190">
+            <widget type="text" fieldname="cifnif"/>
+        </column>
+        <column name="total" display="right" order="270">
+            <widget type="money" fieldname="total">
+                <option color="danger">lt:0</option>
+            </widget>
+        </column>
+         <column name="fecharegistro" title="Fecha" display="left" order="280">
+            <widget type="date" fieldname="fecharegistro"/>
+        </column>
+        <column name="horaregistro" title="Hora" display="left" order="290">
+            <widget type="time" fieldname="horaregistro"/>
+        </column>
+    </columns>
+</view>

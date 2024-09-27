@@ -2,10 +2,12 @@
 
 namespace FacturaScripts\Plugins\POS\Lib;
 
+use Exception;
 use FacturaScripts\Core\Model\Base\SalesDocument;
-use FacturaScripts\Dinamic\Model\OperacionPausada;
+use FacturaScripts\Core\Session;
+use FacturaScripts\Dinamic\Model\BorradorPuntoVenta;
+use FacturaScripts\Dinamic\Model\MovimientoPuntoVenta;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
-use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 
 class PointOfSaleStorage
 {
@@ -15,10 +17,10 @@ class PointOfSaleStorage
      */
     public static function completePausedDocument(SalesDocument $document): bool
     {
-        $posDocument = new OperacionPausada();
+        $draft = new BorradorPuntoVenta();
 
-        if (isset($document->idpausada) && $posDocument->loadFromCode($document->idpausada)) {
-            return $posDocument->completeDocument();
+        if (isset($document->idpausada) && $draft->loadFromCode($document->idpausada)) {
+            return $draft->setAsCompleted();
         }
 
         return true;
@@ -28,12 +30,12 @@ class PointOfSaleStorage
      * @param string $code
      * @return bool
      */
-    public static function deletePausedDocument(string $code): bool
+    public static function deleteDraftDocument(string $code): bool
     {
-        $document = new OperacionPausada();
+        $draft = new BorradorPuntoVenta();
 
-        if ($code && $document->loadFromCode($code)) {
-            return $document->delete();
+        if ($code && $draft->loadFromCode($code)) {
+            return $draft->delete();
         }
 
         return false;
@@ -49,11 +51,11 @@ class PointOfSaleStorage
 
     /**
      * @param string $code
-     * @return OperacionPausada
+     * @return BorradorPuntoVenta
      */
-    public static function getPausedDocument(string $code): OperacionPausada
+    public static function getDraftDocument(string $code): BorradorPuntoVenta
     {
-        $document = new OperacionPausada();
+        $document = new BorradorPuntoVenta();
         $document->loadFromCode($code);
 
         $document->codigo = null;
@@ -65,39 +67,52 @@ class PointOfSaleStorage
 
     /**
      * @param string|null $sessionID
-     * @return OperacionPausada[]
+     * @return BorradorPuntoVenta[]
+     * @throws Exception
      */
-    public static function getPausedDocuments(?string $sessionID = null): array
+    public static function getDraftDocuments(?string $sessionID = null): array
     {
-        $document = new OperacionPausada();
-
-        return $document->allOpened($sessionID);
+        return BorradorPuntoVenta::allOpened($sessionID);
     }
 
-    public static function getOrders(string $sessionId = ''): array
+    public static function getOrders(string $sessionID = ''): array
     {
-        $order = new OrdenPuntoVenta();
-
-        if ('' !== $sessionId) {
-            return $order->allFromSession($sessionId);
+        if ('' !== $sessionID) {
+            return OrdenPuntoVenta::allFromSession($sessionID);
         }
 
-        return $order->all();
+        return OrdenPuntoVenta::all();
     }
 
     public static function saveOrder(
         OrdenPuntoVenta $order,
-        SalesDocument $document,
-        SesionPuntoVenta $session
+        SalesDocument $document
     ): bool {
         $order->codigo = $document->codigo;
         $order->codcliente = $document->codcliente;
         $order->fecha = $document->fecha;
         $order->iddocumento = $document->primaryColumnValue();
-        $order->idsesion = $session->primaryColumnValue();
+        $order->idsesion = PointOfSaleSession::getSessionID();
         $order->tipodoc = $document->modelClassName();
         $order->total = $document->total;
 
         return $order->save();
+    }
+
+    public static function saveCashMovment(
+        float $amount,
+        string $description
+    ): bool {
+        $sessionID = PointOfSaleSession::getSessionID();
+        $nick = Session::user()->nick;
+
+        $movment = new MovimientoPuntoVenta();
+
+        $movment->idsesion = $sessionID;
+        $movment->nickusuario = $nick;
+        $movment->descripcion = $description;
+        $movment->total = $amount;
+
+        return $movment->save();
     }
 }

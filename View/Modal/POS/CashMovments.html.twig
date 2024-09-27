@@ -13,24 +13,62 @@
             </button>
         </div>
         <div class="modal-body">
-            <form id="cashMovmentForm" method="POST">
-                <input type="hidden" name="action" value="cash-movment">
-                <input type="hidden" name="token" value="{{ fsc.getNewToken() }}">
-                <p>Ingrese la cantidad a retirar/depositar. Utilize signo <em>negativo</em> <strong>&minus;</strong> si es un retiro.</p>
-                <div class="form-group mt-4">
-                    <span class="text-xl font-medium text-left">{{ i18n.trans('amount') }}</span>
-                    <input name="amount" type="number" required>
+            <div class="border-b border-gray-200 dark:border-gray-700 mb-4">
+                <ul class="flex flex-wrap -mb-px tablist" data-target="cash-movments" role="tablist">
+                    <li class="mr-2" role="presentation">
+                        <button class="tab tab-active" data-toggle="tab" data-target="cash-entry"
+                                type="button" role="tab"
+                                aria-controls="entry">{{ i18n.trans('deposit') }}
+                        </button>
+                    </li>
+                    <li class="mr-2" role="presentation">
+                        <button class="tab" data-toggle="tab" data-target="cash-withdraw"
+                                type="button" role="tab"
+                                aria-controls="dashboard">{{ i18n.trans('withdraw') }}
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="mt-3" id="cash-movments">
+                <div id="cash-entry" role="tabpanel" aria-labelledby="tabs-with-underline-item-1"
+                     class="tabcontent">
+                    <form id="cashEntryForm" method="POST">
+                        <input type="hidden" name="action" value="cash-entry-action">
+                        <input type="hidden" name="token" value="{{ fsc.getNewToken() }}">
+                        <div class="form-group mt-4">
+                            <span class="font-medium">{{ i18n.trans('amount') }}</span>
+                            <input name="amount" type="number" required>
+                        </div>
+                        <div class="form-group mt-2">
+                            <span class="font-medium">{{ i18n.trans('description') }}</span>
+                            <input name="description" type="text" required>
+                        </div>
+                    </form>
+                    <button type="submit" class="mt-4 mx-auto btn btn-primary btn-round"
+                            data-action="cashEntryAction"
+                            data-toggle="modal" data-target="moneyInOutModal">
+                        {{ i18n.trans('deposit') }}</button>
                 </div>
-                <div class="form-group mt-2">
-                    <span class="text-xl font-medium text-left">{{ i18n.trans('description') }}</span>
-                    <input name="description" type="text" required>
+                <div id="cash-withdraw" class="tabcontent hidden" role="tabpanel"
+                     aria-labelledby="cash-withdraw">
+                    <form id="cashWithdrawForm" method="POST">
+                        <input type="hidden" name="action" value="cash-withdraw-action">
+                        <input type="hidden" name="token" value="{{ fsc.getNewToken() }}">
+                        <div class="form-group mt-4">
+                            <span class="font-medium">{{ i18n.trans('amount') }}</span>
+                            <input name="amount" type="number" required>
+                        </div>
+                        <div class="form-group mt-2">
+                            <span class="font-medium">{{ i18n.trans('description') }}</span>
+                            <input name="description" type="text" required>
+                        </div>
+                    </form>
+                    <button type="submit" class="mt-4 mx-auto btn btn-warning btn-round"
+                            data-action="cashWithdrawAction"
+                            data-toggle="modal" data-target="moneyInOutModal">
+                        {{ i18n.trans('withdraw') }}</button>
                 </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button type="submit" class="btn btn-warning btn-round" id="cashMovmentSaveButton" data-action="moneyInOutAction"
-                    data-toggle="modal" data-target="moneyInOutModal">
-                {{ i18n.trans('continue') }}</button>
+            </div>
         </div>
     </div>
 </div>

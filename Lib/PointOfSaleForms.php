@@ -7,7 +7,7 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Base\ToolBox;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Lib\Widget\VisualItemLoadEngine;
 use FacturaScripts\Dinamic\Model\PageOption;
 use FacturaScripts\Plugins\POS\Model\OpcionesTerminalPuntoVenta;
@@ -59,7 +59,7 @@ class PointOfSaleForms
                 'readonly' => $column->readonly,
                 'carrito' => $column->onCart,
                 'eneabled' => $column->eneabled,
-                'tittle' => ToolBox::i18n()->trans($column->name),
+                'tittle' => Tools::lang()->trans($column->name),
             ];
 
             $fields[] = $item;

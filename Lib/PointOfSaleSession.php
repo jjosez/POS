@@ -2,20 +2,18 @@
 
 namespace FacturaScripts\Plugins\POS\Lib;
 
-use FacturaScripts\Core\Model\Base\SalesDocument;
+use FacturaScripts\Core\Session;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
-use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 
 class PointOfSaleSession
 {
-    /**
-     * @var OrdenPuntoVenta
-     */
-    protected $lastOrder;
+    const POS_SESSION_ID = 'POS_SESSION_ID';
+    const POS_TERMINAL_ID = 'POS_TERMINAL_ID';
+
+    const POS_TERMINAL = 'POS_SESSION_TERMINAL';
 
     /**
      * @var SesionPuntoVenta
@@ -50,16 +48,19 @@ class PointOfSaleSession
             return;
         }
 
+        Session::set(self::POS_SESSION_ID, $this->session->idsesion);
         $this->loadTerminal($this->session->idterminal);
     }
 
     protected function loadTerminal(string $code): bool
     {
         if (false === $this->terminal->loadFromCode($code)) {
-            Tools::log()->warning('cash-register-not-found');
+            Tools::log('POS')->warning('cash-register-not-found');
             return false;
         }
 
+        Session::set(self::POS_TERMINAL_ID, $this->terminal->idterminal);
+        Session::set(self::POS_TERMINAL, $this->terminal);
         return true;
     }
 
@@ -83,27 +84,21 @@ class PointOfSaleSession
         return $this->session->abierto && $this->session->nickusuario;
     }
 
-    public function openSession(string $terminal, float $amount = 0.0)
+    public function open(string $terminal, float $amount = 0.0)
     {
         if (true === $this->isOpen()) {
-            Tools::log()->info('till-session-allready-opened', [
-                '%userNickname%' => $this->user->nick
-            ]);
+            Tools::log('POS')->info('till-session-allready-opened', ['%userNickname%' => $this->user->nick]);
             return;
         }
 
-        if (false === $this->loadTerminal($terminal)) {
-            return;
-        }
-
-        if ($this->session->open($this->terminal, $amount, $this->user->nick)) {
+        if ($this->loadTerminal($terminal) && $this->session->open($this->terminal, $amount, $this->user)) {
             $params = [
                 '%terminalName%' => $this->terminal->nombre,
                 '%userNickname%' => $this->user->nick,
             ];
 
-            Tools::log()->info('till-session-opened', $params);
-            Tools::log()->info('cashup-total', ['%amount%' => $amount]);
+            Tools::log('POS')->info('till-session-opened', $params);
+            Tools::log('POS')->info('cashup-total', ['%amount%' => $amount]);
 
             return;
         }
@@ -117,70 +112,21 @@ class PointOfSaleSession
     public function closeSession(array $coinsCount): bool
     {
         if (false === $this->isOpen()) {
-            Tools::log()->info('till-session-not-opened');
+            Tools::log('POS')->info('till-session-not-opened');
             return false;
         }
 
-        $totalCounted = 0.0;
-        foreach ($coinsCount as $value => $count) {
-            $totalCounted += (float)$value * (float)$count;
-        }
+        if ($this->session->close($this->terminal, $coinsCount)) {
+            Tools::log('POS')->info('cashup-total', ['%amount%' => $this->session->saldocontado]);
 
-        if ($this->session->close($this->terminal, $totalCounted, $coinsCount)) {
-            Tools::log()->info('cashup-total', ['%amount%' => $totalCounted]);
-
+            Session::set(self::POS_SESSION_ID, null);
+            Session::set(self::POS_TERMINAL_ID, null);
             return true;
         }
 
-        Tools::log()->info('error-closing-pos-session');
+        Tools::log('POS')->info('error-closing-pos-session');
 
         return false;
-    }
-
-    /**
-     * @param SalesDocument $document
-     * @return bool
-     */
-    public function saveOrder(SalesDocument $document): bool
-    {
-        $this->lastOrder = new OrdenPuntoVenta();
-
-        $this->lastOrder->codigo = $document->codigo;
-        $this->lastOrder->codcliente = $document->codcliente;
-        $this->lastOrder->fecha = $document->fecha;
-        $this->lastOrder->iddocumento = $document->primaryColumnValue();
-        $this->lastOrder->idsesion = $this->session->primaryColumnValue();
-        $this->lastOrder->tipodoc = $document->modelClassName();
-        $this->lastOrder->total = $document->total;
-
-        return $this->lastOrder->save();
-    }
-
-    /**
-     * @param SalesDocument $document
-     * @param PagoPuntoVenta[] $payments
-     * @return void
-     */
-    public function savePayments(SalesDocument $document, array $payments)
-    {
-        PointOfSalePayments::cleanInvoiceReceipts($document);
-        $cashMethodCode = $this->getTerminal()->cashPaymentMethod();
-
-        $counter = 1;
-        foreach ($payments as $payment) {
-            if ($cashMethodCode === $payment->codpago) {
-                $this->getSession()->saldoesperado += $payment->pagoNeto();
-            }
-
-            $payment->idoperacion = $this->getLastOrder()->idoperacion;
-            $payment->idsesion = $this->getID();
-
-            if ($payment->save()) {
-                PointOfSalePayments::saveInvoiceReceipt($document, $payment, $counter++);
-            }
-        }
-
-        $this->getSession()->save();
     }
 
     /**
@@ -196,24 +142,6 @@ class PointOfSaleSession
         }
 
         return $this->terminal;
-    }
-
-    /**
-     * @return OrdenPuntoVenta|null
-     */
-    public function getLastOrder(): ?OrdenPuntoVenta
-    {
-        return $this->lastOrder;
-    }
-
-    /**
-     * Return current SesionPuntoVenta ID.
-     *
-     * @return string
-     */
-    public function getID(): string
-    {
-        return $this->session->idsesion;
     }
 
     /**
@@ -238,5 +166,25 @@ class PointOfSaleSession
 
         $this->session->nickusuario = $this->user->nick;
         $this->session->save();
+    }
+
+    public static function getSessionID()
+    {
+        return Session::get(self::POS_SESSION_ID);
+    }
+
+    public static function getSessionNick(): string
+    {
+        return Session::user()->nick;
+    }
+
+    public static function getSessionTerminal(?string $terminalID = null): TerminalPuntoVenta
+    {
+        $terminalID = $terminalID ?:Session::get(self::POS_TERMINAL_ID);
+
+        $terminal = new TerminalPuntoVenta();
+        $terminal->loadFromCode($terminalID);
+
+        return $terminal;
     }
 }

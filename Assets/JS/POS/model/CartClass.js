@@ -56,17 +56,17 @@ class CartClass {
 
     setPriceWithTax(line) {
         line.pvptotaliva = Money.priceWithTax(line.pvptotal, line.iva);
-        line.pvpunitarioiva = line.pvptotaliva / line.cantidad;
+        line.pvpunitarioiva = Money.roundFixed(line.pvptotaliva / line.cantidad);
     }
 
-    setProduct(code, description) {
+    setProduct(code, description, thumbnail) {
         if ('' === code) {
-            this.lines.unshift({referencia: code, descripcion: description});
+            this.lines.unshift({referencia: code, descripcion: description, thumbnail: thumbnail});
         } else if (this.lines.some(element => {
             return element.referencia === code ? element.cantidad++ : false;
         })) {
         } else {
-            this.lines.unshift({referencia: code, descripcion: description});
+            this.lines.unshift({referencia: code, descripcion: description, thumbnail: thumbnail});
         }
 
         /*if ('' === code) {

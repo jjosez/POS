@@ -8,12 +8,12 @@ namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
-use FacturaScripts\Dinamic\Model\LineaOperacionPausada;
 
-class OperacionPausada extends Base\SalesDocument
+class BorradorPuntoVenta extends Base\SalesDocument
 {
-
     use Base\ModelTrait;
+
+    const NEWLINE_EXCLUDED_FIELDS = ['actualizastock', 'idlinea', 'idpausada'];
 
     /**
      * Primary key. Integer.
@@ -41,16 +41,18 @@ class OperacionPausada extends Base\SalesDocument
     /**
      * @var string
      */
-    public $listcolor;
+    public $rowcolor;
 
     /**
-     * @return OperacionPausada[]
+     * @return BorradorPuntoVenta[]
      * @throws \Exception
      */
     public static function allOpened(?string $sessionID = null): array
     {
         //$where = [Where::eq('editable', true)];
-        $query = [new DataBaseWhere('editable', true)];
+        $query = [
+            new DataBaseWhere('editable', true)
+        ];
 
         if ($sessionID) {
             $query[] = new DataBaseWhere('idsesion', $sessionID);
@@ -59,6 +61,19 @@ class OperacionPausada extends Base\SalesDocument
 
         //return self::table()->where($where)->get() ?? [];
         return self::all($query);
+    }
+
+    public static function allCompleted(?string $sessionID = null): array
+    {
+        $query = [
+            new DataBaseWhere('editable', false)
+        ];
+
+        if ($sessionID) {
+            $query[] = new DataBaseWhere('idsesion', $sessionID);
+        }
+
+        return self::all($query, [], 0, 1000);
     }
 
     public function clear()
@@ -76,9 +91,15 @@ class OperacionPausada extends Base\SalesDocument
         $this->setListRowColor();
     }
 
-    public function completeDocument(): bool
+    public function setAsCompleted(): bool
     {
-        $this->idestado = 3;
+        foreach ($this->getAvailableStatus() as $status) {
+            if ($status->nombre === 'Completado') {
+                $this->idestado = $status->idestado;
+                break;
+            }
+        }
+
         return $this->save();
     }
 
@@ -89,7 +110,7 @@ class OperacionPausada extends Base\SalesDocument
      */
     public function getLines(): array
     {
-        $lineaModel = new LineaOperacionPausada();
+        $lineaModel = new LineaBorradorPuntoVenta();
         $where = [new DataBaseWhere('idpausada', $this->idpausada)];
         $order = ['orden' => 'DESC', 'idlinea' => 'ASC'];
 
@@ -102,11 +123,11 @@ class OperacionPausada extends Base\SalesDocument
      * @param array $data
      * @param array $exclude
      *
-     * @return LineaOperacionPausada
+     * @return LineaBorradorPuntoVenta
      */
-    public function getNewLine(array $data = [], array $exclude = ['actualizastock', 'idlinea', 'idpausada']): LineaOperacionPausada
+    public function getNewLine(array $data = [], array $exclude = self::NEWLINE_EXCLUDED_FIELDS): LineaBorradorPuntoVenta
     {
-        $newLine = new LineaOperacionPausada();
+        $newLine = new LineaBorradorPuntoVenta();
         $newLine->idpausada = $this->idpausada;
         $newLine->irpf = $this->irpf;
         $newLine->actualizastock = 0;
@@ -137,7 +158,7 @@ class OperacionPausada extends Base\SalesDocument
 
     protected function setListRowColor()
     {
-        $this->listcolor = $this->total <= 0 ? 'yellow' : 'slate';
+        $this->rowcolor = $this->total <= 0 ? 'yellow' : 'slate';
 
         $this->pipe('setListRowColor');
     }

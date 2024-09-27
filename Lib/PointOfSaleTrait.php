@@ -43,7 +43,7 @@ trait PointOfSaleTrait
     public function getParentFamilies(): array
     {
         $where = [new DataBaseWhere('madre', NULL, 'IS')];
-        return (new Familia())->all($where);
+        return Familia::all($where);
     }
 
     /**
@@ -53,10 +53,7 @@ trait PointOfSaleTrait
      */
     public function getCashPaymentMethod(): string
     {
-        foreach ($this->getTerminal()->getPaymenthMethods() as $element) if ($element->recibecambio) {
-            return $element->codpago;
-        }
-        return '';
+        return $this->getTerminal()->getCashPaymentMethod();
     }
 
     /**
@@ -100,7 +97,7 @@ trait PointOfSaleTrait
         foreach ($fileIterator as $filename) {
             if ($filename->isDir()) continue;
 
-            if (! strpos($filename->getFilename(), '.html.twig')) continue;
+            if (!strpos($filename->getFilename(), '.html.twig')) continue;
 
             $modals[] = $extensionPath . DIRECTORY_SEPARATOR . $filename->getFilename();
         }
@@ -124,10 +121,7 @@ trait PointOfSaleTrait
      */
     public function getDefaultDocument(): TipoDocumentoPuntoVenta
     {
-        foreach ($this->getTerminal()->getDocumentTypes() as $element) if ($element->preferido) {
-            return $element;
-        }
-        return new TipoDocumentoPuntoVenta();
+        return $this->getTerminal()->getDefaultDocument();
     }
 
     /**
@@ -137,7 +131,7 @@ trait PointOfSaleTrait
      */
     public function getDenominations(): array
     {
-        return (new DenominacionMoneda())->all([], ['valor' => 'ASC']);
+        return DenominacionMoneda::all([], ['valor' => 'ASC']);
     }
 
     /**
@@ -177,7 +171,7 @@ trait PointOfSaleTrait
      */
     public function getPaymentMethods(): array
     {
-        return $this->getTerminal()->getPaymenthMethods();
+        return $this->getTerminal()->getSupportedPaymenthMethods();
     }
 
     /**
@@ -215,7 +209,7 @@ trait PointOfSaleTrait
      */
     public function getTerminalFromCompany(): array
     {
-        return $this->session->getTerminal()->allAvailable($this->user->idempresa);
+        return $this->session->getTerminal()->getAvailable($this->user->idempresa);
     }
 
     protected function addCustomDocumentField(string $hook, array $element)
@@ -238,7 +232,12 @@ trait PointOfSaleTrait
         $messages = [];
         $level = ['critical', 'warning', 'notice', 'info', 'error'];
 
-        foreach (Tools::log()->read('master', $level) as $message) {
+        $masterChannel = Tools::log()->read('master', $level);
+        $posChannel = Tools::log()->read('POS', $level);
+
+        $currentMessages = array_merge($masterChannel, $posChannel);
+
+        foreach ($currentMessages as $message) {
             if (in_array($message['level'], array('warning', 'critical', 'error'))) {
                 $messages[] = ['type' => 'warning', 'message' => $message['message']];
                 continue;
@@ -335,7 +334,7 @@ trait PointOfSaleTrait
 
         if (empty($this->token) || false === $this->multiRequestProtection->validate($this->token)) {
             Tools::log()->warning('invalid-request');
-            Tools::log()->warning('invalid-token' . $this->token);
+            Tools::log()->warning('invalid-token');
             $this->buildResponse();
             return false;
         }
@@ -350,33 +349,25 @@ trait PointOfSaleTrait
         return true;
     }
 
+    /**
+     * @return bool
+     */
     public function validateSettings(): bool
     {
-        $result = true;
+        $isValid = true;
 
-        $paymentMethod = $this->getPaymentMethods();
-        if (empty($paymentMethod)) {
-            Tools::log('POS')->warning('no-payment-method-established');
-            $result = false;
+        $validations = [
+            'no-payment-method-set' => empty($this->getPaymentMethods()),
+            'no-cash-payment-method-set' => trim($this->getCashPaymentMethod()) === '',
+            'no-default-document-set' => $this->getDefaultDocument()->tipodoc === false,
+            'no-currency-denominations' => empty($this->getDenominations())
+        ];
+
+        foreach ($validations as $message => $condition) if ($condition) {
+            Tools::log('POS')->warning($message);
+            $isValid = false;
         }
 
-        $cashMethod = $this->getCashPaymentMethod();
-        if (trim($cashMethod) === '') {
-            Tools::log('POS')->warning('no-cash-payment-method-established');
-            $result = false;
-        }
-
-        $defaultDocument = $this->getDefaultDocument();
-        if ($defaultDocument->tipodoc === false) {
-            Tools::log('POS')->warning('no-default-document-established');
-            $result = false;
-        }
-
-        if (empty($this->getDenominations())) {
-            Tools::log('POS')->warning('no-currency-denominations');
-            $result = false;
-        }
-
-        return $result;
+        return $isValid;
     }
 }

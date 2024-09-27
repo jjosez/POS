@@ -117,7 +117,8 @@ class Checkout {
 }
 
 const mainElements = {
-    cashMovmentForm: getElement('cashMovmentForm'),
+    cashEntryForm: getElement('cashEntryForm'),
+    cashWithdrawForm: getElement('cashWithdrawForm'),
     closeSessionForm: getElement('closeSessionForm'),
     customerNameLabel: getElement('customerNameLabel'),
     customerSearchBox: getElement('customerSearchBox'),
@@ -129,9 +130,10 @@ const mainElements = {
 }
 
 class Main {
+    cashEntryForm = () => mainElements['cashEntryForm'];
+    cashWithdrawForm = () => mainElements['cashWithdrawForm'];
     customerNameLabel = () => mainElements['customerNameLabel'];
     customerSearchBox = () => mainElements['customerSearchBox'];
-    cashMovmentForm = () => mainElements['cashMovmentForm'];
     closeSessionForm = () => mainElements['closeSessionForm'];
     productSearchBox = () => mainElements['productSearchBox'];
     newCustomerSaveButton = () => mainElements['newCustomerSaveButton'];
@@ -166,25 +168,25 @@ class Main {
     showLastOrdersModal = function (data) {
         modals().lastOrdersModal().show();
 
-        if (isObjectEmpty(data)) return;
+        data = isObjectEmpty(data) ? [] : data;
         templates().renderLastOrderList({items: data});
     }
     showPausedOrdersModal = function (data) {
         modals().pausedOrdersModal().show();
 
-        if (isObjectEmpty(data)) return;
+        data = isObjectEmpty(data) ? [] : data;
         templates().renderPausedOrderList({items: data});
     }
     showProductImagesModal = function (data) {
         modals().productImagesModal().show();
 
-        if (isObjectEmpty(data)) return;
+        data = isObjectEmpty(data) ? [] : data;
         templates().renderProductImageList({items: data});
     }
     showProductStockDetailModal = function (data) {
         modals().stockDetailModal().show();
 
-        if (isObjectEmpty(data)) return;
+        data = isObjectEmpty(data) ? [] : data;
         templates().renderProductStockList({items: data});
     }
 }
@@ -235,7 +237,7 @@ const updateDocumentFieldValue = (data = {}, element) => {
             element.checked = data[field] === true || data[field] === "true";
             break;
         default:
-            element.textContent = (format === 'number') ? Money.roundFixed(data[field]): data[field];
+            element.textContent = (format === 'number') ? Money.roundFixed(data[field]) : data[field];
     }
 }
 
@@ -252,8 +254,37 @@ const eventHandler = element => {
         case 'collapse':
             toggleCollapse(element);
             break;
+        case 'tab':
+            toggleTab(element);
+            break;
         default:
             toggle(element);
+    }
+};
+
+/**
+ * @param {HTMLElement} element
+ */
+const toggleTab = element => {
+
+    const target = getElement(element.dataset.target);
+    const tabList = event.target.closest('.tablist');
+    const tabsContainer = getElement(tabList.dataset.target);
+
+    if (event.target.classList.contains('tab')) {
+
+        const tabcontents = tabsContainer.querySelectorAll('.tabcontent');
+        for (let i = 0; i < tabcontents.length; i++) {
+            tabcontents[i].style.display = 'none';
+        }
+
+        const tablinks = tabList.querySelectorAll('.tab');
+        for (let i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove('tab-active');
+        }
+
+        target.style.display = 'block';
+        element.classList.add('tab-active');
     }
 };
 

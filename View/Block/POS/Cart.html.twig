@@ -40,7 +40,6 @@
                 <span class="mr-auto">{{ i18n.trans('hold') }}</span>
                 <i class="fa fa-hourglass-start"></i>
             </button>
-            {# {{ terminal | json_encode(constant('JSON_PRETTY_PRINT')) }} #}
             {% if terminal.aceptapagos %}
                 <button class="flex-1 btn btn-success" data-toggle="modal" data-target="checkoutModal">
                     <span class="mr-auto">{{ i18n.trans('charge') }}</span>
@@ -51,56 +50,191 @@
     </div>
 </div>
 <script id="cartListTemplate" type="text/template">
+    <div class="flex">
+        <div class="flex-1 text-center text-xs">
+            <span class="font-semibold">{{ trans('product') }}</span>
+        </div>
+        <div class="mr-2 flex h-full flex-row justify-between gap-2 self-center">
+            {% for column in grid %}
+                {% set label = column.tittle ?: trans(column.name) %}
+                {%- if column.data == 'referencia' or column.data == 'descripcion' or column.data == 'cantidad' -%}
+                {% elseif not column.eneabled -%}
+                {% elseif column.carrito -%}
+                    <div class="w-20 text-xs">
+                        <span class="font-semibold">{{ label }}</span>
+                    </div>
+                {% endif -%}
+            {% endfor %}
+        </div>
+        <div class="h-8 w-8 text-xs">
+            <span class="font-semibold"><i class="fas fa-trash-alt"></i></span>
+        </div>
+    </div>
     <% if(it.lines.length === 0) { %>
     <div class="flex h-full items-center justify-center">
         <i class="fa fa-shopping-cart fa-5x text-slate-gray-300"></i>
     </div>
     <% } %>
-    <% it.lines.forEach(function(value, index) { %>
+    <% it.lines.forEach(function(product, index) { %>
     <div class="flex select-none py-2">
-        <div class="flex items-center space-x-2">
-            <button class="btn btn-icon btn-light"
-                    data-action="editProductAction" data-index="<%= index %>">
-                <i class="fas fa-pen-alt"></i>
-            </button>
-            <button class="btn btn-icon btn-light"
-                    data-action="editProductQuantityAction" data-index="<%= index %>">
-                <span><%= value.cantidad %></span>
-            </button>
+        <div class="my-auto mr-1 w-25 items-center text-center">
+            <% if (product.thumbnail) { %>
+            <img class="pointer-events-auto w-16 object-scale-down" src="<%= product.thumbnail %>"
+                 alt="<%= product.referencia %>"
+                 data-action="productImageAction" data-id="<%= product.idproducto %>"
+                 data-code="<%= product.referencia %>">
+            <% } else { %>
+            <div class="w-16"><i class="fas fa-3x fa-image"></i></div>
+            <% } %>
         </div>
-        <div class="mx-2 flex flex-1 text-sm">
-            <div role="listitem" class="flex-1">
-                <p class="text-sm">
-                    <span class="inline-flex items-center rounded-full bg-slate-100 mr-2 px-2 font-semibold uppercase py-0.5 text-[0.85rem]">
-                        {#<span class="mr-2 rounded-full bg-blue-500 px-2 text-sm font-semibold uppercase">#}
-                        <%= value.referencia %></span><%= value.descripcion %></p>
-                <div class="flex items-end gap-2">
-                    {% for column in grid %}
-                        {%- if column.data == 'referencia' or column.data == 'descripcion' or column.data == 'cantidad' -%}
-                        {% elseif not column.eneabled -%}
-                        {% elseif column.carrito -%}
-                            <div class="m-auto w-24 flex-auto">
-                                <label>
-                                    <span class="text-xs font-semibold">{{ column.tittle }}</span>
-                                    {% if column.readonly %}
-                                        <p><%= value.{{ column.data }} %></p>
-                                    {% else %}
-                                        <input class="pointer-events-auto form-control" tabindex="0"
-                                               type="{{ column.type }}" value="<%= value.{{ column.data }} %>"
-                                               data-index="<%= index %>"
-                                               data-action="editProductFieldAction"
-                                               data-field="{{ column.data }}">
-                                    {% endif %}
-                                </label>
-                            </div>
-                        {% endif -%}
-                    {% endfor %}
+
+        <div class="mx-2 flex flex-1 flex-row space-x-2">
+            <p class="flex-1 self-center text-xs">
+                    <span class="inline-flex items-center rounded-full bg-slate-100 mr-2 px-2 font-semibold uppercase
+                    py-0.5 text-[0.75rem]"><%= product.referencia %></span><%= product.descripcion %>
+            </p>
+            <div class="flex-col self-center text-xs">
+                <div class="flex inline-flex text-xs">
+                    <button class="h-8 w-8 rounded-r-none btn btn-icon btn-warning"
+                            data-action="quantityDecreaseAction" data-index="<%= index %>">
+                        <i class="fa fw fa-minus"></i>
+                    </button>
+                    <input type="number"
+                           class="h-8 w-14 border-2 p-1.5 placeholder-slate-300 focus:border-blue-500 focus:outline-none"
+                           value="<%= product.cantidad %>"
+                           data-action="editProductFieldAction" data-index="<%= index %>" data-field="cantidad">
+                    <button class="h-8 w-8 rounded-l-none btn btn-icon btn-secondary"
+                            data-action="quantityIncreaseAction" data-index="<%= index %>">
+                        <i class="fa fw fa-plus"></i>
+                    </button>
                 </div>
             </div>
+            <div class="flex flex-row justify-between gap-2 self-center">
+                {# <div class="h-full w-24 flex-col text-xs">
+                    <label for="productQuantityInput"
+                           class="mb-2 text-xs font-semibold capitalize">{{ i18n.trans('quantity') }}</label>
+                    <div class="inline-flex space-x-2">
+                        <button class="h-8 w-8 flex-none text-xs btn btn-icon btn-warning"
+                                data-action="quantityDecreaseAction" data-index="<%= index %>">
+                            <i class="fa fw fa-minus"></i>
+                        </button>
+                        <input id="productQuantityInput" type="number"
+                               class="h-8 w-16 rounded-lg border-2 p-2 placeholder-slate-300 focus:border-blue-500 focus:outline-none"
+                               value="<%= product.cantidad %>"
+                               data-action="editProductFieldAction" data-index="<%= index %>" data-field="cantidad">
+                        <button class="h-8 w-8 flex-none text-xs btn btn-icon btn-secondary"
+                                data-action="quantityIncreaseAction" data-index="<%= index %>">
+                            <i class="fa fw fa-plus"></i>
+                        </button>
+                    </div>
+                </div> #}
+                {% for column in grid %}
+                    {% set label = column.tittle ?: trans(column.name) %}
+                    {%- if column.data == 'referencia' or column.data == 'descripcion' or column.data == 'cantidad' -%}
+                    {% elseif not column.eneabled -%}
+                    {% elseif column.carrito -%}
+                        <div class="h-full w-20 flex-col text-xs">
+                            {# <label>
+                                <span class="font-semibold">{{ label }}</span>
+                            </label> #}
+                            {% if column.readonly %}
+                                <p><%= product.{{ column.data }} %></p>
+                            {% else %}
+                                <input class="pointer-events-auto h-8 w-20 rounded-lg border-2 text-right p-1.5 placeholder-slate-300 focus:border-blue-500 focus:outline-none"
+                                       tabindex="0"
+                                       type="{{ column.type }}" value="<%= product.{{ column.data }} %>"
+                                       data-index="<%= index %>"
+                                       data-action="editProductFieldAction"
+                                       data-field="{{ column.data }}">
+                            {% endif %}
+                        </div>
+                    {% endif -%}
+                {% endfor %}
+            </div>
         </div>
-        <button class="my-auto text-sm btn btn-icon btn-danger" data-action="deleteProductAction" data-index="<%= index %>">
+
+        {# <div class="flex items-center space-x-2">
+                <button class="btn btn-icon btn-light"
+                        data-action="editProductAction" data-index="<%= index %>">
+                    <i class="fas fa-pen-alt"></i>
+                </button>
+                <button class="btn btn-icon btn-light"
+                        data-action="editProductQuantityAction" data-index="<%= index %>">
+                    <span><%= product.cantidad %></span>
+                </button>
+            </div> #}
+        <button class="my-auto h-8 w-8 text-xs btn btn-icon btn-danger" data-action="deleteProductAction"
+                data-index="<%= index %>">
             <i class="fas fa-trash-alt"></i>
         </button>
     </div>
+
     <% }) %>
 </script>
+{#
+<script id="cartListTemplate" type="text/template">
+<% if(it.lines.length === 0) { %>
+<div class="flex h-full items-center justify-center">
+    <i class="fa fa-shopping-cart fa-5x text-slate-gray-300"></i>
+</div>
+<% } %>
+<% it.lines.forEach(function(product, index) { %>
+<div class="flex select-none py-2">
+    <div class="my-auto mr-1 w-16 items-center text-center">
+        <% if (product.thumbnail) { %>
+        <img class="pointer-events-auto object-scale-down" src="<%= product.thumbnail %>"
+             alt="<%= product.referencia %>"
+             data-action="productImageAction" data-id="<%= product.idproducto %>" data-code="<%= product.referencia %>">
+        <% } else { %>
+        <span class="w-16"><i class="fas fa-3x fa-image"></i></span>
+        <% } %>
+    </div>
+    <div class="flex items-center space-x-2">
+        <button class="btn btn-icon btn-light"
+                data-action="editProductAction" data-index="<%= index %>">
+            <i class="fas fa-pen-alt"></i>
+        </button>
+        <button class="btn btn-icon btn-light"
+                data-action="editProductQuantityAction" data-index="<%= index %>">
+            <span><%= product.cantidad %></span>
+        </button>
+    </div>
+    <div class="mx-2 flex flex-1 text-sm">
+        <div role="listitem" class="flex-1">
+            <p class="mb-2 text-sm">
+                <span class="inline-flex items-center rounded-full bg-slate-100 mr-2 px-2 font-semibold uppercase
+                py-0.5 text-[0.85rem]"><%= product.referencia %></span><%= product.descripcion %>
+            </p>
+            <div class="flex items-end gap-2">
+                {% for column in grid %}
+                    {% set label = column.tittle ?: trans(column.name) %}
+                    {%- if column.data == 'referencia' or column.data == 'descripcion' or column.data == 'cantidad' -%}
+                    {% elseif not column.eneabled -%}
+                    {% elseif column.carrito -%}
+                        <div class="m-auto w-24 flex-auto">
+                            <label>
+                                <span class="text-xs font-semibold">{{ label }}</span>
+                                {% if column.readonly %}
+                                    <p><%= product.{{ column.data }} %></p>
+                                {% else %}
+                                    <input class="pointer-events-auto form-control" tabindex="0"
+                                           type="{{ column.type }}" value="<%= product.{{ column.data }} %>"
+                                           data-index="<%= index %>"
+                                           data-action="editProductFieldAction"
+                                           data-field="{{ column.data }}">
+                                {% endif %}
+                            </label>
+                        </div>
+                    {% endif -%}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <button class="my-auto text-sm btn btn-icon btn-danger" data-action="deleteProductAction"
+            data-index="<%= index %>">
+        <i class="fas fa-trash-alt"></i>
+    </button>
+</div>
+<% }) %>
+</script>
+#}
