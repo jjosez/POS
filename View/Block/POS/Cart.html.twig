@@ -4,7 +4,7 @@
                 data-toggle="modal" data-target="documentTypeModal">
             <i class="fa fa-file-invoice"></i>
             <span id="documentTypeLabel" class="mx-2">
-                {{ fsc.getDefaultDocument().descripcion ?: i18n.trans(fsc.getDefaultDocument().tipodoc) }}
+                {{ fsc.getDefaultDocument().descripcion ?: trans(fsc.getDefaultDocument().tipodoc) }}
             </span>
             <i class="ml-auto fa fa-ellipsis-v"></i>
         </button>
@@ -27,7 +27,7 @@
     <div class="flex flex-col gap-4 border-t-2 border-dashed p-4">
         <div class="flex flex-1 items-center justify-between font-medium">
             <button class="text-slate-800 btn btn-light" data-toggle="modal" data-target="totalsDetailModal">
-                <i class="fas fa-ellipsis-v fa-fw"></i> {{ i18n.trans('detail') }} / {{ i18n.trans('payable-amount') }}
+                <i class="fas fa-ellipsis-v fa-fw"></i> {{ trans('detail') }} / {{ trans('payable-amount') }}
             </button>
             <span id="cartTotal" class="text-right text-xl">0.000</span>
         </div>
@@ -37,12 +37,12 @@
                 <i class="fa fa-arrow-left"></i>
             </button>
             <button class="flex-1 btn btn-warning" data-action="holdOrderAction">
-                <span class="mr-auto">{{ i18n.trans('hold') }}</span>
+                <span class="mr-auto">{{ trans('hold') }}</span>
                 <i class="fa fa-hourglass-start"></i>
             </button>
             {% if terminal.aceptapagos %}
                 <button class="flex-1 btn btn-success" data-toggle="modal" data-target="checkoutModal">
-                    <span class="mr-auto">{{ i18n.trans('charge') }}</span>
+                    <span class="mr-auto">{{ trans('charge') }}</span>
                     <i class="fa fa-calculator"></i>
                 </button>
             {% endif %}
@@ -50,23 +50,29 @@
     </div>
 </div>
 <script id="cartListTemplate" type="text/template">
-    <div class="flex">
-        <div class="flex-1 text-center text-xs">
+    {% set cartColumnCount = fsc.getCartColumnCount() %}
+    {% set excludedColumns = ['referencia', 'descripcion', 'cantidad'] %}
+    <div class="flex text-xs mb-1.5">
+        <div class="flex-1 text-center">
             <span class="font-semibold">{{ trans('product') }}</span>
         </div>
-        <div class="mr-2 flex h-full flex-row justify-between gap-2 self-center">
-            {% for column in grid %}
-                {% set label = column.tittle ?: trans(column.name) %}
-                {%- if column.data == 'referencia' or column.data == 'descripcion' or column.data == 'cantidad' -%}
-                {% elseif not column.eneabled -%}
-                {% elseif column.carrito -%}
-                    <div class="w-20 text-xs">
-                        <span class="font-semibold">{{ label }}</span>
-                    </div>
-                {% endif -%}
-            {% endfor %}
+        <div class="w-32 text-center">
+            <span class="font-semibold">{{ trans('quantity') }}</span>
         </div>
-        <div class="h-8 w-8 text-xs">
+        {% if cartColumnCount <= 3 %}
+            <div class="mr-2 flex h-full flex-row justify-between gap-2 self-center">
+                {% for column in grid %}
+                    {% if column.data not in excludedColumns and column.eneabled and column.carrito %}
+                        {% set label = column.tittle ?: trans(column.name) %}
+                        <div class="w-20">
+                            <span class="font-semibold">{{ label }}</span>
+                        </div>
+                    {% endif -%}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="h-8 w-8 content-center text-center">
             <span class="font-semibold"><i class="fas fa-trash-alt"></i></span>
         </div>
     </div>
@@ -76,31 +82,36 @@
     </div>
     <% } %>
     <% it.lines.forEach(function(product, index) { %>
-    <div class="flex select-none py-2">
-        <div class="my-auto mr-1 w-25 items-center text-center">
-            <% if (product.thumbnail) { %>
-            <img class="pointer-events-auto w-16 object-scale-down" src="<%= product.thumbnail %>"
-                 alt="<%= product.referencia %>"
-                 data-action="productImageAction" data-id="<%= product.idproducto %>"
-                 data-code="<%= product.referencia %>">
-            <% } else { %>
-            <div class="w-16"><i class="fas fa-3x fa-image"></i></div>
-            <% } %>
-        </div>
+    <div class="flex flex-col">
+        <div class="flex select-none py-2">
+            <div class="mr-1 flex flex-1 items-center gap-2">
+                <% if (product.thumbnail) { %>
+                <img class="pointer-events-auto w-16 object-scale-down" src="<%= product.thumbnail %>"
+                     alt="<%= product.referencia %>"
+                     data-action="productImageAction"
+                     data-id="<%= product.idproducto %>"
+                     data-code="<%= product.referencia %>">
+                <% } else { %>
+                <div class="w-16 text-center"><i class="fas fa-3x fa-image"></i></div>
+                <% } %>
 
-        <div class="mx-2 flex flex-1 flex-row space-x-2">
-            <p class="flex-1 self-center text-xs">
-                    <span class="inline-flex items-center rounded-full bg-slate-100 mr-2 px-2 font-semibold uppercase
-                    py-0.5 text-[0.75rem]"><%= product.referencia %></span><%= product.descripcion %>
-            </p>
-            <div class="flex-col self-center text-xs">
-                <div class="flex inline-flex text-xs">
+                <p class="flex-1 self-center text-xs">
+                <span class="inline-flex items-center rounded-full bg-slate-100 mr-2 px-2 font-semibold uppercase
+                            py-0.5 text-[0.75rem]"><%= product.referencia %></span><%= product.descripcion %>
+                </p>
+                <button class="h-8 w-8 text-center text-xs btn btn-icon btn-light"
+                        data-action="editProductAction" data-index="<%= index %>">
+                    <i class="fas fa-pen-alt"></i>
+                </button>
+            </div>
+            <div class="mx-2 flex flex-row space-x-2">
+                <div class="flex inline-flex self-center text-xs">
                     <button class="h-8 w-8 rounded-r-none btn btn-icon btn-warning"
                             data-action="quantityDecreaseAction" data-index="<%= index %>">
                         <i class="fa fw fa-minus"></i>
                     </button>
                     <input type="number"
-                           class="h-8 w-14 border-2 p-1.5 placeholder-slate-300 focus:border-blue-500 focus:outline-none"
+                           class="h-8 w-12 rounded-none p-1.5 form-control-base"
                            value="<%= product.cantidad %>"
                            data-action="editProductFieldAction" data-index="<%= index %>" data-field="cantidad">
                     <button class="h-8 w-8 rounded-l-none btn btn-icon btn-secondary"
@@ -108,41 +119,49 @@
                         <i class="fa fw fa-plus"></i>
                     </button>
                 </div>
-            </div>
-            <div class="flex flex-row justify-between gap-2 self-center">
-                {# <div class="h-full w-24 flex-col text-xs">
-                    <label for="productQuantityInput"
-                           class="mb-2 text-xs font-semibold capitalize">{{ i18n.trans('quantity') }}</label>
-                    <div class="inline-flex space-x-2">
-                        <button class="h-8 w-8 flex-none text-xs btn btn-icon btn-warning"
-                                data-action="quantityDecreaseAction" data-index="<%= index %>">
-                            <i class="fa fw fa-minus"></i>
-                        </button>
-                        <input id="productQuantityInput" type="number"
-                               class="h-8 w-16 rounded-lg border-2 p-2 placeholder-slate-300 focus:border-blue-500 focus:outline-none"
-                               value="<%= product.cantidad %>"
-                               data-action="editProductFieldAction" data-index="<%= index %>" data-field="cantidad">
-                        <button class="h-8 w-8 flex-none text-xs btn btn-icon btn-secondary"
-                                data-action="quantityIncreaseAction" data-index="<%= index %>">
-                            <i class="fa fw fa-plus"></i>
-                        </button>
+                {% if cartColumnCount <= 3 %}
+                    <div class="flex flex-row justify-between gap-2 self-center">
+                        {% for column in grid %}
+                            {% if column.data not in excludedColumns and column.eneabled and column.carrito %}
+                                <div class="w-20 text-xs">
+                                    {% if column.readonly %}
+                                        <p><%= product.{{ column.data }} %></p>
+                                    {% else %}
+                                        <input class="h-8 w-20 text-right p-1.5 form-control-base"
+                                               tabindex="0"
+                                               type="{{ column.type }}"
+                                               value="<%= product.{{ column.data }} %>"
+                                               data-index="<%= index %>"
+                                               data-action="editProductFieldAction"
+                                               data-field="{{ column.data }}">
+                                    {% endif %}
+                                </div>
+                            {% endif -%}
+                        {% endfor %}
                     </div>
-                </div> #}
+                {% endif %}
+            </div>
+            <div class="flex items-center">
+                <button class="h-8 w-8 text-xs btn btn-icon btn-danger" data-action="deleteProductAction"
+                        data-index="<%= index %>">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        </div>
+        {% if cartColumnCount > 3 %}
+            <div class="mb-2 flex flex-row place-content-around">
                 {% for column in grid %}
-                    {% set label = column.tittle ?: trans(column.name) %}
-                    {%- if column.data == 'referencia' or column.data == 'descripcion' or column.data == 'cantidad' -%}
-                    {% elseif not column.eneabled -%}
-                    {% elseif column.carrito -%}
-                        <div class="h-full w-20 flex-col text-xs">
-                            {# <label>
-                                <span class="font-semibold">{{ label }}</span>
-                            </label> #}
+                    {% if column.data not in excludedColumns and column.eneabled and column.carrito %}
+                        {% set label = column.tittle ?: trans(column.name) %}
+                        <div class="flex w-20 flex-col text-xs">
+                            <span class="truncate font-semibold">{{ label }}</span>
                             {% if column.readonly %}
-                                <p><%= product.{{ column.data }} %></p>
+                                <p class="self-center"><%= product.{{ column.data }} %></p>
                             {% else %}
-                                <input class="pointer-events-auto h-8 w-20 rounded-lg border-2 text-right p-1.5 placeholder-slate-300 focus:border-blue-500 focus:outline-none"
+                                <input class="h-8 w-20 text-right p-1.5 form-control-base"
                                        tabindex="0"
-                                       type="{{ column.type }}" value="<%= product.{{ column.data }} %>"
+                                       type="{{ column.type }}"
+                                       value="<%= product.{{ column.data }} %>"
                                        data-index="<%= index %>"
                                        data-action="editProductFieldAction"
                                        data-field="{{ column.data }}">
@@ -151,24 +170,8 @@
                     {% endif -%}
                 {% endfor %}
             </div>
-        </div>
-
-        {# <div class="flex items-center space-x-2">
-                <button class="btn btn-icon btn-light"
-                        data-action="editProductAction" data-index="<%= index %>">
-                    <i class="fas fa-pen-alt"></i>
-                </button>
-                <button class="btn btn-icon btn-light"
-                        data-action="editProductQuantityAction" data-index="<%= index %>">
-                    <span><%= product.cantidad %></span>
-                </button>
-            </div> #}
-        <button class="my-auto h-8 w-8 text-xs btn btn-icon btn-danger" data-action="deleteProductAction"
-                data-index="<%= index %>">
-            <i class="fas fa-trash-alt"></i>
-        </button>
+        {% endif %}
     </div>
-
     <% }) %>
 </script>
 {#

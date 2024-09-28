@@ -119,6 +119,10 @@
         @apply w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-lg focus:ring-blue-500
     }
 
+    .form-control-base {
+        @apply rounded-lg border-2 placeholder-slate-300 focus:border-blue-500 focus:outline-none;
+    }
+
     .form-group {
         @apply flex w-full flex-col;
     }

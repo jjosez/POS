@@ -144,6 +144,20 @@ trait PointOfSaleTrait
         return PointOfSaleForms::getFormsGrid($this->user->nick);
     }
 
+    public function getCartColumnCount(): int
+    {
+        $count = 0;
+        $excludedColumns = ['reference', 'description', 'quantity'];
+
+        foreach ($this->getFieldOptions() as $column) {
+            if (in_array($column['name'], $excludedColumns)) continue;
+
+            if ($column['carrito']) $count++;
+        }
+
+        return $count;
+    }
+
     /**
      * Return some products for initial view
      *
