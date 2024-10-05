@@ -7,6 +7,12 @@ import * as Order from "./Order.js";
 import * as View from "./View.js";
 import Cart from "./modules/Cart.js"
 import Checkout from "./modules/Checkout.js";
+import FilterClass from "./model/FilterClass.js";
+
+const SearchFilter = new FilterClass({
+    'families': [],
+    'filters': []
+});
 
 function cashEntryAction() {
     View.main().cashEntryForm().submit();
@@ -116,16 +122,15 @@ async function searchCustomerAction() {
 }
 
 async function searchProductAction() {
-    View.main().updateProductSearchResult(await Core.searchProduct(this.value));
+    View.main().updateProductSearchResult(await Core.searchProduct(this.value, SearchFilter));
 }
 
 async function sessionCloseAction() {
+    View.modals().printModal().show();
     const formData = new FormData(View.main().closeSessionForm());
     const response = await Core.postRequest(formData);
 
     await Core.printerServerRequest(response);
-
-    //window.location.replace(window.location.href)
     Core.reloadApp();
 }
 
@@ -136,16 +141,21 @@ async function sessionPrintClosingVoucherAction() {
     View.modals().closeSessionModal().hide();
 }
 
+async function setFamilyFilterAction({code, description, thumbnail}) {
+    SearchFilter.setFamilyFilter(code, description, thumbnail);
+    let query = View.main().productSearchBox().value ?? '';
+    let result = await Core.searchProduct(query, SearchFilter);
+
+    View.main().updateProductFamilyList(SearchFilter.families);
+    View.main().updateProductSearchResult(result);
+}
+
 async function showStockDetailAction({code}) {
     View.main().showProductStockDetailModal(await Core.getProductStock(code));
 }
 
 async function showProductImagesAction({id, code}) {
     View.main().showProductImagesModal(await Core.getProductImages(id, code));
-}
-
-async function showProductFamiliesAction({code, madre}) {
-    View.main().updateProductFamilyList(await Core.getProductFamilyChild(code, madre));
 }
 
 async function showPausedOrdersAction() {
@@ -211,7 +221,7 @@ async function appEventHandler(event) {
             return console.log('FiltroProducto');
 
         case 'setProductFamilyAction':
-            return showProductFamiliesAction(data);
+            return setFamilyFilterAction(data);
 
         case 'showPausedOrders':
             return showPausedOrdersAction();

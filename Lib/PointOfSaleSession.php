@@ -12,8 +12,8 @@ class PointOfSaleSession
 {
     const POS_SESSION_ID = 'POS_SESSION_ID';
     const POS_TERMINAL_ID = 'POS_TERMINAL_ID';
-
     const POS_TERMINAL = 'POS_SESSION_TERMINAL';
+    const POS_SESSION = 'POS_SESSION';
 
     /**
      * @var SesionPuntoVenta
@@ -49,6 +49,7 @@ class PointOfSaleSession
         }
 
         Session::set(self::POS_SESSION_ID, $this->session->idsesion);
+        Session::set(self::POS_SESSION, $this->session);
         $this->loadTerminal($this->session->idterminal);
     }
 
@@ -171,6 +172,11 @@ class PointOfSaleSession
     public static function getSessionID()
     {
         return Session::get(self::POS_SESSION_ID);
+    }
+
+    public static function getSessionModel(): SesionPuntoVenta
+    {
+        return Session::get(self::POS_SESSION);
     }
 
     public static function getSessionNick(): string

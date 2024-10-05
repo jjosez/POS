@@ -1,24 +1,52 @@
-<div id="productFilterModal" class="modal hidden">
+<div id="productFilterModal" class="hidden modal">
     <div class="modal-content md:modal-content-md">
         <div class="modal-header">
-            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('filters') }}</h2>
-            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="productFilterModal">
+            <div class="block">
+                <h2 class="text-2xl font-semibold text-slate-gray-700">{{ trans('filters') }}</h2>
+                <p class="text-xs italic">Configura las familias que quieras que se muestren como filtro en el listado
+                    de familias.</p>
+            </div>
+            <button class="ml-2 btn btn-icon btn-danger" data-toggle="modal" data-target="productFilterModal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
         <div class="modal-body">
-            <div id="familyList" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div id="familyList" class="flex flex-wrap gap-2 mb-4">
+            </div>
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
                 {% for familia in fsc.getParentFamilies() %}
                     {% set bgcolor =  familia.madre ? 'bg-slate-50' : 'bg-slate-100' %}
+                    {% set imageUrl =  familia.shorcutImage() %}
                     <div role="listitem"
-                         class="{{ bgcolor }} p-4 shadow-sm rounded-lg font-semibold cursor-pointer"
+                         class="{{ bgcolor }} p-2 shadow-sm rounded-lg font-semibold cursor-pointer"
                          data-action="setProductFamilyAction"
                          data-code="{{ familia.codfamilia }}"
-                         data-madre="{{ familia.madre }}">
-                        {{ familia.descripcion }}
+                         data-madre="{{ familia.madre }}"
+                         data-description="{{ familia.descripcion }}" data-thumbnail="{{ imageUrl }}">
+                        <img class="pointer-events-auto mx-auto rounded-md mb-2 object-scale-down border-2 border-gray-50"
+                             src="{{ imageUrl }}" alt="{{ familia.codfamilia }}">
+                        <p class="text-sm text-center">{{ familia.descripcion }}</p>
                     </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 </div>
+<script id="familyListTemplate" type="text/template">
+    <% it.items.forEach(function(item){ %>
+    <div role="listitem"
+         class="items-center bg-slate-800 flex flex-row p-2 shadow-sm rounded-lg font-semibold cursor-pointer"
+         data-action="setProductFamilyAction"
+         data-code="<%= item.code %>"
+         data-description="<%= item.description %>" data-thumbnail="<%= item.thumbnail %>">
+        <img class="pointer-events-auto w-12 mx-auto rounded-md object-scale-down"
+             src="<%= item.thumbnail %>" alt="<%= item.code %>">
+        <p class="text-sm text-center p-2 text-white"><%= item.description %></p>
+        <button class="h-8 w-8 text-xs btn btn-icon btn-danger"
+                data-action="setProductFamilyAction"
+                data-code="<%= item.code %>">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+    </div>
+    <% }) %>
+</script>

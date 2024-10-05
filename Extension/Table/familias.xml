@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table>
+    <column>
+        <name>pos_shortcut</name>
+        <type>boolean</type>
+    </column>
+    <column>
+        <name>pos_idlogo</name>
+        <type>integer</type>
+    </column>
+    <constraint>
+        <name>ca_pos_familias_attached_files</name>
+        <type>FOREIGN KEY (pos_idlogo) REFERENCES attached_files (idfile) ON DELETE SET NULL ON UPDATE CASCADE</type>
+    </constraint>
+</table>

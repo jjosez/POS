@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view>
+    <columns>
+        <group name="data-pos" title="point-of-sale" valign="center" numcolumns="12" >
+            <column name="pos-family-shortcut-image" numcolumns="6" order="100">
+                <widget type="library" fieldname="pos_idlogo" icon="fas fa-image" onclick="EditAttachedFile" accept=".gif,.jpg,.png"/>
+            </column>
+            <column name="pos-family-shortcut" numcolumns="6" order="110">
+                <widget type="checkbox" fieldname="pos_shortcut" />
+            </column>
+        </group>
+    </columns>
+</view>

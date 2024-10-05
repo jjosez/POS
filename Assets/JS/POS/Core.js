@@ -131,9 +131,10 @@ export function searchCustomer(query = '') {
 
 /**
  * @param {string} query
+ * @param filters
  */
-export function searchProduct(query = '') {
-    return searchRequest('search-product', query);
+export function searchProduct(query = '', filters = {}) {
+    return searchRequest('search-product', query, filters);
 }
 
 /**
@@ -181,13 +182,15 @@ export function isAndroidUserAgent() {
 /**
  * @param {string} action
  * @param {string} query
+ * @param filters
  */
-export function searchRequest(action, query) {
+export function searchRequest(action, query, filters = {}) {
     const data = new FormData();
 
     data.set('action', action);
     data.set('query', query);
     data.set('terminal', AppSettings.terminal);
+    data.set('filters', JSON.stringify(filters))
 
     return postRequest(data);
 }

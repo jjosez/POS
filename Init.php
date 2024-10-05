@@ -2,12 +2,9 @@
 
 namespace FacturaScripts\Plugins\POS;
 
-use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\EstadoDocumento;
 use FacturaScripts\Core\Template\InitClass;
-use FacturaScripts\Core\Tools;
-use FacturaScripts\Plugins\POS\Model\TerminalPuntoVenta;
 
 class Init extends InitClass
 {
@@ -17,6 +14,7 @@ class Init extends InitClass
         $this->loadExtension(new Extension\Controller\EditAlbaranCliente());
         //$this->loadExtension(new Extension\Controller\EditPedidoCliente());
         //$this->loadExtension(new Extension\Lib\BusinessDocumentGenerator());
+        $this->loadExtension(new Extension\Model\Familia());
         $this->loadExtension(new Extension\Model\FacturaCliente());
         $this->loadExtension(new Extension\Model\Base\SalesDocument());
         $this->loadExtension(new Extension\Model\Base\SalesDocument());
@@ -25,9 +23,6 @@ class Init extends InitClass
 
     public function update(): void
     {
-        $this->updateTerminaPuntoVentaTable();
-        $this->updateTerminals();
-
         $this->createDraftDocumentOpenStatus();
         $this->createDraftDocumentCompletedStatus();
     }
@@ -68,33 +63,6 @@ class Init extends InitClass
             $status->tipodoc = 'BorradorPuntoVenta';
 
             $status->save();
-        }
-    }
-
-    private function updateTerminaPuntoVentaTable()
-    {
-        $database = new DataBase();
-        if (false === $database->tableExists('terminalespos')) {
-            return;
-        }
-
-        foreach ($database->getColumns('terminalespos') as $column) {
-            if ($column['name'] === 'codserie') {
-                $database->exec('ALTER TABLE terminalespos DROP FOREIGN KEY ca_terminalespos_series;');
-                $database->exec('ALTER TABLE terminalespos DROP COLUMN codserie;');
-
-                Tools::log()->warning('Updated terminalespos table.');
-            }
-        }
-    }
-
-    private function updateTerminals(): void
-    {
-        foreach ((new TerminalPuntoVenta())->all() as $terminal) {
-            if ($terminal->idempresa) {
-                continue;
-            }
-            $terminal->save();
         }
     }
 

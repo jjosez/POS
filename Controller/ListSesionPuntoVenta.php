@@ -14,11 +14,6 @@ use FacturaScripts\Core\Lib\ExtendedController;
  */
 class ListSesionPuntoVenta extends ExtendedController\ListController
 {
-    protected function getClassName(): string
-    {
-        return parent::getClassName();
-    }
-
     /**
      * Returns basic page attributes
      *
@@ -37,14 +32,23 @@ class ListSesionPuntoVenta extends ExtendedController\ListController
     /**
      * Load views
      */
-    protected function createViews()
+    protected function createViews($viewName = 'ListSesionPuntoVenta')
     {
-        $this->addView('ListSesionPuntoVenta', 'SesionPuntoVenta', 'till-sessions', 'fas fa-money-bill-alt');
-        $this->addSearchFields('ListSesionPuntoVenta', ['nombreagente']);
+        $this->addView($viewName, 'SesionPuntoVenta', 'till-sessions', 'fas fa-money-bill-alt');
+        $this->addSearchFields($viewName, ['nombreagente']);
 
-        $this->addOrderBy('ListSesionPuntoVenta', ['fechainicio','horainicio'], 'Fecha Inicio', 2);
-        $this->addOrderBy('ListSesionPuntoVenta', ['fechafin','horafin'], 'Fecha Fin');
+        $this->addOrderBy($viewName, ['fechainicio','horainicio'], 'Fecha Inicio', 2);
+        $this->addOrderBy($viewName, ['fechafin','horafin'], 'Fecha Fin');
 
-        $this->setSettings('ListSesionPuntoVenta', 'btnNew', false);
+        $this->disableButtons($viewName);
+    }
+
+    protected function disableButtons(string $viewName)
+    {
+        $this->setSettings($viewName, 'btnNew', false);
+
+        if (false === $this->permissions->allowDelete){
+            $this->setSettings($viewName, 'btnDelete', false);
+        }
     }
 }

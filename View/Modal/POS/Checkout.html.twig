@@ -1,7 +1,7 @@
 <div id="checkoutModal" class="modal hidden">
     <div class="modal-content md:modal-content-sm">
         <div class="modal-header">
-            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('charge') }}</h2>
+            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ trans('charge') }}</h2>
             <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="checkoutModal">
                 <i class="fa fw fa-times"></i>
             </button>
@@ -14,7 +14,7 @@
                 </label>
                 <button class="ml-4 btn btn-secondary payment-add-btn" data-action="recalculatePaymentAction"
                         data-value="balance">
-                    <span class="w-full text-center">{{ i18n.trans('balance') }}</span>
+                    <span class="w-full text-center">{{ trans('balance') }}</span>
                 </button>
             </div>
             <div class="py-4">
@@ -33,15 +33,15 @@
             </div>
             <div class="flex flex-col place-content-between text-lg font-medium">
                 <div class="p-3 flex justify-between border-t-2 border-dashed">
-                    <span class="text-green-800">{{ i18n.trans('payable-amount') }}</span>
+                    <span class="text-green-800">{{ trans('payable-amount') }}</span>
                     <span id="checkoutTotal" class="text-right">0.000</span>
                 </div>
                 <div class="p-3 flex justify-between border-t-2 border-dashed">
-                    <span class="text-green-800">{{ i18n.trans('tendered-amount') }}</span>
+                    <span class="text-green-800">{{ trans('tendered-amount') }}</span>
                     <span id="checkoutTenderedAmount" class="text-right">0.000</span>
                 </div>
                 <div class="p-3 flex justify-between border-t-2 border-dashed">
-                    <span class="text-yellow-800">{{ i18n.trans('change-amount') }}</span>
+                    <span class="text-yellow-800">{{ trans('change-amount') }}</span>
                     <span id="checkoutChangeAmount" class="text-right">0.000</span>
                 </div>
             </div>
@@ -49,11 +49,11 @@
         <div class="modal-footer">
             <button class="btn btn-danger" data-toggle="modal" data-target="checkoutModal">
                 <i class="fa fa-arrow-alt-circle-left"></i>
-                <span class="mx-2 text-center">{{ i18n.trans('cancel') }}</span>
+                <span class="mx-2 text-center">{{ trans('cancel') }}</span>
             </button>
             <button id="orderSaveButton" class="btn btn-success ml-auto" data-action="saveOrderAction"
                     data-toggle="modal" data-target="checkoutModal" disabled>
-                <span class="mx-2 text-center">{{ i18n.trans('confirm') }}</span>
+                <span class="mx-2 text-center">{{ trans('confirm') }}</span>
                 <i class="fa fa-arrow-alt-circle-right"></i>
             </button>
         </div>

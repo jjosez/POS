@@ -2,7 +2,7 @@
 <div class="modal hidden" id="totalsDetailModal">
     <div class="modal-content md:modal-content-sm">
         <div class="modal-header">
-            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('detail') }}</h2>
+            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ trans('detail') }}</h2>
             <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="totalsDetailModal">
                 <i class="fa fw fa-times"></i>
             </button>
@@ -18,18 +18,18 @@
                         {{ form.customNumberInput(element.id, element.name, element.label, element.value) }}
                     {% endif %}
                 {% endfor %}
-                {{ form.customTextArea('orderObservations', 'observaciones', i18n.trans('observations')) }}
+                {{ form.customTextArea('orderObservations', 'observaciones', trans('observations')) }}
                 <div class="p-4 flex justify-between">
                     <span><i class="fas fa-shopping-cart"></i></span>
                     <span id="orderItemsNumber" class="text-right">0</span>
                 </div>
                 <div class="p-4 flex justify-between border-t-2 border-dashed">
-                    <span>{{ i18n.trans('subtotal') }}</span>
+                    <span>{{ trans('subtotal') }}</span>
                     <span class="text-right" data-document-field="netosindto" data-format="number">0.000</span>
                 </div>
                 <div class="p-4 flex justify-between border-t-2 border-dashed">
                     <div class="w-1/2 text-sm">
-                        <span>{{ i18n.trans('dto') }}</span>
+                        <span>{{ trans('dto') }}</span>
                         <label class="input-icon text-gray-400">
                             <span><i class="fa fa-sm fa-percent"></i></span>
                             <input id="orderDiscountAmountInput" type="number" class="flex-grow-0 text-red-500" value="0"
@@ -39,15 +39,15 @@
                     <span id="orderDiscountAmountLabel" class="flex-1 self-center text-right text-red-500">0.000</span>
                 </div>
                 <div class="p-4 flex justify-between border-t-2 border-dashed">
-                    <span>{{ i18n.trans('net') }}</span>
+                    <span>{{ trans('net') }}</span>
                     <span id="orderTotalNet" class="text-right">0.000</span>
                 </div>
                 <div class="p-4 flex justify-between border-t-2 border-dashed">
-                    <span>{{ i18n.trans('taxes') }}</span>
+                    <span>{{ trans('taxes') }}</span>
                     <span class="text-right" data-document-field="totaliva" data-format="number">0.000</span>
                 </div>
                 <div class="p-4 flex justify-between border-t-2 border-dashed">
-                    <span>{{ i18n.trans('payable-amount') }}</span>
+                    <span>{{ trans('payable-amount') }}</span>
                     <span class="text-right" data-document-field="total" data-format="number">0.000</span>
                 </div>
             </div>

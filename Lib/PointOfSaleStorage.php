@@ -104,15 +104,22 @@ class PointOfSaleStorage
         string $description
     ): bool {
         $sessionID = PointOfSaleSession::getSessionID();
+        $session = PointOfSaleSession::getSessionModel();
         $nick = Session::user()->nick;
 
         $movment = new MovimientoPuntoVenta();
 
-        $movment->idsesion = $sessionID;
-        $movment->nickusuario = $nick;
+        $movment->idsesion = $session->idsesion;
+        $movment->nickusuario = $session->nickusuario;
         $movment->descripcion = $description;
         $movment->total = $amount;
 
-        return $movment->save();
+        if (false === $movment->save()) {
+            return false;
+        }
+
+        $session->saldoesperado += $amount;
+
+        return $session->save();
     }
 }

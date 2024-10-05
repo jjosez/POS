@@ -7,7 +7,7 @@
 <div id="moneyInOutModal" class="modal hidden">
     <div class="modal-content md:modal-content-sm">
         <div class="modal-header">
-            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ i18n.trans('till-session-cash-movments') }}</h2>
+            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ trans('till-session-cash-movments') }}</h2>
             <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="moneyInOutModal">
                 <i class="fa fw fa-times"></i>
             </button>
@@ -18,13 +18,13 @@
                     <li class="mr-2" role="presentation">
                         <button class="tab tab-active" data-toggle="tab" data-target="cash-entry"
                                 type="button" role="tab"
-                                aria-controls="entry">{{ i18n.trans('deposit') }}
+                                aria-controls="entry">{{ trans('deposit') }}
                         </button>
                     </li>
                     <li class="mr-2" role="presentation">
                         <button class="tab" data-toggle="tab" data-target="cash-withdraw"
                                 type="button" role="tab"
-                                aria-controls="dashboard">{{ i18n.trans('withdraw') }}
+                                aria-controls="dashboard">{{ trans('withdraw') }}
                         </button>
                     </li>
                 </ul>
@@ -36,18 +36,18 @@
                         <input type="hidden" name="action" value="cash-entry-action">
                         <input type="hidden" name="token" value="{{ fsc.getNewToken() }}">
                         <div class="form-group mt-4">
-                            <span class="font-medium">{{ i18n.trans('amount') }}</span>
+                            <span class="font-medium">{{ trans('amount') }}</span>
                             <input name="amount" type="number" required>
                         </div>
                         <div class="form-group mt-2">
-                            <span class="font-medium">{{ i18n.trans('description') }}</span>
+                            <span class="font-medium">{{ trans('description') }}</span>
                             <input name="description" type="text" required>
                         </div>
                     </form>
                     <button type="submit" class="mt-4 mx-auto btn btn-primary btn-round"
                             data-action="cashEntryAction"
                             data-toggle="modal" data-target="moneyInOutModal">
-                        {{ i18n.trans('deposit') }}</button>
+                        {{ trans('deposit') }}</button>
                 </div>
                 <div id="cash-withdraw" class="tabcontent hidden" role="tabpanel"
                      aria-labelledby="cash-withdraw">
@@ -55,18 +55,18 @@
                         <input type="hidden" name="action" value="cash-withdraw-action">
                         <input type="hidden" name="token" value="{{ fsc.getNewToken() }}">
                         <div class="form-group mt-4">
-                            <span class="font-medium">{{ i18n.trans('amount') }}</span>
+                            <span class="font-medium">{{ trans('amount') }}</span>
                             <input name="amount" type="number" required>
                         </div>
                         <div class="form-group mt-2">
-                            <span class="font-medium">{{ i18n.trans('description') }}</span>
+                            <span class="font-medium">{{ trans('description') }}</span>
                             <input name="description" type="text" required>
                         </div>
                     </form>
                     <button type="submit" class="mt-4 mx-auto btn btn-warning btn-round"
                             data-action="cashWithdrawAction"
                             data-toggle="modal" data-target="moneyInOutModal">
-                        {{ i18n.trans('withdraw') }}</button>
+                        {{ trans('withdraw') }}</button>
                 </div>
             </div>
         </div>

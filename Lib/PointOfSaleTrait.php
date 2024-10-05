@@ -42,7 +42,10 @@ trait PointOfSaleTrait
      */
     public function getParentFamilies(): array
     {
-        $where = [new DataBaseWhere('madre', NULL, 'IS')];
+        $where = [
+            new DataBaseWhere('pos_shortcut', true)
+        ];
+
         return Familia::all($where);
     }
 

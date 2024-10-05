@@ -9,7 +9,7 @@
     <div class="min-h-min modal-content md:modal-content-sm">
         <!--header-->
         <div class="modal-header">
-            <h2 class="text-2xl font-semibold text-slate-gray-700">{{ i18n.trans('edit') }}</h2>
+            <h2 class="text-2xl font-semibold text-slate-gray-700">{{ trans('edit') }}</h2>
             <button class="ml-2 btn btn-icon btn-danger" data-toggle="modal" data-target="productQuantityEditModal">
                 <i class="fa fw fa-times"></i>
             </button>
@@ -17,7 +17,7 @@
         <!--body-->
         <div class="modal-body">
             <div id="productQuantityForm" class="flex-col items-center">
-                <label for="productQuantityInput" class="mb-2 font-semibold uppercase">{{ i18n.trans('quantity') }}</label>
+                <label for="productQuantityInput" class="mb-2 font-semibold uppercase">{{ trans('quantity') }}</label>
                 <div class="flex space-x-3">
                     <button class="flex-none btn btn-icon btn-warning" data-action="quantityDecreaseAction">
                         <i class="fa fw fa-minus"></i>

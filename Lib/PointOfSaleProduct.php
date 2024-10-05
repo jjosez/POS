@@ -69,7 +69,7 @@ class PointOfSaleProduct
      * @param string $company
      * @return array
      */
-    public static function search(string $text, array $tags = [], string $wharehouse = '', string $company = ''): array
+    public static function search(string $text, array $filters = [], string $wharehouse = '', string $company = ''): array
     {
         $where = [
             new DataBaseWhere('V.codbarras', $text, 'LIKE'),
@@ -84,9 +84,11 @@ class PointOfSaleProduct
             $where[] = new DataBaseWhere('S.codalmacen', NULL, 'IS', 'OR');
         }
 
-        /*foreach ($tags as $tag) {
-            $where[] = new DataBaseWhere('codfamilia', $tag, '=', 'AND');
-        }*/
+        if (!empty($filters['families'])) {
+            $families = implode(',', array_column($filters['families'], 'code'));
+
+            $where[] = new DataBaseWhere('codfamilia', $families, 'IN');
+        }
 
         return self::getProduct()->all($where, [], 0, 30);
     }

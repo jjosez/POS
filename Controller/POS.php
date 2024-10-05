@@ -282,8 +282,13 @@ class POS extends Controller
     {
         if (false === $this->validateRequest()) return;
 
-        $amount = $this->request->request->get('amount') ?? 0;
+        $amount = $this->request->request->get('amount', 0);
         $description = $this->request->request->get('description');
+
+        if (!is_numeric($amount) || $amount <= 0) {
+            Tools::log()->error('invalid-amount');
+            return;
+        }
 
         if (PointOfSaleStorage::saveCashMovment($amount, $description)) {
             Tools::log()->info('cash-entry-ok');
@@ -296,9 +301,15 @@ class POS extends Controller
     {
         if (false === $this->validateRequest()) return;
 
-        $amount = $this->request->request->get('amount') ?? 0;
+        $amount = $this->request->request->get('amount', 0);
         $description = $this->request->request->get('description');
 
+        if (!is_numeric($amount) || $amount <= 0) {
+            Tools::log()->error('invalid-amount');
+            return;
+        }
+
+        $amount *= -1;
         if (PointOfSaleStorage::saveCashMovment($amount, $description)) {
             Tools::log()->info('cash-withdraw-ok');
         }
@@ -350,22 +361,16 @@ class POS extends Controller
     {
         $query = $this->request->request->get('query', '');
         $terminalCode = $this->request->request->get('terminal', '');
+        $filters = $this->request->request->get('filters', '');
+
+        $filterRules = json_decode($filters, true) ?: [];
 
         $terminal = PointOfSaleSession::getSessionTerminal($terminalCode);
-        $company = '';
-        $warehouse = '';
 
-        if ($terminal->productsource) {
-            switch ($terminal->productsource) {
-                case $terminal::PRODUCTS_FROM_COMPANY:
-                    $company = $terminal->idempresa;
-                    break;
-                case $terminal::PRODUCTS_FROM_WAREHOUSE:
-                    $warehouse = $terminal->codalmacen;
-            }
-        }
+        $company = $terminal->productsource === $terminal::PRODUCTS_FROM_COMPANY ? $terminal->idempresa : '';
+        $warehouse = $terminal->productsource === $terminal::PRODUCTS_FROM_WAREHOUSE ? $terminal->codalmacen : '';
 
-        $this->setResponse(PointOfSaleProduct::search($query, [], $warehouse, $company));
+        $this->setResponse(PointOfSaleProduct::search($query, $filterRules, $warehouse, $company));
     }
 
     /**
@@ -418,7 +423,7 @@ class POS extends Controller
         $request = new PointOfSaleRequest($this->request);
         $transaction = new PointOfSaleTransaction($request);
 
-        if ($this->pipeFalse('saveBefore', $this->request) === false) {
+        if ($this->pipeFalse('saveBefore', $this->request, $transaction) === false) {
             return;
         }
 
@@ -469,6 +474,8 @@ class POS extends Controller
         $this->addResponseData(
             PointOfSalePrinter::printRequest($document, $payments, $this->getVoucherFormat())
         );
+
+        //$this->pipe('PrintVoucherPOS', $document, $payments);
     }
 
     protected function printDocumentRaw(SalesDocument $document, array $payments = []): void

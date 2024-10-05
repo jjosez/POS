@@ -7,7 +7,7 @@
 <div id="lastOrdersModal" class="hidden modal">
     <div class="h-full modal-content md:modal-content-lg">
         <div class="modal-header">
-            <h2 class="text-2xl font-semibold text-slate-gray-700">{{ i18n.trans('last-orders') }}</h2>
+            <h2 class="text-2xl font-semibold text-slate-gray-700">{{ trans('last-orders') }}</h2>
             {#<button class="ml-auto btn btn-icon btn-primary" data-action="closeSessionAction">
                 <i class="fa fw fa-arrow-down-wide-short"></i>
             </button>#}
@@ -17,16 +17,16 @@
         </div>
         <div class="m-4 hidden items-center rounded-lg bg-blue-500 p-4 text-white md:flex">
             <div class="flex-1">
-                <span class="font-semibold capitalize italic">{{ i18n.trans('code') }}</span>
+                <span class="font-semibold capitalize italic">{{ trans('code') }}</span>
             </div>
             <div class="flex-1">
-                <span class="font-semibold capitalize italic">{{ i18n.trans('customer') }}</span>
+                <span class="font-semibold capitalize italic">{{ trans('customer') }}</span>
             </div>
             <div class="flex-1">
-                <span class="font-semibold capitalize italic">{{ i18n.trans('date') }}</span>
+                <span class="font-semibold capitalize italic">{{ trans('date') }}</span>
             </div>
             <div class="flex-1">
-                <span class="font-semibold capitalize italic">{{ i18n.trans('total') }}</span>
+                <span class="font-semibold capitalize italic">{{ trans('total') }}</span>
             </div>
             <div class="flex justify-center w-24">
                 <span class="font-semibold capitalize italic"><i class="fas fa-tools"></i></span>
@@ -47,7 +47,7 @@
 <script id="lastOrdersListTemplate" type="text/template">
     <% if(it.items.length === 0) { %>
     <div class="flex flex-1 rounded-lg bg-blue-100 p-2 shadow-sm md:flex-row">
-        <span>{{ i18n.trans('no-data') }}</span>
+        <span>{{ trans('no-data') }}</span>
     </div>
     <% } %>
     <% it.items.forEach(function(order){ %>
@@ -55,19 +55,19 @@
     <% if (order.dtomecanico) { %>table-row-red<% } else { %>hover:bg-yellow-100<% } %>">
         <div class="flex flex-1 flex-col items-center md:flex-row">
             <div class="flex-1">
-                <span class="font-semibold capitalize italic md:hidden">{{ i18n.trans('code') }}: </span>
+                <span class="font-semibold capitalize italic md:hidden">{{ trans('code') }}: </span>
                 <%= order.codigo %>
             </div>
             <div class="flex-1">
-                <span class="font-semibold capitalize italic md:hidden">{{ i18n.trans('customer') }}: </span>
+                <span class="font-semibold capitalize italic md:hidden">{{ trans('customer') }}: </span>
                 <%= order.nombrecliente %>
             </div>
             <div class="flex-1">
-                <span class="font-semibold capitalize italic md:hidden">{{ i18n.trans('date') }}: </span>
+                <span class="font-semibold capitalize italic md:hidden">{{ trans('date') }}: </span>
                 <%= order.fecha %> <%= order.hora %>
             </div>
             <div class="flex-1">
-                <span class="font-semibold capitalize italic md:hidden">{{ i18n.trans('total') }}: </span>
+                <span class="font-semibold capitalize italic md:hidden">{{ trans('total') }}: </span>
                 <%= order.total %>
             </div>
             <p><%= order.observaciones || '' %></p>

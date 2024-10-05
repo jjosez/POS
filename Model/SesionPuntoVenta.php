@@ -10,6 +10,7 @@ use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Session;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 
@@ -223,5 +224,16 @@ class SesionPuntoVenta extends Base\ModelClass
         $this->nickusuario = $user->nick;
 
         return $this->save();
+    }
+
+    public function delete(): bool
+    {
+        if ($this->getTerminal()->disponible){
+            Tools::log()->warning('terminal-is-open');
+
+            return false;
+        }
+
+        return parent::delete();
     }
 }

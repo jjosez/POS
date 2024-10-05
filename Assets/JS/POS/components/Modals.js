@@ -8,11 +8,13 @@ let modals = {
     closeSession: new ModalElement('closeSessionModal'),
     customerSearch: new ModalElement('customerSearchModal'),
     documentType: new ModalElement('documentTypeModal'),
+    loadingModal: new ModalElement('loadingModal'),
 
     holdOrders: new ModalElement('holdOrdersModal'),
     lastOrders: new ModalElement('lastOrdersModal'),
 
     paymentDetail: new ModalElement('paymentModal'),
+    printModal: new ModalElement('printModal'),
 
     productEdit: new ModalElement('productEditModal'),
     productImages: new ModalElement('productImagesModal'),
@@ -87,9 +89,11 @@ class Modals {
     closeSessionModal = () => modals['closeSession'];
     customerSearchModal = () => modals['customerSearch'];
     lastOrdersModal = () => modals['lastOrders'];
+    loadingModal = () => modals['loadingModal'];
     pausedOrdersModal = () => modals['holdOrders'];
     stockDetailModal = () => modals['productStockDetail'];
     paymentModal = () => modals['paymentDetail'];
+    printModal = () => modals['printModal'];
     productEditModal = () => modals['productEdit'];
     productImagesModal = () => modals['productImages'];
     productQuantityEditModal = () => modals['productQuantityEdit'];

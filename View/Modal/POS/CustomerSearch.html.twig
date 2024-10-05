@@ -24,17 +24,17 @@
         <div class="modal-body p-0">
             <div class="hidden p-5" id="newCustomerForm">
                 <div class="form-group">
-                    <label for="newCustomerTaxID" class="mb-2">{{ i18n.trans('cifnif') }}</label>
+                    <label for="newCustomerTaxID" class="mb-2">{{ trans('cifnif') }}</label>
                     <input type="text" class="form-control" id="newCustomerTaxID">
                 </div>
                 <div class="form-group my-2">
-                    <label for="newCustomerName" class="mb-2">{{ i18n.trans('name-or-business-name') }}</label>
+                    <label for="newCustomerName" class="mb-2">{{ trans('name-or-business-name') }}</label>
                     <input type="text" class="form-control" id="newCustomerName">
                 </div>
                 <div class="form-group my-4">
                     <button class="btn justify-center bg-blue-500 hover:bg-blue-600" type="button"
                             id="newCustomerSaveButton" data-toggle="collapse" data-target="newCustomerForm"
-                            data-action="saveCustomerAction">{{ i18n.trans('save') }}</button>
+                            data-action="saveCustomerAction">{{ trans('save') }}</button>
                 </div>
             </div>
             <div class="overflow-hidden">
