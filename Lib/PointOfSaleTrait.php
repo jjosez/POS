@@ -82,33 +82,6 @@ trait PointOfSaleTrait
     }
 
     /**
-     * @return array
-     */
-    public function getCustomModals(): array
-    {
-        $extensionPath = join(DIRECTORY_SEPARATOR, ['Modal', 'POS', 'Extension']);
-        $modalsPath = join(DIRECTORY_SEPARATOR, [FS_FOLDER, 'Dinamic', 'View', $extensionPath]);
-        $modals = [];
-
-        if (false === file_exists($modalsPath)) {
-            return $modals;
-        }
-
-        $directoryIterator = new RecursiveDirectoryIterator($modalsPath);
-        $fileIterator = new RecursiveIteratorIterator($directoryIterator);
-
-        foreach ($fileIterator as $filename) {
-            if ($filename->isDir()) continue;
-
-            if (!strpos($filename->getFilename(), '.html.twig')) continue;
-
-            $modals[] = $extensionPath . DIRECTORY_SEPARATOR . $filename->getFilename();
-        }
-
-        return $modals;
-    }
-
-    /**
      * @return Cliente
      */
     public function getDefaultCustomer(): Cliente

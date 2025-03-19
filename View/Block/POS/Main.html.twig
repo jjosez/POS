@@ -40,8 +40,8 @@
     {{ include('Modal/POS/ProductStockDetail.html.twig') }}
     {{ include('Modal/POS/ProductImages.html.twig') }}
     {{ include('Modal/POS/User.html.twig') }}
-    {% for modal in fsc.getCustomModals() %}
-        {{ include(modal) }}
+    {% for includeView in getIncludeViews('POS', 'modals') %}
+        {% include includeView['path'] %}
     {% endfor %}
 {% endblock %}
 
