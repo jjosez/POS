@@ -6,8 +6,9 @@
 
 namespace FacturaScripts\Plugins\POS\Controller;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController;
+use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
+use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 
 /**
  * Controller to edit a single item from the SesionPOS model
@@ -23,6 +24,7 @@ class EditPagoPuntoVenta extends ExtendedController\EditController
     {
         return 'PagoPuntoVenta';
     }
+
     /**
      * Returns basic page attributes
      *
@@ -39,40 +41,31 @@ class EditPagoPuntoVenta extends ExtendedController\EditController
         return $pagedata;
     }
 
-    /*protected function loadData($viewName, $view)
+    protected function setViewReadOnly(string $viewName,ExtendedController\BaseView $view)
     {
-        switch ($viewName) {
-            case 'EditPagoPuntoVenta':
+        /** @var SesionPuntoVenta $session */
+        $session = $view->model->getSesionPuntoVenta();
 
-        }
-        parent::loadData($viewName, $view);
-    }*/
+        /** @var OrdenPuntoVenta $order */
+        $order = $view->model->getOrdenPuntoVenta();
 
-    /**
-     * Load views
-     */
-    /*protected function createViews()
-    {
-        parent::createViews();
+        if ($session->abierto && $order->getDocument()->editable) return;
 
-        $this->createOrdenesView();
-        $this->createPagosView();
-        $this->createMovimientosView();
-
-        $this->setSettings('EditSesionPuntoVenta', 'btnNew', false);
-        $this->setTabsPosition('top');
+        $this->views[$viewName]->setReadOnly(true);
     }
 
-    protected function createPagosView(string $viewName = 'EditPagoPuntoVenta')
+    protected function loadData($viewName, $view)
     {
-        $formaspago = $this->codeModel->all('formaspago', 'codpago', 'descripcion');
+        if ($viewName === $this->getMainViewName())
+        {
+            parent::loadData($viewName, $view);
 
-        $this->addListView($viewName, 'PagoPuntoVenta', 'till-session-payments', 'fas fa-credit-card');
-        $this->views[$viewName]->addOrderBy(['total'], 'Total', 2);
-        $this->views[$viewName]->addOrderBy(['idoperacion'], 'No. operacion', 2);
-        $this->views[$viewName]->addFilterSelect('formapago', 'Metodo de pago', 'codpago', $formaspago);
+            $this->setSettings($viewName, 'btnNew', false);
+            $this->setViewReadOnly($viewName, $view);
 
-        $this->disableButtons($viewName);
-        $this->setSettings($viewName, 'clickable', false);
-    }*/
+            return;
+        }
+
+        parent::loadData($viewName, $view);
+    }
 }

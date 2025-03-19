@@ -1,10 +1,13 @@
 {
-  "id": "fs_pos",
+  "id": "/",
   "dir": "ltr",
+  "lang": "en",
   "name": "Point of Sale",
+  "scope": "/",
+  "start_url": "/",
   "display": "standalone",
   "short_name": "POS",
-  "description": "Punto de venta, para Facturascripts.",
+  "description": "\"Punto de venta, para Facturascripts.\"",
   "orientation": "any",
   "theme_color": "#8936FF",
   "background_color": "#2EC6FE",
@@ -14,9 +17,6 @@
   ],
   "features": [
     "Cross Platform"
-  ],
-  "categories": [
-    "productivity"
   ],
   "icons": [
     {
@@ -37,6 +37,9 @@
       "type": "image/png",
       "purpose": "any"
     }
+  ],
+  "categories": [
+    "productivity"
   ],
   "launch_handler": {
     "client_mode": "navigate-existing"

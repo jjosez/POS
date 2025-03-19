@@ -2,6 +2,7 @@
 
 namespace FacturaScripts\Plugins\POS\Lib;
 
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Dinamic\Model\FormatoTicket;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
@@ -19,7 +20,7 @@ class PointOfSaleClosingVoucher extends AbstractTicketBuilder
         $this->session = $session;
         $this->company = $company;
 
-        $this->ticketType = 'Cashup';
+        $this->ticketType = 'CashRegisterClosing';
     }
 
     protected function buildHeader(): void
@@ -51,16 +52,27 @@ class PointOfSaleClosingVoucher extends AbstractTicketBuilder
         $this->printer->textKeyValue('SALDO INICIAL', $this->session->saldoinicial);
         $this->printer->lineSeparator();
 
-        $this->printer->textCentered('RESUMEN DE PAGOS');
+        $text = strtoupper(Tools::lang()->trans('payments-summary'));
+        $this->printer->textCentered($text);
         $this->printer->lineBreak();
 
         foreach ($this->session->getPaymentsAmount() as $payment) {
             $this->printer->textKeyValue(strtoupper($payment['descripcion']), $payment['total']);
         }
 
+        $text = strtoupper(Tools::lang()->trans('cash-movements-summary'));
+        $this->printer->textCentered($text);
+        $this->printer->lineBreak();
+
+        foreach ($this->session->getCashMovementsAmount() as $key => $amount) {
+            $this->printer->textKeyValue(Tools::lang()->trans($key), $amount);
+        }
+
         $this->printer->lineSeparator('=');
-        $this->printer->textKeyValue('TOTAL ESPERADO', $this->session->saldoesperado);
-        $this->printer->textKeyValue('TOTAL CONTADO', $this->session->saldocontado);
+        $text = strtoupper(Tools::lang()->trans('total-expected'));
+        $this->printer->textKeyValue($text, $this->session->saldoesperado);
+        $text = strtoupper(Tools::lang()->trans('total-counted'));
+        $this->printer->textKeyValue($text, $this->session->saldocontado);
     }
 
     protected function buildFooter(): void

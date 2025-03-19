@@ -35,7 +35,7 @@ class ListSesionPuntoVenta extends ExtendedController\ListController
     protected function createViews($viewName = 'ListSesionPuntoVenta')
     {
         $this->addView($viewName, 'SesionPuntoVenta', 'till-sessions', 'fas fa-money-bill-alt');
-        $this->addSearchFields($viewName, ['nombreagente']);
+        $this->addSearchFields($viewName, ['nickusuario']);
 
         $this->addOrderBy($viewName, ['fechainicio','horainicio'], 'Fecha Inicio', 2);
         $this->addOrderBy($viewName, ['fechafin','horafin'], 'Fecha Fin');

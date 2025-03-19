@@ -1,6 +1,6 @@
 /**
  * This file is part of POS plugin for FacturaScripts
- * Copyright (C) 2018-2021 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ * Copyright (C) 2018-2025 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 import * as Core from './Core.js';
 import * as Order from "./Order.js";
@@ -36,12 +36,25 @@ async function orderDeleteAction(data) {
 /**
  * @param {{code:string}} data
  */
-async function orderPrintAction({code}) {
+async function orderPrintAction({code, type}) {
+    const data = {
+        code: code,
+        type: type
+    }
+
+    const response = await Order.printOnDesktop(data);
+    View.modals().lastOrdersModal().hide();
+
+    View.main().showPrintSelectionModal(response);
+    await Core.printerServerRequest(response);
+}
+/*async function orderPrintAction({code, type}) {
     const response = await Order.printRequest(code);
     View.modals().lastOrdersModal().hide();
 
+    View.modals().printModal().show();
     await Core.printerServerRequest(response);
-}
+}*/
 
 /**
  * @param {{code:string}} data
@@ -83,6 +96,8 @@ async function orderSaveAction() {
 
     Cart.setDocumentType(AppSettings.document.code, AppSettings.document.serie)
     View.main().updateDocumentNameLabel(AppSettings.document.description);
+
+    //View.main().showPrintSelectionModal(response);
 
     await Core.printerServerRequest(response);
 }
@@ -126,7 +141,7 @@ async function searchProductAction() {
 }
 
 async function sessionCloseAction() {
-    View.modals().printModal().show();
+    View.modals().loadingModal().show();
     const formData = new FormData(View.main().closeSessionForm());
     const response = await Core.postRequest(formData);
 

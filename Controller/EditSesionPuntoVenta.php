@@ -23,6 +23,7 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
     {
         return 'SesionPuntoVenta';
     }
+
     /**
      * Returns basic page attributes
      *
@@ -45,35 +46,47 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
     protected function createViews()
     {
         parent::createViews();
+        $this->setTabsPosition('top');
 
         $this->createOrdenesView();
         $this->createPagosView();
         $this->createMovimientosView();
         $this->createDraftView();
 
+
+    }
+
+    protected function setSettingsSesionView()
+    {
         $this->setSettings('EditSesionPuntoVenta', 'btnNew', false);
-        $this->setTabsPosition('top');
+
+        if ($this->user->admin) {
+            $this->views[$this->getMainViewName()]->disableColumn('opened');
+        }
     }
 
     protected function createMovimientosView(string $viewName = 'ListMovimientoPuntoVenta')
     {
-        $this->addListView($viewName, 'MovimientoPuntoVenta', 'till-session-cash-movments', 'fas fa-wallet');
-        $this->views[$viewName]->addOrderBy(['fecha', 'hora'], 'date');
-        $this->disableButtons($viewName);
+        $this->addListView($viewName, 'MovimientoPuntoVenta', 'till-session-cash-movments', 'fas fa-wallet')
+            ->addOrderBy(['fecha', 'hora'], 'date');
+
         $this->setSettings($viewName, 'clickable', false);
+        $this->disableButtons($viewName);
     }
 
     protected function createOrdenesView(string $viewName = 'ListOrdenPuntoVenta')
     {
-        $this->addListView($viewName, 'OrdenPuntoVenta', 'till-session-operations');
-        $this->views[$viewName]->addOrderBy(['fecha', 'hora'], 'Fecha', 2);
+        $this->addListView($viewName, 'OrdenPuntoVenta', 'till-session-operations')
+            ->addOrderBy(['fecha', 'hora'], 'Fecha', 2);
+
         $this->disableButtons($viewName);
     }
 
     private function createDraftView(string $viewName = 'ListBorradorPuntoVenta')
     {
-        $this->addListView($viewName, 'BorradorPuntoVenta', 'pos-drafts');
-        $this->views[$viewName]->addOrderBy(['fecha', 'hora'], 'Fecha', 2);
+        $this->addListView($viewName, 'BorradorPuntoVenta', 'pos-drafts')
+            ->addOrderBy(['fecha', 'hora'], 'Fecha', 2);
+
         $this->disableButtons($viewName);
     }
 
@@ -81,13 +94,13 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
     {
         $formaspago = $this->codeModel->all('formaspago', 'codpago', 'descripcion');
 
-        $this->addListView($viewName, 'PagoPuntoVenta', 'till-session-payments', 'fas fa-credit-card');
-        $this->views[$viewName]->addOrderBy(['total'], 'Total', 2);
-        $this->views[$viewName]->addOrderBy(['idoperacion'], 'No. operacion', 2);
-        $this->views[$viewName]->addFilterSelect('formapago', 'Metodo de pago', 'codpago', $formaspago);
+        $this->addListView($viewName, 'PagoPuntoVenta', 'till-session-payments', 'fas fa-credit-card')
+            ->addOrderBy(['total'], 'Total', 2)
+            ->addOrderBy(['idoperacion'], 'No. operacion', 2)
+            ->addFilterSelect('formapago', 'Metodo de pago', 'codpago', $formaspago);
 
+        $this->setSettings($viewName, 'clickable', true);
         $this->disableButtons($viewName);
-        $this->setSettings($viewName, 'clickable', false);
     }
 
     protected function disableButtons(string $viewName)
@@ -95,10 +108,9 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
         $this->setSettings($viewName, 'btnNew', false);
         $this->setSettings($viewName, 'btnNew', false);
 
-        if (false === $this->permissions->allowDelete){
+        if (false === $this->permissions->allowDelete) {
             $this->setSettings($viewName, 'btnDelete', false);
         }
-        //$this->setSettings($viewName, 'clickable', false);
     }
 
     protected function loadData($viewName, $view)
@@ -118,6 +130,4 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
                 break;
         }
     }
-
-
 }

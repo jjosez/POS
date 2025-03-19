@@ -1,7 +1,9 @@
 import {getElement} from "../Core.js";
+import {Eta} from "../../vendor/eta/browser.module.js?v=3.5.0"
 
 /* global eta */
-const templateEngine = new eta.Eta();
+const templateEngine = new Eta();
+
 let instance;
 
 const templates = {
@@ -12,6 +14,7 @@ const templates = {
     messageList: getElement('message-template').innerHTML,
     pausedOrdersList: getElement('pausedOrdersListTemplate').innerHTML,
     paymentList: getElement('paymentListTemplate').innerHTML,
+    printSelection: getElement('printSelectionTemplate').innerHTML,
     productFamilyList: getElement('familyListTemplate').innerHTML,
     productImageList: getElement('productImageListTemplate').innerHTML,
     productSearchResult: getElement('productListTemplate').innerHTML,
@@ -26,6 +29,7 @@ const views = {
     messageList: getElement('alert-container'),
     pausedOrdersList: getElement('pausedOrdersList'),
     paymentList: getElement('paymentList'),
+    printSelection: getElement('printSelectionView'),
     productFamilyList: getElement('familyList'),
     productImageList: getElement('productImageListView'),
     productSearchResult: getElement('productSearchResult'),
@@ -50,12 +54,13 @@ class Templates {
     renderLastOrderList = (data) => this.render('lastOrdersList', data);
     renderPaymentList = (data) => this.render('paymentList', data);
     renderPausedOrderList = (data) => this.render('pausedOrdersList', data);
+    renderPrintSelection = (data) => this.render('printSelection', data);
     renderProductFamilyList = (data) => this.render('productFamilyList', data);
     renderProductImageList = (data) => this.render('productImageList', data);
     renderProductSearchList = (data) => this.render('productSearchResult', data);
     renderProductStockList = (data) => this.render('productStockList', data);
 }
 
-let templatesInstance = Object.freeze(new Templates());
+const templatesInstance = Object.freeze(new Templates());
 
 export default templatesInstance;

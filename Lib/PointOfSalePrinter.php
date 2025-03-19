@@ -14,7 +14,17 @@ class PointOfSalePrinter
         SalesDocument $document,
         array $payments,
         ?FormatoTicket $format = null
-    ): array {
+    ): array
+    {
+        return self::printSaleVoucher($document, $payments, $format);
+    }
+
+    public static function printSaleVoucher(
+        SalesDocument $document,
+        array $payments,
+        ?FormatoTicket $format = null
+    ): array
+    {
         $voucher = new PointOfSaleVoucher($document, $payments, $format);
 
         return [
@@ -26,21 +36,32 @@ class PointOfSalePrinter
         SalesDocument $document,
         array $payments,
         ?FormatoTicket $format = null
-    ): string {
+    ): string
+    {
         $voucher = new PointOfSaleVoucherRaw($document, $payments, $format);
 
         return $voucher->getResult();
     }
 
-     public static function printCashupRequest(
-         SesionPuntoVenta $session,
-         Empresa $company,
-         ?FormatoTicket $format = null
-     ): array {
+    public static function printCashupRequest(
+        SesionPuntoVenta $session,
+        Empresa $company,
+        ?FormatoTicket $format = null
+    ): array
+    {
+        return self::printClosingVoucher($session, $company, $format);
+    }
+
+    public static function printClosingVoucher(
+        SesionPuntoVenta $session,
+        Empresa $company,
+        ?FormatoTicket $format = null
+    ): array
+    {
         $voucher = new PointOfSaleClosingVoucher($session, $company, $format);
 
         return [
-        'print_job_id' => PrintingService::newPrintJob($voucher)
+            'print_job_id' => PrintingService::newPrintJob($voucher)
         ];
     }
 }

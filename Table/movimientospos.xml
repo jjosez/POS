@@ -25,8 +25,14 @@
         <null>NO</null>
     </column>
     <column>
+        <name>nickautoriza</name>
+        <type>character varying(50)</type>
+        <null>YES</null>
+        <default>NULL</default>
+    </column>
+    <column>
         <name>descripcion</name>
-        <type>character varying(40)</type>
+        <type>text</type>
         <null>NO</null>
     </column>
     <column>
@@ -54,6 +60,10 @@
     </constraint>
     <constraint>
         <name>ca_movimientospos_users</name>
+        <type>FOREIGN KEY (nickusuario) REFERENCES users (nick) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_movimientospos_nickautoriza</name>
         <type>FOREIGN KEY (nickusuario) REFERENCES users (nick) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
 </table>

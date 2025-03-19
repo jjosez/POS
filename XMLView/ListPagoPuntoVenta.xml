@@ -6,8 +6,10 @@
 
 <view>
     <columns>
-        <column name="Operacion" display="none" order="100">
-            <widget type="text" fieldname="idoperacion" readonly="true"/>
+        <column name="Operacion" display="left" order="100">
+            <widget type="select" fieldname="idoperacion">
+                <values source="operacionespos" fieldcode="idoperacion" fieldtitle="codigo"/>
+            </widget>
         </column>
         <column name="payment-method" order="100">
             <widget type="select" fieldname="codpago">

@@ -14,8 +14,12 @@ class Familia
     {
         return function () {
             $file = new AttachedFile();
-            $file->loadFromCode($this->pos_idlogo);
-            return $file->url('download-permanent');
+
+            if ($file->loadFromCode($this->pos_idlogo)) {
+                return $file->url('download-permanent');
+            }
+
+            return '';
         };
     }
 

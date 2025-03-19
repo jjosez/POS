@@ -6,22 +6,22 @@
 
 <view>
     <columns>
-        <group name="data" title="general" numcolumns="12">
-            <column name="name" numcolumns="3" order="100">
+        <group name="data" title="general" numcolumns="12" valign="center">
+            <column name="name" numcolumns="4" order="100">
                 <widget type="text" fieldname="nombre" icon="fas fa-tag" required="true"/>
             </column>
-            <column name='customer' numcolumns='3' order='110'>
+            <column name='customer' numcolumns='4' order='110'>
                 <widget type='autocomplete' fieldname='codcliente' onclick='EditCliente'>
                     <values source='clientes' fieldcode='codcliente' fieldtitle='nombre'/>
                 </widget>
             </column>
-            <column name="warehouse" titleurl="ListAlmacen" numcolumns="3" order="120">
+            <column name="warehouse" titleurl="ListAlmacen" numcolumns="4" order="120">
                 <widget type="select" fieldname="codalmacen" required='true' onclick="EditAlmacen"
                         icon="fas fa-warehouse">
                     <values source="almacenes" fieldcode="codalmacen" fieldtitle="nombre"/>
                 </widget>
             </column>
-            <column name="company" titleurl="ListEmpresa" numcolumns="3" order="130">
+            <column name="company" titleurl="ListEmpresa" order="130">
                 <widget type="select" fieldname="idempresa" required='true' onclick="EditEmpresa" icon="fas fa-building"
                         readonly="true">
                     <values source="empresas" fieldcode="idempresa" fieldtitle="nombre"/>
@@ -32,6 +32,9 @@
                     <values title="company">1</values>
                     <values title="warehouse">2</values>
                 </widget>
+            </column>
+            <column name="enabled" title="Disponible" numcolumns="3" order="160">
+                <widget type="checkbox" fieldname="disponible" readonly="false"/>
             </column>
         </group>
         <group name="extra" title="other-settings" numcolumns="12" valign="bottom">

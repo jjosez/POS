@@ -31,14 +31,15 @@
     {{ include('Modal/POS/DocumentDetail.html.twig') }}
     {{ include('Modal/POS/DocumentType.html.twig') }}
     {{ include('Modal/POS/LastOrders.html.twig') }}
+    {{ include('Modal/POS/LoadingDialog.html.twig') }}
     {{ include('Modal/POS/PausedOrders.html.twig') }}
+    {{ include('Modal/POS/PrintDialog.html.twig') }}
     {{ include('Modal/POS/ProductEdit.html.twig') }}
     {{ include('Modal/POS/ProductQuantity.html.twig') }}
     {{ include('Modal/POS/ProductFilter.html.twig') }}
     {{ include('Modal/POS/ProductStockDetail.html.twig') }}
     {{ include('Modal/POS/ProductImages.html.twig') }}
     {{ include('Modal/POS/User.html.twig') }}
-    {{ include('Modal/POS/PrintDialog.html.twig') }}
     {% for modal in fsc.getCustomModals() %}
         {{ include(modal) }}
     {% endfor %}
@@ -54,30 +55,9 @@
     </script>
     <script id="familyListTemplate" type="text/template">
     </script>
-    {# <script id="familyListTemplate" type="text/template">
-        <% if (it.items.madre.codfamilia){ %>
-        <div role="listitem"
-             class="cursor-pointer rounded-lg bg-blue-500 p-4 align-middle font-semibold text-white shadow-sm"
-             data-action="setProductFamilyAction"
-             data-code="<%= it.items.madre.madre ?? '' %>"
-             data-madre="<%= it.items.madre.madre ?? '' %>">
-            REGRESAR
-        </div>
-        <% } %>
-        <% it.items.children.forEach(function(familia){ %>
-        <div role="listitem"
-             class="cursor-pointer rounded-lg bg-slate-100 p-4 font-semibold shadow-sm"
-             data-action="setProductFamilyAction"
-             data-code="<%= familia.codfamilia %>"
-             data-madre="<%= familia.madre %>">
-            <%= familia.descripcion %>
-        </div>
-        <% }) %>
-    </script> #}
     {{ parent() }}
-    <script src="{{ asset('Dinamic/Assets/JS/vendor/eta.min.js?v=3.5.0') }}"></script>
     <script src="{{ asset('Dinamic/Assets/JS/vendor/onscan.min.js?v=1') }}"></script>
-    <script type="module" src="{{ asset('Dinamic/Assets/JS/POS/App.js?v=2.55') }}"></script>
+    <script type="module" src="{{ asset('Dinamic/Assets/JS/POS/App.js?v=2.57') }}"></script>
     <script type="application/javascript">
         const AppSettings = {
             'cash': '{{ fsc.getCashPaymentMethod() }}',
@@ -102,7 +82,7 @@
                 'codpago': '{{ fsc.getCashPaymentMethod() }}'
             },
             'terminal': '{{ fsc.getTerminal().idterminal }}',
-            'document-types' : {{(terminal.getDocumentTypes()|json_encode|raw)}}
+            'document-types': {{ (terminal.getDocumentTypes()|json_encode|raw) }}
         }
 
         window.POS = {

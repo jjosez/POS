@@ -11,11 +11,11 @@ use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\KernelException;
 use FacturaScripts\Core\Model\Base\SalesDocument;
+use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleCustomer;
-use FacturaScripts\Plugins\POS\Lib\PointOfSalePayments;
 use FacturaScripts\Plugins\POS\Lib\PointOfSalePrinter;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleProduct;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleRequest;
@@ -23,7 +23,6 @@ use FacturaScripts\Plugins\POS\Lib\PointOfSaleSession;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleStorage;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleTrait;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleTransaction;
-use Symfony\Component\HttpFoundation\Response;
 
 class POS extends Controller
 {
@@ -125,7 +124,7 @@ class POS extends Controller
                 return false;
 
             case 'print-closing-voucher':
-                $this->printCashup();
+                $this->printCashRegisterClosing();
                 $this->buildResponse();
                 return false;
 
@@ -451,28 +450,31 @@ class POS extends Controller
             return;
         }
 
-        $session = $this->session->getSession();
-        PointOfSalePayments::savePayments($document, $order, $session, $payments);
+        $this->session->savePayments($order, $payments);
 
         $this->dataBase->commit();
 
         $this->pipe('save', $document, $payments);
         Tools::log('POS')->notice('record-updated-correctly');
 
+        $this->addResponseData(['lastOrderID' => $order->primaryColumnValue()]);
+
         $this->printDocument($document, $payments);
     }
 
-    protected function printCashup()
+    protected function printCashRegisterClosing(): void
     {
         $this->addResponseData(
-            PointOfSalePrinter::printCashupRequest($this->session->getSession(), $this->empresa, $this->getVoucherFormat())
+            PointOfSalePrinter::printClosingVoucher($this->session->getSession(),
+                $this->empresa,
+                $this->getVoucherFormat())
         );
     }
 
     protected function printDocument(SalesDocument $document, array $payments = []): void
     {
         $this->addResponseData(
-            PointOfSalePrinter::printRequest($document, $payments, $this->getVoucherFormat())
+            PointOfSalePrinter::printSaleVoucher($document, $payments, $this->getVoucherFormat())
         );
 
         //$this->pipe('PrintVoucherPOS', $document, $payments);
@@ -574,10 +576,13 @@ class POS extends Controller
      */
     protected function closeSession()
     {
-        $cash = $this->request->request->get('cash');
+        $cash = $this->request->request->getArray('cash') ?? [];
+        //$cash = $this->request->request->get('cash') ?? [];
 
         if ($this->session->closeSession($cash)) {
-            $this->printCashup();
+            $this->printCashRegisterClosing();
+
+            $this->pipe('closeSession', $this->session->getSession());
         }
 
         $this->buildResponse();

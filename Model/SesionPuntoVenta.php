@@ -8,8 +8,6 @@ namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
-use FacturaScripts\Core\Model\Base\SalesDocument;
-use FacturaScripts\Core\Session;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
@@ -63,8 +61,6 @@ class SesionPuntoVenta extends Base\ModelClass
      */
     public $idterminal;
 
-    public $open;
-
     /**
      * @var string
      */
@@ -95,7 +91,6 @@ class SesionPuntoVenta extends Base\ModelClass
         $this->fechainicio = date(self::DATE_STYLE);
         $this->horainicio = date(self::HOUR_STYLE);
         $this->nickusuario = false;
-        $this->open = false;
         $this->saldocontado = 0.0;
         $this->saldoesperado = 0.0;
     }
@@ -121,12 +116,35 @@ class SesionPuntoVenta extends Base\ModelClass
      *
      * @return MovimientoPuntoVenta[]
      */
-    public function getCashMovments(): array
+    public function getCashMovements(): array
     {
         $operacion = new MovimientoPuntoVenta();
         $where = [new DataBaseWhere('idsesion', $this->idsesion)];
 
         return $operacion->all($where);
+    }
+
+    /**
+     * Returns the cash entry, withdraw associated with the sessionpos.
+     *
+     * @return array
+     */
+    public function getCashMovementsAmount(): array
+    {
+        $result = [
+            'cash-withdraw' => 0,
+            'cash-entry' => 0
+        ];
+
+        foreach ($this->getCashMovements() as $movment) {
+            if ($movment->total < 0) {
+                $result['cash-withdraw'] += $movment->total;
+            } else {
+                $result['cash-entry'] += $movment->total;
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -228,7 +246,7 @@ class SesionPuntoVenta extends Base\ModelClass
 
     public function delete(): bool
     {
-        if ($this->getTerminal()->disponible){
+        if ($this->getTerminal()->disponible) {
             Tools::log()->warning('terminal-is-open');
 
             return false;

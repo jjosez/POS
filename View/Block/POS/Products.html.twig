@@ -14,7 +14,7 @@
 <div class="mb-4 flex-1 overflow-y-auto px-4">
     <div id="productSearchResult" role="list">
         {{ _self.freeProductLineTemplate() }}
-        <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {% for product in fsc.getHomeProducts() %}
                 <div role="listitem"
                      class="flex cursor-pointer flex-col items-center rounded-lg bg-white p-4 text-xs shadow-sm product-add-btn"
@@ -65,7 +65,7 @@
 </div>
 <script id="productListTemplate" type="text/template">
     {{ _self.freeProductLineTemplate() }}
-    <div class="grid grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <% it.items.forEach(function(item){ %>
         <div role="listitem"
              class="flex cursor-pointer flex-col items-center rounded-lg bg-white p-4 text-xs shadow-sm product-add-btn"

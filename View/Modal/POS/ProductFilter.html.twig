@@ -22,9 +22,12 @@
                          data-action="setProductFamilyAction"
                          data-code="{{ familia.codfamilia }}"
                          data-madre="{{ familia.madre }}"
-                         data-description="{{ familia.descripcion }}" data-thumbnail="{{ imageUrl }}">
-                        <img class="pointer-events-auto mx-auto rounded-md mb-2 object-scale-down border-2 border-gray-50"
-                             src="{{ imageUrl }}" alt="{{ familia.codfamilia }}">
+                         data-description="{{ familia.descripcion }}"
+                         data-thumbnail="{{ imageUrl }}">
+                        {% if imageUrl %}
+                            <img class="pointer-events-auto mx-auto rounded-md mb-2 object-scale-down border-2 border-gray-50"
+                                 src="{{ imageUrl }}" alt="{{ familia.codfamilia }}">
+                        {% endif %}
                         <p class="text-sm text-center">{{ familia.descripcion }}</p>
                     </div>
                 {% endfor %}
@@ -39,8 +42,10 @@
          data-action="setProductFamilyAction"
          data-code="<%= item.code %>"
          data-description="<%= item.description %>" data-thumbnail="<%= item.thumbnail %>">
+        <% if(item.thumbnail) { %>
         <img class="pointer-events-auto w-12 mx-auto rounded-md object-scale-down"
              src="<%= item.thumbnail %>" alt="<%= item.code %>">
+        <% } %>
         <p class="text-sm text-center p-2 text-white"><%= item.description %></p>
         <button class="h-8 w-8 text-xs btn btn-icon btn-danger"
                 data-action="setProductFamilyAction"

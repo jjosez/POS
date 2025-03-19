@@ -60,26 +60,20 @@ class CartClass {
     }
 
     setProduct(code, description, thumbnail) {
-        if ('' === code) {
+        // Si es una linea libre agregamos una nueva linea, si no buscamos si el codigo ya esta registrado y
+        // aumentamos la cantidad o agregamos el nuevo codigo.
+        if (code === '') {
             this.lines.unshift({referencia: code, descripcion: description, thumbnail: thumbnail});
-        } else if (this.lines.some(element => {
-            return element.referencia === code ? element.cantidad++ : false;
-        })) {
         } else {
-            this.lines.unshift({referencia: code, descripcion: description, thumbnail: thumbnail});
-        }
+            // Usamos `find` para obtener el producto directamente y modificarlo
+            const product = this.lines.find(element => element.referencia === code);
 
-        /*if ('' === code) {
-            this.linesMap.set(this.linesMap.size, {referencia: code, descripcion: description});
-        } else {
-            let line = this.linesMap.get(code)
-
-            if (undefined !== line) {
-                line.cantidad = (line.cantidad || 0) + 1;
+            if (product) {
+                product.cantidad = (product.cantidad || 0) + 1;
             } else {
-                this.linesMap.set(code, {referencia: code, descripcion: description});
+                this.lines.unshift({referencia: code, descripcion: description, thumbnail: thumbnail});
             }
-        }*/
+        }
 
         this.updateCartEvent();
     }

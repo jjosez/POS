@@ -2,6 +2,7 @@
 
 namespace FacturaScripts\Plugins\POS\Lib;
 
+use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Almacenes;
 use FacturaScripts\Core\Model\CodeModel;
@@ -64,7 +65,7 @@ class PointOfSaleProduct
 
     /**
      * @param string $text
-     * @param array $tags
+     * @param array $filters
      * @param string $wharehouse
      * @param string $company
      * @return array
@@ -91,6 +92,8 @@ class PointOfSaleProduct
         }
 
         return self::getProduct()->all($where, [], 0, 30);
+
+        //return self::searchProduct($text);
     }
 
     /**
@@ -127,5 +130,39 @@ class PointOfSaleProduct
         }
 
         return self::$variante;
+    }
+
+    protected static function searchProduct($searchTerm): array
+    {
+        $dataBase = new DataBase();
+
+        $query = "SELECT P.idproducto id, " .
+            "V.referencia code, " .
+            "P.codimpuesto codimpuesto, " .
+            "V.codbarras barcode, " .
+            "P.descripcion description, " .
+            "V.precio price, " .
+            "SUM(S.disponible) stock, " .
+            "CONCAT_WS(' - ', A1.descripcion, A2.descripcion, A3.descripcion, A4.descripcion) detail, " .
+            "A1.descripcion atribute1, " .
+            "A2.descripcion atribute2, " .
+            "A3.descripcion atribute3, " .
+            "A4.descripcion atribute4 " .
+            "FROM variantes V " .
+            "LEFT JOIN productos P ON V.idproducto = P.idproducto " .
+            "LEFT JOIN atributos_valores A1 ON V.idatributovalor1 = A1.id " .
+            "LEFT JOIN atributos_valores A2 ON V.idatributovalor2 = A2.id " .
+            "LEFT JOIN atributos_valores A3 ON V.idatributovalor3 = A3.id " .
+            "LEFT JOIN atributos_valores A4 ON V.idatributovalor4 = A4.id " .
+            "LEFT JOIN stocks S ON V.referencia = S.referencia " .
+            "WHERE (LOWER(V.codbarras) LIKE LOWER('%" . $searchTerm . "%') " .
+            "OR LOWER(V.referencia) LIKE LOWER('%" . $searchTerm . "%') " .
+            "OR (LOWER(P.descripcion) LIKE LOWER('%" . $searchTerm . "%'))) " .
+            "GROUP BY P.idproducto, V.referencia, P.codimpuesto, V.codbarras, " .
+            "P.descripcion, V.precio, A1.descripcion, A2.descripcion, A3.descripcion, A4.descripcion";
+
+        //print_r($result);
+
+        return $dataBase->selectLimit($query, 50);
     }
 }

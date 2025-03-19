@@ -10,13 +10,9 @@ class Init extends InitClass
 {
     public function init(): void
     {
-        //$this->loadExtension(new Extension\Controller\EditFamilia());
-        $this->loadExtension(new Extension\Controller\EditAlbaranCliente());
-        //$this->loadExtension(new Extension\Controller\EditPedidoCliente());
-        //$this->loadExtension(new Extension\Lib\BusinessDocumentGenerator());
+        //$this->loadExtension(new Extension\Controller\EditAlbaranCliente());
         $this->loadExtension(new Extension\Model\Familia());
-        $this->loadExtension(new Extension\Model\FacturaCliente());
-        $this->loadExtension(new Extension\Model\Base\SalesDocument());
+        //$this->loadExtension(new Extension\Model\FacturaCliente());
         $this->loadExtension(new Extension\Model\Base\SalesDocument());
         $this->loadExtension(new Extension\Controller\EditEstadoDocumento());
     }

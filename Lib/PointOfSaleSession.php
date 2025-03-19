@@ -4,6 +4,8 @@ namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Session;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
+use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
@@ -192,5 +194,31 @@ class PointOfSaleSession
         $terminal->loadFromCode($terminalID);
 
         return $terminal;
+    }
+
+    /**
+     * @param OrdenPuntoVenta $orden
+     * @param PagoPuntoVenta[] $payments
+     * @return bool
+     */
+    public function savePayments(OrdenPuntoVenta $orden, array $payments)
+    {
+        $cashAmount = 0.0;
+        foreach ($payments as $payment) {
+            if ($payment->isCashMethod) {
+                $cashAmount += $payment->pagoNeto();
+            }
+
+            $payment->idoperacion = $orden->idoperacion;
+            $payment->idsesion = $orden->idsesion;
+
+            if (false === $payment->save()) {
+                return false;
+            }
+        }
+
+        $this->session->saldoesperado += $cashAmount;
+
+        return $this->session->save();
     }
 }

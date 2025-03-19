@@ -121,8 +121,9 @@ class OrdenPuntoVenta extends Base\ModelClass
 
         /** @var SalesDocument $document */
         $document = new $className;
+        $document->loadFromCode($this->iddocumento);
 
-        return $document->get($this->iddocumento);
+        return $document;
     }
 
     public function getSubject(): Cliente

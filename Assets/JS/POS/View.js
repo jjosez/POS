@@ -177,6 +177,13 @@ class Main {
         data = isObjectEmpty(data) ? [] : data;
         templates().renderPausedOrderList({items: data});
     }
+
+    showPrintSelectionModal = function (data) {
+        modals().printModal().show();
+
+        data = isObjectEmpty(data) ? [] : data;
+        templates().renderPrintSelection({data: data});
+    }
     showProductImagesModal = function (data) {
         modals().productImagesModal().show();
 

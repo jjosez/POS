@@ -75,14 +75,6 @@ class EditAlbaranCliente
 
                     $view->loadData('', $where, $orderBy);
                     break;
-
-                case 'ListPagoPuntoVentaSeguimiento':
-                    $where = [
-                        new DataBaseWhere('idmodelto', $this->getModel()->primaryColumnValue()),
-                        new DataBaseWhere('modelto', $this->getModel()->modelClassName())
-                    ];
-                    $view->loadData('', $where);
-                    break;
             }
         };
     }

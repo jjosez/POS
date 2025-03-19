@@ -75,7 +75,12 @@ export async function printRequest(code) {
     return await postRequest(data);
 }
 
-async function printOnDesktop(data) {
+export async function printOnDesktop({code, type}) {
+    const data = new FormData();
+    data.set('code', code);
+    data.set('type', type);
+
+    data.set('action', 'print-desktop-ticket');
     return await postRequest(data);
 }
 

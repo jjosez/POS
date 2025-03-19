@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of POS plugin for FacturaScripts
- * Copyright (C) 2022 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ * Copyright (C) 2025 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 
 namespace FacturaScripts\Plugins\POS\Lib;
@@ -47,32 +47,6 @@ class PointOfSalePayments
         $receipt->save();
     }
 
-    public static function saveInvoiceReceiptFromArray(SalesDocument $invoice, array $payments)
-    {
-        if ('FacturaCliente' !== $invoice->modelClassName() || empty($payments)) {
-            return;
-        }
-
-        //Eliminamos el recibo generado automáticamente.
-        self::cleanInvoiceReceipts($invoice);
-
-        $counter = 1;
-        foreach ($payments as $key => $value) {
-            $receipt = new ReciboCliente();
-
-            $receipt->codcliente = $invoice->codcliente;
-            $receipt->coddivisa = $invoice->coddivisa;
-            $receipt->idempresa = $invoice->idempresa;
-            $receipt->idfactura = $invoice->primaryColumnValue();
-            $receipt->importe = $value;
-            $receipt->nick = $invoice->nick;
-            $receipt->numero = $counter++;
-            $receipt->fecha = $invoice->fecha;
-            $receipt->setPaymentMethod($key);
-            $receipt->save();
-        }
-    }
-
     /**
      * @param SalesDocument $document
      * @param OrdenPuntoVenta $orden
@@ -103,7 +77,7 @@ class PointOfSalePayments
                 return false;
             }
 
-            PointOfSalePayments::saveInvoiceReceipt($document, $payment, $counter++);
+            self::saveInvoiceReceipt($document, $payment, $counter++);
         }
 
         $session->saldoesperado += $cashAmount;

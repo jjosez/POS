@@ -116,25 +116,6 @@ class PagoPuntoVenta extends Base\ModelClass
         return (new FormaPago())->get($this->codpago)->descripcion;
     }
 
-    /*public function saveInsert(array $values = []): bool
-    {
-        if (false === parent::saveInsert($values)) {
-            return false;
-        }
-
-        $orden = $this->getOrdenPuntoVenta();
-
-        $paymentTracking = new PagoPuntoVentaSeguimiento();
-        $paymentTracking->cantidad = $this->pagoNeto();
-        $paymentTracking->modelfrom = $orden->tipodoc;
-        $paymentTracking->idmodelfrom = $orden->iddocumento;
-        $paymentTracking->idpagopos = $this->idpago;
-        $paymentTracking->idmodelto = $orden->iddocumento;
-        $paymentTracking->modelto = $this->idpago;
-
-        return $paymentTracking->save();
-    }*/
-
     protected function saveUpdate(array $values = []): bool
     {
         $this->nickupdate = Session::user()->nick;
@@ -151,6 +132,14 @@ class PagoPuntoVenta extends Base\ModelClass
         return $order;
     }
 
+    public function getSesionPuntoVenta(): SesionPuntoVenta
+    {
+        $sesion = new SesionPuntoVenta();
+        $sesion->loadFromCode($this->idsesion);
+
+        return $sesion;
+    }
+
     public function test(): bool
     {
         $this->nickupdate = null;
@@ -165,5 +154,14 @@ class PagoPuntoVenta extends Base\ModelClass
         }
 
         return parent::test();
+    }
+
+    public function url(string $type = 'auto', string $list = 'List'): string
+    {
+        if (($type === 'list')) {
+            return 'EditSesionPuntoVenta?code=' . $this->idsesion . '&activetab=ListPagoPuntoVenta';
+        }
+
+        return parent::url($type, $list);
     }
 }

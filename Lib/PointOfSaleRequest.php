@@ -2,35 +2,20 @@
 
 namespace FacturaScripts\Plugins\POS\Lib;
 
-use Symfony\Component\HttpFoundation\ParameterBag;
-use Symfony\Component\HttpFoundation\Request;
+use FacturaScripts\Core\Internal\SubRequest;
+use FacturaScripts\Core\Request;
+//use Symfony\Component\HttpFoundation\ParameterBag;
+//use Symfony\Component\HttpFoundation\Request;
 
 class PointOfSaleRequest
 {
-    /**
-     * @var array
-     */
-    protected $documentData;
+    protected array $documentData;
+    protected array $documentLinesData;
+    protected array $paymentData;
 
-    /**
-     * @var array
-     */
-    protected $documentLinesData;
-
-    /**
-     * @var array
-     */
-    protected $paymentData;
-
-    /**
-     * @var ParameterBag
-     */
-    protected $request;
-
-    /**
-     * @var string
-     */
-    protected $documentType;
+    protected SubRequest $request;
+    //protected ParameterBag $request;
+    protected string $documentType;
 
     public function __construct(Request $request)
     {
@@ -44,7 +29,6 @@ class PointOfSaleRequest
     protected function setDocumentLinesData(): void
     {
         $lines = $this->request->get('lines', []);
-        //$lines = $this->request->get('linesMap', []);
 
         $this->documentLinesData = json_decode($lines, true);
     }
@@ -57,17 +41,13 @@ class PointOfSaleRequest
 
         $this->documentData = $data;
         $this->documentType = $this->request->get('tipo-documento');
-
-        /*$data = $this->request->get('document', '{}');
-        $this->documentData = json_decode($data, true);
-        $this->orderType =$this->documentData['tipo-documento'];*/
     }
 
     protected function setPaymentData(): void
     {
         $payments = $this->request->get('payments', '');
 
-        $this->paymentData = json_decode($payments, true);
+        $this->paymentData = json_decode($payments, true) ?? [];
     }
 
     /**
