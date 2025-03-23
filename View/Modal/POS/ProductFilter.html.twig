@@ -11,7 +11,7 @@
             </button>
         </div>
         <div class="modal-body">
-            <div id="familyList" class="flex flex-wrap gap-2 mb-4">
+            <div id="productFamilyListTemplateView" class="flex flex-wrap gap-2 mb-4">
             </div>
             <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
                 {% for familia in fsc.getParentFamilies() %}
@@ -35,7 +35,7 @@
         </div>
     </div>
 </div>
-<script id="familyListTemplate" type="text/template">
+<script id="productFamilyListTemplate" type="text/template">
     <% it.items.forEach(function(item){ %>
     <div role="listitem"
          class="items-center bg-slate-800 flex flex-row p-2 shadow-sm rounded-lg font-semibold cursor-pointer"

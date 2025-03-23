@@ -15,7 +15,7 @@
 {% block fullBody %}
     <body class="bg-slate-100 text-slate-800">
     {% block messages %}
-        <div id="alert-container" class="opacity-90 alert-container" style="z-index:99999;">
+        <div id="messageListTemplateView" class="opacity-90 alert-container" style="z-index:99999;">
             {{- _self.alert(log, ['warning', 'error', 'critical'], 'warning') -}}
             {{- _self.alert(log, ['notice'], 'success') -}}
             {{- _self.alert(log, ['info'], 'info') -}}

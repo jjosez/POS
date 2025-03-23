@@ -44,6 +44,15 @@ class TipoDocumentoPuntoVenta extends Base\ModelClass
         $this->preferido = false;
     }
 
+    public function loadFromData(array $data = [], array $exclude = [])
+    {
+        parent::loadFromData($data, $exclude);
+
+        if (empty($this->descripcion)) {
+            $this->descripcion = Tools::lang()->trans($this->tipodoc);
+        }
+    }
+
     public static function primaryColumn(): string
     {
         return 'id';
@@ -56,6 +65,6 @@ class TipoDocumentoPuntoVenta extends Base\ModelClass
 
     public function primaryDescription(): string
     {
-        return $this->descripcion ?: Tools::lang()->trans($this->tipodoc);
+        return $this->descripcion;
     }
 }

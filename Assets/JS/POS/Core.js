@@ -3,7 +3,8 @@
  * Copyright (C) Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 
-import {templates} from "./View.js";
+import Templates from "./components/Templates.js";
+import * as View from "./View.js";
 
 export function reloadApp() {
     if (window.history.replaceState) {
@@ -202,7 +203,7 @@ export function searchRequest(action, query, filters = {}) {
 function showMessages(response) {
     if (null == response.messages) return;
 
-    templates().renderMessageList(response);
+    Templates.renderMessageListView(response);
     cleanMessages();
 }
 
@@ -210,7 +211,7 @@ function showMessages(response) {
  * Close all messages after 1000ms timeout
  */
 function cleanMessages() {
-    let container = getElement("alert-container");
+    let container = getElement("messageListTemplateView");
 
     if (null === container.firstChild) return;
 

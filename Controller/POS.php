@@ -68,8 +68,10 @@ class POS extends Controller
         }
 
         $this->execAfterAction($action);
+
         $this->loadCustomDocumentFields();
         $this->loadCustomMenuElements();
+        $this->loadTicketFormats();
 
         $template = $this->session->getView();
         $this->setTemplate($template);
@@ -443,7 +445,7 @@ class POS extends Controller
             return;
         }
 
-        if ((false === PointOfSaleStorage::completePausedDocument($document))) {
+        if ((false === PointOfSaleStorage::completeDraftDocument($document))) {
             Tools::log('POS')->warning('fail-update-paused-document');
 
             $this->dataBase->rollback();

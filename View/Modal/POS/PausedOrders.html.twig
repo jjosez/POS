@@ -4,11 +4,11 @@
  *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
-<div id="holdOrdersModal" class="hidden modal">
+<div id="draftOrdersModal" class="hidden modal">
     <div class="h-full modal-content md:modal-content-lg">
         <div class="modal-header">
             <h2 class="text-2xl font-semibold text-slate-gray-700">{{ trans('pos-orders-on-hold') }}</h2>
-            <button class="ml-2 btn btn-icon btn-danger" data-toggle="modal" data-target="holdOrdersModal">
+            <button class="ml-2 btn btn-icon btn-danger" data-toggle="modal" data-target="draftOrdersModal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
@@ -30,7 +30,7 @@
             </div>
         </div>
         <div class="modal-body">
-            <div id="pausedOrdersList" class="p-0">
+            <div id="draftOrderListTemplateView" class="p-0">
             </div>
         </div>
         <div class="modal-footer">
@@ -38,7 +38,7 @@
         </div>
     </div>
 </div>
-<script id="pausedOrdersListTemplate" type="text/template">
+<script id="draftOrderListTemplate" type="text/template">
     <% if(it.items.length === 0) { %>
     <div class="flex flex-1 rounded-lg bg-blue-100 p-2 shadow-sm md:flex-row">
         <span>{{ trans('no-data') }}</span>

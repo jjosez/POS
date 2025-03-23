@@ -46,14 +46,14 @@
 {% endblock %}
 
 {% block js %}
-    <script id="message-template" type="text/template">
+    <script id="messageListTemplate" type="text/template">
         <% it.messages.forEach(function(message){ %>
         <div class="alert alert-<%= message.type %>" role="alert">
             <%~ message.message %>
         </div>
         <% }) %>
     </script>
-    <script id="familyListTemplate" type="text/template">
+    <script id="productFamilyListTemplate" type="text/template">
     </script>
     {{ parent() }}
     <script src="{{ asset('Dinamic/Assets/JS/vendor/onscan.min.js?v=1') }}"></script>
@@ -82,7 +82,9 @@
                 'codpago': '{{ fsc.getCashPaymentMethod() }}'
             },
             'terminal': '{{ fsc.getTerminal().idterminal }}',
-            'document-types': {{ (terminal.getDocumentTypes()|json_encode|raw) }}
+            'supported-documents': {{ (terminal.getSupportedDocuments()|json_encode|raw) }},
+            'sales-ticket-format': {{ (fsc.getSaleTicketFormats()|json_encode|raw) }},
+            'closing-ticket-format': {{ (fsc.getClosingTicketFormats()|json_encode|raw) }},
         }
 
         window.POS = {

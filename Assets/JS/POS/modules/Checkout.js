@@ -1,7 +1,8 @@
-import CheckoutClass from "../model/CheckoutClass.js";
-import {checkout} from "../View.js";
+import CheckoutModel from "../model/CheckoutModel.js";
+import CheckoutView from "../view/CheckoutView.js";
+import EventManager from "../components/EventManager.js";
 
-const Checkout = new CheckoutClass({
+const Checkout = new CheckoutModel({
     cashMethod: AppSettings.cash
 });
 
@@ -18,72 +19,81 @@ function paymentDeleteAction({index}) {
  */
 function paymentRecalculateAction({value}) {
     if (value === 'balance') {
-        checkout().paymentAmountInput().value = Checkout.getOutstandingBalance();
+        CheckoutView.paymentAmountInput().value = Checkout.getOutstandingBalance();
         return;
     }
 
-    checkout().paymentAmountInput().value = checkout().getCurrentPaymentValue() + parseFloat(value) || 0;
+    CheckoutView.paymentAmountInput().value = CheckoutView.getCurrentPaymentValue() + parseFloat(value) || 0;
 }
 
 /**
  * Set new payment from dialog.
  */
 function paymentSetAction(data) {
-    if (checkout().getCurrentPaymentValue() === 0) {
-        checkout().paymentAmountInput().value = Checkout.getOutstandingBalance();
+    if (CheckoutView.getCurrentPaymentValue() === 0) {
+        CheckoutView.paymentAmountInput().value = Checkout.getOutstandingBalance();
     }
 
-    Checkout.setPayment(checkout().getCurrentPaymentData(data));
-    checkout().paymentAmountInput().value = 0;
+    Checkout.setPayment(CheckoutView.getCurrentPaymentData(data));
+    CheckoutView.paymentAmountInput().value = 0;
 }
 
 function showPaymentModalAction(data) {
-    checkout().showPaymentModal(data);
+    CheckoutView.showPaymentModal(data);
 }
 
 /**
  * Update checkout totals when cart was updated.
  */
-function updateTotals({detail}) {
-    Checkout.updateTotal(detail.doc.total);
-    checkout().enableConfirmButton(false);
+function updateTotals({doc}) {
+    Checkout.updateTotal(doc.total);
+    CheckoutView.enableConfirmButton(false);
 }
 
 /**
  * Update checkout view, when new payment was added.
  */
 function updateView() {
-    checkout().updateView(Checkout);
+    CheckoutView.updateView(Checkout);
+}
+
+
+/**
+ * Clear the checkout model.
+ */
+function clearCheckout() {
+    Checkout.clear();
 }
 
 /**
- * @param {Event} event
+ * Processes checkout actions based on the action type specified in the event's data attributes.
+ *
+ * @param {Event} event - The event object triggered by the user's interaction.
  */
 function checkoutEventHandler(event) {
-    const data = event.target.dataset;
-    const action = data.action;
+    const { action } = event.target.dataset;
 
-    if (typeof action === 'undefined' || action === null) {
-        return;
-    }
+    // Si no existe una acción, salir
+    if (!action) return;
 
-    switch (action) {
-        case 'deletePaymentAction':
-            return paymentDeleteAction(data);
+    // Mapeo de acciones a funciones
+    const actionMap = {
+        'deletePaymentAction': paymentDeleteAction,
+        'recalculatePaymentAction': paymentRecalculateAction,
+        'setPaymentAction': paymentSetAction,
+        'showPaymentModalAction': showPaymentModalAction,
+    };
 
-        case 'recalculatePaymentAction':
-            return paymentRecalculateAction(data);
-
-        case 'setPaymentAction':
-            return paymentSetAction(data);
-
-        case 'showPaymentModalAction':
-            return showPaymentModalAction(data);
+    // Si la acción existe en el mapa, ejecutarla
+    if (actionMap[action]) {
+        actionMap[action](event.target.dataset);
     }
 }
 
 document.addEventListener('click', checkoutEventHandler);
-document.addEventListener('onCheckoutUpdate', updateView);
-document.addEventListener('onCartUpdate', updateTotals);
+
+EventManager.on('onCartUpdate', updateTotals);
+EventManager.on('onCheckoutUpdate', updateView);
+EventManager.on('onOrderComplete', clearCheckout)
 
 export default Checkout;

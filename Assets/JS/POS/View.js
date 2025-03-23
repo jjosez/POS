@@ -1,307 +1,3 @@
-import Modals from "./components/Modals.js";
-import Templates from "./components/Templates.js";
-import {getElement, isObjectEmpty} from "./Core.js";
-import * as Money from "./Money.js";
-
-export const cart = () => {
-    return Object.freeze(new Cart());
-}
-
-export const checkout = () => {
-    return Object.freeze(new Checkout());
-}
-
-export const main = () => {
-    return Object.freeze(new Main());
-}
-
-export const modals = () => {
-    return Modals;
-}
-
-export const templates = () => {
-    return Templates;
-}
-
-const cartElements = {
-    cartTotalLabel: getElement('cartTotal'),
-    orderDiscountAmountLabel: getElement('orderDiscountAmountLabel'),
-    orderDiscountAmountInput: getElement('orderDiscountAmountInput'),
-    orderHoldButton: getElement('orderHoldButton'),
-    orderItemsNumberLabel: getElement('orderItemsNumber'),
-    orderNetoLabel: getElement('orderTotalNet'),
-    orderTaxesLabel: getElement('orderTaxes'),
-    orderTotalLabel: getElement('orderTotal'),
-    productQuantityInput: getElement('productQuantityInput')
-}
-
-class Cart {
-    cartTotalLabel = () => cartElements['cartTotalLabel'];
-    orderDiscountAmountLabel = () => cartElements['orderDiscountAmountLabel'];
-    orderDiscountAmountInput = () => cartElements['orderDiscountAmountInput'];
-    orderHoldButton = () => cartElements['orderHoldButton'];
-    orderItemsNumberLabel = () => cartElements['orderItemsNumberLabel'];
-    orderNetoLabel = () => cartElements['orderNetoLabel'];
-    productQuantityInput = () => cartElements['productQuantityInput'];
-
-    showQuantityEditModal = ({index, cantidad}) => {
-        cart().productQuantityInput().dataset.index = index;
-        cart().productQuantityInput().value = cantidad;
-        modals().productQuantityEditModal().show();
-    };
-
-    showProductEditModal = (product = {}) => {
-        templates().renderCartEdit(product);
-        modals().productEditModal().show();
-    };
-
-    updateLinesView = (product = {}) => {
-        templates().renderCartEdit(product);
-    };
-
-    updateView = (data = {}) => {
-        cart().cartTotalLabel().textContent = Money.roundFixed(data.doc.total);
-        cart().orderItemsNumberLabel().textContent = Money.roundFixed(data.count);
-        cart().orderDiscountAmountInput().value = data.doc.dtopor1 || 0;
-        cart().orderDiscountAmountLabel().textContent = Money.roundFixed(data.getDiscountAmount());
-        cart().orderNetoLabel().textContent = Money.roundFixed(data.doc.neto);
-
-        templates().renderCartList(data);
-    };
-}
-
-const checkoutElements = {
-    'confirmOrderButton': getElement('orderSaveButton'),
-    'changeAmountLabel': getElement('checkoutChangeAmount'),
-    'tenderedAmountLabel': getElement('checkoutTenderedAmount'),
-    'totalAmountLabel': getElement('checkoutTotal'),
-    'paymentApplyButton': getElement('paymentApplyButton'),
-    'paymentApplyInput': getElement('paymentApplyInput'),
-}
-
-class Checkout {
-    confirmOrderButton = () => checkoutElements['confirmOrderButton'];
-    changeAmountLabel = () => checkoutElements['changeAmountLabel'];
-    tenderedAmountLabel = () => checkoutElements['tenderedAmountLabel'];
-    totalAmountLabel = () => checkoutElements['totalAmountLabel'];
-    paymentApplyButton = () => checkoutElements['paymentApplyButton'];
-    paymentAmountInput = () => checkoutElements['paymentApplyInput'];
-
-    enableConfirmButton = (enable = true) => {
-        checkout().confirmOrderButton().disabled = !enable;
-    };
-
-    getCurrentPaymentValue = () => parseFloat(checkout().paymentAmountInput().value) || 0;
-
-    getCurrentPaymentData = ({code, description}) => ({
-        amount: checkout().paymentAmountInput().value,
-        description: description,
-        method: code
-    });
-
-    updateView = (data) => {
-        checkout().totalAmountLabel().textContent = data.total;
-        checkout().tenderedAmountLabel().textContent = data.getPaymentsTotal();
-        checkout().changeAmountLabel().textContent = data.change;
-
-        templates().renderPaymentList(data);
-
-        checkout().enableConfirmButton(data.change >= 0 && data.total !== 0);
-    };
-
-    showPaymentModal = (data = {}) => {
-        checkout().paymentAmountInput().dataset.method = data.code;
-        checkout().paymentAmountInput().dataset.description = data.description;
-        modals().paymentModal().show();
-    };
-}
-
-const mainElements = {
-    cashEntryForm: getElement('cashEntryForm'),
-    cashWithdrawForm: getElement('cashWithdrawForm'),
-    closeSessionForm: getElement('closeSessionForm'),
-    customerNameLabel: getElement('customerNameLabel'),
-    customerSearchBox: getElement('customerSearchBox'),
-    documentFieldList: document.querySelectorAll('[data-document-field]'),
-    documentNamelLabel: getElement('documentTypeLabel'),
-    mainContent: getElement('mainContent'),
-    newCustomerSaveButton: getElement('newCustomerSaveButton'),
-    productSearchBox: getElement('productSearchBox')
-}
-
-class Main {
-    cashEntryForm = () => mainElements['cashEntryForm'];
-    cashWithdrawForm = () => mainElements['cashWithdrawForm'];
-    customerNameLabel = () => mainElements['customerNameLabel'];
-    customerSearchBox = () => mainElements['customerSearchBox'];
-    closeSessionForm = () => mainElements['closeSessionForm'];
-    productSearchBox = () => mainElements['productSearchBox'];
-    newCustomerSaveButton = () => mainElements['newCustomerSaveButton'];
-    updateCustomerNameLabel = (name = '') => {
-        mainElements['customerNameLabel'].textContent = name;
-    };
-    updateDocumentNameLabel = (name = '') => {
-        mainElements['documentNamelLabel'].textContent = name;
-    };
-    updateCustomerListView = (data = []) => {
-        templates().renderCustomerList({items: data});
-    };
-    updateLastOrdersList = (data = []) => {
-        templates().renderLastOrderList({items: data});
-    };
-    updatePausedOrdersList = (data = []) => {
-        templates().renderPausedOrderList({items: data});
-    };
-    updateProductFamilyList = (data = []) => {
-        templates().renderProductFamilyList({items: data});
-    };
-    updateProductSearchResult = (data = []) => {
-        templates().renderProductSearchList({items: data});
-    };
-    updateView = ({doc}) => {
-        const documentFields = mainElements['documentFieldList'];
-
-        for (let i = 0; i < documentFields.length; i++) {
-            updateDocumentFieldValue(doc, documentFields[i])
-        }
-    };
-    showLastOrdersModal = function (data) {
-        modals().lastOrdersModal().show();
-
-        data = isObjectEmpty(data) ? [] : data;
-        templates().renderLastOrderList({items: data});
-    }
-    showPausedOrdersModal = function (data) {
-        modals().pausedOrdersModal().show();
-
-        data = isObjectEmpty(data) ? [] : data;
-        templates().renderPausedOrderList({items: data});
-    }
-
-    showPrintSelectionModal = function (data) {
-        modals().printModal().show();
-
-        data = isObjectEmpty(data) ? [] : data;
-        templates().renderPrintSelection({data: data});
-    }
-    showProductImagesModal = function (data) {
-        modals().productImagesModal().show();
-
-        data = isObjectEmpty(data) ? [] : data;
-        templates().renderProductImageList({items: data});
-    }
-    showProductStockDetailModal = function (data) {
-        modals().stockDetailModal().show();
-
-        data = isObjectEmpty(data) ? [] : data;
-        templates().renderProductStockList({items: data});
-    }
-}
-
-/**
- * @param {HTMLElement} element
- */
-export function toggleCollapse(element) {
-    const target = getElement(element.dataset.target);
-    const elementOntoggle = getElement(element.dataset.ontoggle);
-
-    target.classList.toggle('hidden');
-
-    if (elementOntoggle) {
-        elementOntoggle.classList.toggle('hidden');
-    }
-}
-
-/**
- * @param {HTMLElement} element
- */
-const toggle = element => {
-    let target = getElement(element.dataset.target);
-
-    if (!target) return;
-
-    target.classList.toggle('hidden');
-
-    if (element.dataset.ontoggle) {
-        getElement(element.dataset.ontoggle).classList.toggle('hidden');
-    }
-};
-
-const updateDocumentFieldValue = (data = {}, element) => {
-    const field = element.getAttribute('data-document-field');
-    const format = element.getAttribute('data-format');
-
-    switch (element.type) {
-        case 'text':
-        case 'textarea':
-            element.value = data[field] ?? '';
-            break
-        case 'number':
-        case 'decimal':
-            element.value = Money.roundFixed(data[field]);
-            break;
-        case'checkbox':
-            element.checked = data[field] === true || data[field] === "true";
-            break;
-        default:
-            element.textContent = (format === 'number') ? Money.roundFixed(data[field]) : data[field];
-    }
-}
-
-/**
- * @param {HTMLElement} element
- */
-const eventHandler = element => {
-    const target = getElement(element.dataset.target);
-
-    switch (element.dataset.toggle) {
-        case 'modal':
-            modals().toggleModal(target)
-            break;
-        case 'collapse':
-            toggleCollapse(element);
-            break;
-        case 'tab':
-            toggleTab(element);
-            break;
-        default:
-            toggle(element);
-    }
-};
-
-/**
- * @param {HTMLElement} element
- */
-const toggleTab = element => {
-
-    const target = getElement(element.dataset.target);
-    const tabList = event.target.closest('.tablist');
-    const tabsContainer = getElement(tabList.dataset.target);
-
-    if (event.target.classList.contains('tab')) {
-
-        const tabcontents = tabsContainer.querySelectorAll('.tabcontent');
-        for (let i = 0; i < tabcontents.length; i++) {
-            tabcontents[i].style.display = 'none';
-        }
-
-        const tablinks = tabList.querySelectorAll('.tab');
-        for (let i = 0; i < tablinks.length; i++) {
-            tablinks[i].classList.remove('tab-active');
-        }
-
-        target.style.display = 'block';
-        element.classList.add('tab-active');
-    }
-};
-
-document.addEventListener('click', function (event) {
-    if (event.target.attributes.getNamedItem('data-toggle')) {
-        eventHandler(event.target);
-        event.stopPropagation();
-    }
-}, false);
-
 /*window.addEventListener("click", function (event) {
     let menu = getElement('navbarMenu');
 
@@ -309,3 +5,78 @@ document.addEventListener('click', function (event) {
         menu.classList.add('hidden');
     }*!/
 })*/
+
+/**
+ * Función para alternar la visibilidad de un elemento.
+ * @param {HTMLElement} target - El elemento que se debe alternar.
+ */
+function toggleVisibility(target) {
+    if (!target) return;
+    target.classList.toggle('hidden');
+}
+
+/**
+ * Función para manejar la lógica de un "collapse".
+ * @param {HTMLElement} element - El elemento que activa el colapso.
+ */
+export function toggleCollapse(element) {
+    const target = document.getElementById(element.dataset.target);
+    const elementOntoggle = document.getElementById(element.dataset.ontoggle);
+
+    toggleVisibility(target);
+    if (elementOntoggle) toggleVisibility(elementOntoggle);
+}
+
+/**
+ * Función para manejar el cambio de pestañas (tab).
+ * @param {HTMLElement} element - El elemento que activa el cambio de pestaña.
+ */
+const toggleTab = element => {
+    const target = document.getElementById(element.dataset.target);
+    const tabList = element.closest('.tablist'); // Usamos el closest para optimizar la búsqueda
+    const tabsContainer = document.getElementById(tabList.dataset.target);
+
+    if (!target || !tabsContainer) return;
+
+    // Ocultar todas las pestañas
+    tabsContainer.querySelectorAll('.tabcontent').forEach(tabContent => {
+        tabContent.style.display = 'none';
+    });
+
+    // Eliminar la clase 'tab-active' de todas las pestañas
+    tabList.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('tab-active');
+    });
+
+    // Mostrar la pestaña activa y marcarla como activa
+    target.style.display = 'block';
+    element.classList.add('tab-active');
+};
+
+/**
+ * Manejador de eventos para los diferentes toggles.
+ * Usamos un objeto para mapear el tipo de toggle a su respectiva función.
+ */
+const eventHandler = element => {
+    const toggleType = element.dataset.toggle;
+    const toggleActions = {
+        'collapse': toggleCollapse,
+        'tab': toggleTab
+    };
+
+    const action = toggleActions[toggleType];
+    if (action) {
+        action(element); // Ejecutamos la acción correspondiente
+    } else {
+        toggleVisibility(document.getElementById(element.dataset.target)); // Si no es 'collapse' ni 'tab', aplicamos un toggle genérico
+    }
+};
+
+// Delegar el evento 'click' al documento
+document.addEventListener('click', event => {
+    const target = event.target;
+    if (target.dataset.toggle) {
+        eventHandler(target); // Ejecutamos el manejador de eventos
+        event.stopPropagation(); // Prevenimos la propagación del evento
+    }
+}, false);

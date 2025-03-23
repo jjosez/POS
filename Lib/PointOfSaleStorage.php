@@ -15,7 +15,7 @@ class PointOfSaleStorage
      * @param SalesDocument $document
      * @return bool
      */
-    public static function completePausedDocument(SalesDocument $document): bool
+    public static function completeDraftDocument(SalesDocument $document): bool
     {
         $draft = new BorradorPuntoVenta();
 

@@ -16,10 +16,12 @@ let modals = {
     paymentDetail: new ModalElement('paymentModal'),
     printModal: new ModalElement('printModal'),
 
-    productEdit: new ModalElement('productEditModal'),
+    productEditModal: new ModalElement('productEditModal'),
     productImages: new ModalElement('productImagesModal'),
     productQuantityEdit: new ModalElement('productQuantityEditModal'),
     productStockDetail: new ModalElement('stockDetailModal'),
+
+    checkoutModal: new ModalElement('checkoutModal'),
 }
 
 function BackDropElement() {
@@ -37,52 +39,88 @@ BackDropElement.prototype.hide = function () {
 
 function ModalElement(id) {
     this.element = getElement(id);
+    this.isVisible = false;
 }
 
 ModalElement.prototype.show = function () {
-    if (!this.element) return;
+    if (!this.element || this.isVisible) return;
 
-    this.element.classList.toggle("flex");
-    this.element.classList.toggle("hidden");
+    this.element.classList.remove("hidden");
+    this.element.classList.add("flex");
 
     backdrop.show();
+    this.isVisible = true;
 }
 
 ModalElement.prototype.hide = function () {
-    if (!this.element) return;
+    if (!this.element || !this.isVisible) return;
 
-    this.element.classList.toggle("flex");
+    this.element.classList.remove("flex");
+    this.element.classList.add("hidden");
 
-    if (this.element.classList.toggle("hidden")) {
-        backdrop.hide();
-    }
+    backdrop.hide();
+    this.isVisible = false;
 }
 
 class Modals {
+    modalCache = {};
+
+    /**
+     * @param {HTMLElement} element
+     */
+
+    /*toggleModal = (element) => {
+        if (!element) return;
+
+        if (element.classList.contains("hidden")) {
+            element.classList.remove("hidden");
+            element.classList.add("flex");
+
+            backdrop.show();
+        } else {
+            element.classList.remove("flex");
+            element.classList.add("hidden");
+
+            backdrop.hide();
+        }
+    };*/
+    function
+
     constructor() {
         if (instance) throw new Error("New instance cannot be created!!");
 
         instance = this;
+
+        document.addEventListener('click', this._modalToggleEventHandler);
     }
+
+    _modalToggleEventHandler = event => {
+        const target = event.target;
+
+        // Verificamos que el atributo data-toggle sea "modal"
+        if (target.dataset.toggle === 'modal') {
+            const modalId = target.dataset.target;
+            this.toggleModal(modalId);
+
+            event.stopPropagation();
+        }
+    };
 
     backdrop() {
         return backdrop;
     }
 
-    /**
-     * @param {HTMLElement} element
-     */
-    toggleModal = element => {
-        if (!element) return;
+    toggleModal = (modalId) => {
+        let modal = this.modalCache[modalId] || modals[modalId];
 
-        element.classList.toggle("flex");
-
-        if (element.classList.toggle("hidden")) {
-            backdrop.hide();
-            return;
+        // If modal does not exist, create it and add to cache
+        if (!modal) {
+            modal = new ModalElement(modalId);
+            this.modalCache[modalId] = modal;
         }
 
-        backdrop.show();
+        // Toggle visibility
+        modal.isVisible ? modal.hide() : modal.show();
     };
 
     documentTypeModal = () => modals['documentType'];
@@ -94,11 +132,11 @@ class Modals {
     stockDetailModal = () => modals['productStockDetail'];
     paymentModal = () => modals['paymentDetail'];
     printModal = () => modals['printModal'];
-    productEditModal = () => modals['productEdit'];
+    productEditModal = () => modals['productEditModal'];
     productImagesModal = () => modals['productImages'];
     productQuantityEditModal = () => modals['productQuantityEdit'];
 }
 
-let modalsInstance = Object.freeze(new Modals());
+const modalsInstance = Object.freeze(new Modals());
 
 export default modalsInstance;

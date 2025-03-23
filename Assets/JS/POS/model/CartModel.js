@@ -1,6 +1,7 @@
 import * as Money from "./../Money.js";
+import eventManager from "../components/EventManager.js";
 
-class CartClass {
+class CartModel {
     constructor({doc, token} = {}) {
         this.init = doc;
         this.doc = doc;
@@ -43,7 +44,7 @@ class CartClass {
         this.cartChangeEvent();
     }
 
-    setDocumentType(code, serie) {
+    setDocumentClass(code, serie) {
         this.doc['tipo-documento'] = code;
         this.doc['codserie'] = serie;
     }
@@ -59,12 +60,9 @@ class CartClass {
     }
 
     setProduct(code, description, thumbnail) {
-        // Si es una linea libre agregamos una nueva linea, si no buscamos si el codigo ya esta registrado y
-        // aumentamos la cantidad o agregamos el nuevo codigo.
         if (code === '') {
             this.lines.unshift({referencia: code, descripcion: description, thumbnail: thumbnail});
         } else {
-            // Usamos `find` para obtener el producto directamente y modificarlo
             const product = this.lines.find(element => element.referencia === code);
 
             if (product) {
@@ -88,7 +86,7 @@ class CartClass {
             this.setPriceWithTax(line);
         }
 
-        this.cartUpdateEvent(this);
+        this.cartUpdateEvent();
     }
 
     updateDocumentClass() {
@@ -96,17 +94,17 @@ class CartClass {
     }
 
     updateDocumentType(code, serie) {
-        this.setDocumentType(code, serie)
+        this.setDocumentClass(code, serie)
         this.cartChangeEvent();
     }
 
-    cartUpdateEvent(data) {
-        document.dispatchEvent(new CustomEvent('onCartUpdate', {detail: data}));
+    cartUpdateEvent() {
+        eventManager.emit('onCartUpdate', this);
     }
 
     cartChangeEvent() {
-        document.dispatchEvent(new Event('onCartChange'));
+        eventManager.emit('onCartChange', this);
     }
 }
 
-export default CartClass;
+export default CartModel;

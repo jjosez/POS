@@ -7,7 +7,7 @@
             </button>
         </div>
         <div class="modal-body">
-            <div id="printSelectionView" class="flex flex-col space-y-2">
+            <div id="printSelectionTemplateView" class="flex flex-col space-y-2">
             </div>
         </div>
         <div class="modal-footer">
@@ -15,28 +15,36 @@
     </div>
 </div>
 <script id="printSelectionTemplate" type="text/template">
+    {% for format in fsc.getSaleTicketFormats() %}
+        <button class="btn btn-block btn-light"
+                data-action="printOrderAction"
+                data-code="<%= it.data.lastOrderID %>"
+                data-format="{{ format.ticketAction }}">
+            <i class="{{ format.ticketIcon }}"></i> {{ format.ticketTitle }}
+        </button>
+    {% endfor %}
     <button class="btn btn-block btn-light"
             data-action="printOrderAction"
             data-code="<%= it.data.lastOrderID %>"
-            data-type="normal">
+            data-format="normal">
         <i class="fas fa-receipt fa-fw"></i>{{ trans('normal') }}
     </button>
     <button class="btn btn-block btn-light hover:bg-gray-200/75"
             data-action="printOrderAction"
             data-code="<%= it.data.lastOrderID %>"
-            data-type="gift">
+            data-format="gift">
         <i class="fas fa-gift fa-fw"></i>{{ trans('gift') }}
     </button>
     <button class="btn btn-block btn-light hover:bg-gray-200/75"
             data-action="printOrderAction"
             data-code="<%= it.data.lastOrderID %>"
-            data-type="mail">
+            data-format="mail">
         <i class="fas fa-envelope fa-fw"></i>{{ trans('send-mail') }}
     </button>
     <button class="btn btn-block btn-light hover:bg-gray-200/75"
             data-action="printOrderAction"
             data-code="<%= it.data.lastOrderID %>"
-            data-type="pdf">
+            data-format="pdf">
         <i class="fas fa-envelope fa-fw"></i>PDF
     </button>
 </script>

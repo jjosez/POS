@@ -15,8 +15,6 @@ use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\FormatoTicket;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Plugins\POS\Model\TipoDocumentoPuntoVenta;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 
 trait PointOfSaleTrait
 {
@@ -25,12 +23,18 @@ trait PointOfSaleTrait
      */
     protected $session;
 
-    protected $customMenuElements;
+    protected array $customMenuElements;
 
     /**
      * @var array|array[]
      */
-    protected $customDocumentFields;
+    protected array $customDocumentFields;
+
+
+    /**
+     * @var PointOfSaleTicketFormat[]
+     */
+    protected array $ticketFormats = [];
 
     protected function addResponseData(array $data = [])
     {
@@ -59,18 +63,11 @@ trait PointOfSaleTrait
         return $this->getTerminal()->getCashPaymentMethod();
     }
 
-    /**
-     * @return array
-     */
     public function getCustomButtons(): array
     {
         return [];
     }
 
-    /**
-     * @param string $hook
-     * @return array
-     */
     public function getCustomDocumentFields(string $hook): array
     {
         return $this->customDocumentFields[$hook] ?? [];
@@ -81,9 +78,16 @@ trait PointOfSaleTrait
         return $this->customMenuElements[$hook] ?? [];
     }
 
-    /**
-     * @return Cliente
-     */
+    public function getSaleTicketFormats()
+    {
+        return $this->ticketFormats['sale'] ?? [];
+    }
+
+    public function getClosingTicketFormats()
+    {
+        return $this->ticketFormats['closing'] ?? [];
+    }
+
     public function getDefaultCustomer(): Cliente
     {
         $customer = new Cliente();
@@ -92,18 +96,23 @@ trait PointOfSaleTrait
         return $customer;
     }
 
-    /**
-     * @return TipoDocumentoPuntoVenta
-     */
     public function getDefaultDocument(): TipoDocumentoPuntoVenta
     {
         return $this->getTerminal()->getDefaultDocument();
     }
 
     /**
+     * @return TipoDocumentoPuntoVenta[]
+     */
+    public function getSupportedDocuments(): array
+    {
+        return $this->getTerminal()->getSupportedDocuments();
+    }
+
+    /**
      * Returns all available denominations.
      *
-     * @return array
+     * @return DenominacionMoneda[]
      */
     public function getDenominations(): array
     {
@@ -112,8 +121,6 @@ trait PointOfSaleTrait
 
     /**
      * Returns fields available by user permissions.
-     *
-     * @return array
      */
     public function getFieldOptions(): array
     {
@@ -165,6 +172,8 @@ trait PointOfSaleTrait
     }
 
     /**
+     * Get default warehouse.
+     *
      * @return string
      */
     public function getDefaultWarehouse(): string
@@ -202,18 +211,51 @@ trait PointOfSaleTrait
         return $this->session->getTerminal()->getAvailable($this->user->idempresa);
     }
 
+    /**
+     * Adds a custom field to document view based on a specified hook.
+     *
+     * @param string $hook The hook name to associate with the custom field.
+     * @param array $element The custom field data to be added.
+     */
     protected function addCustomDocumentField(string $hook, array $element)
     {
         $this->customDocumentFields[$hook][] = $element;
     }
 
+    /**
+     * Adds a custom top menu view based on a specified hook.
+     *
+     * @param string $hook The hook name to associate with the custom element.
+     * @param array $element The custom element data to be added.
+     */
     protected function addCustomMenuElement(string $hook, array $element)
     {
         $this->customMenuElements[$hook][] = $element;
     }
 
+
     /**
-     * Read the log.
+     * Adds a closing ticket format to the available format list.
+     *
+     * @param array $format The format data to be added.
+     */
+    public function addClosingTicketFormat(array $format): void
+    {
+        $this->ticketFormats['closing'][] = $format;
+    }
+
+    /**
+     * Adds a closing ticket format to the available format list.
+     *
+     * @param array $format The format data to be added.
+     */
+    public function addSaleTicketFormat(array $format): void
+    {
+        $this->ticketFormats['sale'][] = $format;
+    }
+
+    /**
+     * Read the log messages.
      *
      * @return array
      */
@@ -264,9 +306,12 @@ trait PointOfSaleTrait
         $this->pipe('loadCustomMenuElements');
     }
 
-    /**
-     *
-     */
+    protected function loadTicketFormats(): void
+    {
+        $this->ticketFormats = ['sale' => [], 'closing' => []];
+        $this->pipe('loadTicketFormats');
+    }
+
     public function setFamilyFilter(): void
     {
         $codfamilia = $this->request->request->get('code', '');
@@ -295,7 +340,17 @@ trait PointOfSaleTrait
      */
     protected function setResponse($content, bool $encode = true): void
     {
-        $response = $encode ? json_encode($content) : $content;
+        if ($encode) {
+            $response = json_encode($content);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                Tools::log()->error('Error al serializar JSON: ' . json_last_error_msg());
+                $response = json_encode(['error' => 'Error al generar respuesta JSON']);
+            }
+        } else {
+            $response = $content;
+        }
+
         $this->response->setContent($response);
     }
 

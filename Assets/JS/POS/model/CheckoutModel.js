@@ -1,4 +1,6 @@
-class CheckoutClass {
+import EventManager from "../components/EventManager.js";
+
+class CheckoutModel {
     constructor({cashMethod = ""}) {
         this.cashMethod = cashMethod;
         this.change = 0;
@@ -96,8 +98,8 @@ class CheckoutClass {
     }
 
     updateCheckoutEvent() {
-        document.dispatchEvent(new Event('onCheckoutUpdate'));
+        EventManager.emit('onCheckoutUpdate');
     }
 }
 
-export default CheckoutClass;
+export default CheckoutModel;
