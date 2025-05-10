@@ -146,6 +146,10 @@ class POS extends Controller
                 $this->printOrderFromMobile();
                 return false;
 
+            case 'print-sales-ticket':
+                $this->setResponse('printing-sales-ticket');
+                return false;
+
             case 'print-mobile-paused-ticket':
                 $this->printDraftDocument(true);
                 return false;
@@ -461,7 +465,7 @@ class POS extends Controller
 
         $this->addResponseData(['lastOrderID' => $order->primaryColumnValue()]);
 
-        $this->printDocument($document, $payments);
+        ///$this->printDocument($document, $payments);
     }
 
     protected function printCashRegisterClosing(): void

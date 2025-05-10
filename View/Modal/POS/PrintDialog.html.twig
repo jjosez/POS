@@ -17,7 +17,7 @@
 <script id="printSelectionTemplate" type="text/template">
     {% for format in fsc.getSaleTicketFormats() %}
         <button class="btn btn-block btn-light"
-                data-action="printOrderAction"
+                data-action="printSalesTicketAction"
                 data-code="<%= it.data.lastOrderID %>"
                 data-format="{{ format.ticketAction }}">
             <i class="{{ format.ticketIcon }}"></i> {{ format.ticketTitle }}

@@ -61,6 +61,18 @@ async function pausedOrderPrintAction({code}) {
     await Core.printerServerRequest(response);
 }
 
+async function printSalesTicketAction(data) {
+    console.log('print selecton data,', data);
+    const formData = new FormData();
+
+    formData.set('action', 'print-sales-ticket');
+    formData.set('code', data.code);
+    formData.set('format', data.format);
+
+    await Core.postRequest(formData)
+    MainView.togglePrintSelectionModal();
+}
+
 /**
  * @param {{code:string}} data
  */
@@ -75,12 +87,16 @@ async function orderResumeAction({code}) {
 async function orderSaveAction() {
     if (Cart.lines.length < 1) return;
 
-    const response = await Order.saveRequest(Cart, Checkout.payments);
+    const response = await Order.saveRequest(Cart, Checkout.payments).then(
+        response => {
+             MainView.showPrintSelectionModal(response);
+
+             return response;
+        });
 
     Cart.update(response);
     EventManager.emit('onOrderComplete', response);
 
-    MainView.showPrintSelectionModal(response);
     await Core.printerServerRequest(response);
 }
 
@@ -204,6 +220,9 @@ async function appEventHandler(event) {
 
         case 'printClosingVoucher':
             return sessionPrintClosingVoucherAction(data);
+
+        case 'printSalesTicketAction':
+            return printSalesTicketAction(data);
 
         case 'productImageAction':
             return showProductImagesAction(data);
