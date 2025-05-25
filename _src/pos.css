@@ -1,111 +1,292 @@
-@tailwind base;
-@tailwind components;
+@import 'tailwindcss';
 
-@layer components {
-    .d-none {
-        @apply hidden;
+@config '../tailwind.config.js';
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentcolor);
     }
 
-    .app-container {
-        @apply flex h-full w-full flex-col;
-    }
+    @layer utilities {
+        .btn > * {
+            pointer-events: none;
+        }
 
-    .alert-container {
-        @apply absolute bottom-0 left-0 z-auto w-full p-4 space-y-2 md:w-1/2;
+        div[role=listitem] > * {
+            pointer-events: none;
+        }
     }
+}
 
-    .alert {
-        @apply w-full rounded-md p-4 font-semibold text-white shadow-md transition duration-150 ease-in-out;
-    }
+@utility d-none {
+    @apply hidden;
+}
 
-    .alert-error {
-        @apply bg-red-500;
-    }
+@utility app-container {
+    @apply flex h-full w-full flex-col;
+}
 
-    .alert-info {
-        @apply bg-blue-500;
-    }
+@utility alert-container {
+    @apply absolute bottom-0 left-0 z-auto w-full p-4 space-y-2 md:w-1/2;
+}
 
-    .alert-success {
-        @apply bg-green-500;
-    }
+@utility alert {
+    @apply w-full rounded-md p-4 font-semibold text-white shadow-md transition duration-150 ease-in-out;
+}
 
-    .alert-warning {
-        @apply bg-yellow-500;
-    }
+@utility alert-error {
+    @apply bg-red-500;
+}
 
-    .btn {
-        @apply flex flex-shrink-0 select-none items-center rounded-lg px-4 font-medium text-white outline-none py-2.5 focus:ring;
-    }
+@utility alert-info {
+    @apply bg-blue-500;
+}
 
-    .btn-block {
-        @apply w-full px-4 py-2.5;
-    }
+@utility alert-success {
+    @apply bg-green-500;
+}
 
-    .btn-icon {
-        @apply h-11 w-11 justify-center;
-    }
+@utility alert-warning {
+    @apply bg-yellow-500;
+}
 
-    .btn-ring {
-        @apply border-4 hover:border-opacity-75;
-    }
+@utility btn {
+    @apply flex flex-shrink-0 select-none items-center rounded-lg px-4 font-medium text-white outline-hidden py-2.5 focus:ring-3;
+}
 
-    .btn-primary {
-        @apply bg-blue-500 hover:bg-blue-500/90 focus:ring-blue-600;
-    }
+@utility btn-block {
+    @apply w-full px-4 py-2.5;
+}
 
-    .btn-secondary {
-        @apply bg-gray-500 hover:bg-gray-500/90 focus:ring-gray-600;
-    }
+@utility btn-icon {
+    @apply h-11 w-11 justify-center;
+}
 
-    .btn-success {
-        @apply bg-green-500 hover:bg-green-500/90 focus:ring-green-600;
-    }
+@utility btn-ring {
+    @apply border-4 /*hover:border-opacity/75;*/
+    ;
+}
 
-    .btn-danger {
-        @apply bg-red-500 hover:bg-red-500/90 focus:ring-red-600;
-    }
+@utility btn-primary {
+    @apply bg-blue-500 hover:bg-blue-500/90 focus:ring-blue-600;
+}
 
-    .btn-warning {
-        @apply bg-yellow-500 hover:bg-yellow-500/90 focus:ring-yellow-600;
-    }
+@utility btn-secondary {
+    @apply bg-gray-500 hover:bg-gray-500/90 focus:ring-gray-600;
+}
 
-    .btn-light {
-        @apply bg-gray-200 text-slate-800 hover:bg-gray-200/90 focus:ring-gray-600;
-    }
+@utility btn-success {
+    @apply bg-green-500 hover:bg-green-500/90 focus:ring-green-600;
+}
 
-    .input-icon {
-        @apply relative block;
-    }
+@utility btn-danger {
+    @apply bg-red-500 hover:bg-red-500/90 focus:ring-red-600;
+}
 
-    .input-icon span {
+@utility btn-warning {
+    @apply bg-yellow-500 hover:bg-yellow-500/90 focus:ring-yellow-600;
+}
+
+@utility btn-light {
+    @apply bg-gray-200 text-slate-800 hover:bg-gray-200/90 focus:ring-gray-600;
+}
+
+@utility input-icon {
+    @apply relative block;
+
+    & span {
         @apply pointer-events-none absolute inset-y-0 left-4 flex items-center;
     }
 
-    .input-icon input[type=search],
-    .input-icon input[type=text],
-    .input-icon input[type=number],
-    .input-icon input[type=password] {
-        @apply py-2 pr-4 pl-10 w-full bg-white rounded-lg border-2 placeholder-slate-300 focus:outline-none focus:border-blue-500
+    & input[type='search'] {
+        @apply w-full rounded-lg border-2 bg-white py-2 pr-4 pl-10 placeholder-slate-300 focus:border-blue-500 focus:outline-hidden;
     }
 
-    input[type=number].form-control,
-    input[type=password].form-control,
-    input[type=search].form-control,
-    input[type=text].form-control,
-    select.form-control,
-    textarea {
-        @apply py-2 px-4 w-full bg-white rounded-lg border-2 placeholder-slate-300 focus:outline-none focus:border-blue-500
+    & input[type='text'] {
+        @apply w-full rounded-lg border-2 bg-white py-2 pr-4 pl-10 placeholder-slate-300 focus:border-blue-500 focus:outline-hidden;
     }
 
-    input[type=number].form-control:read-only,
-    input[type=password].form-control,
-    input[type=search].form-control:read-only,
-    input[type=text].form-control:read-only,
-    select.form-control:read-only,
-    textarea:read-only {
+    & input[type='number'] {
+        @apply w-full rounded-lg border-2 bg-white py-2 pr-4 pl-10 placeholder-slate-300 focus:border-blue-500 focus:outline-hidden;
+    }
+
+    & input[type='password'] {
+        @apply w-full rounded-lg border-2 bg-white py-2 pr-4 pl-10 placeholder-slate-300 focus:border-blue-500 focus:outline-hidden;
+    }
+}
+
+@utility form-control {
+    & input[type='number'] {
+        @apply w-full rounded-lg border-2 bg-white px-4 py-2 placeholder-slate-300 focus:border-blue-500 focus:outline-hidden;
+    }
+
+    & input[type='password'] {
+        @apply w-full rounded-lg border-2 bg-white px-4 py-2 placeholder-slate-300 focus:border-blue-500 focus:outline-hidden;
+    }
+
+    & input[type='search'] {
+        @apply w-full rounded-lg border-2 bg-white px-4 py-2 placeholder-slate-300 focus:border-blue-500 focus:outline-hidden;
+    }
+
+    & input[type='text'] {
+        @apply w-full rounded-lg border-2 bg-white px-4 py-2 placeholder-slate-300 focus:border-blue-500 focus:outline-hidden;
+    }
+
+    & select {
+        @apply w-full rounded-lg border-2 bg-white px-4 py-2 placeholder-slate-300 focus:border-blue-500 focus:outline-hidden;
+    }
+
+    & input[type='number']:read-only {
         @apply bg-slate-100;
     }
+
+    & input[type='password'] {
+        @apply bg-slate-100;
+    }
+
+    & input[type='search']:read-only {
+        @apply bg-slate-100;
+    }
+
+    & input[type='text']:read-only {
+        @apply bg-slate-100;
+    }
+
+    & select:read-only {
+        @apply bg-slate-100;
+    }
+}
+
+@utility form-control-base {
+    @apply rounded-lg border-2 placeholder-slate-300 focus:border-blue-500 focus:outline-hidden;
+}
+
+@utility form-group {
+    @apply flex w-full flex-col;
+
+    & input[type='search'] {
+        @apply rounded-lg border-2 bg-white px-4 py-2 placeholder-slate-300 focus:border-blue-500 focus:outline-hidden;
+    }
+
+    & input[type='text'] {
+        @apply rounded-lg border-2 bg-white px-4 py-2 placeholder-slate-300 focus:border-blue-500 focus:outline-hidden;
+    }
+
+    & input[type='number'] {
+        @apply rounded-lg border-2 bg-white px-4 py-2 placeholder-slate-300 focus:border-blue-500 focus:outline-hidden;
+    }
+
+    & input[type='password'] {
+        @apply rounded-lg border-2 bg-white px-4 py-2 placeholder-slate-300 focus:border-blue-500 focus:outline-hidden;
+    }
+
+    & input[type='search']:read-only {
+        @apply bg-slate-100;
+    }
+
+    & input[type='text']:read-only {
+        @apply bg-slate-100;
+    }
+
+    & input[type='number']:read-only {
+        @apply bg-slate-100;
+    }
+}
+
+@utility modal {
+    @apply fixed inset-0 z-50 items-center justify-center overflow-y-auto overflow-x-hidden outline-hidden focus:outline-hidden;
+}
+
+@utility modal-backdrop {
+    @apply fixed inset-0 z-40 bg-black/85;
+}
+
+@utility modal-content {
+    @apply relative m-auto flex w-full flex-col rounded-lg border-0 bg-white md:max-h-4/5 md:w-3/5 md:max-w-lg;
+    max-height: calc(100% - 3.5rem);
+    max-width: calc(100% - 3.5rem);
+}
+
+@utility modal-content-sm {
+    @apply w-4/12;
+}
+
+@utility modal-content-md {
+    @apply w-3/5;
+}
+
+@utility modal-content-lg {
+    @apply w-9/12;
+}
+
+@utility modal-footer {
+    @apply flex items-center justify-end rounded-b border-t border-solid p-6;
+}
+
+@utility modal-header {
+    @apply flex items-start justify-between rounded-t border-b border-solid p-5;
+}
+
+@utility modal-body {
+    @apply flex-auto overflow-y-auto p-5;
+}
+
+@utility product-tag {
+    @apply bg-slate-600 btn hover:bg-blue-500 focus:ring-0;
+
+    &.selected {
+        @apply bg-slate-200 text-slate-600;
+    }
+
+    & > * {
+        @apply pointer-events-none;
+    }
+}
+
+@utility selected {
+    &.product-tag {
+        @apply bg-slate-200 text-slate-600;
+    }
+}
+
+@utility product-card {
+    @apply flex cursor-pointer select-none flex-col overflow-hidden rounded-lg border-4 border-solid bg-white shadow-sm transition-shadow hover:border-blue-500;
+
+    & > * {
+        @apply pointer-events-none;
+    }
+}
+
+@utility table-row-red {
+    @apply odd:bg-red-100 even:bg-red-100 hover:bg-red-200;
+}
+
+@utility table-row-default {
+    @apply odd:bg-blue-50 hover:bg-yellow-200;
+}
+
+@utility tab {
+    @apply inline-block text-gray-500 hover:text-gray-600 hover:border-gray-300 rounded-t-lg py-4 px-4
+    font-medium text-center border-transparent border-b-2;
+}
+
+@utility tab-active {
+    @apply border-blue-500 text-gray-600;
+}
+
+@layer components {
 
     input[type='number']::-webkit-outer-spin-button,
     input[type='number']::-webkit-inner-spin-button,
@@ -119,90 +300,8 @@
         @apply w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-lg focus:ring-blue-500
     }
 
-    .form-control-base {
-        @apply rounded-lg border-2 placeholder-slate-300 focus:border-blue-500 focus:outline-none;
-    }
-
-    .form-group {
-        @apply flex w-full flex-col;
-    }
-
-    .form-group input[type=search],
-    .form-group input[type=text],
-    .form-group input[type=number],
-    .form-group input[type=password],
-    textarea {
-        @apply py-2 px-4 bg-white rounded-lg border-2 placeholder-slate-300 focus:outline-none focus:border-blue-500
-    }
-
-    .form-group input[type=search]:read-only,
-    .form-group input[type=text]:read-only,
-    .form-group input[type=number]:read-only,
-    textarea:read-only {
-        @apply bg-slate-100;
-    }
-
-    .modal {
-        @apply fixed inset-0 z-50 items-center justify-center overflow-y-auto overflow-x-hidden outline-none focus:outline-none;
-    }
-
-    .modal-backdrop {
-        @apply fixed inset-0 z-40 bg-black bg-opacity-75;
-    }
-
-    .modal-content {
-        @apply relative m-auto flex w-full flex-col rounded-lg border-0 bg-white md:max-h-4/5 md:w-3/5 md:max-w-lg;
-        max-height: calc(100% - 3.5rem);
-        max-width: calc(100% - 3.5rem);
-    }
-
-    .modal-content-sm {
-        @apply w-4/12;
-    }
-
-    .modal-content-md {
-        @apply w-3/5;
-    }
-
-    .modal-content-lg {
-        @apply w-9/12;
-    }
-
-    .modal-footer {
-        @apply flex items-center justify-end rounded-b border-t border-solid p-6;
-    }
-
-    .modal-header {
-        @apply flex items-start justify-between rounded-t border-b border-solid p-5;
-    }
-
-    .modal-body {
-        @apply flex-auto overflow-y-auto p-5;
-    }
-
-    .product-tag {
-        @apply bg-slate-600 btn hover:bg-blue-500 focus:ring-0;
-    }
-
-    .product-tag.selected {
-        @apply bg-slate-200 text-slate-600;
-    }
-
-    .product-card {
-        @apply flex cursor-pointer select-none flex-col overflow-hidden rounded-lg border-4 border-solid bg-white shadow transition-shadow hover:border-blue-500;
-    }
-
     div[role=listitem] {
         @apply cursor-pointer select-none;
-    }
-
-    button > *,
-    label > *,
-    select > *,
-    div[role=listitem] > *,
-    .product-card > *,
-    .product-tag > * {
-        @apply pointer-events-none;
     }
 
     input:-moz-read-only {
@@ -214,57 +313,40 @@
     }
 
     :disabled {
-        @apply cursor-auto bg-slate-200 opacity-50 hover:bg-slate-200;
-    }
-
-    .table-row-red {
-        @apply odd:bg-red-100 even:bg-red-100 hover:bg-red-200;
-    }
-
-    .table-row-default {
-        @apply odd:bg-blue-50 hover:bg-yellow-200;
-    }
-
-    .tab {
-        @apply inline-block text-gray-500 hover:text-gray-600 hover:border-gray-300 rounded-t-lg py-4 px-4
-        font-medium text-center border-transparent border-b-2
-    }
-
-    .tab-active {
-        @apply text-gray-600 border-blue-500
+        @apply cursor-auto bg-slate-200 /*opacity/50*/
+        hover:bg-slate-200;
     }
 
 }
 
-/*table tbody tr:nth-child(odd) {
-    @apply bg-blue-50;
-}*/
+@layer components {
+    /*table tbody tr:nth-child(odd) {
+      @apply bg-blue-50;
+  }*/
+    tbody tr:nth-child(odd) {
+        @apply bg-blue-50;
+    }
 
-tbody tr:nth-child(odd) {
-    @apply bg-blue-50;
+    /* width */
+    ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+        background: #d7dfe2; /*#cfd8dc;*/
+        border-radius: 5px;
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: #90a4ae; /*#b0bec5;*/
+        border-radius: 5px;
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #607d8b /*#90a4ae*/;
+    }
 }
-
-/* width */
-::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-    background: #d7dfe2; /*#cfd8dc;*/
-    border-radius: 5px;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-    background: #90a4ae; /*#b0bec5;*/
-    border-radius: 5px;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-    background: #607d8b /*#90a4ae*/;
-}
-
-@tailwind utilities;
