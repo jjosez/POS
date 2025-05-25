@@ -17,7 +17,7 @@
         <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {% for product in fsc.getHomeProducts() %}
                 <div role="listitem"
-                     class="flex cursor-pointer flex-col items-center rounded-lg bg-white p-4 text-xs shadow-sm product-add-btn"
+                     class="flex cursor-pointer flex-col items-center rounded-lg bg-white p-4 text-xs shadow-xs product-add-btn"
                      data-action="setProductAction"
                      data-code="{{ product.code }}"
                      data-description="{{ product.description }}"
@@ -68,7 +68,7 @@
     <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <% it.items.forEach(function(item){ %>
         <div role="listitem"
-             class="flex cursor-pointer flex-col items-center rounded-lg bg-white p-4 text-xs shadow-sm product-add-btn"
+             class="flex cursor-pointer flex-col items-center rounded-lg bg-white p-4 text-xs shadow-xs product-add-btn"
              data-action="setProductAction"
              data-code="<%= item.code %>"
              data-description="<%= item.description %>"
@@ -109,7 +109,7 @@
 
 {% macro freeProductLineTemplate() %}
     <div role="listitem"
-         class="mb-4 flex cursor-pointer rounded-lg bg-white p-4 shadow-sm product-add-btn"
+         class="mb-4 flex cursor-pointer rounded-lg bg-white p-4 shadow-xs product-add-btn"
          data-action="setProductAction"
          data-code=""
          data-description="Producto Generico">

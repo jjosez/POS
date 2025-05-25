@@ -1,61 +1,76 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-@layer components {
-    /*Background colors*/
-    .error {
-        @apply bg-red-500;
-    }
+@config "../tailwind.config.js";
 
-    .info {
-        @apply bg-blue-500;
-    }
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
 
-    .success {
-        @apply bg-green-500;
-    }
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
-    .warning {
-        @apply bg-yellow-500;
-    }
+@utility error {
+  /*Background colors*/
+  @apply bg-red-500;
+}
 
-    /*Containers*/
-    .app-container {
-        @apply flex flex-col h-full;
-    }
+@utility info {
+  @apply bg-blue-500;
+}
 
-    .alert-container {
-        @apply absolute bottom-0 left-0 z-auto m-4 w-1/4 space-y-2;
-    }
+@utility success {
+  @apply bg-green-500;
+}
 
-    /*Components*/
-    .button {
-        @apply flex flex-shrink-0 px-4 py-2.5 items-center text-sm text-white font-medium rounded-md select-none;
-    }
+@utility warning {
+  @apply bg-yellow-500;
+}
 
-    .button-icon {
-        @apply justify-center w-11 h-11;
-    }
+@utility app-container {
+  /*Containers*/
+  @apply flex flex-col h-full;
+}
 
-    .button-primary {
-        @apply bg-blue-500 focus:ring-blue-600 hover:bg-blue-700;
-    }
+@utility alert-container {
+  @apply absolute bottom-0 left-0 z-auto m-4 w-1/4 space-y-2;
+}
 
-    .button-secondary {
-        @apply bg-gray-500 focus:ring-gray-600;
-    }
+@utility button {
+  /*Components*/
+  @apply flex flex-shrink-0 px-4 py-2.5 items-center text-sm text-white font-medium rounded-md select-none;
+}
 
-    .button-success {
-        @apply bg-green-500 focus:ring-green-600;
-    }
+@utility button-icon {
+  @apply justify-center w-11 h-11;
+}
 
-    .button-danger {
-        @apply bg-red-500 focus:ring-red-600;
-    }
+@utility button-primary {
+  @apply bg-blue-500 focus:ring-blue-600 hover:bg-blue-700;
+}
 
-    .button-warning {
-        @apply bg-yellow-500 focus:ring-yellow-600;
-    }
+@utility button-secondary {
+  @apply bg-gray-500 focus:ring-gray-600;
+}
 
+@utility button-success {
+  @apply bg-green-500 focus:ring-green-600;
+}
+
+@utility button-danger {
+  @apply bg-red-500 focus:ring-red-600;
+}
+
+@utility button-warning {
+  @apply bg-yellow-500 focus:ring-yellow-600;
 }

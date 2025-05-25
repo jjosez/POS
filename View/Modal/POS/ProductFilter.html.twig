@@ -18,7 +18,7 @@
                     {% set bgcolor =  familia.madre ? 'bg-slate-50' : 'bg-slate-100' %}
                     {% set imageUrl =  familia.shorcutImage() %}
                     <div role="listitem"
-                         class="{{ bgcolor }} p-2 shadow-sm rounded-lg font-semibold cursor-pointer"
+                         class="{{ bgcolor }} p-2 shadow-xs rounded-lg font-semibold cursor-pointer"
                          data-action="setProductFamilyAction"
                          data-code="{{ familia.codfamilia }}"
                          data-madre="{{ familia.madre }}"
@@ -38,7 +38,7 @@
 <script id="productFamilyListTemplate" type="text/template">
     <% it.items.forEach(function(item){ %>
     <div role="listitem"
-         class="items-center bg-slate-800 flex flex-row p-2 shadow-sm rounded-lg font-semibold cursor-pointer"
+         class="items-center bg-slate-800 flex flex-row p-2 shadow-xs rounded-lg font-semibold cursor-pointer"
          data-action="setProductFamilyAction"
          data-code="<%= item.code %>"
          data-description="<%= item.description %>" data-thumbnail="<%= item.thumbnail %>">

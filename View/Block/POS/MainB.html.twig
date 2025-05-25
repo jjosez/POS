@@ -58,7 +58,7 @@
     {# <script id="familyListTemplate" type="text/template">
         <% if (it.items.madre.codfamilia){ %>
         <div role="listitem"
-             class="cursor-pointer rounded-lg bg-blue-500 p-4 align-middle font-semibold text-white shadow-sm"
+             class="cursor-pointer rounded-lg bg-blue-500 p-4 align-middle font-semibold text-white shadow-xs"
              data-action="setProductFamilyAction"
              data-code="<%= it.items.madre.madre ?? '' %>"
              data-madre="<%= it.items.madre.madre ?? '' %>">
@@ -67,7 +67,7 @@
         <% } %>
         <% it.items.children.forEach(function(familia){ %>
         <div role="listitem"
-             class="cursor-pointer rounded-lg bg-slate-100 p-4 font-semibold shadow-sm"
+             class="cursor-pointer rounded-lg bg-slate-100 p-4 font-semibold shadow-xs"
              data-action="setProductFamilyAction"
              data-code="<%= familia.codfamilia %>"
              data-madre="<%= familia.madre %>">
