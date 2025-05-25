@@ -1,40 +1,25 @@
 import {getElement} from "../Core.js";
 
-const backdrop = new BackDropElement();
-
-let instance;
-
-let modals = {
-    closeSession: new ModalElement('closeSessionModal'),
-    customerSearch: new ModalElement('customerSearchModal'),
-    documentType: new ModalElement('documentTypeModal'),
-    loadingModal: new ModalElement('loadingModal'),
-
-    holdOrders: new ModalElement('holdOrdersModal'),
-    lastOrders: new ModalElement('lastOrdersModal'),
-
-    paymentDetail: new ModalElement('paymentModal'),
-    printModal: new ModalElement('printModal'),
-
-    productEditModal: new ModalElement('productEditModal'),
-    productImages: new ModalElement('productImagesModal'),
-    productQuantityEdit: new ModalElement('productQuantityEditModal'),
-    productStockDetail: new ModalElement('stockDetailModal'),
-
-    checkoutModal: new ModalElement('checkoutModal'),
-}
-
 function BackDropElement() {
     this.element = document.createElement('div');
     this.element.classList.add('modal-backdrop');
+    this.visibleCount = 0;
 }
 
 BackDropElement.prototype.show = function () {
-    document.querySelector('body').append(this.element);
+    if (this.visibleCount === 0) {
+        document.body.append(this.element);
+    }
+    this.visibleCount++;
 }
 
 BackDropElement.prototype.hide = function () {
-    document.querySelector('.modal-backdrop').remove();
+    this.visibleCount = Math.max(0, this.visibleCount - 1);
+
+    if (this.visibleCount === 0) {
+        const el = document.querySelector('.modal-backdrop');
+        if (el) el.remove();
+    }
 }
 
 function ModalElement(id) {
@@ -62,81 +47,112 @@ ModalElement.prototype.hide = function () {
     this.isVisible = false;
 }
 
+const backdrop = new BackDropElement();
+
+let modals = {
+    closeSession: new ModalElement('closeSessionModal'),
+    customerSearch: new ModalElement('customerSearchModal'),
+    documentType: new ModalElement('documentTypeModal'),
+    loadingModal: new ModalElement('loadingModal'),
+
+    holdOrders: new ModalElement('holdOrdersModal'),
+    lastOrders: new ModalElement('lastOrdersModal'),
+
+    paymentDetail: new ModalElement('paymentModal'),
+    printModal: new ModalElement('printModal'),
+
+    productEditModal: new ModalElement('productEditModal'),
+    productImages: new ModalElement('productImagesModal'),
+    productQuantityEdit: new ModalElement('productQuantityEditModal'),
+    productStockDetail: new ModalElement('stockDetailModal'),
+
+    checkoutModal: new ModalElement('checkoutModal'),
+}
+
 class Modals {
-    modalCache = {};
-
-    /**
-     * @param {HTMLElement} element
-     */
-
-    /*toggleModal = (element) => {
-        if (!element) return;
-
-        if (element.classList.contains("hidden")) {
-            element.classList.remove("hidden");
-            element.classList.add("flex");
-
-            backdrop.show();
-        } else {
-            element.classList.remove("flex");
-            element.classList.add("hidden");
-
-            backdrop.hide();
-        }
-    };*/
-    function
-
     constructor() {
-        if (instance) throw new Error("New instance cannot be created!!");
+        if (Modals._instance) {
+            throw new Error("¡Ya existe una instancia de Modals!");
+        }
 
-        instance = this;
+        Modals._instance = this;
+        this.modalCache = {...modals};
+        this.currentModal = null;
 
         document.addEventListener('click', this._modalToggleEventHandler);
+        document.addEventListener('keydown', this._escapeKeyEventHandler);
     }
 
+    // Manejo automático al hacer clic en botones con data-toggle="modal"
     _modalToggleEventHandler = event => {
         const target = event.target;
 
-        // Verificamos que el atributo data-toggle sea "modal"
         if (target.dataset.toggle === 'modal') {
             const modalId = target.dataset.target;
             this.toggleModal(modalId);
-
             event.stopPropagation();
+        }
+    }
+
+    _escapeKeyEventHandler = (event) => {
+        if (event.key === "Escape" || event.key === "Esc") {
+            for (const modal of Object.values(this.modalCache)) {
+                if (modal.isVisible) {
+                    modal.hide();
+                    break;
+                }
+            }
         }
     };
 
-    backdrop() {
-        return backdrop;
-    }
+    toggleModal(modalId) {
+        let modal = this.modalCache[modalId];
 
-    toggleModal = (modalId) => {
-        let modal = this.modalCache[modalId] || modals[modalId];
-
-        // If modal does not exist, create it and add to cache
+        // Si no existe en la caché, lo creamos y lo guardamos
         if (!modal) {
             modal = new ModalElement(modalId);
             this.modalCache[modalId] = modal;
+            //this.currentModal = modal;
         }
 
-        // Toggle visibility
-        modal.isVisible ? modal.hide() : modal.show();
-    };
+        // Si ya está abierto, simplemente lo cerramos
+        if (modal.isVisible) {
+            modal.hide();
+            this.currentModal = null;
+            return;
+        }
 
-    documentTypeModal = () => modals['documentType'];
-    closeSessionModal = () => modals['closeSession'];
-    customerSearchModal = () => modals['customerSearch'];
-    lastOrdersModal = () => modals['lastOrders'];
-    loadingModal = () => modals['loadingModal'];
-    pausedOrdersModal = () => modals['holdOrders'];
-    stockDetailModal = () => modals['productStockDetail'];
-    paymentModal = () => modals['paymentDetail'];
-    printModal = () => modals['printModal'];
-    productEditModal = () => modals['productEditModal'];
-    productImagesModal = () => modals['productImages'];
-    productQuantityEditModal = () => modals['productQuantityEdit'];
+        // Si hay otro modal abierto, lo cerramos antes
+        if (this.currentModal && this.currentModal !== modal) {
+            this.currentModal.hide();
+        }
+
+        // Mostramos el nuevo modal
+        modal.show();
+        this.currentModal = modal;
+    }
+
+    // Métodos de acceso directo a cada modal
+    documentTypeModal = () => this.modalCache['documentType'];
+    closeSessionModal = () => this.modalCache['closeSession'];
+    customerSearchModal = () => this.modalCache['customerSearch'];
+    lastOrdersModal = () => this.modalCache['lastOrders'];
+    loadingModal = () => this.modalCache['loadingModal'];
+    pausedOrdersModal = () => this.modalCache['holdOrders'];
+    stockDetailModal = () => this.modalCache['productStockDetail'];
+    paymentModal = () => this.modalCache['paymentDetail'];
+    printModal = () => this.modalCache['printModal'];
+    productEditModal = () => this.modalCache['productEditModal'];
+    productImagesModal = () => this.modalCache['productImages'];
+    productQuantityEditModal = () => this.modalCache['productQuantityEdit'];
+    checkoutModal = () => this.modalCache['checkoutModal'];
+
+    // Acceso al fondo
+    backdrop() {
+        return backdrop;
+    }
 }
 
-const modalsInstance = Object.freeze(new Modals());
-
+// Exportamos una única instancia
+const modalsInstance = new Modals();
 export default modalsInstance;

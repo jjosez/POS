@@ -2,10 +2,10 @@
 
 namespace FacturaScripts\Plugins\POS\Lib;
 
-use FacturaScripts\Core\Internal\SubRequest;
-use FacturaScripts\Core\Request;
-//use Symfony\Component\HttpFoundation\ParameterBag;
-//use Symfony\Component\HttpFoundation\Request;
+//use FacturaScripts\Core\Internal\SubRequest;
+//use FacturaScripts\Core\Request;
+use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\Request;
 
 class PointOfSaleRequest
 {
@@ -13,8 +13,8 @@ class PointOfSaleRequest
     protected array $documentLinesData;
     protected array $paymentData;
 
-    protected SubRequest $request;
-    //protected ParameterBag $request;
+    //protected SubRequest $request;
+    protected ParameterBag $request;
     protected string $documentType;
 
     public function __construct(Request $request)

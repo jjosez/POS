@@ -45,8 +45,7 @@ async function orderPrintAction({code, type}) {
     }
 
     const response = await Order.printOnDesktop(data);
-    //MainView.toggleLastOrdersModal();
-    MainView.togglePrintSelectionModal();
+    MainView.showPrintSelectionModal(response);
 
     await Core.printerServerRequest(response);
 }
@@ -89,9 +88,9 @@ async function orderSaveAction() {
 
     const response = await Order.saveRequest(Cart, Checkout.payments).then(
         response => {
-             MainView.showPrintSelectionModal(response);
+            MainView.showPrintSelectionModal(response);
 
-             return response;
+            return response;
         });
 
     Cart.update(response);
