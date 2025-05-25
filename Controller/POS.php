@@ -582,8 +582,8 @@ class POS extends Controller
      */
     protected function closeSession()
     {
-        $cash = $this->request->request->getArray('cash') ?? [];
-        //$cash = $this->request->request->get('cash') ?? [];
+        //$cash = $this->request->request->getArray('cash') ?? [];
+        $cash = $this->request->request->get('cash') ?? [];
 
         if ($this->session->closeSession($cash)) {
             $this->printCashRegisterClosing();
