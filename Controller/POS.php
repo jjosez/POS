@@ -48,7 +48,7 @@ class POS extends Controller
      * @throws KernelException
      * @throws Exception
      */
-    public function privateCore(&$response, $user, $permissions)
+    public function privateCore(&$response, $user, $permissions): void
     {
         parent::privateCore($response, $user, $permissions);
         $this->setTemplate(false);
@@ -164,7 +164,7 @@ class POS extends Controller
         }
     }
 
-    protected function execAfterAction(string $action)
+    protected function execAfterAction(string $action): void
     {
         switch ($action) {
             case 'change-user':
@@ -222,7 +222,7 @@ class POS extends Controller
      * @param array $data
      * @return void
      */
-    protected function buildResponse(array $data = [])
+    protected function buildResponse(array $data = []): void
     {
         $response = array_merge($data, $this->responseData);
 
@@ -235,7 +235,7 @@ class POS extends Controller
     /**
      * Remove paused order from list.
      */
-    protected function deleteDraftOrder()
+    protected function deleteDraftOrder(): void
     {
         if (false === self::validateDelete()) {
             $this->buildResponse();
@@ -258,7 +258,7 @@ class POS extends Controller
      *
      * @return void
      */
-    protected function recalculateOrder()
+    protected function recalculateOrder(): void
     {
         $request = new PointOfSaleRequest($this->request);
         $transaction = new PointOfSaleTransaction($request);
@@ -269,7 +269,7 @@ class POS extends Controller
     /**
      * Load order on hold by code.
      */
-    protected function resumeOrder()
+    protected function resumeOrder(): void
     {
         $code = $this->request->request->get('code', '');
 
@@ -283,7 +283,7 @@ class POS extends Controller
         }
     }
 
-    protected function saveCashEntry()
+    protected function saveCashEntry(): void
     {
         if (false === $this->validateRequest()) return;
 
@@ -302,7 +302,7 @@ class POS extends Controller
         $this->buildResponse();
     }
 
-    protected function saveCashWithdraw()
+    protected function saveCashWithdraw(): void
     {
         if (false === $this->validateRequest()) return;
 
@@ -322,7 +322,7 @@ class POS extends Controller
         $this->buildResponse();
     }
 
-    protected function saveNewCustomer()
+    protected function saveNewCustomer(): void
     {
         $customer = new PointOfSaleCustomer();
 
@@ -341,7 +341,7 @@ class POS extends Controller
     /**
      * Search customer by text.
      */
-    protected function searchCustomer()
+    protected function searchCustomer(): void
     {
         $customer = new PointOfSaleCustomer();
         $query = $this->request->request->get('query');
@@ -352,7 +352,7 @@ class POS extends Controller
     /**
      * Search product by barcode.
      */
-    protected function searchBarcode()
+    protected function searchBarcode(): void
     {
         $barcode = $this->request->request->get('query');
 
@@ -362,7 +362,7 @@ class POS extends Controller
     /**
      * Search product by text.
      */
-    protected function searchProduct()
+    protected function searchProduct(): void
     {
         $query = $this->request->request->get('query', '');
         $terminalCode = $this->request->request->get('terminal', '');
@@ -381,7 +381,7 @@ class POS extends Controller
     /**
      * Search product by text.
      */
-    protected function searchStock()
+    protected function searchStock(): void
     {
         $query = $this->request->request->get('query', '');
 
@@ -496,7 +496,7 @@ class POS extends Controller
     /**
      * Reprint order by code.
      */
-    protected function printOrder()
+    protected function printOrder(): void
     {
         $code = $this->request->request->get('code', '');
 
@@ -511,7 +511,7 @@ class POS extends Controller
     /**
      * Reprint order by code.
      */
-    protected function printOrderFromMobile()
+    protected function printOrderFromMobile(): void
     {
         $code = $this->request->request->get('code', '');
 
@@ -525,7 +525,7 @@ class POS extends Controller
     /**
      * Reprint point of sale document by code.
      */
-    protected function printDraftDocument(bool $raw = false)
+    protected function printDraftDocument(bool $raw = false): void
     {
         $code = $this->request->request->get('code', '');
 
@@ -580,7 +580,7 @@ class POS extends Controller
     /**
      * Close current user POS session.
      */
-    protected function closeSession()
+    protected function closeSession(): void
     {
         //$cash = $this->request->request->getArray('cash') ?? [];
         $cash = $this->request->request->get('cash') ?? [];
@@ -594,7 +594,7 @@ class POS extends Controller
         $this->buildResponse();
     }
 
-    protected function openSession()
+    protected function openSession(): void
     {
         if (false === $this->validateFormToken()) {
             return;
@@ -608,7 +608,7 @@ class POS extends Controller
     /**
      * @return void
      */
-    protected function openTerminal()
+    protected function openTerminal(): void
     {
         $id = $this->request->request->get('terminal', '');
         $this->session->getTerminal($id);
