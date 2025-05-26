@@ -142,16 +142,8 @@ class POS extends Controller
                 $this->printDraftDocument();
                 return false;
 
-            case 'print-mobile-ticket':
-                $this->printOrderFromMobile();
-                return false;
-
             case 'print-sales-ticket':
                 $this->printOrderTicket();
-                return false;
-
-            case 'print-mobile-paused-ticket':
-                $this->printDraftDocument(true);
                 return false;
 
             case 'close-session':
@@ -519,44 +511,21 @@ class POS extends Controller
         if ($code) {
             $order = PointOfSaleStorage::getOrder($code);
 
-            $result = $this->pipeFalse('printOrderTicket', $order, $request);
+            $this->pipeFalse('printOrderTicket', $order, $request);
 
-
-
-            //$this->printDocument($order->getDocument());
-            //$this->addResponseData($result);
             $this->buildResponse();
-        }
-    }
-
-    /**
-     * Reprint order by code.
-     */
-    protected function printOrderFromMobile(): void
-    {
-        $code = $this->request->request->get('code', '');
-
-        if ($code) {
-            $order = PointOfSaleStorage::getOrder($code);
-
-            $this->printDocumentRaw($order->getDocument());
         }
     }
 
     /**
      * Reprint point of sale document by code.
      */
-    protected function printDraftDocument(bool $raw = false): void
+    protected function printDraftDocument(): void
     {
         $code = $this->request->request->get('code', '');
 
         if (empty($code)) {
             Tools::log('POS')->warning('cant-print-ticket');
-            return;
-        }
-
-        if (true === $raw) {
-            $this->printDocumentRaw(PointOfSaleStorage::getDraftDocument($code));
             return;
         }
 
