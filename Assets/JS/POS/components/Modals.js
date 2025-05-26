@@ -112,7 +112,6 @@ class Modals {
         if (!modal) {
             modal = new ModalElement(modalId);
             this.modalCache[modalId] = modal;
-            //this.currentModal = modal;
         }
 
         // Si ya está abierto, simplemente lo cerramos

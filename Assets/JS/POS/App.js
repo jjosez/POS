@@ -38,16 +38,8 @@ async function orderDeleteAction(data) {
 /**
  * @param {{code:string}} data
  */
-async function orderPrintAction({code, type}) {
-    const data = {
-        code: code,
-        type: type
-    }
-
-    const response = await Order.printOnDesktop(data);
-    MainView.showPrintSelectionModal(response);
-
-    await Core.printerServerRequest(response);
+async function orderPrintAction({code}) {
+    MainView.showPrintSelectionModal({orderID: code});
 }
 
 /**
@@ -61,14 +53,16 @@ async function pausedOrderPrintAction({code}) {
 }
 
 async function printSalesTicketAction(data) {
-    console.log('print selecton data,', data);
     const formData = new FormData();
 
     formData.set('action', 'print-sales-ticket');
     formData.set('code', data.code);
-    formData.set('format', data.format);
+    formData.set('format-action', data.format);
+    formData.set('format-code', data.formatcode);
 
-    await Core.postRequest(formData)
+    const response = await Core.postRequest(formData);
+    Core.printerServerRequest(response);
+
     MainView.togglePrintSelectionModal();
 }
 
@@ -86,17 +80,13 @@ async function orderResumeAction({code}) {
 async function orderSaveAction() {
     if (Cart.lines.length < 1) return;
 
-    const response = await Order.saveRequest(Cart, Checkout.payments).then(
-        response => {
-            MainView.showPrintSelectionModal(response);
-
-            return response;
-        });
+    const response = await Order.saveRequest(Cart, Checkout.payments);
 
     Cart.update(response);
     EventManager.emit('onOrderComplete', response);
+    MainView.showPrintSelectionModal(response);
 
-    await Core.printerServerRequest(response);
+    //await Core.printerServerRequest(response);
 }
 
 async function orderSuspendAction() {

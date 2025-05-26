@@ -147,7 +147,7 @@ class POS extends Controller
                 return false;
 
             case 'print-sales-ticket':
-                $this->setResponse('printing-sales-ticket');
+                $this->printOrderTicket();
                 return false;
 
             case 'print-mobile-paused-ticket':
@@ -463,7 +463,7 @@ class POS extends Controller
         $this->pipe('save', $document, $payments);
         Tools::log('POS')->notice('record-updated-correctly');
 
-        $this->addResponseData(['lastOrderID' => $order->primaryColumnValue()]);
+        $this->addResponseData(['orderID' => $order->primaryColumnValue()]);
 
         ///$this->printDocument($document, $payments);
     }
@@ -504,6 +504,27 @@ class POS extends Controller
             $order = PointOfSaleStorage::getOrder($code);
 
             $this->printDocument($order->getDocument());
+            $this->buildResponse();
+        }
+    }
+
+        /**
+     * Reprint order by code.
+     */
+    protected function printOrderTicket(): void
+    {
+        $code = $this->request->request->get('code', '');
+        $request = $this->request->request;
+
+        if ($code) {
+            $order = PointOfSaleStorage::getOrder($code);
+
+            $result = $this->pipeFalse('printOrderTicket', $order, $request);
+
+
+
+            //$this->printDocument($order->getDocument());
+            //$this->addResponseData($result);
             $this->buildResponse();
         }
     }

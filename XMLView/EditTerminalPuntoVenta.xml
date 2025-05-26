@@ -6,7 +6,7 @@
 
 <view>
     <columns>
-        <group name="data" title="general" numcolumns="12" valign="center">
+        <group name="data" title="general" numcolumns="12" valign="bottom">
             <column name="name" numcolumns="4" order="100">
                 <widget type="text" fieldname="nombre" icon="fas fa-tag" required="true"/>
             </column>
@@ -34,7 +34,7 @@
                 </widget>
             </column>
             <column name="enabled" title="Disponible" numcolumns="3" order="160">
-                <widget type="checkbox" fieldname="disponible" readonly="false"/>
+                <widget type="checkbox" fieldname="disponible" readonly="true"/>
             </column>
         </group>
         <group name="extra" title="other-settings" numcolumns="12" valign="bottom">

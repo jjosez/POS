@@ -15,11 +15,9 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "autoprefixer": "^10.4.0",
-    "postcss": "^8.4.5",
     "tailwindcss": "^4.1.6"
   },
   "dependencies": {
-    "eta": "^3.4.0"
+    "eta": "^3.5.0"
   }
 }

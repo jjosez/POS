@@ -16,14 +16,16 @@
 </div>
 <script id="printSelectionTemplate" type="text/template">
     {% for format in fsc.getSaleTicketFormats() %}
-        <button class="btn btn-block btn-light"
+        <button class="btn btn-block btn-light cursor-pointer"
                 data-action="printSalesTicketAction"
-                data-code="<%= it.data.lastOrderID %>"
-                data-format="{{ format.ticketAction }}">
-            <i class="{{ format.ticketIcon }}"></i> {{ format.ticketTitle }}
+                data-code="<%= it.data.orderID %>"
+                data-format="{{ format.ticketAction }}"
+                data-formatCode="{{ format.ticketFormatCode }}">
+            <i class="fa-fw {{ format.ticketIcon ?? 'fa-solid fa-print' }}"></i><span
+                    class="ml-2">{{ format.ticketTitle }}</span>
         </button>
     {% endfor %}
-    {#<button class="btn btn-block btn-light"
+    {# <button class="btn btn-block btn-light"
             data-action="printOrderAction"
             data-code="<%= it.data.lastOrderID %>"
             data-format="normal">
@@ -46,5 +48,5 @@
             data-code="<%= it.data.lastOrderID %>"
             data-format="pdf">
         <i class="fas fa-envelope fa-fw"></i>PDF
-    </button>#}
+    </button> #}
 </script>

@@ -4,11 +4,12 @@ namespace FacturaScripts\Plugins\POS\Lib;
 
 class PointOfSaleTicketFormat
 {
-    protected const DEFAULT_ICON = 'fas fa-ticket-alt';
+    protected const DEFAULT_ICON = 'fa-solid fa-receipt';
     protected const SALES_TYPE = 'sale';
     protected const CLOSING_TYPE = 'closing';
 
     protected string $ticketAction;
+    protected string $ticketFormatCode;
     protected string $ticketIcon;
     protected string $ticketType;
     protected string $ticketTitle;
@@ -21,11 +22,13 @@ class PointOfSaleTicketFormat
         string $ticketAction,
         string $ticketTitle,
         string $ticketType,
-        string $ticketIcon = self::DEFAULT_ICON,
+        ?string $ticketIcon = self::DEFAULT_ICON,
+        ?string $ticketFormatCode = null,
         ?string $redirectionUrl = null
     )
     {
         $this->ticketAction = $ticketAction;
+        $this->ticketFormatCode = $ticketFormatCode;
         $this->ticketTitle = $ticketTitle;
         $this->ticketType = $ticketType;
         $this->ticketIcon = $ticketIcon;
@@ -44,10 +47,12 @@ class PointOfSaleTicketFormat
     public static function createSalesTicket(
         string $ticketAction,
         string $ticketTitle,
-        string $ticketIcon = self::DEFAULT_ICON
+        ?string $ticketIcon = null,
+        ?string $ticketFormatCode = null,
     ): PointOfSaleTicketFormat
     {
-        return new self($ticketAction, $ticketTitle, self::SALES_TYPE, $ticketIcon);
+        $icon = $ticketIcon ?? self::DEFAULT_ICON;
+        return new self($ticketAction, $ticketTitle, self::SALES_TYPE, $icon, $ticketFormatCode);
     }
 
     /**
@@ -61,10 +66,12 @@ class PointOfSaleTicketFormat
     public static function createClosingTicket(
         string $ticketAction,
         string $ticketTitle,
-        string $ticketIcon = self::DEFAULT_ICON
+        ?string $ticketIcon = null,
+        ?string $ticketFormatCode = null,
     ): PointOfSaleTicketFormat
     {
-        return new self($ticketAction, $ticketTitle, self::CLOSING_TYPE, $ticketIcon);
+        $icon = $ticketIcon ?? self::DEFAULT_ICON;
+        return new self($ticketAction, $ticketTitle, self::CLOSING_TYPE, $icon, $ticketFormatCode);
     }
 
     /**
@@ -105,6 +112,7 @@ class PointOfSaleTicketFormat
     {
         return [
             'ticketAction' => $this->ticketAction,
+            'ticketFormatCode' => $this->ticketFormatCode,
             'ticketIcon' => $this->ticketIcon,
             'ticketType' => $this->ticketType,
             'ticketTitle' => $this->ticketTitle,
