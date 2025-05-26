@@ -9,7 +9,7 @@ class PointOfSaleTicketFormat
     protected const CLOSING_TYPE = 'closing';
 
     protected string $ticketAction;
-    protected string $ticketFormatCode;
+    protected ?string $ticketFormatCode;
     protected string $ticketIcon;
     protected string $ticketType;
     protected string $ticketTitle;
