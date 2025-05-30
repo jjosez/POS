@@ -21,7 +21,7 @@ trait PointOfSaleTrait
     /**
      * @var PointOfSaleSession
      */
-    protected $session;
+    protected PointOfSaleSession $session;
 
     protected array $customMenuElements;
 
@@ -36,7 +36,9 @@ trait PointOfSaleTrait
      */
     protected array $ticketFormats = [];
 
-    protected function addResponseData(array $data = [])
+    protected array $hookActions = [];
+
+    protected function addResponseData(array $data = []): void
     {
         $this->responseData = array_merge($this->responseData, $data);
     }
@@ -78,14 +80,14 @@ trait PointOfSaleTrait
         return $this->customMenuElements[$hook] ?? [];
     }
 
-    public function getSaleTicketFormats()
+    public function getPrintSaleTicketActions(): array
     {
-        return $this->ticketFormats['sale'] ?? [];
+        return $this->hookActions[PointOfSaleHook::OnSaleTicketPrinting->value] ?? [];
     }
 
-    public function getClosingTicketFormats()
+    public function getPrintDraftTicketActions(): array
     {
-        return $this->ticketFormats['closing'] ?? [];
+        return $this->hookActions[PointOfSaleHook::OnDraftTicketPrinting->value] ?? [];
     }
 
     public function getDefaultCustomer(): Cliente
@@ -217,7 +219,7 @@ trait PointOfSaleTrait
      * @param string $hook The hook name to associate with the custom field.
      * @param array $element The custom field data to be added.
      */
-    protected function addCustomDocumentField(string $hook, array $element)
+    protected function addCustomDocumentField(string $hook, array $element): void
     {
         $this->customDocumentFields[$hook][] = $element;
     }
@@ -228,30 +230,17 @@ trait PointOfSaleTrait
      * @param string $hook The hook name to associate with the custom element.
      * @param array $element The custom element data to be added.
      */
-    protected function addCustomMenuElement(string $hook, array $element)
+    protected function addCustomMenuElement(string $hook, array $element): void
     {
         $this->customMenuElements[$hook][] = $element;
     }
 
-
-    /**
-     * Adds a closing ticket format to the available format list.
-     *
-     * @param array $format The format data to be added.
-     */
-    public function addClosingTicketFormat(array $format): void
+    public function addHookAction(string $hook, array $action): void
     {
-        $this->ticketFormats['closing'][] = $format;
-    }
-
-    /**
-     * Adds a closing ticket format to the available format list.
-     *
-     * @param array $format The format data to be added.
-     */
-    public function addSaleTicketFormat(array $format): void
-    {
-        $this->ticketFormats['sale'][] = $format;
+        if (!isset($this->hookActions[$hook])) {
+            $this->hookActions[$hook] = [];
+        }
+        $this->hookActions[$hook][] = $action;
     }
 
     /**
@@ -306,10 +295,9 @@ trait PointOfSaleTrait
         $this->pipe('loadCustomMenuElements');
     }
 
-    protected function loadTicketFormats(): void
+    protected function loadPointOfSaleHooks(): void
     {
-        $this->ticketFormats = ['sale' => [], 'closing' => []];
-        $this->pipe('loadTicketFormats');
+        $this->pipe('loadPointOfSaleHooks');
     }
 
     public function setFamilyFilter(): void

@@ -19,7 +19,7 @@
                     {% set imageUrl =  familia.shorcutImage() %}
                     <div role="listitem"
                          class="{{ bgcolor }} p-2 shadow-xs rounded-lg font-semibold cursor-pointer"
-                         data-action="setProductFamilyAction"
+                         data-action="setFamilyFilterAction"
                          data-code="{{ familia.codfamilia }}"
                          data-madre="{{ familia.madre }}"
                          data-description="{{ familia.descripcion }}"
@@ -39,7 +39,7 @@
     <% it.items.forEach(function(item){ %>
     <div role="listitem"
          class="items-center bg-slate-800 flex flex-row p-2 shadow-xs rounded-lg font-semibold cursor-pointer"
-         data-action="setProductFamilyAction"
+         data-action="setFamilyFilterAction"
          data-code="<%= item.code %>"
          data-description="<%= item.description %>" data-thumbnail="<%= item.thumbnail %>">
         <% if(item.thumbnail) { %>
@@ -48,7 +48,7 @@
         <% } %>
         <p class="text-sm text-center p-2 text-white"><%= item.description %></p>
         <button class="h-8 w-8 text-xs btn btn-icon btn-danger"
-                data-action="setProductFamilyAction"
+                data-action="setFamilyFilterAction"
                 data-code="<%= item.code %>">
             <i class="fas fa-trash-alt"></i>
         </button>

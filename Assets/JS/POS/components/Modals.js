@@ -59,7 +59,7 @@ let modals = {
     lastOrders: new ModalElement('lastOrdersModal'),
 
     paymentDetail: new ModalElement('paymentModal'),
-    printModal: new ModalElement('printModal'),
+    contextActionModal: new ModalElement('contextActionModal'),
 
     productEditModal: new ModalElement('productEditModal'),
     productImages: new ModalElement('productImagesModal'),
@@ -140,7 +140,7 @@ class Modals {
     pausedOrdersModal = () => this.modalCache['holdOrders'];
     stockDetailModal = () => this.modalCache['productStockDetail'];
     paymentModal = () => this.modalCache['paymentDetail'];
-    printModal = () => this.modalCache['printModal'];
+    contextActionModal = () => this.modalCache['contextActionModal'];
     productEditModal = () => this.modalCache['productEditModal'];
     productImagesModal = () => this.modalCache['productImages'];
     productQuantityEditModal = () => this.modalCache['productQuantityEdit'];

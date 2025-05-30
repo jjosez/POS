@@ -10,7 +10,6 @@ use Exception;
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\KernelException;
-use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
@@ -58,9 +57,6 @@ class POS extends Controller
             return;
         }
 
-        //$sessionID = PointOfSaleSession::getSession();
-        //$sessionTerminal = PointOfSaleSession::getTerminal();
-
         $this->session = new PointOfSaleSession($user);
 
         if ($action && false === $this->execAction($action)) {
@@ -71,7 +67,7 @@ class POS extends Controller
 
         $this->loadCustomDocumentFields();
         $this->loadCustomMenuElements();
-        $this->loadTicketFormats();
+        $this->loadPointOfSaleHooks();
 
         $template = $this->session->getView();
         $this->setTemplate($template);
@@ -125,7 +121,7 @@ class POS extends Controller
                 $this->setResponse($result);
                 return false;
 
-            case 'print-closing-voucher':
+            case 'print-closing-ticket':
                 $this->printCashRegisterClosing();
                 $this->buildResponse();
                 return false;
@@ -134,12 +130,8 @@ class POS extends Controller
                 $this->setFamilyFilter();
                 return false;
 
-            case 'print-desktop-ticket':
-                $this->printOrder();
-                return false;
-
-            case 'print-paused-order':
-                $this->printDraftDocument();
+            case 'print-draft-ticket':
+                $this->printDraftTicket();
                 return false;
 
             case 'print-sales-ticket':
@@ -172,7 +164,7 @@ class POS extends Controller
     }
 
     /**
-     * Execute Cart espefic actions.
+     * Execute Cart specific actions.
      *
      * @param string $action
      * @return bool
@@ -225,7 +217,7 @@ class POS extends Controller
     }
 
     /**
-     * Remove paused order from list.
+     * Remove paused order from a list.
      */
     protected function deleteDraftOrder(): void
     {
@@ -381,7 +373,7 @@ class POS extends Controller
     }
 
     /**
-     * Put order on hold.
+     * Put the order on hold.
      *
      * @return void
      */
@@ -462,45 +454,10 @@ class POS extends Controller
 
     protected function printCashRegisterClosing(): void
     {
-        $this->addResponseData(
-            PointOfSalePrinter::printClosingVoucher($this->session->getSession(),
-                $this->empresa,
-                $this->getVoucherFormat())
-        );
-    }
-
-    protected function printDocument(SalesDocument $document, array $payments = []): void
-    {
-        $this->addResponseData(
-            PointOfSalePrinter::printSaleVoucher($document, $payments, $this->getVoucherFormat())
-        );
-
-        //$this->pipe('PrintVoucherPOS', $document, $payments);
-    }
-
-    protected function printDocumentRaw(SalesDocument $document, array $payments = []): void
-    {
-        $this->setResponse(
-            PointOfSalePrinter::printRawRequest($document, $payments, $this->getVoucherFormat()), false
-        );
+        $this->pipeFalse('printCashRegisterTicket', $this->session->getSession(), $this->empresa);
     }
 
     /**
-     * Reprint order by code.
-     */
-    protected function printOrder(): void
-    {
-        $code = $this->request->request->get('code', '');
-
-        if ($code) {
-            $order = PointOfSaleStorage::getOrder($code);
-
-            $this->printDocument($order->getDocument());
-            $this->buildResponse();
-        }
-    }
-
-        /**
      * Reprint order by code.
      */
     protected function printOrderTicket(): void
@@ -511,8 +468,7 @@ class POS extends Controller
         if ($code) {
             $order = PointOfSaleStorage::getOrder($code);
 
-            $this->pipeFalse('printOrderTicket', $order, $request);
-
+            $this->pipeFalse('printOrderTicket', $order->getDocument(), $order->getPayments(), $request);
             $this->buildResponse();
         }
     }
@@ -520,16 +476,19 @@ class POS extends Controller
     /**
      * Reprint point of sale document by code.
      */
-    protected function printDraftDocument(): void
+    protected function printDraftTicket(): void
     {
         $code = $this->request->request->get('code', '');
+        $request = $this->request->request;
 
         if (empty($code)) {
             Tools::log('POS')->warning('cant-print-ticket');
             return;
         }
 
-        $this->printDocument(PointOfSaleStorage::getDraftDocument($code));
+        $document = PointOfSaleStorage::getDraftDocument($code);
+
+        $this->pipeFalse('printOrderTicket', $document, [], $request);
         $this->buildResponse();
     }
 

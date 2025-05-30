@@ -13,7 +13,8 @@ const templates = {
     messageListTemplate: document.getElementById('messageListTemplate').innerHTML,
     draftOrderListTemplate: document.getElementById('draftOrderListTemplate').innerHTML,
     paymentListTemplate: document.getElementById('paymentListTemplate').innerHTML,
-    printSelectionTemplate: document.getElementById('printSelectionTemplate').innerHTML,
+    printOrderActionTemplate: document.getElementById('printOrderActionTemplate').innerHTML,
+    printDraftActionTemplate: document.getElementById('printDraftActionTemplate').innerHTML,
     productFamilyListTemplate: document.getElementById('productFamilyListTemplate').innerHTML,
     productImageListTemplate: document.getElementById('productImageListTemplate').innerHTML,
     productSearchListTemplate: document.getElementById('productSearchListTemplate').innerHTML,
@@ -62,7 +63,8 @@ class Templates {
     renderLastOrderListView = (data) => this.render('lastOrdersListTemplate', data);
     renderPaymentListView = (data) => this.render('paymentListTemplate', data);
     renderDraftOrderListView = (data) => this.render('draftOrderListTemplate', data);
-    renderPrintSelectionView = (data) => this.render('printSelectionTemplate', data);
+    renderContextActionView = (data) => this.render('contextActionTemplate', data);
+    renderPrintContextActionView = (template, data) => this.render(template, data, document.getElementById('contextActionTemplateView'));
     renderProductFamilyListView = (data) => this.render('productFamilyListTemplate', data);
     renderProductImageListView = (data) => this.render('productImageListTemplate', data);
     renderProductSearchListView = (data) => this.render('productSearchListTemplate', data);

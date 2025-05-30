@@ -4,7 +4,6 @@
  */
 
 import Templates from "./components/Templates.js";
-import * as View from "./View.js";
 
 export function reloadApp() {
     if (window.history.replaceState) {
@@ -80,10 +79,10 @@ export async function postRequestCore(data) {
     return Promise.resolve({});
 }
 
-export function printClosingVoucher() {
+export function printClosingTicket() {
     const data = new FormData();
 
-    data.set('action', 'print-closing-voucher');
+    data.set('action', 'print-closing-ticket');
 
     return postRequest(data);
 }
@@ -218,8 +217,7 @@ function cleanMessages() {
     setTimeout(() => {
         const child = container.firstChild;
 
-        if (child && child.nodeType)
-        {
+        if (child && child.nodeType) {
             container.removeChild(container.firstChild);
         }
 
@@ -233,4 +231,35 @@ function cleanMessages() {
  */
 function requestErrorHandler(error) {
     throw new Error(`An error has occured: ${error}`);
+}
+
+export function parseParams(paramsJson) {
+    if (!paramsJson || typeof paramsJson !== 'string') {
+        return {};
+    }
+
+    try {
+        const parsed = JSON.parse(paramsJson);
+        return (parsed && typeof parsed === 'object') ? parsed : {};
+    } catch (err) {
+        console.warn('invalid data-params:', paramsJson, err);
+        return {};
+    }
+}
+
+export function openLinkAction(controllerUrl, actionParams, target = '_blank') {
+    const urlBase = controllerUrl;
+    const params = parseParams(actionParams);
+
+    /*if (!urlBase || !/^https?:\/\//.test(urlBase)) {
+        console.warn("URL inválida o ausente en data-url:", urlBase);
+        return;
+    }*/
+
+    const searchParams = new URLSearchParams(params).toString();
+    const url = searchParams
+        ? urlBase + (urlBase.includes('?') ? '&' : '?') + searchParams
+        : urlBase;
+
+    window.open(url, target);
 }

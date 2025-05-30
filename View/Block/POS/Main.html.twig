@@ -33,7 +33,7 @@
     {{ include('Modal/POS/LastOrders.html.twig') }}
     {{ include('Modal/POS/LoadingDialog.html.twig') }}
     {{ include('Modal/POS/PausedOrders.html.twig') }}
-    {{ include('Modal/POS/PrintDialog.html.twig') }}
+    {{ include('Modal/POS/ContextAction.html.twig') }}
     {{ include('Modal/POS/ProductEdit.html.twig') }}
     {{ include('Modal/POS/ProductQuantity.html.twig') }}
     {{ include('Modal/POS/ProductFilter.html.twig') }}
@@ -82,9 +82,7 @@
                 'codpago': '{{ fsc.getCashPaymentMethod() }}'
             },
             'terminal': '{{ fsc.getTerminal().idterminal }}',
-            'supported-documents': {{ (terminal.getSupportedDocuments()|json_encode|raw) }},
-            'sales-ticket-format': {{ (fsc.getSaleTicketFormats()|json_encode|raw) }},
-            'closing-ticket-format': {{ (fsc.getClosingTicketFormats()|json_encode|raw) }},
+            'supported-documents': {{ (terminal.getSupportedDocuments()|json_encode|raw) }}
         }
 
         window.POS = {

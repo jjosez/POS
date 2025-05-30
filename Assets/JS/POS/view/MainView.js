@@ -72,7 +72,21 @@ class MainView {
         this.togglePrintSelectionModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
-        Templates.renderPrintSelectionView({data: data});
+        Templates.renderContextActionView({data: data});
+    };
+
+    showPrintDraftSelectionModal = data => {
+        this.togglePrintSelectionModal();
+
+        data = Core.isObjectEmpty(data) ? [] : data;
+        Templates.renderPrintContextActionView( 'printDraftActionTemplate',{data: data});
+    };
+
+    showPrintOrderSelectionModal = data => {
+        this.togglePrintSelectionModal();
+
+        data = Core.isObjectEmpty(data) ? [] : data;
+        Templates.renderPrintContextActionView('printOrderActionTemplate', {data: data});
     };
 
     showProductImagesModal = data => {
@@ -101,7 +115,7 @@ class MainView {
 
     toggleProductStockDetailModal = () => Modals.toggleModal('stockDetailModal');
 
-    togglePrintSelectionModal = () => Modals.toggleModal('printModal');
+    togglePrintSelectionModal = () => Modals.toggleModal('contextActionModal');
 }
 
 const updateDocumentFieldValue = (data = {}, element) => {

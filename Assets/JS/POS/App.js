@@ -38,27 +38,58 @@ async function orderDeleteAction(data) {
 /**
  * @param {{code:string}} data
  */
-async function orderPrintAction({code}) {
-    MainView.showPrintSelectionModal({orderID: code});
+async function printOrderContextAction({code}) {
+    MainView.showPrintOrderSelectionModal({code: code});
 }
 
 /**
  * @param {{code:string}} data
  */
-async function pausedOrderPrintAction({code}) {
-    const response = await Order.printPausedOrderRequest(code);
-    MainView.toggleDraftOrdersModal();
-
-    await Core.printerServerRequest(response);
+async function printDraftContextAction({code}) {
+    MainView.showPrintDraftSelectionModal({code: code});
 }
 
-async function printSalesTicketAction(data) {
+/**
+ * @param {{}} data
+ */
+async function printDraftTicketAction(data) {
+    if (data.type === 'link') {
+        Core.openLinkAction(data.controller, data.params);
+        return;
+    }
+
+    const formData = new FormData();
+
+    formData.set('action', 'print-draft-ticket');
+    formData.set('code', data.code);
+    formData.set('action-name', data.name);
+
+    let params = JSON.parse(data.params)
+    formData.set('action-params', JSON.stringify(params));
+
+    const response = await Core.postRequest(formData);
+    Core.printerServerRequest(response);
+
+    MainView.togglePrintSelectionModal();
+}
+
+/**
+ * @param {{}} data
+ */
+async function printOrderTicketAction(data) {
+    if (data.type === 'link') {
+        Core.openLinkAction(data.controller, data.params);
+        return;
+    }
+
     const formData = new FormData();
 
     formData.set('action', 'print-sales-ticket');
     formData.set('code', data.code);
-    formData.set('format-action', data.format);
-    formData.set('format-code', data.formatcode);
+    formData.set('action-name', data.name);
+
+    let params = JSON.parse(data.params)
+    formData.set('action-params', JSON.stringify(params));
 
     const response = await Core.postRequest(formData);
     Core.printerServerRequest(response);
@@ -84,9 +115,7 @@ async function orderSaveAction() {
 
     Cart.update(response);
     EventManager.emit('onOrderComplete', response);
-    MainView.showPrintSelectionModal(response);
-
-    //await Core.printerServerRequest(response);
+    MainView.showPrintOrderSelectionModal({code: response.orderID});
 }
 
 async function orderSuspendAction() {
@@ -138,11 +167,15 @@ async function sessionCloseAction() {
     Core.reloadApp();
 }
 
-async function sessionPrintClosingVoucherAction() {
-    const response = await Core.printClosingVoucher();
-    await Core.printerServerRequest(response);
+async function printClosingTicketAction() {
+    MainView.toggleLoadingModal();
 
-    MainView.toggleCloseSessionModal();
+    try {
+        const response = await Core.printClosingTicket();
+        await Core.printerServerRequest(response);
+    } finally {
+        MainView.toggleLoadingModal();
+    }
 }
 
 async function setFamilyFilterAction({code, description, thumbnail}) {
@@ -192,26 +225,29 @@ async function appEventHandler(event) {
         case 'closeSessionAction':
             return sessionCloseAction();
 
-        case 'deleteOrderAction':
+        case 'orderDeleteAction':
             return orderDeleteAction(data);
 
-        case 'holdOrderAction':
+        case 'orderSuspendAction':
             return orderSuspendAction();
 
-        case 'resumeOrderAction':
+        case 'orderResumeAction':
             return orderResumeAction(data);
 
-        case 'printOrderAction':
-            return orderPrintAction(data);
+        case 'printOrderContextAction':
+            return printOrderContextAction(data);
 
-        case 'printPausedOrderAction':
-            return pausedOrderPrintAction(data);
+        case 'printDraftContextAction':
+            return printDraftContextAction(data);
 
-        case 'printClosingVoucher':
-            return sessionPrintClosingVoucherAction(data);
+        case 'printClosingTicketAction':
+            return printClosingTicketAction(data);
 
-        case 'printSalesTicketAction':
-            return printSalesTicketAction(data);
+        case 'printOrderTicketAction':
+            return printOrderTicketAction(data);
+
+        case 'printDraftTicketAction':
+            return printDraftTicketAction(data);
 
         case 'productImageAction':
             return showProductImagesAction(data);
@@ -219,7 +255,7 @@ async function appEventHandler(event) {
         case 'saveCustomerAction':
             return saveCustomerAction();
 
-        case 'saveOrderAction':
+        case 'orderSaveAction':
             return orderSaveAction();
 
         case 'stockDetailAction':
@@ -228,13 +264,13 @@ async function appEventHandler(event) {
         case 'setProductFilter':
             return console.log('FiltroProducto');
 
-        case 'setProductFamilyAction':
+        case 'setFamilyFilterAction':
             return setFamilyFilterAction(data);
 
         case 'showPausedOrders':
             return showPausedOrdersAction();
 
-        case 'showLastOrders':
+        case 'showLastOrdersAction':
             return showLastOrdersAction();
     }
 }
