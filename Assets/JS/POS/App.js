@@ -38,15 +38,15 @@ async function orderDeleteAction(data) {
 /**
  * @param {{code:string}} data
  */
-async function printOrderContextAction({code}) {
-    MainView.showPrintOrderSelectionModal({code: code});
+async function printOrderContextAction({code, model, order}) {
+    MainView.showPrintOrderSelectionModal({document_code: code, document_model: model, document_order: order});
 }
 
 /**
  * @param {{code:string}} data
  */
-async function printDraftContextAction({code}) {
-    MainView.showPrintDraftSelectionModal({code: code});
+async function printDraftContextAction({code, model, order}) {
+    MainView.showPrintDraftSelectionModal({code: code, document: model, order: order});
 }
 
 /**
@@ -66,6 +66,7 @@ async function printDraftTicketAction(data) {
 
     let params = JSON.parse(data.params)
     formData.set('action-params', JSON.stringify(params));
+    formData.set('document', data.document);
 
     const response = await Core.postRequest(formData);
     Core.printerServerRequest(response);
@@ -83,13 +84,14 @@ async function printOrderTicketAction(data) {
     }
 
     const formData = new FormData();
+    let params = JSON.parse(data.params)
 
     formData.set('action', 'print-sales-ticket');
-    formData.set('code', data.code);
-    formData.set('action-name', data.name);
-
-    let params = JSON.parse(data.params)
-    formData.set('action-params', JSON.stringify(params));
+    formData.set('hook-action', data.name);
+    formData.set('hook-params', JSON.stringify(params));
+    formData.set('document-code', data.code);
+    formData.set('document-model', data.document);
+    formData.set('document-order', data.order);
 
     const response = await Core.postRequest(formData);
     Core.printerServerRequest(response);
@@ -115,7 +117,7 @@ async function orderSaveAction() {
 
     Cart.update(response);
     EventManager.emit('onOrderComplete', response);
-    MainView.showPrintOrderSelectionModal({code: response.orderID});
+    MainView.showPrintOrderSelectionModal(response);
 }
 
 async function orderSuspendAction() {
@@ -238,7 +240,7 @@ async function appEventHandler(event) {
             return printOrderContextAction(data);
 
         case 'printDraftContextAction':
-            return printDraftContextAction(data);
+            return printOrderContextAction(data);
 
         case 'printClosingTicketAction':
             return printClosingTicketAction(data);

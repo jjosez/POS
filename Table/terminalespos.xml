@@ -63,7 +63,7 @@
         <name>nombre</name>
         <type>character varying(100)</type>
         <null>NO</null>
-    </column>    
+    </column>
     <column>
         <name>numerotickets</name>
         <type>integer</type>
@@ -86,7 +86,7 @@
         <name>ca_terminalespos_cliente</name>
         <type>FOREIGN KEY (codcliente) REFERENCES clientes (codcliente) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
-     <constraint>
+    <constraint>
         <name>ca_terminalespos_empresa</name>
         <type>FOREIGN KEY (idempresa) REFERENCES empresas (idempresa) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>

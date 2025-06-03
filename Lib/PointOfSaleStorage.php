@@ -5,6 +5,7 @@ namespace FacturaScripts\Plugins\POS\Lib;
 use Exception;
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Session;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\BorradorPuntoVenta;
 use FacturaScripts\Dinamic\Model\MovimientoPuntoVenta;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
@@ -41,14 +42,6 @@ class PointOfSaleStorage
         return false;
     }
 
-    public static function getOrder(string $code): OrdenPuntoVenta
-    {
-        $order = new OrdenPuntoVenta();
-        $order->loadFromCode($code);
-
-        return $order;
-    }
-
     /**
      * @param string $code
      * @return BorradorPuntoVenta
@@ -75,6 +68,27 @@ class PointOfSaleStorage
         return BorradorPuntoVenta::allOpened($sessionID);
     }
 
+    public static function getOrder(string $code): OrdenPuntoVenta
+    {
+        $order = new OrdenPuntoVenta();
+        $order->loadFromCode($code);
+
+        return $order;
+    }
+
+    public static function getOrderFromDocument(string $modelClass, string $code): OrdenPuntoVenta
+    {
+        $order = new OrdenPuntoVenta();
+
+        Tools::log('POS')->debug('get-order-from-document' . $modelClass . ' ' . $code);
+        if (false ===$order->loadFromDocument($modelClass, $code))
+        {
+            Tools::log('POS')->warning('order-not-found');
+        }
+
+        return $order;
+    }
+
     public static function getOrders(string $sessionID = ''): array
     {
         if ('' !== $sessionID) {
@@ -87,7 +101,8 @@ class PointOfSaleStorage
     public static function saveOrder(
         OrdenPuntoVenta $order,
         SalesDocument $document
-    ): bool {
+    ): bool
+    {
         $order->codigo = $document->codigo;
         $order->codcliente = $document->codcliente;
         $order->fecha = $document->fecha;
@@ -102,7 +117,8 @@ class PointOfSaleStorage
     public static function saveCashMovment(
         float $amount,
         string $description
-    ): bool {
+    ): bool
+    {
         $sessionID = PointOfSaleSession::getSessionID();
         $session = PointOfSaleSession::getSessionModel();
         $nick = Session::user()->nick;
