@@ -82,7 +82,10 @@ trait PointOfSaleTrait
 
     public function getPrintSaleTicketActions(): array
     {
-        return $this->hookActions[PointOfSaleHook::OnSaleTicketPrinting->value] ?? [];
+        if (isset($this->hookActions[PointOfSaleHook::OnSaleTicketPrinting->value]))
+            return $this->hookActions[PointOfSaleHook::OnSaleTicketPrinting->value];
+
+        return [PointOfSaleHook::OnSaleTicketPrinting->value => []];
     }
 
     public function getPrintDraftTicketActions(): array

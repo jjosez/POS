@@ -4,6 +4,7 @@
  */
 import * as Core from './Core.js';
 import * as Order from "./Order.js";
+import * as View from "./View.js";
 import MainView from "./view/MainView.js";
 import CartView from "./view/CartView.js";
 import Cart from "./modules/Cart.js"
