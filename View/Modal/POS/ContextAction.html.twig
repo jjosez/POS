@@ -18,7 +18,9 @@
     {% for action in fsc.getPrintSaleTicketActions() %}
         <button class="btn btn-block btn-light cursor-pointer"
                 data-action="printOrderTicketAction"
-                data-code="<%= it.data.code %>"
+                data-code="<%= it.data.document_code %>"
+                data-document="<%= it.data.document_model %>"
+                data-order="<%= it.data.document_order %>"
                 data-name="{{ action.actionName }}"
                 data-params='{{ action.params }}'
                 data-controller='{{ asset(action.actionController) }}'
@@ -31,7 +33,9 @@
     {% for action in fsc.getPrintDraftTicketActions() %}
         <button class="btn btn-block btn-light cursor-pointer"
                 data-action="printDraftTicketAction"
-                data-code="<%= it.data.code %>"
+                data-code="<%= it.data.document_code %>"
+                data-document="<%= it.data.document_model %>"
+                data-order="<%= it.data.document_order %>"
                 data-name="{{ action.actionName }}"
                 data-params='{{ action.params }}'
                 data-controller='{{ asset(action.actionController) }}'

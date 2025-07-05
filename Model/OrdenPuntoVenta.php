@@ -81,15 +81,15 @@ class OrdenPuntoVenta extends Base\ModelClass
     }
 
     /**
-     * @param string $doctype
+     * @param string $modelClass
      * @param string $code
      * @return bool
      */
-    public function loadFromDocument(string $doctype, string $code): bool
+    public function loadFromDocument(string $modelClass, string $code): bool
     {
         $where = [
             new DataBaseWhere('iddocumento', $code),
-            new DataBaseWhere('tipodoc', $doctype)
+            new DataBaseWhere('tipodoc', $modelClass)
         ];
 
         return $this->loadFromCode('', $where);

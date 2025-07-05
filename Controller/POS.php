@@ -14,7 +14,6 @@ use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleCustomer;
-use FacturaScripts\Plugins\POS\Lib\PointOfSalePrinter;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleProduct;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleRequest;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleSession;
@@ -447,7 +446,17 @@ class POS extends Controller
         $this->pipe('save', $document, $payments);
         Tools::log('POS')->notice('record-updated-correctly');
 
-        $this->addResponseData(['orderID' => $order->primaryColumnValue()]);
+        $this->addResponseData([
+            'document_code' => $document->primaryColumnValue(),
+            'document_model' => $document->modelClassName(),
+            'document_order' => $order->primaryColumnValue()
+        ]);
+
+        /*$this->addResponseData([
+            'code' => $document->primaryColumnValue(),
+            'model' => $document->modelClassName(),
+            'order' => $order->primaryColumnValue()
+        ]);*/
 
         ///$this->printDocument($document, $payments);
     }
@@ -462,15 +471,26 @@ class POS extends Controller
      */
     protected function printOrderTicket(): void
     {
-        $code = $this->request->request->get('code', '');
+        $documentCode = $this->request->request->get('document-code', '');
+        $documentModel = $this->request->request->get('document-model', '');
+        $documentOrder = $this->request->request->get('document-order', '');
         $request = $this->request->request;
 
-        if ($code) {
-            $order = PointOfSaleStorage::getOrder($code);
-
-            $this->pipeFalse('printOrderTicket', $order->getDocument(), $order->getPayments(), $request);
-            $this->buildResponse();
+        if ($documentModel === self::DRAFT_POS_DOCUMENT) {
+            $document = PointOfSaleStorage::getDraftDocument($documentCode);
+            $payments = [];
+        } else if ($documentOrder) {
+            $order = PointOfSaleStorage::getOrder($documentOrder);
+            $document = $order->getDocument();
+            $payments = $order->getPayments();
+        } else {
+            $order = PointOfSaleStorage::getOrderFromDocument($documentModel, $documentCode);
+            $document = $order->getDocument();
+            $payments = $order->getPayments();
         }
+
+        $this->pipeFalse('printOrderTicket', $document, $payments, $request);
+        $this->buildResponse();
     }
 
     /**
