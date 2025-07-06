@@ -10,6 +10,8 @@ class TemplateManager {
 
         this.templates = templateMap; // Plantillas cargadas (nombre → HTML)
         this.viewCache = {};          // Cache de nodos DOM (nombre → elemento)
+
+        this.preloadTemplatesFromDOM();
     }
 
     /**

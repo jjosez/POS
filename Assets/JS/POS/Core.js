@@ -3,7 +3,7 @@
  * Copyright (C) Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 
-import Templates from "./components/Templates.js";
+import templates from "./views/TemplateManger.js";
 
 export function reloadApp() {
     if (window.history.replaceState) {
@@ -201,8 +201,9 @@ export function searchRequest(action, query, filters = {}) {
  */
 function showMessages(response) {
     if (null == response.messages) return;
+    
+    templates.render('messageListTemplate', response, 'messageListTemplateView');
 
-    Templates.renderMessageListView(response);
     cleanMessages();
 }
 

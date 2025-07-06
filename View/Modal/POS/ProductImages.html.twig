@@ -13,15 +13,15 @@
     </div>
 </div>
 <script id="productImageListTemplate" type="text/template">
-    <% if(it.items.length === 0) { %>
+    <% if(images.length === 0) { %>
     <tr>
         <td colspan="20" class="p-4">No se encontraron imagenes</td>
     </tr>
     <% } %>
     <div class="divide-y-4 divide-dotted">
-        <% it.items.forEach(function(item){ %>
+        <% images.forEach(function(image){ %>
         <div class="flex-1">
-            <img class="mx-auto py-2" src="<%= item %>" alt="Imagen Producto">
+            <img class="mx-auto py-2" src="<%= image %>" alt="Imagen Producto">
         </div>
         <% }) %>
     </div>

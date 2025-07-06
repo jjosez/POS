@@ -45,12 +45,12 @@
     </div>
 </div>
 <script id="lastOrdersListTemplate" type="text/template">
-    <% if(it.items.length === 0) { %>
+    <% if(orders.length === 0) { %>
     <div class="flex flex-1 rounded-lg bg-blue-100 p-2 shadow-xs md:flex-row">
         <span>{{ trans('no-data') }}</span>
     </div>
     <% } %>
-    <% it.items.forEach(function(order){ %>
+    <% orders.forEach(function(order){ %>
     <div class="mb-4 flex cursor-pointer flex-col rounded-lg bg-slate-100 p-2 shadow-sm md:flex-row
     <% if (order.dtomecanico) { %>table-row-red<% } else { %>hover:bg-yellow-100<% } %>">
         <div class="flex flex-1 flex-col items-center md:flex-row">

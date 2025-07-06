@@ -8,9 +8,10 @@ import * as View from "./View.js";
 import MainView from "./view/MainView.js";
 import CartView from "./view/CartView.js";
 import Cart from "./modules/Cart.js"
-import Checkout from "./modules/Checkout.js";
 import EventManager from "./components/EventManager.js";
+import AppEventManager from "./core/EventManager.js";
 import FilterClass from "./model/FilterClass.js";
+import {getCheckoutState, initCheckoutController} from "./controllers/checkoutController.js";
 
 const SearchFilter = new FilterClass({
     'families': [],
@@ -88,8 +89,8 @@ async function printOrderTicketAction(data) {
     let params = JSON.parse(data.params)
 
     formData.set('action', 'print-sales-ticket');
-    formData.set('hook-action', data.name);
-    formData.set('hook-params', JSON.stringify(params));
+    formData.set('action-name', data.name);
+    formData.set('action-params', JSON.stringify(params));
     formData.set('document-code', data.code);
     formData.set('document-model', data.document);
     formData.set('document-order', data.order);
@@ -114,11 +115,20 @@ async function orderResumeAction({code}) {
 async function orderSaveAction() {
     if (Cart.lines.length < 1) return;
 
-    const response = await Order.saveRequest(Cart, Checkout.payments);
+    const response = await Order.saveRequest(Cart, getCheckoutState().payments);
+
+    if (!response || response.success === false) {
+        //console.warn('❌ Pedido no guardado correctamente');
+        //return;
+    }
 
     Cart.update(response);
     EventManager.emit('onOrderComplete', response);
-    MainView.showPrintOrderSelectionModal(response);
+    AppEventManager.emit('onOrderComplete', response);
+
+    if (response?.document_code) {
+        MainView.showPrintOrderSelectionModal(response);
+    }
 }
 
 async function orderSuspendAction() {
@@ -241,7 +251,7 @@ async function appEventHandler(event) {
             return printOrderContextAction(data);
 
         case 'printDraftContextAction':
-            return printOrderContextAction(data);
+            return printDraftContextAction(data);
 
         case 'printClosingTicketAction':
             return printClosingTicketAction(data);
@@ -290,3 +300,4 @@ document.addEventListener("DOMContentLoaded", () => {
 CartView.customerSearchBox().addEventListener('keyup', searchCustomerAction);
 MainView.productSearchBox().addEventListener('keyup', searchProductAction);
 document.addEventListener('click', appEventHandler);
+initCheckoutController();

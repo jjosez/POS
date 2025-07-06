@@ -79,8 +79,8 @@ function checkoutEventHandler(event) {
     // Mapeo de acciones a funciones
     const actionMap = {
         'deletePaymentAction': paymentDeleteAction,
-        'recalculatePaymentAction': paymentRecalculateAction,
-        'setPaymentAction': paymentSetAction,
+        //'recalculatePaymentAction': paymentRecalculateAction,
+        //'setPaymentAction': paymentSetAction,
         'showPaymentModalAction': showPaymentModalAction,
     };
 

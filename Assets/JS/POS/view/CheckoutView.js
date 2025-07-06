@@ -4,7 +4,7 @@
  */
 
 import Modals from "../components/Modals.js";
-import Templates from "../components/Templates.js";
+import templates from "../views/TemplateManger.js";
 
 const viewElements = {
     'confirmOrderButton': document.getElementById('orderSaveButton'),
@@ -40,7 +40,7 @@ class CheckoutView {
         this.tenderedAmountLabel().textContent = data.getPaymentsTotal();
         this.changeAmountLabel().textContent = data.change;
 
-        Templates.renderPaymentListView(data);
+        templates.render('paymentListTemplate', data, 'paymentListTemplateView');
 
         this.enableConfirmButton(data.change >= 0 && data.total !== 0);
     };

@@ -51,8 +51,7 @@
                 <i class="fa fa-arrow-alt-circle-left"></i>
                 <span class="mx-2 text-center">{{ trans('cancel') }}</span>
             </button>
-            <button id="orderSaveButton" class="btn btn-success ml-auto" data-action="orderSaveAction"
-                    data-toggle="modal" data-target="checkoutModal" disabled>
+            <button id="orderSaveButton" class="btn btn-success ml-auto" data-action="orderSaveAction" disabled>
                 <span class="mx-2 text-center">{{ trans('confirm') }}</span>
                 <i class="fa fa-arrow-alt-circle-right"></i>
             </button>
@@ -60,7 +59,7 @@
     </div>
 </div>
 <script id="paymentListTemplate" type="text/template">
-    <% it.payments.forEach(function(value, index) { %>
+    <% payments.forEach(function(value, index) { %>
     <div class="my-4 flex rounded-lg bg-slate-100 p-4 shadow-sm">
         <div class="mr-4 flex items-center">
             <span class="bg-slate-gray-200"><i class="fas fa-1x fa-plus-circle"></i></span>

@@ -1,5 +1,6 @@
 import * as Money from "./../Money.js";
 import eventManager from "../components/EventManager.js";
+import AppEventManager from "../core/EventManager.js";
 
 class CartModel {
     constructor({doc, token} = {}) {
@@ -100,10 +101,12 @@ class CartModel {
 
     cartUpdateEvent() {
         eventManager.emit('onCartUpdate', this);
+        AppEventManager.emit('onCartUpdate', this);
     }
 
     cartChangeEvent() {
         eventManager.emit('onCartChange', this);
+        AppEventManager.emit('onCartChange', this);
     }
 }
 

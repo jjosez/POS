@@ -90,7 +90,10 @@ trait PointOfSaleTrait
 
     public function getPrintDraftTicketActions(): array
     {
-        return $this->hookActions[PointOfSaleHook::OnDraftTicketPrinting->value] ?? [];
+        if (isset($this->hookActions[PointOfSaleHook::OnDraftTicketPrinting->value]))
+            return $this->hookActions[PointOfSaleHook::OnDraftTicketPrinting->value];
+
+        return [PointOfSaleHook::OnDraftTicketPrinting->value => []];
     }
 
     public function getDefaultCustomer(): Cliente

@@ -39,12 +39,12 @@
     </div>
 </div>
 <script id="draftOrderListTemplate" type="text/template">
-    <% if(it.items.length === 0) { %>
+    <% if(orders.length === 0) { %>
     <div class="flex flex-1 rounded-lg bg-blue-100 p-2 shadow-xs md:flex-row">
         <span>{{ trans('no-data') }}</span>
     </div>
     <% } %>
-    <% it.items.forEach(function(order){ %>
+    <% orders.forEach(function(order){ %>
     <div class="mb-4 flex flex-col rounded-lg bg-<%= order.rowcolor %>-100 p-2 shadow-sm
                 hover:bg-<%= order.rowcolor %>-200 md:flex-row">
         <div role="listitem" class="flex-1 flex-col self-center"

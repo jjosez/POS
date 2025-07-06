@@ -50,12 +50,12 @@
     </div>
 </div>
 <script id="customerListTemplate" type="text/template">
-    <% if(it.items.length === 0) { %>
+    <% if(customers.length === 0) { %>
     <tr>
         <td colspan="20" class="p-4">No se encontraron clientes</td>
     </tr>
     <% } %>
-    <% it.items.forEach(function(customer){ %>
+    <% customers.forEach(function(customer){ %>
     <tr class="cursor-pointer bg-blue-100 hover:bg-blue-500 hover:text-white">
         <td class="p-4 font-medium add-customer-btn" data-action="setCustomerAction"
             data-code="<%= customer.code %>" data-description="<%= customer.description %>">

@@ -5,7 +5,7 @@
 
 import EventManager from "../components/EventManager.js";
 import Modals from "../components/Modals.js";
-import Templates from "../components/Templates.js";
+import templateEngine from "../views/TemplateManger.js";
 import * as Core from "../Core.js";
 import * as Money from "../Money.js";
 
@@ -31,19 +31,18 @@ class MainView {
     productSearchBox = () => viewElements['productSearchBox'];
     newCustomerSaveButton = () => viewElements['newCustomerSaveButton'];
     updateCustomerListView = (data = []) => {
-        Templates.renderCustomerListView({items: data});
+        templateEngine.render(
+            'customerListTemplate',
+            {customers: data},
+            'customerListTemplateView'
+        );
     };
-    updateLastOrdersList = (data = []) => {
-        Templates.renderLastOrderListView({items: data});
-    };
-    updatePausedOrdersList = (data = []) => {
-        Templates.renderDraftOrderListView({items: data});
-    };
+
     updateProductFamilyList = (data = []) => {
-        Templates.renderProductFamilyListView({items: data});
+        templateEngine.render('productFilterListTemplate', {filters: data}, 'productFilterListTemplateView');
     };
     updateProductSearchResult = (data = []) => {
-        Templates.renderProductSearchListView({items: data});
+        templateEngine.render('productSearchListTemplate', {products: data}, 'productSearchListTemplateView');
     };
 
     updateView({doc}) {
@@ -58,49 +57,51 @@ class MainView {
         this.toggleLastOrdersModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
-        Templates.renderLastOrderListView({items: data});
+        templateEngine.render('lastOrdersListTemplate', { orders:data }, 'lastOrdersListTemplateView');
     }
 
     showPausedOrdersModal = (data) => {
         this.toggleDraftOrdersModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
-        Templates.renderDraftOrderListView({items: data});
+        templateEngine.render('draftOrderListTemplate', {orders: data}, 'draftOrderListTemplateView')
     };
 
     showPrintSelectionModal = data => {
         this.togglePrintSelectionModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
-        Templates.renderContextActionView({data: data});
+        //Templates.renderContextActionView({data: data});
     };
 
     showPrintDraftSelectionModal = data => {
         this.togglePrintSelectionModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
-        Templates.renderPrintContextActionView( 'printDraftActionTemplate',{data: data});
+        templateEngine.render('printDraftActionTemplate', {data: data}, 'contextActionTemplateView');
     };
 
     showPrintOrderSelectionModal = data => {
         this.togglePrintSelectionModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
-        Templates.renderPrintContextActionView('printOrderActionTemplate', {data: data});
+        templateEngine.render('printOrderActionTemplate', {data: data}, 'contextActionTemplateView');
     };
 
     showProductImagesModal = data => {
         this.toggleProductImagesModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
-        Templates.renderProductImageListView({items: data});
+        //Templates.renderProductImageListView({images: data});
+        templateEngine.render('productImageListTemplate', {images: data}, 'productImageListTemplateView');
     };
 
     showProductStockDetailModal = data => {
         this.toggleProductStockDetailModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
-        Templates.renderProductStockListView({items: data});
+        //Templates.renderProductStockListView({items: data});
+        templateEngine.render('productStockListTemplate', {stocks: data}, 'productStockListTemplateView');
     };
 
     toggleLoadingModal = () => Modals.toggleModal('loadingModal');

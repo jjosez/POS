@@ -319,6 +319,14 @@
         hover:bg-slate-200;
     }
 
+    button:disabled {
+        @apply cursor-not-allowed opacity-50 pointer-events-none;
+    }
+
+    input:disabled {
+        @apply cursor-not-allowed opacity-50 bg-slate-200;
+    }
+
 }
 
 @layer components {

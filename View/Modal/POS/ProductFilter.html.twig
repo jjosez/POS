@@ -11,7 +11,7 @@
             </button>
         </div>
         <div class="modal-body">
-            <div id="productFamilyListTemplateView" class="flex flex-wrap gap-2 mb-4">
+            <div id="productFilterListTemplateView" class="flex flex-wrap gap-2 mb-4">
             </div>
             <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
                 {% for familia in fsc.getParentFamilies() %}
@@ -25,7 +25,7 @@
                          data-description="{{ familia.descripcion }}"
                          data-thumbnail="{{ imageUrl }}">
                         {% if imageUrl %}
-                            <img class="pointer-events-auto mx-auto rounded-md mb-2 object-scale-down border-2 border-gray-50"
+                            <img class="pointer-events-none mx-auto rounded-md mb-2 object-scale-down border-2 border-gray-50"
                                  src="{{ imageUrl }}" alt="{{ familia.codfamilia }}">
                         {% endif %}
                         <p class="text-sm text-center">{{ familia.descripcion }}</p>
@@ -35,21 +35,21 @@
         </div>
     </div>
 </div>
-<script id="productFamilyListTemplate" type="text/template">
-    <% it.items.forEach(function(item){ %>
+<script id="productFilterListTemplate" type="text/template">
+    <% filters.forEach(function(filter){ %>
     <div role="listitem"
          class="items-center bg-slate-800 flex flex-row p-2 shadow-xs rounded-lg font-semibold cursor-pointer"
          data-action="setFamilyFilterAction"
-         data-code="<%= item.code %>"
-         data-description="<%= item.description %>" data-thumbnail="<%= item.thumbnail %>">
-        <% if(item.thumbnail) { %>
-        <img class="pointer-events-auto w-12 mx-auto rounded-md object-scale-down"
-             src="<%= item.thumbnail %>" alt="<%= item.code %>">
+         data-code="<%= filter.code %>"
+         data-description="<%= filter.description %>" data-thumbnail="<%= filter.thumbnail %>">
+        <% if(filter.thumbnail) { %>
+        <img class="pointer-events-none w-12 mx-auto rounded-md object-scale-down"
+             src="<%= filter.thumbnail %>" alt="<%= filter.code %>">
         <% } %>
-        <p class="text-sm text-center p-2 text-white"><%= item.description %></p>
+        <p class="text-sm text-center p-2 text-white"><%= filter.description %></p>
         <button class="h-8 w-8 text-xs btn btn-icon btn-danger"
                 data-action="setFamilyFilterAction"
-                data-code="<%= item.code %>">
+                data-code="<%= filter.code %>">
             <i class="fas fa-trash-alt"></i>
         </button>
     </div>

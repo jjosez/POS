@@ -476,6 +476,7 @@ class POS extends Controller
         $documentOrder = $this->request->request->get('document-order', '');
         $request = $this->request->request;
 
+
         if ($documentModel === self::DRAFT_POS_DOCUMENT) {
             $document = PointOfSaleStorage::getDraftDocument($documentCode);
             $payments = [];
@@ -488,6 +489,8 @@ class POS extends Controller
             $document = $order->getDocument();
             $payments = $order->getPayments();
         }
+
+        Tools::log('POS')->warning('printing-sale-ticket');
 
         $this->pipeFalse('printOrderTicket', $document, $payments, $request);
         $this->buildResponse();
@@ -507,6 +510,7 @@ class POS extends Controller
         }
 
         $document = PointOfSaleStorage::getDraftDocument($code);
+        Tools::log('POS')->warning('printing-draft-ticket');
 
         $this->pipeFalse('printOrderTicket', $document, [], $request);
         $this->buildResponse();

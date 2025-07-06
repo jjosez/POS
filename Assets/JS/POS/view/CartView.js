@@ -4,7 +4,7 @@
  */
 
 import Modals from "../components/Modals.js";
-import Templates from "../components/Templates.js";
+import templates from "../views/TemplateManger.js";
 import * as Money from "../Money.js";
 
 const viewElements = {
@@ -54,7 +54,7 @@ class CartView {
     };
 
     updateCartEditView = (product = {}) => {
-        Templates.renderCartEditView(product);
+        templates.render('cartEditTemplate',{ product: product },'cartEditTemplateView')
     };
 
     updateTotals = (data = {}) => {
@@ -64,7 +64,7 @@ class CartView {
         this.orderDiscountAmountLabel().textContent = Money.roundFixed(data.getDiscountAmount());
         this.orderNetoLabel().textContent = Money.roundFixed(data.doc.neto);
 
-        Templates.renderCartListView(data);
+        templates.render('cartListTemplate', data, 'cartListTemplateView')
     };
 
     /*Modals*/
