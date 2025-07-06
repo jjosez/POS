@@ -3,20 +3,14 @@
  * Copyright (C) 2018-2025 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 import * as Core from './Core.js';
-import * as Order from "./Order.js";
+import * as Order from "./controllers/OrderController.js";
 import * as View from "./View.js";
+import {searchFilter} from './models/FilterModel.js';
+import CartController from "./controllers/CartController.js";
+import CheckoutController from "./controllers/CheckoutController.js";
+import eventDispatcher from "./core/EventDispatcher.js";
+import eventManager from "./core/EventManager.js";
 import MainView from "./view/MainView.js";
-import CartView from "./view/CartView.js";
-import Cart from "./modules/Cart.js"
-import EventManager from "./components/EventManager.js";
-import AppEventManager from "./core/EventManager.js";
-import FilterClass from "./model/FilterClass.js";
-import {getCheckoutState, initCheckoutController} from "./controllers/checkoutController.js";
-
-const SearchFilter = new FilterClass({
-    'families': [],
-    'filters': []
-});
 
 function cashEntryAction() {
     MainView.cashEntryForm().submit();
@@ -32,7 +26,9 @@ function cashWithdrawAction() {
 async function orderDeleteAction(data) {
     await Order.deleteHoldRequest(data.code);
 
-    if ((data.code * 1) === (Cart.doc.idpausada * 1)) location.reload();
+    if (CartController.isDraftOrder(data.code)) {
+        location.reload();
+    }
 
     MainView.toggleDraftOrdersModal();
 }
@@ -105,26 +101,26 @@ async function printOrderTicketAction(data) {
  * @param {{code:string}} data
  */
 async function orderResumeAction({code}) {
-    Cart.update(await Order.resumeRequest(code));
-    Cart.updateDocumentClass();
+    const updatedCart = await Order.resumeRequest(code);
 
-    EventManager.emit('onOrderResume', Cart);
+    CartController.update(updatedCart);
+
+    eventManager.emit('onOrderResume', updatedCart.doc);
     MainView.toggleDraftOrdersModal();
 }
 
 async function orderSaveAction() {
-    if (Cart.lines.length < 1) return;
+    if (!CartController.hasLines()) return;
 
-    const response = await Order.saveRequest(Cart, getCheckoutState().payments);
+    const response = await Order.saveRequest(CartController.getState(), CheckoutController.getState().payments);
 
     if (!response || response.success === false) {
         //console.warn('❌ Pedido no guardado correctamente');
         //return;
     }
 
-    Cart.update(response);
-    EventManager.emit('onOrderComplete', response);
-    AppEventManager.emit('onOrderComplete', response);
+    CartController.update(response);
+    eventManager.emit('onOrderComplete', response);
 
     if (response?.document_code) {
         MainView.showPrintOrderSelectionModal(response);
@@ -132,12 +128,12 @@ async function orderSaveAction() {
 }
 
 async function orderSuspendAction() {
-    if (Cart.lines.length < 1) return;
+    if (!CartController.hasLines()) return;
 
-    const response = await Order.holdRequest(Cart);
+    const response = await Order.holdRequest(CartController.getState());
 
-    Cart.update(response);
-    EventManager.emit('onOrderComplete', response);
+    CartController.update(response);
+    eventManager.emit('onOrderComplete', response);
 }
 
 async function saveCustomerAction() {
@@ -148,7 +144,7 @@ async function saveCustomerAction() {
 
     if (response.customer.codcliente) {
 
-        EventManager.emit('onCustomerChange', {
+        eventManager.emit('onCustomerChange', {
             code: response.customer.codcliente,
             description: response.customer.nombre
         });
@@ -159,16 +155,12 @@ async function searchBarcodeAction(code) {
     let response = await Core.searchBarcode(code);
 
     if (response.code) {
-        Cart.setProduct(response.code, response.description);
+        CartController.addScannedProduct(response);
     }
 }
 
-async function searchCustomerAction() {
-    MainView.updateCustomerListView(await Core.searchCustomer(this.value));
-}
-
 async function searchProductAction() {
-    MainView.updateProductSearchResult(await Core.searchProduct(this.value, SearchFilter));
+    MainView.updateProductSearchResult(await Core.searchProduct(this.value, searchFilter));
 }
 
 async function sessionCloseAction() {
@@ -192,9 +184,9 @@ async function printClosingTicketAction() {
 }
 
 async function setFamilyFilterAction({code, description, thumbnail}) {
-    SearchFilter.setFamilyFilter(code, description, thumbnail);
+    searchFilter.toggleFamilyFilter(code, description, thumbnail);
 
-    EventManager.emit('onProductFilterChange', SearchFilter);
+    eventManager.emit('onProductFilterChange', searchFilter);
 }
 
 async function showStockDetailAction({code}) {
@@ -297,7 +289,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-CartView.customerSearchBox().addEventListener('keyup', searchCustomerAction);
 MainView.productSearchBox().addEventListener('keyup', searchProductAction);
 document.addEventListener('click', appEventHandler);
-initCheckoutController();
+eventDispatcher.listen();
+CheckoutController.init();
+CartController.init();

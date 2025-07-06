@@ -2,7 +2,7 @@
     <div class="flex flex-col gap-4 p-4">
         <button id="documentTypeButton" class="w-full bg-gray-200 text-slate-800 btn focus:ring-gray-600" data-toggle="modal" data-target="documentTypeModal">
             <i class="fa fa-file-invoice"></i>
-            <span id="documentClassLabel" class="mx-2">
+            <span id="documentClassLabel" class="mx-2" data-view="CartView">
                 {{ fsc.getDefaultDocument().descripcion ?: trans(fsc.getDefaultDocument().tipodoc) }}
             </span>
             <i class="ml-auto fa fa-ellipsis-v"></i>
@@ -10,7 +10,7 @@
         <button id="customerSearchButton" class="w-full btn btn-primary"
                 data-toggle="modal" data-target="customerSearchModal">
             <i class="fa fa-user"></i>
-            <span id="customerNameLabel" class="mx-2"{# data-document-field="nombrecliente" #}>
+            <span id="customerNameLabel" class="mx-2" data-view="CartView">
                 {{ fsc.getDefaultCustomer().nombre }}</span>
             <i class="ml-auto fa fa-ellipsis-v"></i>
         </button>
@@ -28,7 +28,7 @@
             <button class="text-slate-800 btn btn-light" data-toggle="modal" data-target="totalsDetailModal">
                 <i class="fas fa-ellipsis-v fa-fw"></i> {{ trans('detail') }} / {{ trans('payable-amount') }}
             </button>
-            <span id="cartTotal" class="text-right text-xl">0.000</span>
+            <span id="cartTotal" class="text-right text-xl" data-view="CartView">0.000</span>
         </div>
         <div class="flex h-auto select-none flex-row gap-4">
             <button class="btn btn-icon btn-light md:hidden" data-toggle="block"

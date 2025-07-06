@@ -93,11 +93,16 @@ export async function printerServerRequest({print_job_id}) {
     let params = new URLSearchParams({"documento": print_job_id});
 
     try {
-        await fetch('http://127.0.0.1:8089?' + params, {
+        const response = await fetch('http://127.0.0.1:8089?' + params, {
             mode: 'no-cors', method: 'GET'
         });
+
+        if (!response.ok) {
+            throw new Error(`❌ HTTP error: ${response.status}`);
+        }
+        return response;
     } catch (error) {
-        console.log(error);
+        console.warn('❌ Error al conectar al servidor de impresión:', error);
     }
 }
 

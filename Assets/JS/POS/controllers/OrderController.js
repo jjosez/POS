@@ -1,4 +1,4 @@
-import {postRequest, postRequestCore} from "./Core.js";
+import {postRequest, postRequestCore} from "../Core.js";
 
 /**
  * @param {string} code

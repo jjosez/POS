@@ -1,4 +1,4 @@
-import EventManager from "../components/EventManager.js";
+import eventManager from "../core/EventManager.js";
 
 class CheckoutModel {
     constructor({cashMethod = ""}) {
@@ -11,8 +11,17 @@ class CheckoutModel {
     clear() {
         this.change = 0;
         this.payments = [];
-
         this.updateCheckoutEvent();
+    }
+
+    getState() {
+        return {
+            total: this.total,
+            change: this.change,
+            payments: this.payments,
+            paymentsTotal: this.getPaymentsTotal(),
+            outstandingBalance: this.getOutstandingBalance()
+        };
     }
 
     getOutstandingBalance() {
@@ -20,25 +29,18 @@ class CheckoutModel {
     }
 
     getPaymentAmount(method) {
-        let total = 0;
-
-        this.payments.forEach(element => function () {
+        return this.payments.reduce((sum, element) => {
             if (element.method === method) {
-                total += element.amount;
+                return sum + parseFloat(element.amount);
             }
-        });
-
-        return total;
+            return sum;
+        }, 0);
     }
 
     getPaymentsTotal() {
-        let total = 0;
-
-        this.payments.forEach(element => {
-            total += parseFloat(element.amount);
-        });
-
-        return total;
+        return this.payments.reduce((sum, element) => {
+            return sum + parseFloat(element.amount);
+        }, 0);
     }
 
     deletePayment(index) {
@@ -49,13 +51,11 @@ class CheckoutModel {
 
     setPayment({amount, method, description}) {
         let balance = this.getOutstandingBalance();
-        let isCashMethod = true;
+        let isCashMethod = (method === this.cashMethod);
 
         amount = parseFloat(amount);
 
-        if (method !== this.cashMethod) {
-            isCashMethod = false;
-
+        if (!isCashMethod) {
             if (balance < 0 && amount < 0) {
                 amount = 0;
                 return;
@@ -66,15 +66,17 @@ class CheckoutModel {
             }
         }
 
-        if (false === this.payments.some(element => {
-            if (element.method === method) {
-                element.amount += amount;
-                return true;
-            }
-            return false;
-        }) && amount !== 0) {
+        // Intentar sumar al método existente
+        const existing = this.payments.find(p => p.method === method);
+        if (existing) {
+            existing.amount += amount;
+        } else if (amount !== 0) {
             this.payments.push({
-                amount: amount, method: method, description: description, change: 0, is_cash: isCashMethod
+                amount: amount,
+                method: method,
+                description: description,
+                change: 0,
+                is_cash: isCashMethod
             });
         }
 
@@ -83,9 +85,10 @@ class CheckoutModel {
     }
 
     updateMoneyChange() {
-        this.change = (this.getPaymentsTotal() - this.total).toFixed(2) || 0;
+        const changeValue = (this.getPaymentsTotal() - this.total).toFixed(2);
+        this.change = parseFloat(changeValue) || 0;
 
-        this.payments.find(payment => {
+        this.payments.forEach(payment => {
             if (payment.method === this.cashMethod) {
                 payment.change = this.change;
             }
@@ -98,8 +101,9 @@ class CheckoutModel {
     }
 
     updateCheckoutEvent() {
-        EventManager.emit('onCheckoutUpdate');
+        eventManager.emit('onCheckoutUpdate');
     }
 }
 
-export default CheckoutModel;
+const model = new CheckoutModel({cashMethod: AppSettings.cash});
+export default model;
