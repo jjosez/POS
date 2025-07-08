@@ -3,7 +3,6 @@ import CartView from '../views/CartView.js';
 import eventDispatcher from '../core/EventDispatcher.js';
 import eventManager from '../core/EventManager.js';
 import {recalculateRequest} from './OrderController.js';
-import * as Core from '../Core.js';
 
 const Cart = new CartModel({
     'doc': {
@@ -222,11 +221,6 @@ const CartController = {
         Cart.update(updatedData);
     },
 
-    async searchCustomer(query) {
-        const results = await Core.searchCustomer(query);
-        CartView.updateCustomerListView(results);
-    },
-
     init() {
         eventDispatcher.register('deleteProductAction', CartController.deleteProduct);
         eventDispatcher.register('editProductAction', CartController.editProduct);
@@ -252,10 +246,6 @@ const CartController = {
             } else if (action === 'editProductFieldAction') {
                 CartController.editProductField(event.target, event.target.value);
             }
-        });
-
-        CartView.customerSearchBox().addEventListener('keyup', (event) => {
-            CartController.searchCustomer(event.target.value);
         });
     }
 };

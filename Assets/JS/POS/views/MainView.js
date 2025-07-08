@@ -5,7 +5,7 @@
 
 import EventManager from "../core/EventManager.js";
 import Modals from "../components/Modals.js";
-import templates from "../views/TemplateManger.js";
+import templates from "./TemplateManger.js";
 import * as Core from "../Core.js";
 import * as Money from "../Money.js";
 

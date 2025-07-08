@@ -82,5 +82,5 @@ class EventDispatcher {
 }
 
 const dispatcher = new EventDispatcher();
-//dispatcher.debug = true;
+dispatcher.debug = false;
 export default dispatcher;

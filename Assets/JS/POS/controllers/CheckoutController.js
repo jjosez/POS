@@ -1,5 +1,5 @@
-import CheckoutModel from '../models/CheckoutModel.js';
 import * as CheckoutView from '../views/CheckoutView.js';
+import CheckoutModel from '../models/CheckoutModel.js';
 import dispatcher from '../core/EventDispatcher.js';
 import EventManager from '../core/EventManager.js';
 
