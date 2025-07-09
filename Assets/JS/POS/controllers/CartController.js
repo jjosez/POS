@@ -10,9 +10,9 @@ const Cart = new CartModel({
         'codalmacen': AppSettings.codalmacen,
         'codcliente': AppSettings.customer.codcliente,
         'idpausada': null,
-        'tipo-documento': AppSettings.document.code
-    },
-    'token': AppSettings.token
+        'tipo-documento': AppSettings.document.code,
+        'codpago': AppSettings.payment.codpago
+    }, 'token': AppSettings.token
 });
 
 let isCartVisible = false;
@@ -21,7 +21,7 @@ const CartController = {
     Cart,
 
     update(data) {
-        this.Cart.update(data);
+        Cart.update(data);
     },
 
     hasLines() {
@@ -190,7 +190,7 @@ const CartController = {
         this.setProduct(data.code, data.description, data.thumbnail);
     },
 
-    cartUpdate(data) {
+    cartUpdateTotals(data) {
         CartView.updateTotals(data);
     },
 
@@ -217,8 +217,9 @@ const CartController = {
     },
 
     async cartChange() {
-        const updatedData = await recalculateRequest(Cart);
-        Cart.update(updatedData);
+        recalculateRequest(Cart).then(data => {
+            Cart.update(data);
+        });
     },
 
     init() {
@@ -232,7 +233,7 @@ const CartController = {
         eventDispatcher.register('setProductAction', CartController.addProduct);
 
         eventManager.on('onCartChange', CartController.cartChange);
-        eventManager.on('onCartUpdate', CartController.cartUpdate);
+        eventManager.on('onCartUpdate', CartController.cartUpdateTotals);
         eventManager.on('onCustomerChange', CartController.setCustomer);
         eventManager.on('onOrderComplete', CartController.resetDocument);
         eventManager.on('onOrderResume', (doc) => CartController.orderResume(doc));

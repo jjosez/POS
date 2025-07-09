@@ -1,4 +1,5 @@
-import {postRequest, postRequestCore} from "../Core.js";
+import {postRequest} from "../Core.js";
+import EventManager from "../core/EventManager.js";
 
 /**
  * @param {string} code
@@ -28,23 +29,39 @@ export function getOnHoldRequest() {
     return postRequest(data);
 }
 
-export function holdRequest({doc, lines, token}) {
-    const data = getFormData(doc);
+export function saveRequest({doc, lines, token}, payments) {
+    const payload = {
+        ...doc,
+        lines: lines,
+        payments: payments
+    };
 
-    data.set('token', token);
-    data.set('action', 'hold-order');
-    data.set('lines', JSON.stringify(lines));
+    const resource = `POS?action=save-order&token=${token}`;
 
-    return postRequest(data);
+    return postJsonRequest(resource, payload);
+}
+
+export function saveDraftRequest({doc, lines, token}) {
+    const payload = {
+        ...doc,
+        lines: lines,
+        draft: true,
+        token: token
+    }
+
+    const resource = `POS?action=save-draft&token=${token}`;
+    return postJsonRequest(resource, payload);
 }
 
 export function recalculateRequest({doc, lines}) {
-    const data = getFormData(doc);
+    const payload = {
+        ...doc,
+        lines: lines
+    };
 
-    data.set('action', "recalculate-order");
-    data.set('lines', JSON.stringify(lines));
+    const resource = 'POS?action=recalculate-order';
 
-    return postRequest(data);
+    return postJsonRequest(resource, payload);
 }
 
 export function resumeRequest(code) {
@@ -56,69 +73,44 @@ export function resumeRequest(code) {
     return postRequest(data);
 }
 
-export function saveRequest({doc, lines, token}, payments) {
-    const data = getFormData(doc);
-
-    data.set('token', token);
-    data.set('action', 'save-order');
-    data.set('lines', JSON.stringify(lines));
-    data.set('payments', JSON.stringify(payments));
-
-    return postRequest(data);
-}
-
-export async function printRequest(code) {
-    const data = new FormData();
-    data.set('code', code);
-
-    data.set('action', 'print-desktop-ticket');
-    return await postRequest(data);
-}
-
-export async function printOnDesktop({code, type}) {
-    const data = new FormData();
-    data.set('code', code);
-    data.set('type', type);
-
-    data.set('action', 'print-desktop-ticket');
-    return await postRequest(data);
-}
-
-async function printOnAndroid(data) {
-    /*var S = "#Intent;scheme=rawbt;";
-    var P = "package=ru.a402d.rawbtprinter;end;";
-
-    var textEncoded = encodeURI(result);*/
-    let response = await postRequestCore(data);
-
-    try {
-        window.location.href = await response.text();
-    } catch (e) {
-        alert(e);
-    }
-}
-
 
 /**
- * @param {string} code
+ * Send a POST request with JSON payload
+ * @param {string} resource - Example: 'POSQuery?action=recalculate-order'
+ * @param {Object} payload - The JSON body to send
+ * @returns {Promise<Object>} - Parsed JSON response
  */
-export async function printPausedOrderRequest(code) {
-    const data = new FormData();
+export async function postJsonRequest(resource, payload = {}) {
+    try {
+        const response = await fetch(resource, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
 
-    data.set('code', code);
-
-    data.set('action', 'print-paused-order');
-    return await postRequest(data);
-}
-
-function getFormData(obj = {}) {
-    const data = new FormData();
-
-    for (let name in obj) {
-        if (obj.hasOwnProperty(name) && (obj[name] != null && obj[name] !== 'null')) {
-            data.set(name, obj[name]);
+        if (!response.ok) {
+            return Promise.resolve({
+                status: 'error',
+                error: `HTTP ${response.status}`
+            });
         }
-    }
 
-    return data;
+        const result = await response.json();
+
+        if (result.messages && result.messages.length) {
+            EventManager.emit('responseMessages', result.messages);
+        }
+
+        return result;
+    } catch (e) {
+        console.warn(`❌ Error al ejecutar la consulta. ${e.message}`);
+        return {
+            status: 'error',
+            error: e.message,
+            data: {}
+        };
+    }
 }

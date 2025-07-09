@@ -11,7 +11,7 @@ import PrintController from './controllers/PrintController.js';
 import ProductController from './controllers/ProductController.js';
 import SessionController from './controllers/SessionController.js';
 import eventDispatcher from "./core/EventDispatcher.js";
-import eventManager from "./core/EventManager.js";
+import EventManager from "./core/EventManager.js";
 import MainView from "./views/MainView.js";
 
 /**
@@ -35,35 +35,30 @@ async function orderResumeAction({code}) {
 
     CartController.update(updatedCart);
 
-    eventManager.emit('onOrderResume', updatedCart.doc);
+    EventManager.emit('onOrderResume', updatedCart.doc);
     MainView.toggleDraftOrdersModal();
 }
 
 async function orderSaveAction() {
     if (!CartController.hasLines()) return;
 
-    const response = await Order.saveRequest(CartController.getState(), CheckoutController.getState().payments);
+    const result =  await Order.saveRequest(CartController.getState(), CheckoutController.getState().payments);
 
-    if (!response || response.success === false) {
-        //console.warn('❌ Pedido no guardado correctamente');
-        //return;
-    }
+    CartController.update(result);
 
-    CartController.update(response);
-    eventManager.emit('onOrderComplete', response);
-
-    if (response?.document_code) {
-        MainView.showPrintOrderSelectionModal(response);
+    if (result?.status  === 'success') {
+        MainView.showPrintOrderSelectionModal(result.data);
+        EventManager.emit('onOrderComplete', result)
     }
 }
 
 async function orderSuspendAction() {
     if (!CartController.hasLines()) return;
 
-    const response = await Order.holdRequest(CartController.getState());
+    const result = await Order.saveDraftRequest(CartController.getState());
 
-    CartController.update(response);
-    eventManager.emit('onOrderComplete', response);
+    CartController.update(result);
+    EventManager.emit('onOrderComplete', result);
 }
 
 async function showPausedOrdersAction() {

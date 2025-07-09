@@ -18,9 +18,9 @@
     {% for action in fsc.getPrintSaleTicketActions() %}
         <button class="btn btn-block btn-light cursor-pointer"
                 data-action="printOrderTicketAction"
-                data-code="<%= data.document_code %>"
-                data-document="<%= data.document_model %>"
-                data-order="<%= data.document_order %>"
+                data-code="<%= data.code %>"
+                data-document="<%= data.model %>"
+                data-order="<%= data.order %>"
                 data-name="{{ action.actionName }}"
                 data-params='{{ action.params }}'
                 data-controller='{{ asset(action.actionController) }}'

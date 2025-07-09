@@ -2,83 +2,61 @@
 
 namespace FacturaScripts\Plugins\POS\Lib;
 
-//use FacturaScripts\Core\Internal\SubRequest;
-//use FacturaScripts\Core\Request;
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
 class PointOfSaleRequest
 {
-    protected array $documentData;
-    protected array $documentLinesData;
-    protected array $paymentData;
-
-    //protected SubRequest $request;
-    protected ParameterBag $request;
-    protected string $documentType;
+    protected array $documentData = [];
+    protected array $documentLinesData = [];
+    protected array $paymentData = [];
+    protected string $documentType = 'FacturaCliente';
 
     public function __construct(Request $request)
     {
-        $this->request = $request->request;
+        $data = json_decode($request->getContent(), true);
 
-        $this->setDocumentLinesData();
-        $this->setPaymentData();
-        $this->setDocumentData();
-    }
+        if (!is_array($data)) {
+            throw new \RuntimeException('JSON inválido en la petición.');
+        }
 
-    protected function setDocumentLinesData(): void
-    {
-        $lines = $this->request->get('lines', []);
+        // Asignar secciones específicas
+        $this->documentLinesData = $data['lines'] ?? [];
+        $this->paymentData = $data['payments'] ?? [];
 
-        $this->documentLinesData = json_decode($lines, true);
-    }
+        $this->documentType = $data['tipo-documento'] ?? 'FacturaCliente';
 
-    protected function setDocumentData(): void
-    {
-        $data = $this->request->all();
+        if (!empty($data['draft'])) {
+            $data['generadocumento'] = $this->documentType;
+            $this->documentType = $data['tipo-documento'] = 'BorradorPuntoVenta';
+        }
 
-        unset($data['action'], $data['lines'], $data['linesMap'], $data['objectRaw'], $data['payments']);
-
+        // El resto de los datos se consideran parte del documento
+        unset($data['lines'], $data['payments'], $data['tipo-documento']);
         $this->documentData = $data;
-        $this->documentType = $this->request->get('tipo-documento');
     }
 
-    protected function setPaymentData(): void
-    {
-        $payments = $this->request->get('payments', '');
-
-        $this->paymentData = json_decode($payments, true) ?? [];
-    }
-
-    /**
-     * @return array
-     */
     public function getDocumentData(): array
     {
-        return $this->documentData ?? [];
+        return $this->documentData;
     }
 
-    /**
-     * @return array
-     */
     public function getDocumentLinesData(): array
     {
-        return $this->documentLinesData ?? [];
+        return $this->documentLinesData;
     }
 
-    /**
-     * @return array
-     */
     public function getPaymentData(): array
     {
-        return $this->paymentData ?? [];
+        return $this->paymentData;
     }
 
-    /**
-     * @return string
-     */
     public function getDocumentType(): string
     {
-        return $this->documentType ?? 'FacturaCliente';
+        return $this->documentType;
+    }
+
+    public function isDraft(): bool
+    {
+        return $this->documentType === 'BorradorPuntoVenta';
     }
 }

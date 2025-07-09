@@ -83,6 +83,7 @@ class PointOfSaleTransaction
         $this->setPaymentMethod();
 
         if (empty($this->document->primaryColumnValue()) && false === $this->document->save()) {
+            Tools::log()->warning('document-save-error');
             return false;
         }
 

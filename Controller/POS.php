@@ -50,7 +50,7 @@ class POS extends Controller
     {
         parent::privateCore($response, $user, $permissions);
         $this->setTemplate(false);
-        $action = $this->request->request->get('action', '');
+        $action = $this->request->get('action', '');
 
         if ($action && true === $this->execCartQueryAction($action)) {
             return;
@@ -101,8 +101,8 @@ class POS extends Controller
                 $this->setResponse(PointOfSaleProduct::getImagesUrl($id, $code));
                 return false;
 
-            case 'hold-order':
-                $this->holdOrder();
+            case 'save-draft':
+                $this->saveDraft();
                 $this->buildResponse();
                 return false;
 
@@ -376,13 +376,9 @@ class POS extends Controller
      *
      * @return void
      */
-    protected function holdOrder(): void
+    protected function saveDraft(): void
     {
         if (false === $this->validateRequest()) return;
-
-        $documentType = $this->request->get('tipo-documento', self::DEFAULT_POS_DOCUMENT);
-        $this->request->request->set('generadocumento', $documentType);
-        $this->request->request->set('tipo-documento', self::DRAFT_POS_DOCUMENT);
 
         $request = new PointOfSaleRequest($this->request);
         $transaction = new PointOfSaleTransaction($request);
@@ -397,6 +393,13 @@ class POS extends Controller
 
         $this->dataBase->commit();
         Tools::log()->info('pos-order-on-hold');
+
+        $document = $transaction->getDocument();
+        $this->setSuccessResponse([
+            'code' => $document->primaryColumnValue(),
+            'model' => $document->modelClassName(),
+            'order' => null,
+        ]);
     }
 
     /**
@@ -446,19 +449,11 @@ class POS extends Controller
         $this->pipe('save', $document, $payments);
         Tools::log('POS')->notice('record-updated-correctly');
 
-        $this->addResponseData([
-            'document_code' => $document->primaryColumnValue(),
-            'document_model' => $document->modelClassName(),
-            'document_order' => $order->primaryColumnValue()
-        ]);
-
-        /*$this->addResponseData([
+        $this->setSuccessResponse([
             'code' => $document->primaryColumnValue(),
             'model' => $document->modelClassName(),
-            'order' => $order->primaryColumnValue()
-        ]);*/
-
-        ///$this->printDocument($document, $payments);
+            'order' => $order->primaryColumnValue(),
+        ]);
     }
 
     protected function printCashRegisterClosing(): void
@@ -585,6 +580,11 @@ class POS extends Controller
     {
         $id = $this->request->request->get('terminal', '');
         $this->session->getTerminal($id);
+    }
+
+    public function getDraftDocumentModel(): string
+    {
+        return self::DRAFT_POS_DOCUMENT;
     }
 
     /**

@@ -67,13 +67,6 @@ class MainView {
         templates.render('draftOrderListTemplate', {orders: data}, 'draftOrderListTemplateView')
     };
 
-    showPrintSelectionModal = data => {
-        this.togglePrintSelectionModal();
-
-        data = Core.isObjectEmpty(data) ? [] : data;
-        //Templates.renderContextActionView({data: data});
-    };
-
     showPrintDraftSelectionModal = data => {
         this.togglePrintSelectionModal();
 
@@ -92,7 +85,6 @@ class MainView {
         this.toggleProductImagesModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
-        //Templates.renderProductImageListView({images: data});
         templates.render('productImageListTemplate', {images: data}, 'productImageListTemplateView');
     };
 
@@ -100,7 +92,6 @@ class MainView {
         this.toggleProductStockDetailModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
-        //Templates.renderProductStockListView({items: data});
         templates.render('productStockListTemplate', {stocks: data}, 'productStockListTemplateView');
     };
 
@@ -152,8 +143,41 @@ const updateView = data => {
     mainViewInstance().updateView(data);
 };
 
+/**
+ * Show alerts in response
+ * @param {{messages}} messages
+ */
+function showMessages(messages) {
+    if (null == messages) return;
+
+    templates.render('messageListTemplate', {messages: messages}, 'messageListTemplateView');
+
+    cleanMessages();
+}
+
+/**
+ * Close all messages after 1000ms timeout
+ */
+function cleanMessages() {
+    let container = Core.getElement("messageListTemplateView");
+
+    if (null === container.firstChild) return;
+
+    setTimeout(() => {
+        const child = container.firstChild;
+
+        if (child && child.nodeType) {
+            container.removeChild(container.firstChild);
+        }
+
+        cleanMessages();
+    }, 1000);
+}
+
 const mainViewInstance = () => Object.freeze(new MainView());
 
 EventManager.on('onCartUpdate', mainViewInstance().updateView);
 EventManager.on('onProductFilterChange', updateProductFilter);
+EventManager.on('responseMessages', showMessages);
+
 export default mainViewInstance();

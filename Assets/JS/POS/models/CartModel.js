@@ -76,7 +76,13 @@ class CartModel {
     }
 
     update({doc = this.init, lines = [], token = ''}) {
+        const tipoDocumento = this.doc['tipo-documento'];
+
         this.doc = doc;
+        if (!this.doc['tipo-documento'] && tipoDocumento) {
+            this.doc['tipo-documento'] = tipoDocumento;
+        }
+
         this.lines = lines;
         this.count = 0;
         this.token = token ? token : this.token;

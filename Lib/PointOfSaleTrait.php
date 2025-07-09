@@ -12,7 +12,6 @@ use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
 use FacturaScripts\Dinamic\Model\Familia;
 use FacturaScripts\Dinamic\Model\FormaPago;
-use FacturaScripts\Dinamic\Model\FormatoTicket;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Plugins\POS\Model\TipoDocumentoPuntoVenta;
 
@@ -30,18 +29,19 @@ trait PointOfSaleTrait
      */
     protected array $customDocumentFields;
 
-
-    /**
-     * @var PointOfSaleTicketFormat[]
-     */
-    protected array $ticketFormats = [];
-
     protected array $hookActions = [];
 
     protected function addResponseData(array $data = []): void
     {
         $this->responseData = array_merge($this->responseData, $data);
     }
+
+    protected function setSuccessResponse(array $data = []): void
+    {
+        $this->responseData['status'] = 'success';
+        $this->responseData['data'] = $data;
+    }
+
 
     /**
      * @return array
@@ -80,20 +80,19 @@ trait PointOfSaleTrait
         return $this->customMenuElements[$hook] ?? [];
     }
 
+    protected function getHookActions(string $hook): array
+    {
+        return $this->hookActions[$hook] ?? [$hook => []];
+    }
+
     public function getPrintSaleTicketActions(): array
     {
-        if (isset($this->hookActions[PointOfSaleHook::OnSaleTicketPrinting->value]))
-            return $this->hookActions[PointOfSaleHook::OnSaleTicketPrinting->value];
-
-        return [PointOfSaleHook::OnSaleTicketPrinting->value => []];
+        return $this->getHookActions(PointOfSaleHook::OnSaleTicketPrinting->value);
     }
 
     public function getPrintDraftTicketActions(): array
     {
-        if (isset($this->hookActions[PointOfSaleHook::OnDraftTicketPrinting->value]))
-            return $this->hookActions[PointOfSaleHook::OnDraftTicketPrinting->value];
-
-        return [PointOfSaleHook::OnDraftTicketPrinting->value => []];
+        return $this->getHookActions(PointOfSaleHook::OnDraftTicketPrinting->value);
     }
 
     public function getDefaultCustomer(): Cliente
@@ -257,36 +256,24 @@ trait PointOfSaleTrait
     protected function getMessages(): array
     {
         $messages = [];
-        $level = ['critical', 'warning', 'notice', 'info', 'error'];
+        $levels = ['critical', 'warning', 'notice', 'info', 'error'];
 
-        $masterChannel = Tools::log()->read('master', $level);
-        $posChannel = Tools::log()->read('POS', $level);
+        $logs = array_merge(
+            Tools::log()->read('master', $levels),
+            Tools::log()->read('POS', $levels)
+        );
 
-        $currentMessages = array_merge($masterChannel, $posChannel);
+        foreach ($logs as $log) {
+            $type = match ($log['level']) {
+                'critical', 'warning', 'error' => 'warning',
+                'notice' => 'success',
+                default => 'info'
+            };
 
-        foreach ($currentMessages as $message) {
-            if (in_array($message['level'], array('warning', 'critical', 'error'))) {
-                $messages[] = ['type' => 'warning', 'message' => $message['message']];
-                continue;
-            }
-
-            if ($message['level'] = 'notice') {
-                $messages[] = ['type' => 'success', 'message' => $message['message']];
-                continue;
-            }
-
-            $messages[] = ['type' => 'info', 'message' => $message['message']];
+            $messages[] = ['type' => $type, 'message' => $log['message']];
         }
 
         return $messages;
-    }
-
-    protected function getVoucherFormat(): FormatoTicket
-    {
-        $format = new FormatoTicket();
-        $format->loadFromCode($this->getTerminal()->idformatoticket);
-
-        return $format;
     }
 
     protected function loadCustomDocumentFields(): void
@@ -358,33 +345,40 @@ trait PointOfSaleTrait
         return true;
     }
 
-    /**
-     * @return bool
-     */
-    protected function validateRequest(): bool
+    protected function validatePermissions(): bool
     {
-        if (false === $this->permissions->allowUpdate) {
+        if (!$this->permissions->allowUpdate) {
             Tools::log()->warning('not-allowed-modify');
-            $this->buildResponse();
             return false;
         }
+        return true;
+    }
 
-        $this->token = $this->request->request->get('token');
+    protected function validateToken(): bool
+    {
+        $this->token = $this->request->get('token');
 
-        if (empty($this->token) || false === $this->multiRequestProtection->validate($this->token)) {
-            Tools::log()->warning('invalid-request');
+        if (empty($this->token) || !$this->multiRequestProtection->validate($this->token)) {
             Tools::log()->warning('invalid-token');
-            $this->buildResponse();
             return false;
         }
 
         if ($this->multiRequestProtection->tokenExist($this->token)) {
             Tools::log()->warning('duplicated-request');
-            $this->buildResponse();
             return false;
         }
 
         $this->setNewToken();
+        return true;
+    }
+
+    protected function validateRequest(): bool
+    {
+        if (!$this->validatePermissions() || !$this->validateToken()) {
+            $this->buildResponse();
+            return false;
+        }
+
         return true;
     }
 

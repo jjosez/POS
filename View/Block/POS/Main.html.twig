@@ -70,6 +70,7 @@
                 'code': '{{ fsc.getDefaultDocument().tipodoc }}',
                 'serie': '{{ fsc.getDefaultDocument().codserie }}',
                 'description': '{{ fsc.getDefaultDocument().primaryDescription() }}',
+                'draft-document': '{{ fsc.getDraftDocumentModel() }}',
             },
             'currency': {
                 'divisa': '{{ settings('default', 'coddivisa') }}',
