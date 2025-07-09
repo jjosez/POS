@@ -492,7 +492,7 @@ class POS extends Controller
     }
 
     /**
-     * Reprint point of sale document by code.
+     * Reprint point of a sale document by code.
      */
     protected function printDraftTicket(): void
     {
