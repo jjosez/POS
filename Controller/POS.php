@@ -279,7 +279,7 @@ class POS extends Controller
         }
 
         if (PointOfSaleStorage::saveCashMovment($amount, $description)) {
-            Tools::log()->info('cash-entry-ok');
+            Tools::log()->notice('cash-entry-ok');
         }
 
         $this->buildResponse();
@@ -299,7 +299,7 @@ class POS extends Controller
 
         $amount *= -1;
         if (PointOfSaleStorage::saveCashMovment($amount, $description)) {
-            Tools::log()->info('cash-withdraw-ok');
+            Tools::log()->notice('cash-withdraw-ok');
         }
 
         $this->buildResponse();
@@ -314,7 +314,7 @@ class POS extends Controller
         $result = [];
 
         if ($customer->saveNew($taxID, $name)) {
-            Tools::log()->info('Nuevo cliente registrado');
+            Tools::log()->notice('Nuevo cliente registrado');
             $result = ['customer' => $customer->getCustomer()];
         }
 
@@ -392,7 +392,7 @@ class POS extends Controller
         }
 
         $this->dataBase->commit();
-        Tools::log()->info('pos-order-on-hold');
+        Tools::log()->notice('pos-order-on-hold');
 
         $document = $transaction->getDocument();
         $this->setSuccessResponse([
@@ -485,7 +485,7 @@ class POS extends Controller
             $payments = $order->getPayments();
         }
 
-        Tools::log('POS')->warning('printing-sale-ticket');
+        Tools::log('POS')->info('printing-sale-ticket');
 
         $this->pipeFalse('printOrderTicket', $document, $payments, $request);
         $this->buildResponse();
@@ -505,7 +505,7 @@ class POS extends Controller
         }
 
         $document = PointOfSaleStorage::getDraftDocument($code);
-        Tools::log('POS')->warning('printing-draft-ticket');
+        Tools::log('POS')->info('printing-draft-ticket');
 
         $this->pipeFalse('printOrderTicket', $document, [], $request);
         $this->buildResponse();

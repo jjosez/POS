@@ -54,9 +54,9 @@ const PrintController = {
         const { code, model, order } = el.dataset;
 
         MainView.showPrintOrderSelectionModal({
-            document_code: code,
-            document_model: model,
-            document_order: order
+            code: code,
+            model: model,
+            order: order
         });
     },
 

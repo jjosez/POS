@@ -1,5 +1,6 @@
 import templates from "../views/TemplateManger.js";
 import Modals from "../components/Modals.js";
+
 export function render(model) {
     const state = model.getState();
 
@@ -30,14 +31,6 @@ export function getPaymentData({code, description}) {
         method: code,
         description: description
     };
-}
-
-export function showPaymentModal({code, description}) {
-    const input = document.getElementById('paymentApplyInput');
-    input.dataset.method = code;
-    input.dataset.description = description;
-
-    togglePaymentModal();
 }
 
 export function togglePaymentModal() {
