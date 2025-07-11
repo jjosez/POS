@@ -95,6 +95,11 @@ trait PointOfSaleTrait
         return $this->getHookActions(PointOfSaleHook::OnDraftTicketPrinting->value);
     }
 
+    public function getPrintClosingTicketActions(): array
+    {
+        return $this->getHookActions(PointOfSaleHook::OnClosingTicketPrinting->value);
+    }
+
     public function getDefaultCustomer(): Cliente
     {
         $customer = new Cliente();

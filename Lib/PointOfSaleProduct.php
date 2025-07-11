@@ -6,6 +6,7 @@ use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Almacenes;
 use FacturaScripts\Core\Model\CodeModel;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Join\ProductoStock;
 use FacturaScripts\Dinamic\Model\Join\ProductoVariante;
 use FacturaScripts\Dinamic\Model\Variante;
@@ -91,9 +92,9 @@ class PointOfSaleProduct
             $where[] = new DataBaseWhere('codfamilia', $families, 'IN');
         }
 
-        return self::getProduct()->all($where, [], 0, 30);
+        //return PointOfSaleProductVariant::search($text, $filters);
 
-        //return self::searchProduct($text);
+        return self::getProduct()->all($where, [], 0, 30);
     }
 
     /**
@@ -160,8 +161,6 @@ class PointOfSaleProduct
             "OR (LOWER(P.descripcion) LIKE LOWER('%" . $searchTerm . "%'))) " .
             "GROUP BY P.idproducto, V.referencia, P.codimpuesto, V.codbarras, " .
             "P.descripcion, V.precio, A1.descripcion, A2.descripcion, A3.descripcion, A4.descripcion";
-
-        //print_r($result);
 
         return $dataBase->selectLimit($query, 50);
     }

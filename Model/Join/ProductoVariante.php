@@ -82,7 +82,12 @@ class ProductoVariante extends JoinModel
             'atribute1' => 'A1.descripcion',
             'atribute2' => 'A2.descripcion',
             'atribute3' => 'A3.descripcion',
-            'atribute4' => 'A4.descripcion'
+            'atribute4' => 'A4.descripcion',
+            'image_file' => ' MIN(IMG.idfile)',
+            'image_referencia' => ' MIN(IMG.referencia)',
+            'image_product' => 'MIN(IMG.idproducto)',
+            'image' => 'MIN(IMG.id)',
+            'allow_no_stock' => 'P.ventasinstock',
         ];
     }
 
@@ -101,10 +106,11 @@ class ProductoVariante extends JoinModel
             . ' LEFT JOIN atributos_valores A2 ON V.idatributovalor2 = A2.id'
             . ' LEFT JOIN atributos_valores A3 ON V.idatributovalor3 = A3.id'
             . ' LEFT JOIN atributos_valores A4 ON V.idatributovalor4 = A4.id'
-            . ' LEFT JOIN stocks S ON V.referencia = S.referencia';
+            . ' LEFT JOIN stocks S ON V.referencia = S.referencia'
+            . ' LEFT JOIN productos_imagenes IMG ON IMG.idproducto = P.idproducto AND (IMG.referencia IS NULL OR IMG.referencia = V.referencia)';
     }
 
-    protected function loadFromData($data)
+    protected function loadFromData($data): void
     {
         foreach ($data as $field => $value) {
             $this->{$field} = $value;
@@ -112,7 +118,25 @@ class ProductoVariante extends JoinModel
 
         $this->priceWithTax = $this->price * (100 + $this->getTax()->iva) / 100;
         $this->priceWithFormat = Tools::money($this->priceWithTax);
-        $this->thumbnail = self::getThumbnail($this->id, $this->code);
+
+        $this->isOutOfStock = (int)$this->stock === 0 && (int)$this->allow_no_stock !== 1;
+
+        self::addThumbnail();
+    }
+
+    protected function addThumbnail(): void
+    {
+        $this->thumbnail = '';
+
+        if (!empty($this->image)) {
+            $image = new ProductoImagen();
+            $image->id = $this->image;
+            $image->idfile = $this->image_file;
+            $image->idproducto = $this->image_product;
+            $image->referencia = $this->image_reference;
+
+            $this->thumbnail = FS_ROUTE . $image->getThumbnail(150, 150, true);
+        }
     }
 
     /**
@@ -128,25 +152,6 @@ class ProductoVariante extends JoinModel
         }
 
         return ProductoImagen::all($where);
-    }
-
-    public static function getThumbnail(?string $id, ?string $code): string
-    {
-        if (true === empty($id)) {
-            return '';
-        }
-
-        $productImage = new ProductoImagen();
-
-        if ($productImage->loadFromCode('', [
-            new DataBaseWhere('idproducto', $id),
-            new DataBaseWhere('referencia', null, 'IS', 'AND'),
-            new DataBaseWhere('referencia', $code, '=', 'OR')
-        ])) {
-            return FS_ROUTE . $productImage->getThumbnail(150, 150, true);
-        }
-
-        return '';
     }
 
     public function __set($name, $value)

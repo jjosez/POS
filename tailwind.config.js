@@ -14,7 +14,7 @@ module.exports = {
         'tab',
         'tab-active',
         {
-            pattern: /bg-(red|green|blue|yellow|slate)-(100|200|500)/,
+            pattern: /bg-(red|green|blue|yellow|slate)-(50|100|200|500)/,
             variants: ['hover', 'even', 'odd'],
         },
         {

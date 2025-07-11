@@ -414,7 +414,7 @@ class POS extends Controller
         $request = new PointOfSaleRequest($this->request);
         $transaction = new PointOfSaleTransaction($request);
 
-        if ($this->pipeFalse('saveBefore', $this->request, $transaction) === false) {
+        if ($this->pipeFalse('saveBefore', $request, $transaction) === false) {
             return;
         }
 

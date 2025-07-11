@@ -44,3 +44,16 @@
         </button>
     {% endfor %}
 </script>
+<script id="printClosingActionTemplate" type="text/template">
+    {% for action in fsc.getPrintClosingTicketActions() %}
+        <button class="btn btn-block btn-light cursor-pointer"
+                data-action="printClosingTicketAction"
+                data-code="<%= data.code %>"
+                data-name="{{ action.actionName }}"
+                data-params='{{ action.params }}'
+                data-controller='{{ asset(action.actionController) }}'
+                data-type='{{ action.actionType }}'>
+            <i class="fa-fw {{ action.actionIcon }}"></i><span class="ml-2">{{ action.actionTitle }}</span>
+        </button>
+    {% endfor %}
+</script>
