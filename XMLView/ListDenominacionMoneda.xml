@@ -10,10 +10,25 @@
             <widget type="text" fieldname="clave"/>
         </column>
         <column name="currency" order="110">
-            <widget type="text" fieldname="coddivisa" />
+            <widget type="text" fieldname="coddivisa"/>
         </column>
         <column name="value" display="right" order="120">
-            <widget type="number" decimal="4" fieldname="valor" />
+            <widget type="number" decimal="4" fieldname="valor"/>
         </column>
     </columns>
+    <modals>
+        <group name="add-denomination" numcolumns="12">
+            <column name="code" numcolumns="12" order="100">
+                <widget type="text" fieldname="clave" icon="fas fa-hashtag" required="true"/>
+            </column>
+            <column name='currency' numcolumns='12' order='110'>
+                <widget type='autocomplete' fieldname='coddivisa' onclick='EditDivisa'>
+                    <values source='divisas' fieldcode='coddivisa' fieldtitle='descripcion'/>
+                </widget>
+            </column>
+            <column name="value" numcolumns="12" order="120">
+                <widget type="number" decimal="0" fieldname="valor" required="true"/>
+            </column>
+        </group>
+    </modals>
 </view>

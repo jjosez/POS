@@ -47,7 +47,7 @@ async function orderSaveAction() {
     CartController.update(result);
 
     if (result?.status  === 'success') {
-        MainView.showPrintOrderSelectionModal(result.data);
+        MainView.showPrintOrderContextModal(result.data);
         EventManager.emit('onOrderComplete', result)
     }
 }

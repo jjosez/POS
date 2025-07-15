@@ -4,10 +4,14 @@ import MainView from '../views/MainView.js';
 
 const PrintController = {
     async printOrderTicket(el) {
-        const {controller, code, document, name, order, params, type } = el.dataset;
+        const {controller, code, document, name, order, params,type } = el.dataset;
 
         if (type === 'link') {
-            Core.openLinkAction(controller, params);
+            let urlParams = new FormData();
+            urlParams.append('code', code);
+            urlParams.append('document', document);
+
+            Core.openLinkAction(controller, urlParams);
             return;
         }
 
@@ -53,7 +57,7 @@ const PrintController = {
     printOrderContext(el) {
         const { code, model, order } = el.dataset;
 
-        MainView.showPrintOrderSelectionModal({
+        MainView.showPrintOrderContextModal({
             code: code,
             model: model,
             order: order
@@ -63,7 +67,7 @@ const PrintController = {
     printDraftContext(el) {
         const { code, model, order } = el.dataset;
 
-        MainView.showPrintDraftSelectionModal({
+        MainView.showPrintDraftContextModal({
             code: code,
             document: model,
             order: order

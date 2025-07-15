@@ -67,18 +67,18 @@ class MainView {
         templates.render('draftOrderListTemplate', {orders: data}, 'draftOrderListTemplateView')
     };
 
-    showPrintDraftSelectionModal = data => {
+    showPrintDraftContextModal = data => {
         this.togglePrintSelectionModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
         templates.render('printDraftActionTemplate', {data: data}, 'contextActionTemplateView');
     };
 
-    showPrintOrderSelectionModal = data => {
+    showPrintOrderContextModal = data => {
         this.togglePrintSelectionModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
-        templates.render('printOrderActionTemplate', {data: data}, 'contextActionTemplateView');
+        templates.render('printOrderContextActionTemplate', {data: data}, 'contextActionTemplateView');
     };
 
     showProductImagesModal = data => {

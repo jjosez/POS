@@ -262,7 +262,7 @@ export function openLinkAction(controllerUrl, actionParams, target = '_blank') {
         return;
     }*/
 
-    const searchParams = new URLSearchParams(params).toString();
+    const searchParams = new URLSearchParams(actionParams).toString();
     const url = searchParams
         ? urlBase + (urlBase.includes('?') ? '&' : '?') + searchParams
         : urlBase;

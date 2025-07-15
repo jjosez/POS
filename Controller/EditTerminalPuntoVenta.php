@@ -8,9 +8,11 @@ namespace FacturaScripts\Plugins\POS\Controller;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleForms;
+use FacturaScripts\Plugins\POS\Model\DenominacionMoneda;
 use FacturaScripts\Plugins\POS\Model\OpcionesTerminalPuntoVenta;
 
 /**
@@ -20,7 +22,7 @@ use FacturaScripts\Plugins\POS\Model\OpcionesTerminalPuntoVenta;
  */
 class EditTerminalPuntoVenta extends ExtendedController\EditController
 {
-    public $selectedUser = '';
+    public string $selectedUser = '';
 
     const EDIT_DOCUMENT_TYPE_VIEW = 'EditTipoDocumentoPuntoVenta';
     const EDIT_PAYMENT_METHOD_VIEW = 'EditFormaPagoPuntoVenta';
@@ -51,37 +53,38 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
     }
 
 
-    protected function createViews()
+    protected function createViews(): void
     {
         parent::createViews();
         $this->setTabsPosition('left');
 
         $this->createPaymenthMethodView();
         $this->createDocumentTypeView();
+        $this->createDenominationsView();
         $this->createTerminalFieldsView();
         $this->createTerminalSessionView();
     }
 
-    protected function createDocumentTypeView(string $viewName = self::EDIT_DOCUMENT_TYPE_VIEW)
+    protected function createDocumentTypeView(string $viewName = self::EDIT_DOCUMENT_TYPE_VIEW): void
     {
         $modelName = 'TipoDocumentoPuntoVenta';
         $this->addEditListView($viewName, $modelName, 'doc-type', 'fas fa-file-invoice');
     }
 
-    protected function createPaymenthMethodView(string $viewName = self::EDIT_PAYMENT_METHOD_VIEW)
+    protected function createPaymenthMethodView(string $viewName = self::EDIT_PAYMENT_METHOD_VIEW): void
     {
         $modelName = 'FormaPagoPuntoVenta';
         $this->addEditListView($viewName, $modelName, 'payment-methods', 'fas fa-credit-card');
         $this->views[$viewName]->disableColumn('codpago', false, 'false');
     }
 
-    protected function createTerminalFieldsView(string $viewName = self::EDIT_TERMINAL_FIELDS_VIEW)
+    protected function createTerminalFieldsView(string $viewName = self::EDIT_TERMINAL_FIELDS_VIEW): void
     {
         $modelName = 'TerminalPuntoVenta';
         $this->addHtmlView($viewName, 'Master/EditTerminalFieldOption', $modelName, 'pos-field-options', 'fas fa-users');
     }
 
-    protected function createTerminalSessionView($viewName = 'ListSesionPuntoVenta')
+    protected function createTerminalSessionView($viewName = 'ListSesionPuntoVenta'): void
     {
         $this->addListView($viewName, 'SesionPuntoVenta', 'Sesiones', 'fas fa-user');
 
@@ -90,10 +93,26 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
         $this->setSettings($viewName, 'checkBoxes', false);
     }
 
+    protected function createDenominationsView($viewName = 'ListDenominacionMoneda'): void
+    {
+        $this->addListView($viewName, 'DenominacionMoneda', 'currency-denomination', 'fas fa-dollar-sign')
+            ->setSettings('modalInsert', 'add-denomination');
+    }
+
+    protected function execPreviousAction($action)
+    {
+        switch ($action) {
+            case 'add-denomination':
+                return $this->saveDenominationAction();
+        }
+
+        return parent::execPreviousAction($action);
+    }
+
     /**
      * @return bool
      */
-    protected function insertAction()
+    protected function insertAction(): bool
     {
         if (parent::insertAction()) {
             return true;
@@ -107,7 +126,7 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
         return false;
     }
 
-    protected function loadData($viewName, $view)
+    protected function loadData($viewName, $view): void
     {
         $where = [new DataBaseWhere('idterminal', $this->getModel()->primaryColumnValue())];
 
@@ -122,6 +141,9 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
                 break;
             case 'EditTerminalFields':
                 break;
+            case 'ListDenominacionMoneda':
+                $view->loadData('', []);
+                break;
 
             default:
                 parent::loadData($viewName, $view);
@@ -129,7 +151,7 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
         }
     }
 
-    protected function execAfterAction($action)
+    protected function execAfterAction($action): void
     {
         switch ($action) {
             case 'load-fields-options':
@@ -149,7 +171,7 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
         }
     }
 
-    private function deleteFieldOptions()
+    private function deleteFieldOptions(): void
     {
         $this->selectedUser = $this->request->get('nick') ?: null;
         $options = new OpcionesTerminalPuntoVenta();
@@ -159,11 +181,11 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
         ];
 
         if ($options->loadFromCode('', $where) && $options->delete()) {
-            self::toolBox()::log()->notice('Configuracion de campos en el pos eliminado.');
+            Tools::log()->notice('Configuracion de campos en el pos eliminado.');
         }
     }
 
-    private function saveFieldOptions()
+    private function saveFieldOptions(): void
     {
         $fields = $this->request->get('field', []);
         $this->selectedUser = $this->request->get('nick') ?: null;
@@ -179,6 +201,26 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
 
         $options->columns = json_encode($fields);
         $options->save();
+    }
+
+    private function saveDenominationAction(): bool
+    {
+        $code = $this->request->get('clave');
+        $currency = $this->request->get('coddivisa');
+        $value = $this->request->get('valor');
+
+        $denomination = new DenominacionMoneda();
+
+        $denomination->clave = $code;
+        $denomination->coddivisa = $currency;
+        $denomination->valor = $value;
+
+        if ($denomination->save()) {
+            Tools::log()->notice('save-ok.');
+            return true;
+        }
+
+        return false;
     }
 
     public function getTerminalFields(): array
