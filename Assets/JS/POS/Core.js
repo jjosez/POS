@@ -255,12 +255,6 @@ export function parseParams(paramsJson) {
 
 export function openLinkAction(controllerUrl, actionParams, target = '_blank') {
     const urlBase = controllerUrl;
-    const params = parseParams(actionParams);
-
-    /*if (!urlBase || !/^https?:\/\//.test(urlBase)) {
-        console.warn("URL inválida o ausente en data-url:", urlBase);
-        return;
-    }*/
 
     const searchParams = new URLSearchParams(actionParams).toString();
     const url = searchParams

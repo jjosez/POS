@@ -3,17 +3,51 @@ import * as Core from '../Core.js';
 import MainView from '../views/MainView.js';
 
 const PrintController = {
-    async printOrderTicket(el) {
-        const {controller, code, document, name, order, params,type } = el.dataset;
+    async handleSaleContextAction(el) {
+        const {type} = el.dataset;
 
-        if (type === 'link') {
-            let urlParams = new FormData();
-            urlParams.append('code', code);
-            urlParams.append('document', document);
-
-            Core.openLinkAction(controller, urlParams);
-            return;
+        switch (type) {
+            case 'link':
+                await this.handleSaleLinkAction(el);
+                break;
+            case 'action':
+                await this.handleSaleExecAction(el);
+                break;
+            default:
+                console.table(el.dataset);
         }
+    },
+
+    async handleDraftContextAction(el) {
+        const {type} = el.dataset;
+
+        switch (type) {
+            case 'link':
+                await this.handleDraftLinkAction(el);
+                break;
+            case 'action':
+                await this.handleDraftExecAction(el);
+                break;
+            default:
+                console.table(el.dataset);
+        }
+    },
+
+    async handleSaleLinkAction(el) {
+        const {controller, code, document, name, order} = el.dataset;
+
+        Core.openLinkAction(controller, {
+            action: name,
+            document: document,
+            code: code,
+            order: order
+        });
+
+        MainView.togglePrintSelectionModal();
+    },
+
+    async handleSaleExecAction(el) {
+        const {code, document, name, order, params} = el.dataset;
 
         const formData = new FormData();
         const parsedParams = JSON.parse(params || '{}');
@@ -31,13 +65,20 @@ const PrintController = {
         MainView.togglePrintSelectionModal();
     },
 
-    async printDraftTicket(el) {
-        const {controller, code, document, name, order, params, type } = el.dataset;
+    async handleDraftLinkAction(el) {
+         const {controller, code, document, name} = el.dataset;
 
-        if (type === 'link') {
-            Core.openLinkAction(controller, params);
-            return;
-        }
+        Core.openLinkAction(controller, {
+            action: name,
+            document: document,
+            code: code
+        });
+
+        MainView.togglePrintSelectionModal();
+    },
+
+    async handleDraftExecAction(el) {
+        const {controller, code, document, name, params, type} = el.dataset;
 
         const formData = new FormData();
         const parsedParams = JSON.parse(params || '{}');
@@ -52,10 +93,11 @@ const PrintController = {
         Core.printerServerRequest(response);
 
         MainView.togglePrintSelectionModal();
+
     },
 
     printOrderContext(el) {
-        const { code, model, order } = el.dataset;
+        const {code, model, order} = el.dataset;
 
         MainView.showPrintOrderContextModal({
             code: code,
@@ -65,7 +107,7 @@ const PrintController = {
     },
 
     printDraftContext(el) {
-        const { code, model, order } = el.dataset;
+        const {code, model, order} = el.dataset;
 
         MainView.showPrintDraftContextModal({
             code: code,
@@ -75,8 +117,8 @@ const PrintController = {
     },
 
     init() {
-        dispatcher.register('printOrderTicketAction', this.printOrderTicket);
-        dispatcher.register('printDraftTicketAction', this.printDraftTicket);
+        dispatcher.register('printOrderTicketAction', this.handleSaleContextAction.bind(this));
+        dispatcher.register('printDraftTicketAction', this.handleDraftContextAction.bind(this));
         dispatcher.register('printOrderContextAction', this.printOrderContext);
         dispatcher.register('printDraftContextAction', this.printDraftContext);
     }

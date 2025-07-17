@@ -456,9 +456,15 @@ class POS extends Controller
         ]);
     }
 
-    protected function printCashRegisterClosing(): void
+    protected function printCashRegisterClosing(bool $reportZ = true): void
     {
-        $this->pipeFalse('printCashRegisterTicket', $this->session->getSession(), $this->empresa);
+        if ($reportZ) {
+            $this->pipeFalse('printReportZ', $this->session->getSession(), $this->empresa, $this->request);
+
+            return;
+        }
+
+        $this->pipeFalse('printReportX', $this->session->getSession(), $this->empresa, $this->request);
     }
 
     /**
@@ -554,7 +560,7 @@ class POS extends Controller
         $cash = $this->request->request->get('cash') ?? [];
 
         if ($this->session->closeSession($cash)) {
-            $this->printCashRegisterClosing();
+            $this->printCashRegisterClosing(false);
 
             $this->pipe('closeSession', $this->session->getSession());
         }

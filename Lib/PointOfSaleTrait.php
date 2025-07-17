@@ -7,6 +7,7 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
+use FacturaScripts\Core\Base\ExtensionsTrait;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
@@ -17,6 +18,8 @@ use FacturaScripts\Plugins\POS\Model\TipoDocumentoPuntoVenta;
 
 trait PointOfSaleTrait
 {
+    use ExtensionsTrait;
+
     /**
      * @var PointOfSaleSession
      */
