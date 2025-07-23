@@ -20,10 +20,13 @@ const SessionController = {
         MainView.cashWithdrawForm().submit();
     },
 
-    async printClosingTicket() {
+    async printSessionReportX() {
         MainView.toggleLoadingModal();
         try {
-            const response = await Core.printClosingTicket();
+            const data = new FormData();
+            data.set('action', 'print-x-report');
+
+            const response = await Core.postRequest(data);
             await Core.printerServerRequest(response);
         } finally {
             MainView.toggleLoadingModal();
@@ -34,7 +37,7 @@ const SessionController = {
         dispatcher.register('cashEntryAction', this.cashEntry);
         dispatcher.register('cashWithdrawAction', this.cashWithdraw);
         dispatcher.register('closeSessionAction', this.closeSession);
-        dispatcher.register('printClosingTicketAction', this.printClosingTicket);
+        dispatcher.register('printClosingTicketAction', this.printSessionReportX);
     }
 };
 

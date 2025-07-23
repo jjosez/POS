@@ -120,8 +120,8 @@ class POS extends Controller
                 $this->setResponse($result);
                 return false;
 
-            case 'print-closing-ticket':
-                $this->printCashRegisterClosing();
+            case 'print-x-report':
+                $this->printCashRegisterReportX();
                 $this->buildResponse();
                 return false;
 
@@ -467,6 +467,16 @@ class POS extends Controller
         $this->pipeFalse('printReportX', $this->session->getSession(), $this->empresa, $this->request);
     }
 
+    protected function printCashRegisterReportX(): void
+    {
+        $this->pipeFalse('printReportX', $this->session->getSession(), $this->empresa, $this->request);
+    }
+
+    protected function printCashRegisterReportZ(): void
+    {
+        $this->pipeFalse('printReportZ', $this->session->getSession(), $this->empresa, $this->request);
+    }
+
     /**
      * Reprint order by code.
      */
@@ -560,7 +570,7 @@ class POS extends Controller
         $cash = $this->request->request->get('cash') ?? [];
 
         if ($this->session->closeSession($cash)) {
-            $this->printCashRegisterClosing(false);
+            $this->printCashRegisterReportZ();
 
             $this->pipe('closeSession', $this->session->getSession());
         }

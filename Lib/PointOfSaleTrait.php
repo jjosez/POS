@@ -45,7 +45,6 @@ trait PointOfSaleTrait
         $this->responseData['data'] = $data;
     }
 
-
     /**
      * @return array
      */
@@ -103,6 +102,9 @@ trait PointOfSaleTrait
         return $this->getHookActions(PointOfSaleHook::OnClosingTicketPrinting->value);
     }
 
+    /**
+     * @return Cliente
+     */
     public function getDefaultCustomer(): Cliente
     {
         $customer = new Cliente();
@@ -111,6 +113,9 @@ trait PointOfSaleTrait
         return $customer;
     }
 
+    /**
+     * @return TipoDocumentoPuntoVenta
+     */
     public function getDefaultDocument(): TipoDocumentoPuntoVenta
     {
         return $this->getTerminal()->getDefaultDocument();

@@ -79,14 +79,6 @@ export async function postRequestCore(data) {
     return Promise.resolve({});
 }
 
-export function printClosingTicket() {
-    const data = new FormData();
-
-    data.set('action', 'print-closing-ticket');
-
-    return postRequest(data);
-}
-
 export async function printerServerRequest({print_job_id}) {
     if (print_job_id == null) return;
 
