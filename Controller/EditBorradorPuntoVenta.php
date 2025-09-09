@@ -1,16 +1,16 @@
 <?php
 /**
- * Copyright (C) 2021-2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-
 namespace FacturaScripts\Plugins\POS\Controller;
 
 use FacturaScripts\Core\Base\AjaxForms\SalesController;
 
 /**
- * Description of EditAlbaranCliente
+ * Controller to edit a single item from the BorradorPuntoVenta model
  *
- * @author Carlos Garcia Gomez <carlos@facturascripts.com>
+ * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 class EditBorradorPuntoVenta extends SalesController
 {
