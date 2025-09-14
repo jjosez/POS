@@ -32,7 +32,7 @@ class ListSesionPuntoVenta extends ExtendedController\ListController
     /**
      * Load views
      */
-    protected function createViews($viewName = 'ListSesionPuntoVenta')
+    protected function createViews($viewName = 'ListSesionPuntoVenta'): void
     {
         $this->addView($viewName, 'SesionPuntoVenta', 'till-sessions', 'fas fa-money-bill-alt');
         $this->addSearchFields($viewName, ['nickusuario']);
@@ -43,7 +43,7 @@ class ListSesionPuntoVenta extends ExtendedController\ListController
         $this->disableButtons($viewName);
     }
 
-    protected function disableButtons(string $viewName)
+    protected function disableButtons(string $viewName): void
     {
         $this->setSettings($viewName, 'btnNew', false);
 

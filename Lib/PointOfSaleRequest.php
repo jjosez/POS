@@ -2,7 +2,9 @@
 
 namespace FacturaScripts\Plugins\POS\Lib;
 
-use Symfony\Component\HttpFoundation\Request;
+use FacturaScripts\Core\Request;
+use FacturaScripts\Core\Tools;
+use RuntimeException;
 
 class PointOfSaleRequest
 {
@@ -13,10 +15,10 @@ class PointOfSaleRequest
 
     public function __construct(Request $request)
     {
-        $data = json_decode($request->getContent(), true);
+        $data = $this->getContent();
 
-        if (!is_array($data)) {
-            throw new \RuntimeException('JSON inválido en la petición.');
+        if (empty($data)) {
+            throw new RuntimeException('Petición invalida.');
         }
 
         // Asignar secciones específicas
@@ -58,5 +60,18 @@ class PointOfSaleRequest
     public function isDraft(): bool
     {
         return $this->documentType === 'BorradorPuntoVenta';
+    }
+
+    private function getContent(): array
+    {
+        $rawInput = file_get_contents('php://input');
+
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+        if (strpos($contentType, 'application/json') !== false) {
+            $decoded = json_decode($rawInput, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) return $decoded;
+        }
+
+        return [];
     }
 }

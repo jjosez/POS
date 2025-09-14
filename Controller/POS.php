@@ -10,6 +10,7 @@ use Exception;
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\KernelException;
+use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
@@ -20,7 +21,6 @@ use FacturaScripts\Plugins\POS\Lib\PointOfSaleSession;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleStorage;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleTrait;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleTransaction;
-use Symfony\Component\HttpFoundation\Response;
 
 class POS extends Controller
 {
@@ -396,7 +396,7 @@ class POS extends Controller
 
         $document = $transaction->getDocument();
         $this->setSuccessResponse([
-            'code' => $document->primaryColumnValue(),
+            'code' => $document->id(),
             'model' => $document->modelClassName(),
             'order' => null,
         ]);
@@ -450,7 +450,7 @@ class POS extends Controller
         Tools::log('POS')->notice('record-updated-correctly');
 
         $this->setSuccessResponse([
-            'code' => $document->primaryColumnValue(),
+            'code' => $document->id(),
             'model' => $document->modelClassName(),
             'order' => $order->primaryColumnValue(),
         ]);
@@ -566,8 +566,7 @@ class POS extends Controller
      */
     protected function closeSession(): void
     {
-        //$cash = $this->request->request->getArray('cash') ?? [];
-        $cash = $this->request->request->get('cash') ?? [];
+        $cash = $this->request->request->getArray('cash') ?? [];
 
         if ($this->session->closeSession($cash)) {
             $this->printCashRegisterReportZ();

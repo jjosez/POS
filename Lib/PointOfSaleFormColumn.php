@@ -62,7 +62,7 @@ class PointOfSaleFormColumn
         return $fields[$key] ?? 2;
     }
 
-    private function getType($fields)
+    private function getType($fields): string
     {
         if (in_array($fields['type'], ['number', 'money', 'percentage'])) {
             return 'number';

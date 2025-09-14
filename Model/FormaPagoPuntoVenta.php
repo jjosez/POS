@@ -8,6 +8,8 @@ namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Model\Base;
 use FacturaScripts\Core\DataSrc\FormasPago;
+use FacturaScripts\Core\Template\ModelClass;
+use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Dinamic\Model\FormaPago;
 
 /**
@@ -15,9 +17,9 @@ use FacturaScripts\Dinamic\Model\FormaPago;
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class FormaPagoPuntoVenta extends Base\ModelClass
+class FormaPagoPuntoVenta extends ModelClass
 {
-    use Base\ModelTrait;
+    use ModelTrait;
 
     public $codpago;
     public $cantidad;

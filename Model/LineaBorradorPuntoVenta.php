@@ -5,12 +5,13 @@
  */
 namespace FacturaScripts\Plugins\POS\Model;
 
-use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Core\Model\Base\SalesDocumentLine;
+use FacturaScripts\Core\Template\ModelTrait;
 
-class LineaBorradorPuntoVenta extends Base\SalesDocumentLine
+class LineaBorradorPuntoVenta extends SalesDocumentLine
 {
 
-    use Base\ModelTrait;
+    use ModelTrait;
 
     /**
      * Paused Operation ID of this line.
@@ -37,7 +38,7 @@ class LineaBorradorPuntoVenta extends Base\SalesDocumentLine
     public function getDocument(): BorradorPuntoVenta
     {
         $document = new BorradorPuntoVenta();
-        $document->loadFromCode($this->idpausada);
+        $document->load($this->idpausada);
 
         return $document;
     }

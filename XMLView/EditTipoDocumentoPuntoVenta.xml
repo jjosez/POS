@@ -6,13 +6,13 @@
 <view>
     <columns>
         <group name="data" numcolumns="12" valign="center">
-            <column name="code" numcolumns="2" order="100">
+            <column name="code" numcolumns="2" display="none" order="100">
                 <widget type="text" fieldname="id" icon="fas fa-hashtag" readonly="true"/>
             </column>
-            <column name="cash-register" numcolumns="2" order="110">
+            <column name="cash-register" numcolumns="3" order="110">
                 <widget type="text" fieldname="idterminal" icon="fas fa-cash-register" readonly="true"/>
             </column>
-            <column name="serie" numcolumns="2" order="120">
+            <column name="serie" numcolumns="3" order="120">
                 <widget type="select" fieldname="codserie" required='true' onclick="EditSerie" icon="fas fa-layer-group">
                     <values source="series" fieldcode="codserie" fieldtitle="descripcion"/>
                 </widget>

@@ -2,18 +2,19 @@
 
 namespace FacturaScripts\Plugins\POS\Model;
 
-use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Core\Template\ModelClass;
+use FacturaScripts\Core\Template\ModelTrait;
 
-class OpcionesTerminalPuntoVenta extends Base\ModelClass
+class OpcionesTerminalPuntoVenta extends ModelClass
 {
-    use Base\ModelTrait;
+    use ModelTrait;
 
     public $id;
     public $idterminal;
     public $columns;
     public $nick;
 
-    public function clear()
+    public function clear(): void
     {
         parent::clear();
         $this->idterminal = null;

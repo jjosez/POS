@@ -23,8 +23,7 @@ class PointOfSaleAction
         ?string $actionType = self::ACTION_TYPE_ACTION,
         ?array $params = null,
         ?string $actionController = null
-    )
-    {
+    ) {
         $this->actionName = $actionName;
         $this->actionTitle = $actionTitle;
         $this->actionIcon = $actionIcon;
@@ -38,8 +37,7 @@ class PointOfSaleAction
         string $actionTitle,
         ?string $actionIcon = null,
         ?array $params = null
-    ): self
-    {
+    ): self {
         return new self(
             $actionName,
             $actionTitle,
@@ -55,8 +53,7 @@ class PointOfSaleAction
         ?string $actionIcon = null,
         ?string $actionController = null,
         ?array $params = null
-    ): self
-    {
+    ): self {
         return new self(
             $actionName,
             $actionTitle,
@@ -73,8 +70,7 @@ class PointOfSaleAction
         ?string $actionIcon = null,
         ?string $actionController = null,
         ?array $params = null
-    ): self
-    {
+    ): self {
         return new self(
             $actionName,
             $actionTitle,
@@ -90,8 +86,7 @@ class PointOfSaleAction
         string $actionTitle,
         ?string $actionIcon = null,
         ?array $params = null
-    ): self
-    {
+    ): self {
         return new self(
             $actionName,
             $actionTitle,

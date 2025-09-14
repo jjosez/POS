@@ -6,22 +6,21 @@
 
 namespace FacturaScripts\Plugins\POS\Model;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Base\Utils;
-use FacturaScripts\Core\Model\Base;
 use FacturaScripts\Core\Model\Base\SalesDocument;
+use FacturaScripts\Core\Template\ModelClass;
+use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\Cliente;
-use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 
 /**
  * Operaciones realizadas terminales POS.
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class OrdenPuntoVenta extends Base\ModelClass
+class OrdenPuntoVenta extends ModelClass
 {
-    use Base\ModelTrait;
+    use ModelTrait;
 
     public $codcliente;
 
@@ -63,11 +62,11 @@ class OrdenPuntoVenta extends Base\ModelClass
      */
     public $url;
 
-    public function clear()
+    public function clear(): void
     {
         parent::clear();
-        $this->fecha = date(self::DATE_STYLE);
-        $this->hora = date(self::HOUR_STYLE);
+        $this->fecha = Tools::date();
+        $this->hora = Tools::hour();
     }
 
     public static function primaryColumn(): string
@@ -88,19 +87,19 @@ class OrdenPuntoVenta extends Base\ModelClass
     public function loadFromDocument(string $modelClass, string $code): bool
     {
         $where = [
-            new DataBaseWhere('iddocumento', $code),
-            new DataBaseWhere('tipodoc', $modelClass)
+            Where::eq('iddocumento', $code),
+            Where::eq('tipodoc', $modelClass)
         ];
 
-        return $this->loadFromCode('', $where);
+        return $this->loadWhere($where);
     }
 
-    public function loadFromData(array $data = [], array $exclude = [])
+    public function loadFromData(array $data = [], array $exclude = []): void
     {
         parent::loadFromData($data, $exclude);
 
         $this->descuadre = $this->testDescuadre();
-        $this->tipodocumento = Tools::lang()->trans($this->tipodoc);
+        $this->tipodocumento = Tools::trans($this->tipodoc);
         $this->nombrecliente = $this->getSubject()->nombre;
         $this->url = $this->url('edit');
     }
@@ -110,9 +109,9 @@ class OrdenPuntoVenta extends Base\ModelClass
      */
     public function getPayments(): array
     {
-        $where = [new DataBaseWhere('idoperacion', $this->idoperacion)];
-
-        return (new PagoPuntoVenta())->all($where);
+        return PagoPuntoVenta::all([
+            Where::eq('idoperacion', $this->idoperacion),
+        ]);
     }
 
     public function getDocument(): SalesDocument
@@ -121,7 +120,7 @@ class OrdenPuntoVenta extends Base\ModelClass
 
         /** @var SalesDocument $document */
         $document = new $className;
-        $document->loadFromCode($this->iddocumento);
+        $document->load($this->iddocumento);
 
         return $document;
     }
@@ -129,7 +128,8 @@ class OrdenPuntoVenta extends Base\ModelClass
     public function getSubject(): Cliente
     {
         $cliente = new Cliente();
-        $cliente->loadFromCode($this->codcliente);
+        $cliente->load($this->codcliente);
+
         return $cliente;
     }
 
@@ -142,7 +142,9 @@ class OrdenPuntoVenta extends Base\ModelClass
      */
     public static function allFromSession(string $sessionID): array
     {
-        return self::all([new DataBaseWhere('idsesion', $sessionID)]);
+        return self::all([
+            Where::eq('idsesion', $sessionID)
+        ]);
     }
 
     protected function testDescuadre(): bool
@@ -153,7 +155,7 @@ class OrdenPuntoVenta extends Base\ModelClass
             $pagos += $payment->pagoNeto();
         }
 
-        return Utils::floatcmp($this->total, $pagos);
+        return Tools::floatcmp($this->total, $pagos);
     }
 
     /**

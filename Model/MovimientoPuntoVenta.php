@@ -6,16 +6,18 @@
 namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Core\Template\ModelClass;
+use FacturaScripts\Core\Template\ModelTrait;
+use FacturaScripts\Core\Tools;
 
 /**
  * Operaciones realizadas terminales POS.
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class MovimientoPuntoVenta extends Base\ModelClass
+class MovimientoPuntoVenta extends ModelClass
 {
-    use Base\ModelTrait;
+    use ModelTrait;
 
     public $descripcion;
     public $id;
@@ -25,11 +27,11 @@ class MovimientoPuntoVenta extends Base\ModelClass
     public $nickusuario;
     public $total;
 
-    public function clear()
+    public function clear(): void
     {
         parent::clear();
-        $this->fecha = date(self::DATE_STYLE);
-        $this->hora = date(self::HOUR_STYLE);
+        $this->fecha = Tools::date();
+        $this->hora = Tools::hour();
     }
 
     public static function primaryColumn(): string

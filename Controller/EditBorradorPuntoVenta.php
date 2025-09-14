@@ -5,7 +5,7 @@
  */
 namespace FacturaScripts\Plugins\POS\Controller;
 
-use FacturaScripts\Core\Base\AjaxForms\SalesController;
+use FacturaScripts\Core\Lib\AjaxForms\SalesController;
 
 /**
  * Controller to edit a single item from the BorradorPuntoVenta model

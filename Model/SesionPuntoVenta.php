@@ -7,9 +7,10 @@
 namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Core\Template\ModelClass;
+use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\User;
 
 /**
@@ -17,9 +18,9 @@ use FacturaScripts\Dinamic\Model\User;
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class SesionPuntoVenta extends Base\ModelClass
+class SesionPuntoVenta extends ModelClass
 {
-    use Base\ModelTrait;
+    use ModelTrait;
 
     /**
      * @var bool
@@ -83,13 +84,13 @@ class SesionPuntoVenta extends Base\ModelClass
     public $saldomovimientos;
     public $saldoretirado;
 
-    public function clear()
+    public function clear(): void
     {
         parent::clear();
 
         $this->abierto = false;
-        $this->fechainicio = date(self::DATE_STYLE);
-        $this->horainicio = date(self::HOUR_STYLE);
+        $this->fechainicio = Tools::date();
+        $this->horainicio = Tools::hour();
         $this->nickusuario = false;
         $this->saldocontado = 0.0;
         $this->saldoesperado = 0.0;
@@ -152,10 +153,9 @@ class SesionPuntoVenta extends Base\ModelClass
      */
     public function getPayments(): array
     {
-        $pago = new PagoPuntoVenta();
-        $where = [new DataBaseWhere('idsesion', $this->idsesion)];
-
-        return $pago->all($where, [], 0, 0);
+        return PagoPuntoVenta::all([
+            Where::eq('idsesion', $this->idsesion)
+        ]);
     }
 
     /**
@@ -194,11 +194,11 @@ class SesionPuntoVenta extends Base\ModelClass
     public function getUserSession(string $nickname): bool
     {
         $where = [
-            new DataBaseWhere('nickusuario', $nickname, '='),
-            new DataBaseWhere('abierto', true, '=')
+            Where::eq('nickusuario', $nickname),
+            Where::eq('abierto', true)
         ];
 
-        return $this->loadFromCode('', $where);
+        return $this->loadWhere($where);
     }
 
     public function open(TerminalPuntoVenta $terminal, float $amount, User $user): bool
@@ -222,8 +222,8 @@ class SesionPuntoVenta extends Base\ModelClass
         }
 
         $this->abierto = false;
-        $this->fechafin = date(self::DATE_STYLE);
-        $this->horafin = date(self::HOUR_STYLE);
+        $this->fechafin = Tools::date();
+        $this->horafin = Tools::hour();
         $this->saldocontado = $totalCounted;
         $this->conteo = json_encode($coinsCount);
 

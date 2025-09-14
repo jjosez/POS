@@ -34,7 +34,7 @@ class ListOrdenPuntoVenta extends ExtendedController\ListController
     /**
      * Load views
      */
-    protected function createViews()
+    protected function createViews(): void
     {
         $this->addView('ListOrdenPuntoVenta', 'OrdenPuntoVenta', 'till-session-operations', 'fas fa-money-bill-alt');
         $this->addSearchFields('ListOrdenPuntoVenta', ['nombrecliente']);

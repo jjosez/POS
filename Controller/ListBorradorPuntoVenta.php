@@ -16,12 +16,12 @@ class ListBorradorPuntoVenta extends ListBusinessDocument
         return $data;
     }
 
-    protected function createViews()
+    protected function createViews(): void
     {
         $this->createViewsOperacionPausada();
     }
 
-    protected function createViewsOperacionPausada(string $viewName = "ListBorradorPuntoVenta")
+    protected function createViewsOperacionPausada(string $viewName = "ListBorradorPuntoVenta"): void
     {
         $this->createViewSales($viewName, 'BorradorPuntoVenta', 'Pendientes');
     }

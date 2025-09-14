@@ -34,7 +34,7 @@ class ListDenominacionMoneda extends ExtendedController\ListController
     /**
      * Load views
      */
-    protected function createViews()
+    protected function createViews(): void
     {
         $this->addView('ListDenominacionMoneda', 'DenominacionMoneda', 'currency-denomination', 'fas fa-money-bill-alt');
         $this->addSearchFields('ListDenominacionMoneda', ['clave', 'coddivisa']);

@@ -38,7 +38,7 @@ class PointOfSalePayments
         $receipt->codcliente = $invoice->codcliente;
         $receipt->coddivisa = $invoice->coddivisa;
         $receipt->idempresa = $invoice->idempresa;
-        $receipt->idfactura = $invoice->primaryColumnValue();
+        $receipt->idfactura = $invoice->id();
         $receipt->importe = $payment->pagoNeto();
         $receipt->nick = $invoice->nick;
         $receipt->numero = $number;
@@ -59,8 +59,7 @@ class PointOfSalePayments
         OrdenPuntoVenta $orden,
         SesionPuntoVenta $session,
         array $payments
-    ): bool
-    {
+    ): bool {
         self::cleanInvoiceReceipts($document);
 
         $counter = 1;

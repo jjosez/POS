@@ -33,7 +33,7 @@ class ListTerminalPuntoVenta extends ExtendedController\ListController
     /**
      * Load views
      */
-    protected function createViews()
+    protected function createViews(): void
     {
         $this->addView('ListTerminalPuntoVenta', 'TerminalPuntoVenta', 'cash-registers', 'fas fa-cash-register');
         $this->addSearchFields('ListTerminalPuntoVenta', ['nombre']);

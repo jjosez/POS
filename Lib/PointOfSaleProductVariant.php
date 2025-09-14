@@ -9,7 +9,7 @@ use FacturaScripts\Dinamic\Model\ProductoImagen;
 
 class PointOfSaleProductVariant
 {
-    static function search(string $query, array $filters = []): array
+    public static function search(string $query, array $filters = []): array
     {
         $database = new DataBase();
         $where = self::buildSql($query, $filters);
@@ -80,7 +80,6 @@ class PointOfSaleProductVariant
 
     protected static function buildSql(string $query, array $filters): string
     {
-        $where = '';
         $familyWhere = '';
 
         if (!empty($filters['families'])) {

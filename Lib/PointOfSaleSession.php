@@ -57,7 +57,7 @@ class PointOfSaleSession
 
     protected function loadTerminal(string $code): bool
     {
-        if (false === $this->terminal->loadFromCode($code)) {
+        if (false === $this->terminal->load($code)) {
             Tools::log('POS')->warning('cash-register-not-found');
             return false;
         }

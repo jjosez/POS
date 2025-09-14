@@ -43,7 +43,7 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
     /**
      * Load views
      */
-    protected function createViews()
+    protected function createViews(): void
     {
         parent::createViews();
         $this->setTabsPosition('top');
@@ -52,11 +52,9 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
         $this->createPagosView();
         $this->createMovimientosView();
         $this->createDraftView();
-
-
     }
 
-    protected function setSettingsSesionView()
+    protected function setSettingsSesionView(): void
     {
         $this->setSettings('EditSesionPuntoVenta', 'btnNew', false);
 
@@ -65,7 +63,7 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
         }
     }
 
-    protected function createMovimientosView(string $viewName = 'ListMovimientoPuntoVenta')
+    protected function createMovimientosView(string $viewName = 'ListMovimientoPuntoVenta'): void
     {
         $this->addListView($viewName, 'MovimientoPuntoVenta', 'till-session-cash-movments', 'fas fa-wallet')
             ->addOrderBy(['fecha', 'hora'], 'date');
@@ -74,7 +72,7 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
         $this->disableButtons($viewName);
     }
 
-    protected function createOrdenesView(string $viewName = 'ListOrdenPuntoVenta')
+    protected function createOrdenesView(string $viewName = 'ListOrdenPuntoVenta'): void
     {
         $this->addListView($viewName, 'OrdenPuntoVenta', 'till-session-operations')
             ->addOrderBy(['fecha', 'hora'], 'Fecha', 2);
@@ -82,7 +80,7 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
         $this->disableButtons($viewName);
     }
 
-    private function createDraftView(string $viewName = 'ListBorradorPuntoVenta')
+    private function createDraftView(string $viewName = 'ListBorradorPuntoVenta'): void
     {
         $this->addListView($viewName, 'BorradorPuntoVenta', 'pos-drafts')
             ->addOrderBy(['fecha', 'hora'], 'Fecha', 2);
@@ -90,7 +88,7 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
         $this->disableButtons($viewName);
     }
 
-    protected function createPagosView(string $viewName = 'ListPagoPuntoVenta')
+    protected function createPagosView(string $viewName = 'ListPagoPuntoVenta'): void
     {
         $formaspago = $this->codeModel->all('formaspago', 'codpago', 'descripcion');
 
@@ -103,7 +101,7 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
         $this->disableButtons($viewName);
     }
 
-    protected function disableButtons(string $viewName)
+    protected function disableButtons(string $viewName): void
     {
         $this->setSettings($viewName, 'btnNew', false);
         $this->setSettings($viewName, 'btnNew', false);
@@ -113,7 +111,7 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
         }
     }
 
-    protected function loadData($viewName, $view)
+    protected function loadData($viewName, $view): void
     {
         switch ($viewName) {
             case 'ListPagoPuntoVenta':

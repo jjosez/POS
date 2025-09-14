@@ -8,7 +8,10 @@ namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Almacenes;
-use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Core\Model\Base\CompanyRelationTrait;
+use FacturaScripts\Core\Template\ModelClass;
+use FacturaScripts\Core\Template\ModelTrait;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\Almacen;
 use FacturaScripts\Dinamic\Model\Cliente;
 
@@ -17,10 +20,10 @@ use FacturaScripts\Dinamic\Model\Cliente;
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class TerminalPuntoVenta extends Base\ModelClass
+class TerminalPuntoVenta extends ModelClass
 {
-    use Base\ModelTrait;
-    use Base\CompanyRelationTrait;
+    use ModelTrait;
+    use CompanyRelationTrait;
 
     public const PRODUCTS_FROM_COMPANY = 1;
     public const PRODUCTS_FROM_WAREHOUSE = 2;
@@ -46,7 +49,7 @@ class TerminalPuntoVenta extends Base\ModelClass
 
     public $productolibre;
 
-    public function clear()
+    public function clear(): void
     {
         parent::clear();
 
@@ -74,14 +77,14 @@ class TerminalPuntoVenta extends Base\ModelClass
     public function getAvailable($idempresa = null): array
     {
         $where = [
-            new DataBaseWhere('disponible', true, '=')
+            Where::eq('disponible', true),
         ];
 
         if ($idempresa) {
-            $where[] = new DataBaseWhere('idempresa', $idempresa);
+            $where[] = Where::eq('idempresa', $idempresa);
         }
 
-        return $this->all($where);
+        return self::all($where);
     }
 
     /**
@@ -90,7 +93,7 @@ class TerminalPuntoVenta extends Base\ModelClass
     public function getDefaultCustomer(): Cliente
     {
         $customer = new Cliente();
-        $customer->loadFromCode($this->codcliente);
+        $customer->load($this->codcliente);
 
         return $customer;
     }
@@ -112,7 +115,9 @@ class TerminalPuntoVenta extends Base\ModelClass
      */
     public function getSupportedPaymenthMethods(): array
     {
-        return FormaPagoPuntoVenta::all([new DataBaseWhere('idterminal', $this->idterminal)]);
+        return FormaPagoPuntoVenta::all([
+            Where::eq('idterminal', $this->idterminal)
+        ]);
     }
 
     public function getCashPaymentMethod(): string
@@ -129,7 +134,9 @@ class TerminalPuntoVenta extends Base\ModelClass
      */
     public function getSupportedDocuments(): array
     {
-        return TipoDocumentoPuntoVenta::all([new DataBaseWhere('idterminal', $this->idterminal)]);
+        return TipoDocumentoPuntoVenta::all([
+            new DataBaseWhere('idterminal', $this->idterminal)
+        ]);
     }
 
     public function getWarehouse(): Almacen

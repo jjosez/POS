@@ -6,7 +6,6 @@
 
 namespace FacturaScripts\Plugins\POS\Controller;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController;
 
 /**

@@ -2,7 +2,7 @@
 
 namespace FacturaScripts\Plugins\POS\Lib;
 
-use FacturaScripts\Core\Base\Calculator;
+use FacturaScripts\Core\Lib\Calculator;
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Model\Base\SalesDocumentLine;
 use FacturaScripts\Core\Tools;
@@ -82,7 +82,7 @@ class PointOfSaleTransaction
     {
         $this->setPaymentMethod();
 
-        if (empty($this->document->primaryColumnValue()) && false === $this->document->save()) {
+        if (empty($this->document->id()) && false === $this->document->save()) {
             Tools::log()->warning('document-save-error');
             return false;
         }
@@ -92,7 +92,7 @@ class PointOfSaleTransaction
         return Calculator::calculate($this->document, $this->documentLines, true);
     }
 
-    protected function setDocument(array $data, string $modelName)
+    protected function setDocument(array $data, string $modelName): void
     {
         $className = self::MODEL_NAMESPACE . $modelName;
 
@@ -114,7 +114,7 @@ class PointOfSaleTransaction
         $this->setDocumentSubject();
     }
 
-    protected function setDocumentLines()
+    protected function setDocumentLines(): void
     {
         foreach ($this->document->getLines() as $line) {
             $line->delete();
@@ -140,14 +140,14 @@ class PointOfSaleTransaction
         }
     }
 
-    protected function setDocumentSubject()
+    protected function setDocumentSubject(): void
     {
         if (empty($this->document->nombrecliente) || empty($this->document->cifnif)) {
             $this->document->updateSubject();
         }
     }
 
-    protected function setPayments(array $list)
+    protected function setPayments(array $list): void
     {
         foreach ($list as $element) {
             $payment = new PagoPuntoVenta();
@@ -161,7 +161,7 @@ class PointOfSaleTransaction
         }
     }
 
-    protected function setPaymentMethod()
+    protected function setPaymentMethod(): void
     {
         $this->document->codpago = $this->getPaymentMethod();
     }

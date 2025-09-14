@@ -7,7 +7,7 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Base\ExtensionsTrait;
+use FacturaScripts\Core\Template\ExtensionsTrait;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\DenominacionMoneda;
@@ -108,7 +108,7 @@ trait PointOfSaleTrait
     public function getDefaultCustomer(): Cliente
     {
         $customer = new Cliente();
-        $customer->loadFromCode($this->getTerminal()->codcliente);
+        $customer->load($this->getTerminal()->codcliente);
 
         return $customer;
     }
@@ -313,7 +313,7 @@ trait PointOfSaleTrait
         $where = [new DataBaseWhere('madre', $codfamilia)];
 
         $familia = new Familia();
-        $familia->loadFromCode($codfamilia);
+        $familia->load($codfamilia);
 
         $result = [
             'madre' => $familia->codfamilia ? $familia : '',

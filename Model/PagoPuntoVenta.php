@@ -6,19 +6,20 @@
 
 namespace FacturaScripts\Plugins\POS\Model;
 
-use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Core\DataSrc\FormasPago;
 use FacturaScripts\Core\Session;
+use FacturaScripts\Core\Template\ModelClass;
+use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Dinamic\Model\FormaPago;
 
 /**
  * Operaciones realizadas terminales POS.
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class PagoPuntoVenta extends Base\ModelClass
+class PagoPuntoVenta extends ModelClass
 {
-    use Base\ModelTrait;
+    use ModelTrait;
 
     public $isCashMethod;
 
@@ -73,7 +74,7 @@ class PagoPuntoVenta extends Base\ModelClass
     public $updatedat;
 
 
-    public function clear()
+    public function clear(): void
     {
         parent::clear();
         $this->cantidad = 0;
@@ -113,7 +114,7 @@ class PagoPuntoVenta extends Base\ModelClass
 
     public function descripcion(): string
     {
-        return (new FormaPago())->get($this->codpago)->descripcion;
+        return FormasPago::get($this->codpago)->descripcion;
     }
 
     protected function saveUpdate(array $values = []): bool
@@ -127,7 +128,7 @@ class PagoPuntoVenta extends Base\ModelClass
     public function getOrdenPuntoVenta(): OrdenPuntoVenta
     {
         $order = new OrdenPuntoVenta();
-        $order->loadFromCode($this->idoperacion);
+        $order->load($this->idoperacion);
 
         return $order;
     }
@@ -135,7 +136,7 @@ class PagoPuntoVenta extends Base\ModelClass
     public function getSesionPuntoVenta(): SesionPuntoVenta
     {
         $sesion = new SesionPuntoVenta();
-        $sesion->loadFromCode($this->idsesion);
+        $sesion->load($this->idsesion);
 
         return $sesion;
     }
@@ -148,7 +149,7 @@ class PagoPuntoVenta extends Base\ModelClass
         if (empty($this->idsesion)) {
             $orden = new OrdenPuntoVenta();
 
-            if ($orden->loadFromCode($this->idoperacion)) {
+            if ($orden->load($this->idoperacion)) {
                 $this->idsesion = $orden->idsesion;
             }
         }

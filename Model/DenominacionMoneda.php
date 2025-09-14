@@ -5,16 +5,17 @@
  */
 namespace FacturaScripts\Plugins\POS\Model;
 
-use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Core\Template\ModelClass;
+use FacturaScripts\Core\Template\ModelTrait;
 
 /**
  * Cash denomination .
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class DenominacionMoneda extends Base\ModelClass
+class DenominacionMoneda extends ModelClass
 {
-    use Base\ModelTrait;
+    use ModelTrait;
 
     public $clave;
     public $coddivisa;

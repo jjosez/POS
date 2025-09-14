@@ -7,6 +7,8 @@
 namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Core\Template\ModelClass;
+use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
 
 /**
@@ -14,9 +16,9 @@ use FacturaScripts\Core\Tools;
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class TipoDocumentoPuntoVenta extends Base\ModelClass
+class TipoDocumentoPuntoVenta extends ModelClass
 {
-    use Base\ModelTrait;
+    use ModelTrait;
 
     /**
      * @var string
@@ -37,19 +39,19 @@ class TipoDocumentoPuntoVenta extends Base\ModelClass
 
     public $descripcion;
 
-    public function clear()
+    public function clear(): void
     {
         parent::clear();
         $this->tipodoc = false;
         $this->preferido = false;
     }
 
-    public function loadFromData(array $data = [], array $exclude = [])
+    public function loadFromData(array $data = [], array $exclude = []): void
     {
         parent::loadFromData($data, $exclude);
 
         if (empty($this->descripcion)) {
-            $this->descripcion = Tools::lang()->trans($this->tipodoc);
+            $this->descripcion = Tools::trans($this->tipodoc);
         }
     }
 

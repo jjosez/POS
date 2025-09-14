@@ -20,7 +20,7 @@ class PointOfSaleStorage
     {
         $draft = new BorradorPuntoVenta();
 
-        if (isset($document->idpausada) && $draft->loadFromCode($document->idpausada)) {
+        if (isset($document->idpausada) && $draft->load($document->idpausada)) {
             return $draft->setAsCompleted();
         }
 
@@ -35,7 +35,7 @@ class PointOfSaleStorage
     {
         $draft = new BorradorPuntoVenta();
 
-        if ($code && $draft->loadFromCode($code)) {
+        if ($code && $draft->load($code)) {
             return $draft->delete();
         }
 
@@ -49,11 +49,11 @@ class PointOfSaleStorage
     public static function getDraftDocument(string $code): BorradorPuntoVenta
     {
         $document = new BorradorPuntoVenta();
-        $document->loadFromCode($code);
+        $document->load($code);
 
         $document->codigo = null;
-        $document->fecha = date($document::DATE_STYLE);
-        $document->hora = date($document::HOUR_STYLE);
+        $document->fecha = Tools::date();
+        $document->hora = Tools::hour();
 
         return $document;
     }
@@ -71,7 +71,7 @@ class PointOfSaleStorage
     public static function getOrder(string $code): OrdenPuntoVenta
     {
         $order = new OrdenPuntoVenta();
-        $order->loadFromCode($code);
+        $order->load($code);
 
         return $order;
     }
@@ -81,8 +81,7 @@ class PointOfSaleStorage
         $order = new OrdenPuntoVenta();
 
         Tools::log('POS')->debug('get-order-from-document' . $modelClass . ' ' . $code);
-        if (false ===$order->loadFromDocument($modelClass, $code))
-        {
+        if (false === $order->loadFromDocument($modelClass, $code)) {
             Tools::log('POS')->warning('order-not-found');
         }
 
@@ -101,12 +100,11 @@ class PointOfSaleStorage
     public static function saveOrder(
         OrdenPuntoVenta $order,
         SalesDocument $document
-    ): bool
-    {
+    ): bool {
         $order->codigo = $document->codigo;
         $order->codcliente = $document->codcliente;
         $order->fecha = $document->fecha;
-        $order->iddocumento = $document->primaryColumnValue();
+        $order->iddocumento = $document->id();
         $order->idsesion = PointOfSaleSession::getSessionID();
         $order->tipodoc = $document->modelClassName();
         $order->total = $document->total;
@@ -117,8 +115,7 @@ class PointOfSaleStorage
     public static function saveCashMovment(
         float $amount,
         string $description
-    ): bool
-    {
+    ): bool {
         $sessionID = PointOfSaleSession::getSessionID();
         $session = PointOfSaleSession::getSessionModel();
         $nick = Session::user()->nick;

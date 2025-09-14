@@ -7,11 +7,14 @@
 namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Core\Model\Base\SalesDocument;
+use FacturaScripts\Core\Template\ModelTrait;
+use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 
-class BorradorPuntoVenta extends Base\SalesDocument
+class BorradorPuntoVenta extends SalesDocument
 {
-    use Base\ModelTrait;
+    use ModelTrait;
 
     const NEWLINE_EXCLUDED_FIELDS = ['actualizastock', 'idlinea', 'idpausada'];
 
@@ -49,42 +52,35 @@ class BorradorPuntoVenta extends Base\SalesDocument
      */
     public static function allOpened(?string $sessionID = null): array
     {
-        //$where = [Where::eq('editable', true)];
-        $query = [
-            new DataBaseWhere('editable', true)
-        ];
+        $where = [Where::eq('editable', true)];
 
         if ($sessionID) {
-            $query[] = new DataBaseWhere('idsesion', $sessionID);
-            //$where[] = Where::eq('idsesion', $sessionID);
+            $where[] = Where::eq('idsesion', $sessionID);
         }
 
-        //return self::table()->where($where)->get() ?? [];
-        return self::all($query);
+        return self::all($where);
     }
 
     public static function allCompleted(?string $sessionID = null): array
     {
-        $query = [
-            new DataBaseWhere('editable', false)
-        ];
+        $where = [Where::eq('editable', false)];
 
         if ($sessionID) {
-            $query[] = new DataBaseWhere('idsesion', $sessionID);
+            $where = [Where::eq('idsesion', $sessionID)];
         }
 
-        return self::all($query, [], 0, 1000);
+        return self::all($where);
     }
 
-    public function clear()
+    public function clear(): void
     {
         parent::clear();
 
-        $this->fecharegistro = date(self::DATE_STYLE);
-        $this->horaregistro = date(self::HOUR_STYLE);
+        $this->fecharegistro = Tools::date();
+        $this->horaregistro = Tools::hour();
     }
 
-    public function loadFromData(array $data = [], array $exclude = [])
+    public function loadFromData(array $data = [], array $exclude = []): void
     {
         parent::loadFromData($data, $exclude);
 
@@ -110,11 +106,10 @@ class BorradorPuntoVenta extends Base\SalesDocument
      */
     public function getLines(): array
     {
-        $lineaModel = new LineaBorradorPuntoVenta();
-        $where = [new DataBaseWhere('idpausada', $this->idpausada)];
+        $where = [Where::eq('idpausada', $this->idpausada)];
         $order = ['orden' => 'DESC', 'idlinea' => 'ASC'];
 
-        return $lineaModel->all($where, $order, 0, 0);
+        return LineaBorradorPuntoVenta::all($where, $order, 0, 0);
     }
 
     /**

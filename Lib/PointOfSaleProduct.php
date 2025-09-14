@@ -6,7 +6,6 @@ use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Almacenes;
 use FacturaScripts\Core\Model\CodeModel;
-use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Join\ProductoStock;
 use FacturaScripts\Dinamic\Model\Join\ProductoVariante;
 use FacturaScripts\Dinamic\Model\Variante;
@@ -100,7 +99,7 @@ class PointOfSaleProduct
     /**
      * @return CodeModel|false
      */
-    public static function searchBarcode(string $text)
+    public static function searchBarcode(string $text): bool|CodeModel
     {
         $result = self::getVariante()->codeModelSearch($text, 'referencia');
 

@@ -8,6 +8,7 @@ namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Lib\Widget\VisualItemLoadEngine;
 use FacturaScripts\Dinamic\Model\PageOption;
 use FacturaScripts\Plugins\POS\Model\OpcionesTerminalPuntoVenta;
@@ -74,10 +75,10 @@ class PointOfSaleForms
         $options = new OpcionesTerminalPuntoVenta();
 
         $where = [
-            new DataBaseWhere('nick', NULL),
+            Where::eq('nick', NULL),
         ];
 
-        if ($options->loadFromCode('', $where)) {
+        if ($options->loadWhere($where)) {
             self::$options = $options->getColumnsAsArray();
             return true;
         }
@@ -91,10 +92,10 @@ class PointOfSaleForms
         $options = new OpcionesTerminalPuntoVenta();
 
         $where = [
-            new DataBaseWhere('nick', $nick),
+            Where::eq('nick', $nick),
         ];
 
-        if ($options->loadFromCode('', $where)) {
+        if ($options->loadWhere($where)) {
             self::$options = $options->getColumnsAsArray();
             return true;
         }

@@ -19,17 +19,18 @@
 
 namespace FacturaScripts\Plugins\POS\Model;
 
-use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Core\Template\ModelClass;
+use FacturaScripts\Core\Template\ModelTrait;
 
 /**
  * Seguimiento de los pagos desde el POS y su ciclo de vida.
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
-class PagoPuntoVentaSeguimiento extends Base\ModelClass
+class PagoPuntoVentaSeguimiento extends ModelClass
 {
 
-    use Base\ModelTrait;
+    use ModelTrait;
 
     /**
      * @var float
@@ -76,7 +77,7 @@ class PagoPuntoVentaSeguimiento extends Base\ModelClass
      */
     public $modelto;
 
-    public function clear()
+    public function clear(): void
     {
         parent::clear();
         $this->cantidad = 0.0;

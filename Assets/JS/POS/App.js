@@ -3,7 +3,6 @@
  * Copyright (C) 2018-2025 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 import * as Order from "./controllers/OrderController.js";
-import * as View from "./View.js";
 import CartController from "./controllers/CartController.js";
 import CheckoutController from "./controllers/CheckoutController.js";
 import CustomerController from "./controllers/CustomerController.js";
@@ -42,11 +41,11 @@ async function orderResumeAction({code}) {
 async function orderSaveAction() {
     if (!CartController.hasLines()) return;
 
-    const result =  await Order.saveRequest(CartController.getState(), CheckoutController.getState().payments);
+    const result = await Order.saveRequest(CartController.getState(), CheckoutController.getState().payments);
 
     CartController.update(result);
 
-    if (result?.status  === 'success') {
+    if (result?.status === 'success') {
         MainView.showPrintOrderContextModal(result.data);
         EventManager.emit('onOrderComplete', result)
     }
@@ -74,7 +73,7 @@ async function showLastOrdersAction() {
 /**
  * @param {Event} event
  */
-async function appEventHandler(event) {
+async function appEventHandler(event){
     const data = event.target.dataset;
     const action = data.action;
 
@@ -83,7 +82,6 @@ async function appEventHandler(event) {
     }
 
     switch (action) {
-
         case 'orderDeleteAction':
             return orderDeleteAction(data);
 
