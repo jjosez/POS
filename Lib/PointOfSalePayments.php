@@ -15,7 +15,7 @@ use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 
 class PointOfSalePayments
 {
-    public static function cleanInvoiceReceipts(SalesDocument $invoice)
+    public static function cleanInvoiceReceipts(SalesDocument $invoice): void
     {
         if ('FacturaCliente' !== $invoice->modelClassName()) {
             return;
@@ -27,8 +27,11 @@ class PointOfSalePayments
         }
     }
 
-    public static function saveInvoiceReceipt(SalesDocument $invoice, PagoPuntoVenta $payment, int $number = 1)
-    {
+    public static function saveInvoiceReceipt(
+        SalesDocument $invoice,
+        PagoPuntoVenta $payment,
+        int $number = 1
+    ): void {
         if ('FacturaCliente' !== $invoice->modelClassName()) {
             return;
         }
