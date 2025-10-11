@@ -1,4 +1,5 @@
-import {Eta} from "../../vendor/eta/browser.module.js?v=3.5.0";
+///import {Eta} from "../../vendor/eta/browser.module.js?v=3.5.0";
+import {Eta} from "../../vendor/eta/dist/core.js";
 
 const eta =  new Eta({ useWith: true });
 let instance;

@@ -65,6 +65,7 @@
   "pos-terminal-missing-setup-options": "Important configuration missing for the terminal.",
   "print-z": "Print Z report",
   "printing": "Printing",
+  "printing-sale-ticket": "Printing sale ticket",
   "printing-ticket": "Printing ticket %ticket%.<img class='d-none' src='http://localhost:8089?documento=%code%'/>",
   "product-source": "List products",
   "select-cash-register": "Select a terminal to start.",

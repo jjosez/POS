@@ -74,7 +74,7 @@ class PointOfSaleTransaction
         return [
             'doc' => $this->document,
             'lines' => array_map(function ($line) {
-                return $line->toArray();
+                return $line->toArray(true);
             }, $this->documentLines),
         ];
     }

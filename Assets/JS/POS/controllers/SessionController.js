@@ -38,6 +38,11 @@ const SessionController = {
         dispatcher.register('cashWithdrawAction', this.cashWithdraw);
         dispatcher.register('closeSessionAction', this.closeSession);
         dispatcher.register('printClosingTicketAction', this.printSessionReportX);
+
+        MainView.closeSessionForm().addEventListener('submit', function (e) {
+            e.preventDefault();
+            return false;
+        });
     }
 };
 

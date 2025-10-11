@@ -28,6 +28,10 @@ class TerminalPuntoVenta extends ModelClass
     public const PRODUCTS_FROM_COMPANY = 1;
     public const PRODUCTS_FROM_WAREHOUSE = 2;
 
+    public const MODE_CASHIER = 'cashier';
+    public const MODE_SELLER = 'seller';
+    public const MODE_CUSTOMER = 'customer';
+
     public $anchopapel;
     public $aceptapagos;
     public $codalmacen;
@@ -49,6 +53,8 @@ class TerminalPuntoVenta extends ModelClass
 
     public $productolibre;
 
+    public $terminal_type;
+
     public function clear(): void
     {
         parent::clear();
@@ -59,6 +65,7 @@ class TerminalPuntoVenta extends ModelClass
         $this->defaultdocument = 'FacturaCliente';
         $this->disponible = true;
         $this->numerotickets = 1;
+        $this->terminal_type = self::MODE_CASHIER;
     }
 
     public static function primaryColumn(): string

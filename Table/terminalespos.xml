@@ -69,6 +69,11 @@
         <type>integer</type>
         <default>null</default>
     </column>
+    <column>
+        <name>terminal_type</name>
+        <type>character varying(5)</type>
+        <default>null</default>
+    </column>
     <constraint>
         <name>terminalespos_pkey</name>
         <type>PRIMARY KEY (idterminal)</type>
