@@ -22,7 +22,7 @@ class OpcionesTerminalPuntoVenta extends ModelClass
     }
 
     /**
-     * @return array|mixed
+     * @return array
      */
     public function getColumnsAsArray(): array
     {

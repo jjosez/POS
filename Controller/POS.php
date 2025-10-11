@@ -50,7 +50,7 @@ class POS extends Controller
     {
         parent::privateCore($response, $user, $permissions);
         $this->setTemplate(false);
-        $action = $this->request->get('action', '');
+        $action = $this->request->inputOrQuery('action', '');
 
         if ($action && true === $this->execCartQueryAction($action)) {
             return;
@@ -142,7 +142,7 @@ class POS extends Controller
                 return false;
 
             default:
-                $this->setResponse('not-found-action');
+                //$this->setResponse('not-found-action', false);
                 return true;
         }
     }
@@ -196,7 +196,7 @@ class POS extends Controller
                 return true;
 
             default:
-                $this->setResponse('not-found-action');
+                //$this->setResponse('not-found-action', false);
                 return false;
         }
     }
@@ -452,7 +452,7 @@ class POS extends Controller
         $this->setSuccessResponse([
             'code' => $document->id(),
             'model' => $document->modelClassName(),
-            'order' => $order->primaryColumnValue(),
+            'order' => $order->id(),
         ]);
     }
 

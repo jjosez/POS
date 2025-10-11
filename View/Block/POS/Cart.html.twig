@@ -60,7 +60,7 @@
             <span class="font-semibold">{{ trans('quantity') }}</span>
         </div>
         {% if cartColumnCount <= 3 %}
-            <div class="mr-2 flex h-full flex-row justify-between gap-2 self-center">
+            <div class="mr-2 flex h-full flex-row justify-between gap-2">
                 {% for column in grid %}
                     {% if column.data not in excludedColumns and column.eneabled and column.carrito %}
                         {% set label = column.tittle ?: trans(column.name) %}

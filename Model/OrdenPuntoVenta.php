@@ -136,8 +136,7 @@ class OrdenPuntoVenta extends ModelClass
     /**
      * Returns all orders from given session ID.
      *
-     * @param string $code
-     *
+     * @param string $sessionID
      * @return OrdenPuntoVenta[]
      */
     public static function allFromSession(string $sessionID): array

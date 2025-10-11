@@ -6,8 +6,9 @@
 
 namespace FacturaScripts\Plugins\POS\Model;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
+use Exception;
 use FacturaScripts\Core\Model\Base\SalesDocument;
+use FacturaScripts\Core\Model\ProductoImagen;
 use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
@@ -48,7 +49,7 @@ class BorradorPuntoVenta extends SalesDocument
 
     /**
      * @return BorradorPuntoVenta[]
-     * @throws \Exception
+     * @throws Exception
      */
     public static function allOpened(?string $sessionID = null): array
     {
@@ -109,7 +110,12 @@ class BorradorPuntoVenta extends SalesDocument
         $where = [Where::eq('idpausada', $this->idpausada)];
         $order = ['orden' => 'DESC', 'idlinea' => 'ASC'];
 
-        return LineaBorradorPuntoVenta::all($where, $order, 0, 0);
+        $lines = LineaBorradorPuntoVenta::all($where, $order);
+        foreach ($lines as &$line) {
+            $this->loadThumbnailForLine($line);
+        }
+
+        return $lines;
     }
 
     /**
@@ -151,10 +157,26 @@ class BorradorPuntoVenta extends SalesDocument
         return 'pausadaspos';
     }
 
-    protected function setListRowColor()
+    protected function setListRowColor(): void
     {
         $this->rowcolor = $this->total <= 0 ? 'yellow' : 'slate';
 
         $this->pipe('setListRowColor');
+    }
+
+    protected function loadThumbnailForLine($line): void
+    {
+        $where = [
+            Where::eq('idproducto', $line->idproducto),
+            Where::orEq('referencia', $line->referencia),
+        ];
+
+        $images = ProductoImagen::all($where);
+
+        if (empty($images)) {
+            return;
+        }
+
+        $line->thumbnail = FS_ROUTE . $images[0]->getThumbnail(150, 150, true);
     }
 }

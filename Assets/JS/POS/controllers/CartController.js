@@ -173,6 +173,7 @@ const CartController = {
      * @property {string} el.dataset.thumbnail - The URL or path to the product's thumbnail image.
      */
     addProduct(el) {
+        console.info('Adding product to cart', el.dataset);
         const {code, description, thumbnail} = el.dataset;
         if (!code) return;
 

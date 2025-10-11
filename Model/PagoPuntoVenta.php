@@ -122,7 +122,7 @@ class PagoPuntoVenta extends ModelClass
         $this->nickupdate = Session::user()->nick;
         $this->updatedat = Tools::dateTime();
 
-        return parent::saveUpdate($values);
+        return parent::saveUpdate();
     }
 
     public function getOrdenPuntoVenta(): OrdenPuntoVenta

@@ -69,10 +69,14 @@ class PointOfSaleTransaction
     public function recalculate(): array
     {
         $this->setDocumentLines();
-
         Calculator::calculate($this->document, $this->documentLines, false);
 
-        return ['doc' => $this->document, 'lines' => $this->documentLines];
+        return [
+            'doc' => $this->document,
+            'lines' => array_map(function ($line) {
+                return $line->toArray();
+            }, $this->documentLines),
+        ];
     }
 
     /**
@@ -83,7 +87,7 @@ class PointOfSaleTransaction
         $this->setPaymentMethod();
 
         if (empty($this->document->id()) && false === $this->document->save()) {
-            Tools::log()->warning('document-save-error');
+            Tools::log()->warning('record-save-error');
             return false;
         }
 

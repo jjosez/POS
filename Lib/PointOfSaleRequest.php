@@ -3,7 +3,6 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Request;
-use FacturaScripts\Core\Tools;
 use RuntimeException;
 
 class PointOfSaleRequest
@@ -15,7 +14,7 @@ class PointOfSaleRequest
 
     public function __construct(Request $request)
     {
-        $data = $this->getContent();
+        $data = $this->getContent($request);
 
         if (empty($data)) {
             throw new RuntimeException('Petición invalida.');
@@ -62,16 +61,11 @@ class PointOfSaleRequest
         return $this->documentType === 'BorradorPuntoVenta';
     }
 
-    private function getContent(): array
+    private function getContent(Request $request): array
     {
-        $rawInput = file_get_contents('php://input');
+        $content = $request->getContent();
+        $decoded = json_decode($content, true);
 
-        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
-        if (strpos($contentType, 'application/json') !== false) {
-            $decoded = json_decode($rawInput, true);
-            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) return $decoded;
-        }
-
-        return [];
+        return json_last_error() === JSON_ERROR_NONE && is_array($decoded) ? $decoded : [];
     }
 }

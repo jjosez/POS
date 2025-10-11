@@ -335,17 +335,11 @@ trait PointOfSaleTrait
     protected function setResponse($content, bool $encode = true): void
     {
         if ($encode) {
-            $response = json_encode($content);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                Tools::log()->error('Error al serializar JSON: ' . json_last_error_msg());
-                $response = json_encode(['error' => 'Error al generar respuesta JSON']);
-            }
-        } else {
-            $response = $content;
+            $this->response()->json($content);
+            return;
         }
 
-        $this->response->setContent($response);
+        $this->response()->setContent($content);
     }
 
     protected function validateDelete(): bool

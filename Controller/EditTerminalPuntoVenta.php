@@ -99,11 +99,10 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
             ->setSettings('modalInsert', 'add-denomination');
     }
 
-    protected function execPreviousAction($action)
+    protected function execPreviousAction($action): bool
     {
-        switch ($action) {
-            case 'add-denomination':
-                return $this->saveDenominationAction();
+        if ($action == 'add-denomination') {
+            return $this->saveDenominationAction();
         }
 
         return parent::execPreviousAction($action);
@@ -155,7 +154,7 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
     {
         switch ($action) {
             case 'load-fields-options':
-                $this->selectedUser = $this->request->get('nick');
+                $this->selectedUser = $this->request->inputOrQuery('nick');
                 break;
             case 'save-fields-options':
                 $this->saveFieldOptions();
@@ -173,29 +172,21 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
 
     private function deleteFieldOptions(): void
     {
-        $this->selectedUser = $this->request->get('nick') ?: null;
+        $this->selectedUser = $this->request->inputOrQuery('nick') ?: null;
         $options = new OpcionesTerminalPuntoVenta();
 
-        $where = [
-            new DataBaseWhere('nick', $this->selectedUser),
-        ];
-
-        if ($options->loadFromCode('', $where) && $options->delete()) {
+        if ($options->loadWhereEq('nick', $this->selectedUser) && $options->delete()) {
             Tools::log()->notice('Configuracion de campos en el pos eliminado.');
         }
     }
 
     private function saveFieldOptions(): void
     {
-        $fields = $this->request->get('field', []);
-        $this->selectedUser = $this->request->get('nick') ?: null;
+        $fields = $this->request->inputOrQuery('field', []);
+        $this->selectedUser = $this->request->inputOrQuery('nick') ?: null;
         $options = new OpcionesTerminalPuntoVenta();
 
-        $where = [
-            new DataBaseWhere('nick', $this->selectedUser)
-        ];
-
-        if (false === $options->loadFromCode('', $where)) {
+        if (false === $options->loadWhereEq('nick', $this->selectedUser)) {
             $options->nick = $this->selectedUser;
         }
 
@@ -205,9 +196,9 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
 
     private function saveDenominationAction(): bool
     {
-        $code = $this->request->get('clave');
-        $currency = $this->request->get('coddivisa');
-        $value = $this->request->get('valor');
+        $code = $this->request->inputOrQuery('clave');
+        $currency = $this->request->inputOrQuery('coddivisa');
+        $value = $this->request->inputOrQuery('valor');
 
         $denomination = new DenominacionMoneda();
 

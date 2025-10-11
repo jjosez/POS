@@ -18,7 +18,7 @@ class EditBorradorPuntoVenta extends SalesController
     /**
      * @return string
      */
-    public function getModelClassName()
+    public function getModelClassName(): string
     {
         return 'BorradorPuntoVenta';
     }

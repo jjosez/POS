@@ -41,7 +41,7 @@ class EditPagoPuntoVenta extends ExtendedController\EditController
         return $pagedata;
     }
 
-    protected function setViewReadOnly(string $viewName,ExtendedController\BaseView $view)
+    protected function setViewReadOnly(string $viewName, ExtendedController\BaseView $view): void
     {
         /** @var SesionPuntoVenta $session */
         $session = $view->model->getSesionPuntoVenta();
@@ -54,7 +54,7 @@ class EditPagoPuntoVenta extends ExtendedController\EditController
         $this->views[$viewName]->setReadOnly(true);
     }
 
-    protected function loadData($viewName, $view)
+    protected function loadData($viewName, $view): void
     {
         if ($viewName === $this->getMainViewName())
         {

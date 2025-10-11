@@ -46,7 +46,7 @@ class ProductoStock extends JoinModel
          return 'stocks S LEFT JOIN almacenes A ON S.codalmacen = A.codalmacen';
     }
 
-    protected function loadFromData($data)
+    protected function loadFromData($data): void
     {
         foreach ($data as $field => $value) {
             $this->{$field} = $value;

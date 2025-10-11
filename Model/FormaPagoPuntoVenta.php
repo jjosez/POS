@@ -6,7 +6,6 @@
 
 namespace FacturaScripts\Plugins\POS\Model;
 
-use FacturaScripts\Core\Model\Base;
 use FacturaScripts\Core\DataSrc\FormasPago;
 use FacturaScripts\Core\Template\ModelClass;
 use FacturaScripts\Core\Template\ModelTrait;

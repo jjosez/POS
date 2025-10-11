@@ -2,12 +2,16 @@
 
 namespace FacturaScripts\Plugins\POS\Model\Join;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base\JoinModel;
 use FacturaScripts\Core\Model\Base\TaxRelationTrait;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\ProductoImagen;
 
+/**
+ * @property bool $isOutOfStock
+ * @property mixed|null $allow_no_stock
+ */
 class ProductoVariante extends JoinModel
 {
     use TaxRelationTrait;
@@ -144,11 +148,11 @@ class ProductoVariante extends JoinModel
      */
     public static function getImages(string $id, string $code): array
     {
-        $where = [new DataBaseWhere('referencia', $code)];
+        $where = [Where::eq('referencia', $code)];
 
         if (!empty($id) && ($id !== 'undefined')) {
-            $where[] = new DataBaseWhere('referencia', null, 'IS', 'OR');
-            $where[] = new DataBaseWhere('idproducto', $id, '=', 'AND');
+            $where[] = Where::orEq('referencia', null);
+            $where[] = Where::eq('idproducto', $id);
         }
 
         return ProductoImagen::all($where);
