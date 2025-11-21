@@ -144,7 +144,8 @@ trait PointOfSaleTrait
      */
     public function getFieldOptions(): array
     {
-        return PointOfSaleForms::getFormsGrid($this->user->nick);
+        Tools::log('POS')->warning(print_r(PointOfSaleForms::getFormsGrid($this->user->nick), true));
+        return [];
     }
 
     public function getCartColumnCount(): int

@@ -181,9 +181,11 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
 
     private function saveFieldOptions(): void
     {
-        $fields = $this->request->inputOrQuery('field', []);
+        $fields = $this->request->request->getArray('field');
         $this->selectedUser = $this->request->inputOrQuery('nick') ?: null;
         $options = new OpcionesTerminalPuntoVenta();
+
+        Tools::log()->warning(print_r($fields, true));
 
         if (false === $options->loadWhereEq('nick', $this->selectedUser)) {
             $options->nick = $this->selectedUser;
