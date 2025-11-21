@@ -182,7 +182,7 @@ class SesionPuntoVenta extends ModelClass
     public function getTerminal(): TerminalPuntoVenta
     {
         $terminal = new TerminalPuntoVenta();
-        $terminal->loadFromCode($this->idterminal);
+        $terminal->load($this->idterminal);
 
         return $terminal;
     }

@@ -86,7 +86,7 @@ export async function printerServerRequest({print_job_id}) {
 
     try {
         const response = await fetch('http://127.0.0.1:8089?' + params, {
-            mode: 'no-cors', method: 'GET'
+            mode: 'cors', method: 'GET'
         });
 
         if (!response.ok) {

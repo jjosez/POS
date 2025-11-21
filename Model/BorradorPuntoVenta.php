@@ -81,9 +81,9 @@ class BorradorPuntoVenta extends SalesDocument
         $this->horaregistro = Tools::hour();
     }
 
-    public function loadFromData(array $data = [], array $exclude = []): void
+    public function loadFromData(array $data = [], array $exclude = [], bool $sync = true): void
     {
-        parent::loadFromData($data, $exclude);
+        parent::loadFromData($data, $exclude, $sync);
 
         $this->setListRowColor();
     }

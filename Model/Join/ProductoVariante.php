@@ -121,7 +121,7 @@ class ProductoVariante extends JoinModel
         }
 
         $this->priceWithTax = $this->price * (100 + $this->getTax()->iva) / 100;
-        $this->priceWithFormat = Tools::money($this->priceWithTax);
+        $this->priceWithFormat = Tools::number($this->priceWithTax);
 
         $this->isOutOfStock = (int)$this->stock === 0 && (int)$this->allow_no_stock !== 1;
 

@@ -94,9 +94,9 @@ class OrdenPuntoVenta extends ModelClass
         return $this->loadWhere($where);
     }
 
-    public function loadFromData(array $data = [], array $exclude = []): void
+    public function loadFromData(array $data = [], array $exclude = [], bool $sync = true): void
     {
-        parent::loadFromData($data, $exclude);
+        parent::loadFromData($data, $exclude, $sync);
 
         $this->descuadre = $this->testDescuadre();
         $this->tipodocumento = Tools::trans($this->tipodoc);

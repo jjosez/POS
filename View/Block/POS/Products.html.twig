@@ -13,29 +13,33 @@
 </div>
 <div class="mb-4 flex-1 overflow-y-auto px-4">
     <div id="productSearchListTemplateView" role="list">
-        {{ _self.freeProductLineTemplate() }}
-        <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {# {{ _self.freeProductLineTemplate() }} #}
+        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {% for product in fsc.getHomeProducts() %}
                 <div role="listitem"
-                     class="flex flex-col items-center rounded-lg p-4 text-xs bg-white shadow-xs product-add-btn
+                     class="flex flex-col rounded-lg p-4 text-xs bg-white shadow-xs product-add-btn
                             {{ product.isOutOfStock ? 'pointer-events-none opacity-75' : 'cursor-pointer' }}"
                      data-action="setProductAction"
                      data-code="{{ product.code }}"
                      data-description="{{ product.description }}"
                      data-thumbnail="{{ product.thumbnail }}">
-                    {% if product.thumbnail %}
-                        <div>
-                            <img class="pointer-events-auto h-20 w-20 rounded-md object-scale-down"
+                    <!-- Imagen -->
+                    <div class="flex justify-center mb-3 pointer-events-auto">
+                        {% if product.thumbnail %}
+                            <img class="w-full h-24 rounded-md object-contain pointer-events-auto"
                                  src="{{ product.thumbnail }}"
                                  alt="{{ product.code }}"
                                  data-action="productImageAction"
                                  data-id="{{ product.id }}"
                                  data-code="{{ product.code }}">
-                        </div>
-                    {% else %}
-                        <span><i class="fas fa-3x fa-image"></i></span>
-                    {% endif %}
-                    <div class="flex-1 text-center">
+                        {% else %}
+                            <div class="h-24 w-24 flex items-center justify-center bg-gray-100 rounded-md">
+                                <i class="fas fa-image fa-2x text-gray-400"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <!-- Descripción -->
+                    <div class="flex-1 text-center mb-3">
                         <span class="font-semibold uppercase text-gray-800">
                             {{ product.code }}
                         </span>
@@ -44,13 +48,16 @@
                             <p>{{ product.detail }}</p>
                         {% endif %}
                     </div>
-                    <div class="flex flex-col">
-                        <span class="mt-auto inline-block rounded-full bg-green-100 px-3 font-semibold text-green-800 py-0.5">
-                        {{ product.priceWithFormat }}</span>
-                        <span class="pointer-events-auto mt-1 inline-block rounded-full bg-blue-100 px-3 font-semibold text-blue-800 py-0.5"
+                    <!-- Precio / Stock -->
+                    <div class="mt-auto pt-2 border-t border-dashed border-gray-200 flex items-center justify-between text-sm">
+                        <span class="font-semibold text-blue-500">
+                            <i class="fa-solid fa-tag fa-fw"></i> {{ product.priceWithFormat }}
+                        </span>
+                        <span class="pointer-events-auto font-medium text-gray-900"
                               data-action="stockDetailAction"
                               data-code="{{ product.code }}">
-                        {{ product.stock | default('0') }} {{ trans('available') }}</span>
+                            <i class="fa-solid fa-dolly-flatbed fa-fw"></i> {{ product.stock | default('0') }}
+                        </span>
                     </div>
                 </div>
             {% endfor %}
@@ -65,29 +72,33 @@
     </button>
 </div>
 <script id="productSearchListTemplate" type="text/template">
-    {{ _self.freeProductLineTemplate() }}
-    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    {# {{ _self.freeProductLineTemplate() }} #}
+    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         <% products.forEach(function(product){ %>
         <div role="listitem"
-             class="flex flex-col items-center rounded-lg bg-white p-4 text-xs shadow-xs product-add-btn
-             <%= product.isOutOfStock ? 'pointer-events-none opacity-75' : 'cursor-pointer' %>"
+             class="flex flex-col rounded-lg p-4 text-xs bg-white shadow-xs product-add-btn
+                    <%= product.isOutOfStock ? 'pointer-events-none opacity-75' : 'cursor-pointer' %>"
              data-action="setProductAction"
              data-code="<%= product.code %>"
              data-description="<%= product.description %>"
              data-thumbnail="<%= product.thumbnail %>">
-            <% if (product.thumbnail) { %>
-            <div>
-                <img class="pointer-events-auto h-20 w-20 rounded-md object-scale-down"
+            <!-- Imagen -->
+            <div class="flex justify-center mb-3 pointer-events-auto">
+                <% if (product.thumbnail) { %>
+                <img class="w-full h-24 rounded-md object-contain pointer-events-auto"
                      src="<%= product.thumbnail %>"
                      alt="<%= product.code %>"
                      data-action="productImageAction"
                      data-id="<%= product.id %>"
                      data-code="<%= product.code %>">
+                <% } else { %>
+                <div class="h-24 w-24 flex items-center justify-center bg-gray-100 rounded-md">
+                    <i class="fas fa-image fa-2x text-gray-400"></i>
+                </div>
+                <% } %>
             </div>
-            <% } else { %>
-            <span><i class="fas fa-3x fa-image"></i></span>
-            <% } %>
-            <div class="flex-1 text-center">
+            <!-- Descripción -->
+            <div class="flex-1 text-center mb-3">
                 <span class="font-semibold uppercase text-gray-800">
                     <%= product.code %>
                 </span>
@@ -96,13 +107,16 @@
                 <p><%= product.detail %></p>
                 <% } %>
             </div>
-            <div class="flex flex-col">
-                <span class="mt-auto inline-block rounded-full bg-green-100 px-3 font-semibold text-green-800 py-0.5">
-                <%= product.priceWithFormat %></span>
-                <span class="pointer-events-auto mt-1 inline-block rounded-full bg-blue-100 px-3 font-semibold text-blue-800 py-0.5"
+            <!-- Precio / Stock -->
+            <div class="mt-auto pt-2 border-t border-dashed border-gray-200 flex items-center justify-between text-sm">
+                <span class="font-semibold text-blue-500">
+                    <i class="fa-solid fa-tag fa-fw"></i> <%= product.priceWithFormat %>
+                </span>
+                <span class="pointer-events-auto font-medium text-gray-900"
                       data-action="stockDetailAction"
                       data-code="<%= product.code %>">
-                <%= product.stock | 0 %> {{ trans('available') }} </span>
+                    <i class="fa-solid fa-dolly-flatbed fa-fw"></i> <%= product.stock | 0 %>
+                </span>
             </div>
         </div>
         <% }) %>

@@ -19,6 +19,7 @@ let isCartVisible = false;
 
 const CartController = {
     Cart,
+    beepAudio: null,
 
     update(data) {
         Cart.update(data);
@@ -177,6 +178,7 @@ const CartController = {
         if (!code) return;
 
         Cart.setProduct(code, description, thumbnail);
+        CartController.playBeepSound();
     },
 
     /**
@@ -216,6 +218,14 @@ const CartController = {
         }
     },
 
+    playBeepSound() {
+        const audio = CartController.beepAudio;
+        if (!audio) return;
+
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+    },
+
     async cartChange() {
         recalculateRequest(Cart).then(data => {
             Cart.update(data);
@@ -248,6 +258,8 @@ const CartController = {
                 CartController.editProductField(event.target, event.target.value);
             }
         });
+
+        CartController.beepAudio = document.getElementById('beepAudio');
     }
 };
 

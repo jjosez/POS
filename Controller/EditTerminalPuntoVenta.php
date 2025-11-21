@@ -22,8 +22,7 @@ use FacturaScripts\Plugins\POS\Model\OpcionesTerminalPuntoVenta;
  */
 class EditTerminalPuntoVenta extends ExtendedController\EditController
 {
-    public string $selectedUser = '';
-
+    public ?string $selectedUser = '';
     const EDIT_DOCUMENT_TYPE_VIEW = 'EditTipoDocumentoPuntoVenta';
     const EDIT_PAYMENT_METHOD_VIEW = 'EditFormaPagoPuntoVenta';
     const EDIT_TERMINAL_FIELDS_VIEW = 'EditTerminalFields';

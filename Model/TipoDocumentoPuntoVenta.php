@@ -45,9 +45,9 @@ class TipoDocumentoPuntoVenta extends ModelClass
         $this->preferido = false;
     }
 
-    public function loadFromData(array $data = [], array $exclude = []): void
+    public function loadFromData(array $data = [], array $exclude = [], bool $sync = true): void
     {
-        parent::loadFromData($data, $exclude);
+        parent::loadFromData($data, $exclude, $sync);
 
         if (empty($this->descripcion)) {
             $this->descripcion = Tools::trans($this->tipodoc);
