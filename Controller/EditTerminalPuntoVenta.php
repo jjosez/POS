@@ -185,8 +185,6 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
         $this->selectedUser = $this->request->inputOrQuery('nick') ?: null;
         $options = new OpcionesTerminalPuntoVenta();
 
-        Tools::log()->warning(print_r($fields, true));
-
         if (false === $options->loadWhereEq('nick', $this->selectedUser)) {
             $options->nick = $this->selectedUser;
         }

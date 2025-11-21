@@ -26,7 +26,9 @@ class OpcionesTerminalPuntoVenta extends ModelClass
      */
     public function getColumnsAsArray(): array
     {
-        return json_decode($this->columns, true) ?? [];
+        $columns = json_decode($this->columns, true);
+
+        return is_array($columns) ? $columns : [];
     }
 
     public static function primaryColumn(): string
