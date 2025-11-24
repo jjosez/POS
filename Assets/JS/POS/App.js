@@ -12,6 +12,7 @@ import SessionController from './controllers/SessionController.js';
 import eventDispatcher from "./core/EventDispatcher.js";
 import EventManager from "./core/EventManager.js";
 import MainView from "./views/MainView.js";
+import './View.js';
 
 /**
  * @param {{code:string}} data

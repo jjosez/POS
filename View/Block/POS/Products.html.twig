@@ -29,25 +29,18 @@
                             <img class="w-full h-24 rounded-md object-contain"
                                  src="{{ product.thumbnail }}"
                                  alt="{{ product.code }}"
-                                 data-code="{{ product.code }}"
-                                 data-description="{{ product.description }}"
-                                 data-thumbnail="{{ product.thumbnail }}">
-                            <!-- Botón overlay (ver imagen) -->
+                                 loading="lazy">
                             <button type="button"
-                                    class="absolute top-1 right-1 w-7 h-7 flex items-center justify-center
-                                       rounded-full bg-white/80 border border-gray-300 shadow-sm
-                                       text-gray-600 hover:bg-white pointer-events-auto backdrop-blur-sm transition"
+                                    class="text-sm absolute top-1 right-1 w-10 h-10 flex items-center justify-center
+                                       rounded-full bg-white/80 text-gray-600 pointer-events-auto cursor-pointer"
                                     title="{{ trans('view-image')|default('Ver imagen') }}"
                                     data-action="productImageAction"
                                     data-id="{{ product.id }}"
                                     data-code="{{ product.code }}">
-                                <i class="fas fa-image"></i>
+                                <i class="fas fa-eye pointer-events-none"></i>
                             </button>
                         {% else %}
-                            <div class="w-full h-24 flex items-center justify-center bg-gray-100 rounded-md pointer-events-auto"
-                                 data-action="setProductAction"
-                                 data-code="{{ product.code }}"
-                                 data-description="{{ product.description }}">
+                            <div class="w-full h-24 flex items-center justify-center bg-gray-100 rounded-md pointer-events-auto">
                                 <i class="fas fa-image fa-2x text-gray-400"></i>
                             </div>
                         {% endif %}
@@ -70,7 +63,7 @@
                         <span class="pointer-events-auto font-medium text-gray-900"
                               data-action="stockDetailAction"
                               data-code="{{ product.code }}">
-                            <i class="fa-solid fa-dolly-flatbed fa-fw"></i> {{ product.stock | default('0') }}
+                            <i class="fa-solid fa-dolly-flatbed fa-fw pointer-events-none"></i> {{ product.stock | default('0') }}
                         </span>
                     </div>
                 </div>
@@ -97,16 +90,23 @@
              data-description="<%= product.description %>"
              data-thumbnail="<%= product.thumbnail %>">
             <!-- Imagen -->
-            <div class="flex justify-center mb-3 pointer-events-auto">
+            <div class="relative mb-3 pointer-events-none">
                 <% if (product.thumbnail) { %>
-                <img class="w-full h-24 rounded-md object-contain pointer-events-auto"
+                <img class="w-full h-24 rounded-md object-contain"
                      src="<%= product.thumbnail %>"
                      alt="<%= product.code %>"
-                     data-action="productImageAction"
-                     data-id="<%= product.id %>"
-                     data-code="<%= product.code %>">
+                     loading="lazy">
+                <button type="button"
+                        class="text-sm absolute top-1 right-1 w-10 h-10 flex items-center justify-center
+                            rounded-full bg-white/80 text-gray-600 pointer-events-auto cursor-pointer"
+                        title="{{ trans('view-image')|default('Ver imagen') }}"
+                        data-action="productImageAction"
+                        data-id="<%= product.id %>"
+                        data-code="<%= product.code %>">
+                    <i class="fas fa-eye pointer-events-none"></i>
+                </button>
                 <% } else { %>
-                <div class="h-24 w-24 flex items-center justify-center bg-gray-100 rounded-md">
+                <div class="w-full h-24 flex items-center justify-center bg-gray-100 rounded-md pointer-events-auto">
                     <i class="fas fa-image fa-2x text-gray-400"></i>
                 </div>
                 <% } %>
@@ -129,7 +129,7 @@
                 <span class="pointer-events-auto font-medium text-gray-900"
                       data-action="stockDetailAction"
                       data-code="<%= product.code %>">
-                    <i class="fa-solid fa-dolly-flatbed fa-fw"></i> <%= product.stock | 0 %>
+                    <i class="fa-solid fa-dolly-flatbed fa-fw pointer-events-none"></i> <%= product.stock | 0 %>
                 </span>
             </div>
         </div>

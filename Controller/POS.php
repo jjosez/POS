@@ -289,8 +289,8 @@ class POS extends Controller
     {
         if (false === $this->validateRequest()) return;
 
-        $amount = $this->request->request->get('amount', 0);
-        $description = $this->request->request->get('description');
+        $amount = $this->request()->input('amount', 0);
+        $description = $this->request()->input('description');
 
         if (!is_numeric($amount) || $amount <= 0) {
             Tools::log()->error('invalid-amount');

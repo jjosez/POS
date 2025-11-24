@@ -12,12 +12,18 @@ const SessionController = {
         Core.reloadApp();
     },
 
-    cashEntry() {
-        MainView.cashEntryForm().submit();
+    async cashEntry() {
+        const formData = new FormData(MainView.cashEntryForm());
+        const response = await Core.postRequest(formData);
+
+        MainView.cashEntryForm().reset();
     },
 
-    cashWithdraw() {
-        MainView.cashWithdrawForm().submit();
+    async cashWithdraw() {
+        const formData = new FormData(MainView.cashWithdrawForm());
+        const response = await Core.postRequest(formData);
+
+        MainView.cashWithdrawForm().reset();
     },
 
     async printSessionReportX() {

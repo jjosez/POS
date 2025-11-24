@@ -1,28 +1,38 @@
 import templates from "../views/TemplateManger.js";
 import Modals from "../components/Modals.js";
+import {roundFixed} from "../Money.js";
+
+const viewElements = {
+    checkoutTotal: document.getElementById('checkoutTotal'),
+    tenderedAmount: document.getElementById('checkoutTenderedAmount'),
+    changeAmount: document.getElementById('checkoutChangeAmount'),
+
+    paymentInput: document.getElementById('paymentApplyInput'),
+    confirmButton: document.getElementById('orderSaveButton'),
+
+    paymentListView: 'paymentListTemplateView'
+};
 
 export function render(model) {
     const state = model.getState();
 
-    document.getElementById('checkoutTotal').textContent = state.total.toFixed(2);
-    document.getElementById('checkoutTenderedAmount').textContent = model.getPaymentsTotal().toFixed(2);
-    document.getElementById('checkoutChangeAmount').textContent = state.change.toFixed(2);
+    viewElements.checkoutTotal.textContent = roundFixed(state.total);
+    viewElements.tenderedAmount.textContent = roundFixed(model.getPaymentsTotal());
+    viewElements.changeAmount.textContent = roundFixed(state.change);
 
-    templates.render('paymentListTemplate', state, 'paymentListTemplateView');
+    templates.render('paymentListTemplate', state, viewElements.paymentListView);
 
-    if (state.paymentsTotal >= state.total && state.total !== 0) {
-        enableConfirmButton();
-    } else {
-        disableConfirmButton();
-    }
+    updateConfirmButton(state);
 }
 
 export function setPaymentInputValue(value) {
-    document.getElementById('paymentApplyInput').value = value;
+    if (viewElements.paymentInput) {
+        viewElements.paymentInput.value = value;
+    }
 }
 
 export function getPaymentInputValue() {
-    return parseFloat(document.getElementById('paymentApplyInput').value) || 0;
+    return parseFloat(viewElements.paymentInput?.value ?? 0) || 0;
 }
 
 export function getPaymentData({code, description}) {
@@ -43,4 +53,8 @@ export function enableConfirmButton() {
 
 export function disableConfirmButton() {
     document.getElementById('orderSaveButton').disabled = true;
+}
+
+function updateConfirmButton(state) {
+    viewElements.confirmButton.disabled = !(state.paymentsTotal >= state.total && state.total !== 0);
 }

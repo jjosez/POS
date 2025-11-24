@@ -39,6 +39,7 @@
     {{ include('Modal/POS/ProductFilter.html.twig') }}
     {{ include('Modal/POS/ProductStockDetail.html.twig') }}
     {{ include('Modal/POS/ProductImages.html.twig') }}
+    {#{{ include('Modal/POS/ReturnSale.html.twig') }}#}
     {{ include('Modal/POS/User.html.twig') }}
     {% for includeView in getIncludeViews('POS', 'modals') %}
         {% include includeView['path'] %}

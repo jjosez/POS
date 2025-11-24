@@ -33,7 +33,7 @@ export function toggleCollapse(element) {
  */
 const toggleTab = element => {
     const target = document.getElementById(element.dataset.target);
-    const tabList = element.closest('.tablist'); // Usamos el closest para optimizar la búsqueda
+    const tabList = element.closest('.tablist');
     const tabsContainer = document.getElementById(tabList.dataset.target);
 
     if (!target || !tabsContainer) return;
@@ -66,17 +66,18 @@ const eventHandler = element => {
 
     const action = toggleActions[toggleType];
     if (action) {
-        action(element); // Ejecutamos la acción correspondiente
+        action(element);
     } else {
-        toggleVisibility(document.getElementById(element.dataset.target)); // Si no es 'collapse' ni 'tab', aplicamos un toggle genérico
+        toggleVisibility(document.getElementById(element.dataset.target));
     }
 };
 
-// Delegar el evento 'click' al documento
 document.addEventListener('click', event => {
-    const target = event.target;
-    if (target.dataset.toggle) {
-        eventHandler(target); // Ejecutamos el manejador de eventos
-        event.stopPropagation(); // Prevenimos la propagación del evento
-    }
+    const element = event.target.closest('[data-toggle]');
+    if (!element) return;
+
+    const toggleType = element.dataset.toggle;
+    if (toggleType === 'modal') return;
+
+    eventHandler(element);
 }, false);

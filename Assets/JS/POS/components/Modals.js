@@ -85,12 +85,14 @@ class Modals {
 
     // Manejo automático al hacer clic en botones con data-toggle="modal"
     _modalToggleEventHandler = event => {
-        const target = event.target;
+        const element = event.target.closest('[data-toggle]');
+        if (!element) return;
 
-        if (target.dataset.toggle === 'modal') {
-            const modalId = target.dataset.target;
+        if (element.dataset.toggle === 'modal') {
+            const modalId = element.dataset.target;
             this.toggleModal(modalId);
-            event.stopPropagation();
+
+            //event.stopPropagation();
         }
     }
 
@@ -145,6 +147,10 @@ class Modals {
     productImagesModal = () => this.modalCache['productImages'];
     productQuantityEditModal = () => this.modalCache['productQuantityEdit'];
     checkoutModal = () => this.modalCache['checkoutModal'];
+
+    returnSaleModal = () => this.modalCache['returnSaleModal'];
+
+
 
     // Acceso al fondo
     backdrop() {

@@ -2,6 +2,7 @@
 
 namespace FacturaScripts\Plugins\POS\Model\Join;
 
+use FacturaScripts\Core\Model\AttachedFile;
 use FacturaScripts\Core\Model\Base\JoinModel;
 use FacturaScripts\Core\Model\Base\TaxRelationTrait;
 use FacturaScripts\Core\Tools;
@@ -88,9 +89,9 @@ class ProductoVariante extends JoinModel
             'atribute3' => 'A3.descripcion',
             'atribute4' => 'A4.descripcion',
             'image_file' => ' MIN(IMG.idfile)',
-            'image_referencia' => ' MIN(IMG.referencia)',
+            /*'image_referencia' => ' MIN(IMG.referencia)',
             'image_product' => 'MIN(IMG.idproducto)',
-            'image' => 'MIN(IMG.id)',
+            'image' => 'MIN(IMG.id)',*/
             'allow_no_stock' => 'P.ventasinstock',
         ];
     }
@@ -132,14 +133,19 @@ class ProductoVariante extends JoinModel
     {
         $this->thumbnail = '';
 
-        if (!empty($this->image)) {
-            $image = new ProductoImagen();
-            $image->id = $this->image;
-            $image->idfile = $this->image_file;
-            $image->idproducto = $this->image_product;
-            $image->referencia = $this->image_reference;
+        if (!empty($this->image_file)) {
+            /* $image = new ProductoImagen();
+             $image->id = $this->image;
+             $image->idfile = $this->image_file;
+             $image->idproducto = $this->image_product;
+             $image->referencia = $this->image_reference;*/
 
-            $this->thumbnail = FS_ROUTE . $image->getThumbnail(150, 150, true);
+            $imageFile = new AttachedFile();
+            if ($imageFile->load($this->image_file)) {
+                $this->thumbnail = FS_ROUTE . $imageFile->url('download-permanent');
+            }
+
+            //$this->thumbnail = FS_ROUTE . $image->getThumbnail(150, 150, true);
         }
     }
 
