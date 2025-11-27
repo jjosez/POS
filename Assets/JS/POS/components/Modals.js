@@ -50,23 +50,24 @@ ModalElement.prototype.hide = function () {
 const backdrop = new BackDropElement();
 
 let modals = {
-    closeSession: new ModalElement('closeSessionModal'),
-    customerSearch: new ModalElement('customerSearchModal'),
-    documentType: new ModalElement('documentTypeModal'),
+    'session:close:modal': new ModalElement('session:close:modal'),
+    'customer:search:modal': new ModalElement('customer:search:modal'),
+    'document:type:modal': new ModalElement('document:type:modal'),
     loadingModal: new ModalElement('loadingModal'),
 
-    holdOrders: new ModalElement('holdOrdersModal'),
-    lastOrders: new ModalElement('lastOrdersModal'),
+    'order:draft:list:modal': new ModalElement('order:draft:list:modal'),
+    'order:last:list:modal': new ModalElement('order:last:list:modal'),
 
     paymentDetail: new ModalElement('paymentModal'),
-    contextActionModal: new ModalElement('contextActionModal'),
+    'context:action:modal': new ModalElement('context:action:modal'),
 
-    productEditModal: new ModalElement('productEditModal'),
-    productImages: new ModalElement('productImagesModal'),
+    'product:edit:modal': new ModalElement('product:edit:modal'),
+    'product:image:modal': new ModalElement('product:image:modal'),
     productQuantityEdit: new ModalElement('productQuantityEditModal'),
-    productStockDetail: new ModalElement('stockDetailModal'),
+    'product:stock:modal': new ModalElement('product:stock:modal'),
 
-    checkoutModal: new ModalElement('checkoutModal'),
+    'checkout:modal': new ModalElement('checkout:modal'),
+    'return:sale:modal': new ModalElement('return:sale:modal'),
 }
 
 class Modals {
@@ -134,21 +135,21 @@ class Modals {
     }
 
     // Métodos de acceso directo a cada modal
-    documentTypeModal = () => this.modalCache['documentType'];
-    closeSessionModal = () => this.modalCache['closeSession'];
-    customerSearchModal = () => this.modalCache['customerSearch'];
-    lastOrdersModal = () => this.modalCache['lastOrders'];
+    documentTypeModal = () => this.modalCache['document:type:modal'];
+    closeSessionModal = () => this.modalCache['session:close:modal'];
+    customerSearchModal = () => this.modalCache['customer:search:modal'];
+    lastOrdersModal = () => this.modalCache['order:last:list:modal'];
     loadingModal = () => this.modalCache['loadingModal'];
-    pausedOrdersModal = () => this.modalCache['holdOrders'];
-    stockDetailModal = () => this.modalCache['productStockDetail'];
+    pausedOrdersModal = () => this.modalCache['order:draft:list:modal'];
+    stockDetailModal = () => this.modalCache['product:stock:modal'];
     paymentModal = () => this.modalCache['paymentDetail'];
-    contextActionModal = () => this.modalCache['contextActionModal'];
-    productEditModal = () => this.modalCache['productEditModal'];
-    productImagesModal = () => this.modalCache['productImages'];
+    contextActionModal = () => this.modalCache['context:action:modal'];
+    productEditModal = () => this.modalCache['product:edit:modal'];
+    productImagesModal = () => this.modalCache['product:image:modal'];
     productQuantityEditModal = () => this.modalCache['productQuantityEdit'];
-    checkoutModal = () => this.modalCache['checkoutModal'];
+    checkoutModal = () => this.modalCache['checkout:modal'];
 
-    returnSaleModal = () => this.modalCache['returnSaleModal'];
+    returnSaleModal = () => this.modalCache['return:sale:modal'];
 
 
 

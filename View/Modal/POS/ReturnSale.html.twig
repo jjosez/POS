@@ -4,53 +4,36 @@
  *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
-<div id="returnSaleModal" class="hidden modal">
+<div id="return:sale:modal" class="hidden modal">
     <div class="h-full modal-content md:modal-content-xl">
         <div class="modal-header">
             <h2 class="text-2xl font-semibold text-slate-gray-700">
-                {{ trans('sales-returns') }}
+                {{ trans('new-refund') }}
             </h2>
-
-            <button class="ml-auto btn btn-sm btn-light" data-action="clearReturnSaleAction">
+            <button class="ml-auto btn btn-icon btn-light" data-action="clearReturnSaleAction">
                 <i class="fa fw fa-eraser"></i>
             </button>
-
-            <button class="ml-2 btn btn-icon btn-danger" data-toggle="modal" data-target="returnSaleModal">
+            <button class="ml-2 btn btn-icon btn-danger" data-toggle="modal" data-target="return:sale:modal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
-
-        {# Búsqueda de venta #}
         <div class="border-b border-slate-200 bg-slate-50 p-4">
-            <form id="returnSaleSearchForm" class="flex flex-col gap-2 md:flex-row md:items-center" data-action="searchReturnOrderAction">
-                <div class="flex-1">
-                    <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">
-                        {{ trans('search-sale') }}
-                    </label>
-                    <input type="text" name="term" autocomplete="off"
-                           class="form-control"
-                           placeholder="{{ trans('code') }}, {{ trans('customer') }}, {{ trans('date') }}">
+            <form id="returnSaleSearchForm" class="flex flex-col gap-2 md:flex-row md:items-center"
+                  data-action="searchReturnOrderAction">
+                <div class="flex-1 form-group">
+                    <input id="searhSaleInput"
+                           class="font-normal form-control"
+                           type="text"
+                           placeholder="{{ trans('code') }}"
+                           autocomplete="off">
                 </div>
-
-                <div class="flex gap-2 pt-2 md:pt-0">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fa fw fa-search"></i> {{ trans('search') }}
-                    </button>
-
-                    <button type="button" class="btn btn-light" data-action="loadLastOrderForReturnAction">
-                        <i class="fa fw fa-clock-rotate-left"></i> {{ trans('last-order') }}
-                    </button>
-                </div>
+                <button type="submit" class="btn btn-primary">{{ trans('search') }}</button>
             </form>
-
             <div id="returnSaleSearchResultView" class="mt-3"></div>
         </div>
-
         <div class="modal-body">
-            {# Aquí se pintan las líneas de la venta seleccionada #}
             <div id="returnSaleLinesTemplateView"></div>
         </div>
-
         <div class="modal-footer flex items-center justify-between">
             <div class="text-xs text-slate-500">
                 <span class="font-semibold">
@@ -58,7 +41,6 @@
                 </span>
                 {{ trans('selected-lines-will-be-sent-as-negative-sale') }}
             </div>
-
             <div class="flex items-center gap-4">
                 <div class="text-right">
                     <div class="text-xs uppercase text-slate-500">
@@ -68,7 +50,6 @@
                         0,00
                     </div>
                 </div>
-
                 <button type="button"
                         class="btn btn-danger"
                         data-action="confirmReturnSaleAction"
@@ -79,3 +60,105 @@
         </div>
     </div>
 </div>
+<script id="returnSaleSearchResultTemplate" type="text/template">
+    <% if (!order) { %>
+    <div class="rounded-lg bg-blue-50 p-2 text-xs text-slate-600">
+        <i class="fa fw fa-info-circle"></i>
+        {{ trans('search-sale-to-return') }}
+    </div>
+    <% } else { %>
+    <div class="flex flex-col rounded-lg bg-white p-3 shadow-xs md:flex-row md:items-center">
+        <div class="flex-1 text-xs md:text-sm">
+            <div>
+                <span class="font-semibold uppercase text-slate-500">{{ trans('code') }}:</span>
+                <%= order.codigo %>
+            </div>
+            <div>
+                <span class="font-semibold uppercase text-slate-500">{{ trans('customer') }}:</span>
+                <%= order.nombrecliente %>
+            </div>
+            <div>
+                <span class="font-semibold uppercase text-slate-500">{{ trans('date') }}:</span>
+                <%= order.fecha %> <%= order.hora %>
+            </div>
+            <div>
+                <span class="font-semibold uppercase text-slate-500">{{ trans('total') }}:</span>
+                <%= Number.parseFloat(order.total).toFixed(2) %>
+            </div>
+        </div>
+    </div>
+    <% } %>
+</script>
+<script id="returnSaleLinesTemplate" type="text/template">
+    <% if (!lines || lines.length === 0) { %>
+    <div class="mt-4 rounded-lg bg-blue-50 p-3 text-sm">
+        {{ trans('no-lines-for-return') }}
+    </div>
+    <% } else { %>
+
+    <!-- HEADER -->
+    <div class="mt-3 hidden md:flex items-center rounded-lg bg-slate-800 p-2 text-xs font-semibold uppercase text-white">
+        <div class="flex-1">
+            {{ trans('item') }}
+        </div>
+        <div class="w-20 text-right">
+            {{ trans('quantity') }}
+        </div>
+        <div class="w-24 text-right">
+            {{ trans('to-refund') }}
+        </div>
+        <div class="w-24 text-right">
+            {{ trans('price') }}
+        </div>
+        <div class="w-24 text-right">
+            {{ trans('total') }}
+        </div>
+    </div>
+
+    <% lines.forEach(function(line) { %>
+    <!-- ROW -->
+    <div class="mt-2 flex flex-col md:flex-row md:items-center rounded-lg bg-slate-100 p-2 text-xs shadow-xs hover:bg-yellow-50">
+        <input type="hidden" value="<%= line.idlinea %>">
+        <!-- ITEM -->
+        <div class="mt-1 flex-1 md:mt-0 md:px-2">
+            <div class="font-semibold text-slate-800">
+                <%= line.referencia %> - <%= line.descripcion %>
+            </div>
+            <!-- MOBILE INFO -->
+            <div class="text-[10px] text-slate-500 md:hidden">
+                {{ trans('qty-sold') }}: <%= line.cantidad %> ·
+                {{ trans('price') }}: <%= line.pvpunitario %>
+            </div>
+        </div>
+        <!-- QTY SOLD -->
+        <div class="mt-1 flex justify-between md:mt-0 md:w-20 md:justify-end md:px-2">
+            <span class="text-slate-700">
+                <%= line.cantidad %>
+            </span>
+        </div>
+        <!-- QTY TO RETURN -->
+        <div class="form-group mt-1 flex justify-end md:mt-0 md:w-24 md:px-2">
+            <input type="number"
+                   min="0"
+                   step="any"
+                   max="<%= line.refundable %>"
+                   value="0"
+                   class="form-control form-control-sm text-right"
+                   data-role="return-qty"
+                   data-line="<%= line.idlinea %>">
+        </div>
+        <!-- PRICE -->
+        <div class="mt-1 flex justify-end md:mt-0 md:w-24 md:px-2">
+            <span><%= line.pvpunitario %></span>
+        </div>
+        <!-- TOTAL -->
+        <div class="mt-1 flex justify-end md:mt-0 md:w-24 md:px-2 font-semibold text-red-600">
+            <span data-role="return-line-total"
+                  data-line="<%= line.idlinea %>">
+                -<%= line.pvptotal %>
+            </span>
+        </div>
+    </div>
+    <% }); %>
+    <% } %>
+</script>

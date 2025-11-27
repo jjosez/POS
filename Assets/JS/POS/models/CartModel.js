@@ -105,11 +105,11 @@ class CartModel {
     }
 
     cartUpdateEvent() {
-        EventManager.emit('onCartUpdate', this);
+        EventManager.emit('cart:update', this);
     }
 
     cartChangeEvent() {
-        EventManager.emit('onCartChange', this);
+        EventManager.emit('cart:change', this);
     }
 }
 

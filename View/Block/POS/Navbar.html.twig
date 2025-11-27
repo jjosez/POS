@@ -21,9 +21,9 @@
                     {{ pos.menuActionElement(element.action, element.icon, element.text, element.title) }}
                 {% endif %}
             {% endfor %}
-            {{ pos.menuActionElement('showPausedOrders', 'fas fa-hourglass-half', '') }}
-            {{ pos.menuActionElement('showLastOrdersAction', 'fas fa-history', '') }}
-            {{ pos.menuToggleElement('modal', 'closeSessionModal', 'fas fa-cash-register') }}
+            {{ pos.menuActionElement('order:draft:list', 'fas fa-hourglass-half', '') }}
+            {{ pos.menuActionElement('order:last:list', 'fas fa-history', '') }}
+            {{ pos.menuToggleElement('modal', 'session:close:modal', 'fas fa-cash-register') }}
             {{ pos.menuToggleElement('modal', 'moneyInOutModal', 'fas fa-money-bill-transfer') }}
             {{ pos.menuToggleElement('modal', 'userModal', 'fas fa-user-circle', fsc.user.nick) }}
             {{ pos.menuLinkElement(fsc.getTerminal().url('edit'), 'fas fa-desktop', fsc.getTerminal().nombre) }}

@@ -6,6 +6,7 @@ use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Almacenes;
 use FacturaScripts\Core\Model\CodeModel;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Join\ProductoStock;
 use FacturaScripts\Dinamic\Model\Join\ProductoVariante;
 use FacturaScripts\Dinamic\Model\Variante;
@@ -93,7 +94,9 @@ class PointOfSaleProduct
 
         //return PointOfSaleProductVariant::search($text, $filters);
 
-        return self::getProduct()->all($where, [], 0, 30);
+        $result = self::getProduct()->all($where, [], 0, 30);
+        Tools::log('POS')->warning(print_r($result, true));
+        return $result;
     }
 
     /**

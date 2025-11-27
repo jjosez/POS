@@ -17,7 +17,7 @@ const CustomerController = {
         const response = await Core.saveNewCustomer(taxID, name);
 
         if (response.customer?.codcliente) {
-            eventManager.emit('onCustomerChange', {
+            eventManager.emit('customer:change', {
                 code: response.customer.codcliente,
                 description: response.customer.nombre
             });
@@ -25,7 +25,7 @@ const CustomerController = {
     },
 
     init() {
-        dispatcher.register('saveCustomerAction', this.create);
+        dispatcher.register('customer:save', this.create);
 
         CartView.customerSearchBox().addEventListener('keyup', (event) => {
             this.search(event.target.value);

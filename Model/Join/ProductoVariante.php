@@ -2,66 +2,22 @@
 
 namespace FacturaScripts\Plugins\POS\Model\Join;
 
+use FacturaScripts\Core\DataSrc\Impuestos;
 use FacturaScripts\Core\Model\AttachedFile;
 use FacturaScripts\Core\Model\Base\JoinModel;
-use FacturaScripts\Core\Model\Base\TaxRelationTrait;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
+use FacturaScripts\Dinamic\Model\Impuesto;
 use FacturaScripts\Dinamic\Model\ProductoImagen;
+use JsonSerializable;
 
-/**
- * @property bool $isOutOfStock
- * @property mixed|null $allow_no_stock
- */
-class ProductoVariante extends JoinModel
+class ProductoVariante extends JoinModel implements JsonSerializable
 {
-    use TaxRelationTrait;
+    public float $priceWithTax = 0.0;
+    public string $priceWithFormat = '0,00';
+    public bool $isOutOfStock = false;
+    public string $thumbnail = '';
 
-    /**
-     * @var int
-     */
-    public $id;
-
-    /**
-     * @var string
-     */
-    public $code;
-
-    /**
-     * @var float
-     */
-    public $price;
-
-    /**
-     * @var float
-     */
-    public $priceWithTax;
-
-    /**
-     * @var string
-     */
-    public $priceWithFormat;
-
-    /**
-     * @var string
-     */
-    public $thumbnail;
-
-    /**
-     * @property-read $name
-     * @property-read $barcode
-     * @property-read $description
-     * @property-read $stock
-     * @property-read $price
-     * @property-read $atribute1
-     * @property-read $atribute2
-     * @property-read $atribute3
-     * @property-read $atribute4
-     *
-     *
-     * /**
-     * @inheritDoc
-     */
     protected function getTables(): array
     {
         return [
@@ -78,7 +34,7 @@ class ProductoVariante extends JoinModel
         return [
             'id' => 'P.idproducto',
             'code' => 'V.referencia',
-            'codimpuesto' => 'P.codimpuesto',
+            'codimpuesto' => 'MIN(P.codimpuesto)',
             'barcode' => 'V.codbarras',
             'description' => 'P.descripcion',
             'price' => 'V.precio',
@@ -88,10 +44,7 @@ class ProductoVariante extends JoinModel
             'atribute2' => 'A2.descripcion',
             'atribute3' => 'A3.descripcion',
             'atribute4' => 'A4.descripcion',
-            'image_file' => ' MIN(IMG.idfile)',
-            /*'image_referencia' => ' MIN(IMG.referencia)',
-            'image_product' => 'MIN(IMG.idproducto)',
-            'image' => 'MIN(IMG.id)',*/
+            'image_file' => 'MIN(IMG.idfile)',
             'allow_no_stock' => 'P.ventasinstock',
         ];
     }
@@ -115,18 +68,29 @@ class ProductoVariante extends JoinModel
             . ' LEFT JOIN productos_imagenes IMG ON IMG.idproducto = P.idproducto AND (IMG.referencia IS NULL OR IMG.referencia = V.referencia)';
     }
 
+    /**
+     * Returns the current tax or the default one
+     *
+     * @return Impuesto
+     */
+    public function getTax(): Impuesto
+    {
+        return Impuestos::get($this->codimpuesto);
+    }
+
     protected function loadFromData($data): void
     {
-        foreach ($data as $field => $value) {
-            $this->{$field} = $value;
-        }
+        parent::loadFromData($data);
 
-        $this->priceWithTax = $this->price * (100 + $this->getTax()->iva) / 100;
+        $iva = $this->getTax()->iva;
+
+        $this->priceWithTax = $this->price * (100 + $iva) / 100;
         $this->priceWithFormat = Tools::number($this->priceWithTax);
 
-        $this->isOutOfStock = (int)$this->stock === 0 && (int)$this->allow_no_stock !== 1;
+        $this->isOutOfStock = ((int)$this->stock === 0)
+            && ((int)$this->allow_no_stock !== 1);
 
-        self::addThumbnail();
+        $this->addThumbnail();
     }
 
     protected function addThumbnail(): void
@@ -134,18 +98,10 @@ class ProductoVariante extends JoinModel
         $this->thumbnail = '';
 
         if (!empty($this->image_file)) {
-            /* $image = new ProductoImagen();
-             $image->id = $this->image;
-             $image->idfile = $this->image_file;
-             $image->idproducto = $this->image_product;
-             $image->referencia = $this->image_reference;*/
-
             $imageFile = new AttachedFile();
             if ($imageFile->load($this->image_file)) {
                 $this->thumbnail = FS_ROUTE . $imageFile->url('download-permanent');
             }
-
-            //$this->thumbnail = FS_ROUTE . $image->getThumbnail(150, 150, true);
         }
     }
 
@@ -164,8 +120,26 @@ class ProductoVariante extends JoinModel
         return ProductoImagen::all($where);
     }
 
-    public function __set($name, $value)
+
+    public function toArray(bool $withCalculated = true): array
     {
-        $this->{$name} = $value;
+        $data = [];
+        foreach (array_keys($this->getFields()) as $field_name) {
+            $data[$field_name] = $this->{$field_name} ?? null;
+        }
+
+        if ($withCalculated) {
+            $data['priceWithTax'] = $this->priceWithTax;
+            $data['priceWithFormat'] = $this->priceWithFormat;
+            $data['isOutOfStock'] = $this->isOutOfStock;
+            $data['thumbnail'] = $this->thumbnail;
+        }
+
+        return $data;
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return $this->toArray(true);
     }
 }

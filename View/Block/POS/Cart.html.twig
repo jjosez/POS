@@ -1,6 +1,8 @@
 <div class="flex h-full flex-col bg-white md:shadow-lg">
     <div class="flex flex-col gap-4 p-4">
-        <button id="documentTypeButton" class="w-full bg-gray-200 text-slate-800 btn focus:ring-gray-600" data-toggle="modal" data-target="documentTypeModal">
+        <button id="documentTypeButton" class="w-full bg-gray-200 text-slate-800 btn focus:ring-gray-600"
+                data-toggle="modal"
+                data-target="document:type:modal">
             <i class="fa fa-file-invoice"></i>
             <span id="documentClassLabel" class="mx-2" data-view="CartView">
                 {{ fsc.getDefaultDocument().descripcion ?: trans(fsc.getDefaultDocument().tipodoc) }}
@@ -8,7 +10,7 @@
             <i class="ml-auto fa fa-ellipsis-v"></i>
         </button>
         <button id="customerSearchButton" class="w-full btn btn-primary"
-                data-toggle="modal" data-target="customerSearchModal">
+                data-toggle="modal" data-target="customer:search:modal">
             <i class="fa fa-user"></i>
             <span id="customerNameLabel" class="mx-2" data-view="CartView">
                 {{ fsc.getDefaultCustomer().nombre }}</span>
@@ -35,12 +37,12 @@
                     data-target="cartMainView" data-ontoggle="productMainView">
                 <i class="fa fa-arrow-left"></i>
             </button>
-            <button class="flex-1 btn btn-secondary" data-action="orderSuspendAction">
+            <button class="flex-1 btn btn-secondary" data-action="order:draft:save">
                 <span class="mr-auto">{{ trans('hold') }}</span>
                 <i class="fa fa-hourglass-start"></i>
             </button>
             {% if terminal.aceptapagos %}
-                <button class="flex-1 btn btn-success" data-action="showCheckoutModalAction">
+                <button class="flex-1 btn btn-success" data-action="checkout:show">
                 {#<button class="flex-1 btn btn-success" data-toggle="modal" data-target="checkoutModal">#}
                     <span class="mr-auto">{{ trans('charge') }}</span>
                     <i class="fa fa-calculator"></i>
@@ -87,7 +89,7 @@
                 <% if (product.thumbnail) { %>
                 <img class="pointer-events-auto w-16 object-scale-down" src="<%= product.thumbnail %>"
                      alt="<%= product.referencia %>"
-                     data-action="productImageAction"
+                     data-action="product:image:show"
                      data-id="<%= product.idproducto %>"
                      data-code="<%= product.referencia %>">
                 <% } else { %>
@@ -98,22 +100,22 @@
                             py-0.5 text-[0.75rem]"><%= product.referencia %></span><%= product.descripcion %>
                 </p>
                 <button class="h-8 w-8 text-center text-xs btn btn-icon btn-light"
-                        data-action="editProductAction" data-index="<%= index %>">
+                        data-action="cart:product:edit" data-index="<%= index %>">
                     <i class="fas fa-pen-alt"></i>
                 </button>
             </div>
             <div class="mx-2 flex flex-row space-x-2">
                 <div class="flex inline-flex self-center text-xs">
                     <button class="h-8 w-8 rounded-r-none btn btn-icon btn-warning"
-                            data-action="quantityDecreaseAction" data-index="<%= index %>">
+                            data-action="cart:product:quantity:decrease" data-index="<%= index %>">
                         <i class="fa fw fa-minus"></i>
                     </button>
                     <input type="number"
                            class="h-8 w-12 rounded-none p-1.5 form-control-base"
                            value="<%= product.cantidad %>"
-                           data-action="editProductFieldAction" data-index="<%= index %>" data-field="cantidad">
+                           data-action="cart:product:field:edit" data-index="<%= index %>" data-field="cantidad">
                     <button class="h-8 w-8 rounded-l-none btn btn-icon btn-secondary"
-                            data-action="quantityIncreaseAction" data-index="<%= index %>">
+                            data-action="cart:product:quantity:increase" data-index="<%= index %>">
                         <i class="fa fw fa-plus"></i>
                     </button>
                 </div>
@@ -130,7 +132,7 @@
                                                type="{{ column.type }}"
                                                value="<%= product.{{ column.data }} %>"
                                                data-index="<%= index %>"
-                                               data-action="editProductFieldAction"
+                                               data-action="cart:product:field:edit"
                                                data-field="{{ column.data }}">
                                     {% endif %}
                                 </div>
@@ -140,7 +142,7 @@
                 {% endif %}
             </div>
             <div class="flex items-center">
-                <button class="h-8 w-8 text-xs btn btn-icon btn-danger" data-action="deleteProductAction"
+                <button class="h-8 w-8 text-xs btn btn-icon btn-danger" data-action="cart:product:delete"
                         data-index="<%= index %>">
                     <i class="fas fa-trash-alt"></i>
                 </button>
@@ -161,7 +163,7 @@
                                        type="{{ column.type }}"
                                        value="<%= product.{{ column.data }} %>"
                                        data-index="<%= index %>"
-                                       data-action="editProductFieldAction"
+                                       data-action="cart:product:field:edit"
                                        data-field="{{ column.data }}">
                             {% endif %}
                         </div>

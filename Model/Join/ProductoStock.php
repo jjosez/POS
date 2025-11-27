@@ -3,17 +3,16 @@
 namespace FacturaScripts\Plugins\POS\Model\Join;
 
 use FacturaScripts\Core\Model\Base\JoinModel;
+use JsonSerializable;
 
-//class ProductoVariante extends JoinModel implements JsonSerializable
-class ProductoStock extends JoinModel
+/**
+ * @property-read $code
+ * @property-read $codewarehouse
+ * @property-read $stock
+ * @property-read $warehouse
+ */
+class ProductoStock extends JoinModel implements JsonSerializable
 {
-    /**
-    * @property-read $codalmacen
-    * @property-read $referencia
-    * @property-read $almacen
-    * @property-read $disponible
-    */
-
     /**
      * @inheritDoc
      */
@@ -43,27 +42,24 @@ class ProductoStock extends JoinModel
      */
     protected function getSQLFrom(): string
     {
-         return 'stocks S LEFT JOIN almacenes A ON S.codalmacen = A.codalmacen';
+        return 'stocks S LEFT JOIN almacenes A ON S.codalmacen = A.codalmacen';
     }
 
-    protected function loadFromData($data): void
+    public function toArray(bool $withCalculated = true): array
     {
-        foreach ($data as $field => $value) {
-            $this->{$field} = $value;
+        $data = [];
+        foreach (array_keys($this->getFields()) as $field_name) {
+            $data[$field_name] = $this->{$field_name} ?? null;
         }
+
+        if ($withCalculated) {
+        }
+
+        return $data;
     }
 
-    public function __set($name, $value)
+    public function jsonSerialize(): mixed
     {
-        $this->{$name}= $value;
+        return $this->toArray();
     }
-
-
-    /**
-     * @return array
-     */
-    /*public function jsonSerialize(): array
-    {
-        return $this->values;
-    }*/
 }

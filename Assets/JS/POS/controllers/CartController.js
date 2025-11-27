@@ -2,7 +2,6 @@ import CartModel from '../models/CartModel.js';
 import CartView from '../views/CartView.js';
 import eventDispatcher from '../core/EventDispatcher.js';
 import eventManager from '../core/EventManager.js';
-import {recalculateRequest} from './OrderController.js';
 
 const Cart = new CartModel({
     'doc': {
@@ -223,38 +222,40 @@ const CartController = {
         if (!audio) return;
 
         audio.currentTime = 0;
-        audio.play().catch(() => {});
-    },
-
-    async cartChange() {
-        recalculateRequest(Cart).then(data => {
-            Cart.update(data);
+        audio.play().catch(() => {
         });
     },
 
-    init() {
-        eventDispatcher.register('deleteProductAction', CartController.deleteProduct);
-        eventDispatcher.register('editProductAction', CartController.editProduct);
-        eventDispatcher.register('editProductQuantityAction', CartController.editProductQuantity);
-        eventDispatcher.register('quantityDecreaseAction', CartController.quantityDecrease);
-        eventDispatcher.register('quantityIncreaseAction', CartController.quantityIncrease);
-        eventDispatcher.register('setCustomerAction', CartController.setCustomer);
-        eventDispatcher.register('setDocumentAction', CartController.setDocument);
-        eventDispatcher.register('setProductAction', CartController.addProduct);
+    async cartChange() {
+        eventManager.emit('order:recalculate', this.Cart);
+    },
 
-        eventManager.on('onCartChange', CartController.cartChange);
-        eventManager.on('onCartUpdate', CartController.cartUpdateTotals);
-        eventManager.on('onCustomerChange', CartController.setCustomer);
-        eventManager.on('onOrderComplete', CartController.resetDocument);
-        eventManager.on('onOrderResume', (doc) => CartController.orderResume(doc));
+    init() {
+        eventDispatcher.register('cart:product:delete', this.deleteProduct.bind(this));
+        eventDispatcher.register('cart:product:edit', this.editProduct.bind(this));
+        eventDispatcher.register('cart:product:quantity:edit', this.editProductQuantity.bind(this));
+        eventDispatcher.register('cart:product:quantity:decrease', this.quantityDecrease.bind(this));
+        eventDispatcher.register('cart:product:quantity:increase', this.quantityIncrease.bind(this));
+        eventDispatcher.register('cart:product:add', this.addProduct.bind(this));
+        eventDispatcher.register('cart:customer:set', this.setCustomer.bind(this));
+        eventDispatcher.register('cart:document:set', this.setDocument.bind(this));
+
+        eventManager.on('cart:change', this.cartChange.bind(this));
+        eventManager.on('cart:update', this.cartUpdateTotals.bind(this));
+        eventManager.on('customer:change', this.setCustomer.bind(this));
+        eventManager.on('order:completed', this.resetDocument.bind(this));
+        eventManager.on('order:resumed', (doc) => this.orderResume(doc));
+        eventManager.on('order:recalculated', (result) => {
+            this.update(result);
+        });
 
         document.addEventListener('change', (event) => {
             const {action, documentField} = event.target.dataset;
             if (!action) return;
 
-            if (action === 'edit-document-field') {
+            if (action === 'document:field:edit') {
                 CartController.editDocumentField(event.target);
-            } else if (action === 'editProductFieldAction') {
+            } else if (action === 'cart:product:field:edit') {
                 CartController.editProductField(event.target, event.target.value);
             }
         });

@@ -62,21 +62,21 @@ const CheckoutController = {
     },
 
     init() {
-        dispatcher.register('deletePaymentAction', this.deletePayment);
-        dispatcher.register('orderSaveAction', this.hideCheckoutModal);
-        dispatcher.register('recalculatePaymentAction', this.recalculatePayment);
-        dispatcher.register('setPaymentAction', this.setPayment);
-        dispatcher.register('showCheckoutModalAction', this.showCheckoutModal);
+        dispatcher.register('checkout:payment:delete', this.deletePayment);
+        dispatcher.register('checkout:payment:recalc', this.recalculatePayment);
+        dispatcher.register('checkout:payment:add', this.setPayment);
+        dispatcher.register('checkout:show', this.showCheckoutModal);
+        dispatcher.register('order:save', this.hideCheckoutModal);
 
-        EventManager.on('onCheckoutUpdate', () => {
+        EventManager.on('checkout:update', () => {
             if (isCheckoutVisible) CheckoutView.render(CheckoutModel);
         });
 
-        EventManager.on('onCartUpdate', ({doc}) => {
+        EventManager.on('cart:update', ({doc}) => {
             CheckoutModel.updateTotal(doc.total);
         });
 
-        EventManager.on('onOrderComplete', () => {
+        EventManager.on('order:completed', () => {
             CheckoutModel.clear();
             CheckoutView.render(CheckoutModel);
         });

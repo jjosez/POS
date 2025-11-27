@@ -12,7 +12,7 @@
             <span class="text-sm">{{ i18n.trans('dto') }}</span>
             <label class="input-icon text-gray-400">
                 <span><i class="fa fa-sm fa-percent"></i></span>
-                <input id="orderDiscount" type="number" class="grow-0" value="0" data-action="editDiscountAction">
+                <input id="orderDiscount" type="number" class="grow-0" value="0" data-action="checkout:discount:add">
             </label>
         </div>
         <span id="orderDiscountAmount" class="flex-1 self-center text-right">0.000</span>
@@ -48,7 +48,7 @@
             <div class="flex flex-wrap justify-center gap-4">
                 {% for element in fsc.getPaymentMethods() %}
                     <button class="btn btn-primary payment-modal-btn" data-code="{{ element.codpago }}"
-                            data-description="{{ element.descripcion }}" data-action="showPaymentModalAction"
+                            data-description="{{ element.descripcion }}" data-action="checkout:show"
                             data-paid="{{ element.formaPago().pagado }}">
                         <i class="fas fa-plus-circle mr-2"></i>
                         <span class="w-full text-center">{{ element.descripcion }}</span>
@@ -63,7 +63,7 @@
                 <i class="fa fa-arrow-alt-circle-left"></i>
                 <span class="mx-2 text-center">{{ i18n.trans('back') }}</span>
             </button>
-            <button id="orderSaveButton" class="btn btn-success ml-auto" data-action="orderSaveAction"
+            <button id="orderSaveButton" class="btn btn-success ml-auto" data-action="order:save"
                     data-toggle="block" data-target="checkoutView" disabled>
                 <span class="mx-2 text-center">{{ i18n.trans('confirm') }}</span>
                 <i class="fa fa-arrow-alt-circle-right"></i>

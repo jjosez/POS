@@ -4,14 +4,14 @@
  *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
-<div id="lastOrdersModal" class="hidden modal">
+<div id="order:last:list:modal" class="hidden modal">
     <div class="h-full modal-content md:modal-content-lg">
         <div class="modal-header">
             <h2 class="text-2xl font-semibold text-slate-gray-700">{{ trans('last-orders') }}</h2>
-            {#<button class="ml-auto btn btn-icon btn-primary" data-action="closeSessionAction">
+            {# <button class="ml-auto btn btn-icon btn-primary" data-action="session:close">
                 <i class="fa fw fa-arrow-down-wide-short"></i>
-            </button>#}
-            <button class="ml-2 btn btn-icon btn-danger" data-toggle="modal" data-target="lastOrdersModal">
+            </button> #}
+            <button class="ml-2 btn btn-icon btn-danger" data-toggle="modal" data-target="order:last:list:modal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
@@ -34,9 +34,9 @@
         </div>
         <div class="modal-body">
             <div id="lastOrdersListTemplateView">
-               {# <div class="m-auto w-1/2">
+                {# <div class="m-auto w-1/2">
                     <i class="animate-spin fas fa-circle-notch text-4xl text-sky-500"></i>
-                </div>#}
+                </div> #}
             </div>
         </div>
         <div class="modal-footer">
@@ -73,10 +73,23 @@
             <p><%= order.observaciones || '' %></p>
         </div>
         <div class="mt-4 flex items-center justify-between md:mt-0">
-            <button type="button" class="mr-2 btn btn-icon btn-light"
-                    data-action="printOrderContextAction" data-code="<%= order.iddocumento %>" data-model="<%= order.tipodoc %>" data-order="<%= order.idoperacion %>">
+            <button type="button"
+                    class="mr-2 btn btn-icon btn-light"
+                    data-action="print:order:context"
+                    data-code="<%= order.iddocumento %>"
+                    data-model="<%= order.tipodoc %>"
+                    data-order="<%= order.idoperacion %>">
                 <i class="fas fa-print fa-sm"></i>
             </button>
+            {#<button type="button"
+                    class="mr-2 btn btn-icon btn-warning"
+                    title="{{ trans('refund') }}"
+                    data-action="order:return:show"
+                    data-code="<%= order.iddocumento %>"
+                    data-model="<%= order.tipodoc %>"
+                    data-order="<%= order.idoperacion %>">
+                <i class="fa-solid fa-hand-holding-dollar fa-fw"></i>
+            </button>#}
             <a href="<%= order.url %>" type="button" target="_blank" class="btn btn-icon btn-primary">
                 <i class="fas fa-file-invoice fa-sm"></i>
             </a>

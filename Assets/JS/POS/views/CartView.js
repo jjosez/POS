@@ -29,7 +29,7 @@ class CartView {
 
     showProductEditModal = (product = {}) => {
         this.renderCartEditView(product);
-        Modals.toggleModal('productEditModal');
+        Modals.toggleModal('product:edit:modal');
     };
 
     showQuantityEditModal = ({index, cantidad}) => {
@@ -64,11 +64,11 @@ class CartView {
     };
 
     toggleCustomerSearchModal = () => {
-        Modals.toggleModal('customerSearchModal');
+        Modals.toggleModal('customer:search:modal');
     };
 
     toggleDocumentClassSearchModal = () => {
-        Modals.toggleModal('documentTypeModal');
+        Modals.toggleModal('document:type:modal');
     };
 }
 

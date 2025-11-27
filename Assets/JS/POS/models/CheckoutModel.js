@@ -101,7 +101,7 @@ class CheckoutModel {
     }
 
     updateCheckoutEvent() {
-        eventManager.emit('onCheckoutUpdate');
+        eventManager.emit('checkout:update');
     }
 }
 

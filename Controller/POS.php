@@ -111,6 +111,10 @@ class POS extends Controller
                 $this->buildResponse();
                 return false;
 
+            case 'get-order-to-refund':
+                $this->getOrderToRefund();
+                return false;
+
             case 'get-orders-on-hold':
                 $this->setResponse(PointOfSaleStorage::getDraftDocuments());
                 return false;
@@ -234,6 +238,55 @@ class POS extends Controller
 
         $this->setNewToken();
         $this->buildResponse();
+    }
+
+    protected function getOrder()
+    {
+        $code = $this->request()->input('code', '');
+
+        if (empty($code)) {
+            Tools::log()->info('pos-order-no-code');
+            $this->buildResponse();
+            return;
+        }
+
+        $order = PointOfSaleStorage::getOrder($code);
+        $document = $order->getDocument();
+
+        $data = [
+            'doc' => $document,
+            'lines' => array_map(function ($line) {
+                $data = $line->toArray(true);
+
+                if (method_exists($line, 'refundedQuantity')) {
+                    $data['refunded'] = $line->refundedQuantity();
+                } else {
+                    $data['refunded'] = 0;
+                }
+            }, $document->getLines())
+        ];
+
+        $this->buildResponse($data);
+    }
+
+    public function getOrderToRefund()
+    {
+        $code = $this->request()->input('code', '');
+
+        try {
+            $data = PointOfSaleStorage::getOrderToRefund($code);
+
+            $this->buildResponse([
+                'success' => true,
+                'doc' => $data['document'],
+                'lines' => $data['lines'],
+            ]);
+        } catch (Exception $e) {
+            $this->buildResponse([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**

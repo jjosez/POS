@@ -71,7 +71,7 @@
     </column>
     <column>
         <name>terminal_type</name>
-        <type>character varying(5)</type>
+        <type>character varying(10)</type>
         <default>null</default>
     </column>
     <constraint>

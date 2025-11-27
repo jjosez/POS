@@ -4,6 +4,7 @@ namespace FacturaScripts\Plugins\POS\Lib;
 
 use Exception;
 use FacturaScripts\Core\Model\Base\SalesDocument;
+use FacturaScripts\Core\Model\LineaFacturaCliente;
 use FacturaScripts\Core\Session;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\BorradorPuntoVenta;
@@ -76,6 +77,15 @@ class PointOfSaleStorage
         return $order;
     }
 
+    public static function getOrders(string $sessionID = ''): array
+    {
+        if ('' !== $sessionID) {
+            return OrdenPuntoVenta::allFromSession($sessionID);
+        }
+
+        return OrdenPuntoVenta::all();
+    }
+
     public static function getOrderFromDocument(string $modelClass, string $code): OrdenPuntoVenta
     {
         $order = new OrdenPuntoVenta();
@@ -88,13 +98,54 @@ class PointOfSaleStorage
         return $order;
     }
 
-    public static function getOrders(string $sessionID = ''): array
+    /**
+     * Obtiene un documento de venta y lo prepara para devoluciones:
+     * - Incluye sus líneas con la propiedad 'refunded'
+     * - Funciona aunque algunas líneas/modelos no implementen refundedQuantity()
+     *
+     * @param string $modelClass Clase del documento (FacturaCliente::class, etc.)
+     * @param string $code Código del documento
+     *
+     * @return array              ['document' => [...], 'lines' => [...]]
+     * @throws Exception
+     */
+    public static function getOrderToRefund(string $code): array
     {
-        if ('' !== $sessionID) {
-            return OrdenPuntoVenta::allFromSession($sessionID);
+        $order = self::getOrder($code);
+
+        // Carga el documento de venta
+        /** @var SalesDocument $document */
+        $document = $order->getDocument();
+        if (!$document instanceof SalesDocument) {
+            throw new Exception('document-not-found');
         }
 
-        return OrdenPuntoVenta::all();
+        $lines = [];
+        foreach ($document->getLines() as $line) {
+            $lines[] = self::mapLineForRefund($line);
+        }
+
+        return [
+            'document' => $document->toArray(true),
+            'lines' => $lines,
+        ];
+    }
+
+    protected static function mapLineForRefund($line): array
+    {
+        $data = $line->toArray(true);
+
+        if ($line instanceof LineaFacturaCliente) {
+            $refunded = $line->refundedQuantity();
+
+            $data['refunded'] = $refunded;
+            $data['refundable'] = max(0, ($data['cantidad'] ?? 0) - $refunded);
+        } else {
+            $data['refunded'] = 0;
+            $data['refundable'] = $data['cantidad'] ?? 0;
+        }
+
+        return $data;
     }
 
     public static function saveOrder(

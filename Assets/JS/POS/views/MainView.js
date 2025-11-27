@@ -95,19 +95,34 @@ class MainView {
         templates.render('productStockListTemplate', {stocks: data}, 'productStockListTemplateView');
     };
 
+    showReturnSaleModal({doc, lines}) {
+        this.toggleReturnSaleModal();
+
+        doc = Core.isObjectEmpty(doc) ? [] : doc;
+        lines = Core.isObjectEmpty(lines) ? [] : lines;
+
+        console.log('Document',doc);
+        console.log('Document lines',lines);
+
+        templates.render('returnSaleSearchResultTemplate', { order:doc, lines:lines }, 'returnSaleSearchResultView');
+        templates.render('returnSaleLinesTemplate', { order:doc, lines:lines }, 'returnSaleLinesTemplateView');
+    }
+
     toggleLoadingModal = () => Modals.toggleModal('loadingModal');
 
-    toggleCloseSessionModal = () => Modals.toggleModal('closeSessionModal');
+    toggleCloseSessionModal = () => Modals.toggleModal('session:close:modal');
 
-    toggleLastOrdersModal = () => Modals.toggleModal('lastOrdersModal');
+    toggleLastOrdersModal = () => Modals.toggleModal('order:last:list:modal');
 
     toggleDraftOrdersModal = () => Modals.toggleModal('draftOrdersModal');
 
-    toggleProductImagesModal = () => Modals.toggleModal('productImagesModal');
+    toggleProductImagesModal = () => Modals.toggleModal('product:image:modal');
 
-    toggleProductStockDetailModal = () => Modals.toggleModal('stockDetailModal');
+    toggleProductStockDetailModal = () => Modals.toggleModal('product:stock:modal');
 
-    togglePrintSelectionModal = () => Modals.toggleModal('contextActionModal');
+    togglePrintSelectionModal = () => Modals.toggleModal('context:action:modal');
+
+    toggleReturnSaleModal = () => Modals.toggleModal('return:sale:modal');
 }
 
 const updateDocumentFieldValue = (data = {}, element) => {
@@ -176,8 +191,8 @@ function cleanMessages() {
 
 const mainViewInstance = () => Object.freeze(new MainView());
 
-EventManager.on('onCartUpdate', mainViewInstance().updateView);
-EventManager.on('onProductFilterChange', updateProductFilter);
+EventManager.on('cart:update', mainViewInstance().updateView);
+EventManager.on('product:filter:changed', updateProductFilter);
 EventManager.on('responseMessages', showMessages);
 
 export default mainViewInstance();

@@ -4,7 +4,7 @@
  *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
-<div id="customerSearchModal" class="modal hidden">
+<div id="customer:search:modal" class="modal hidden">
     <!--content-->
     <div class="modal-content min-h-4/5">
         <!--header-->
@@ -13,10 +13,14 @@
                 <span><i class="fa fa-sm fa-search"></i></span>
                 <input type="search" id="customerSearchBox" placeholder="Buscar..." data-view="CartView">
             </label>
-            <button class="btn btn-icon btn-success ml-2" data-toggle="collapse" data-target="newCustomerForm">
+            <button class="btn btn-icon btn-success ml-2"
+                    data-toggle="collapse"
+                    data-target="newCustomerForm">
                 <i class="fa fw fa-user-plus fa-fw"></i>
             </button>
-            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="customerSearchModal">
+            <button class="btn btn-icon btn-danger ml-2"
+                    data-toggle="modal"
+                    data-target="customer:search:modal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
@@ -34,7 +38,7 @@
                 <div class="form-group my-4">
                     <button class="btn justify-center bg-blue-500 hover:bg-blue-600" type="button"
                             id="newCustomerSaveButton" data-toggle="collapse" data-target="newCustomerForm"
-                            data-action="saveCustomerAction">{{ trans('save') }}</button>
+                            data-action="customer:save">{{ trans('save') }}</button>
                 </div>
             </div>
             <div class="overflow-hidden">
@@ -57,7 +61,7 @@
     <% } %>
     <% customers.forEach(function(customer){ %>
     <tr class="cursor-pointer bg-blue-100 hover:bg-blue-500 hover:text-white">
-        <td class="p-4 font-medium add-customer-btn" data-action="setCustomerAction"
+        <td class="p-4 font-medium add-customer-btn" data-action="cart:customer:set"
             data-code="<%= customer.code %>" data-description="<%= customer.description %>">
             <%= customer.description %>
         </td>

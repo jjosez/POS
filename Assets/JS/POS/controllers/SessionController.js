@@ -40,10 +40,10 @@ const SessionController = {
     },
 
     init() {
-        dispatcher.register('cashEntryAction', this.cashEntry);
-        dispatcher.register('cashWithdrawAction', this.cashWithdraw);
-        dispatcher.register('closeSessionAction', this.closeSession);
-        dispatcher.register('printClosingTicketAction', this.printSessionReportX);
+        dispatcher.register('session:cash:entry', this.cashEntry);
+        dispatcher.register('session:cash:withdraw', this.cashWithdraw);
+        dispatcher.register('session:close', this.closeSession);
+        dispatcher.register('session:report:x', this.printSessionReportX);
 
         MainView.closeSessionForm().addEventListener('submit', function (e) {
             e.preventDefault();

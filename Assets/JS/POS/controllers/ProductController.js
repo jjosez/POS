@@ -4,12 +4,14 @@ import dispatcher from '../core/EventDispatcher.js';
 import {searchFilter} from '../models/FilterModel.js';
 import eventManager from '../core/EventManager.js';
 
+let searchTimer;
+
 const ProductController = {
     async searchByBarcode(code) {
         const response = await Core.searchBarcode(code);
 
         if (response.code) {
-            dispatcher.dispatch('setProductAction', {
+            dispatcher.dispatch('cart:product:add', {
                 dataset: {
                     code: response.code,
                     description: response.description,
@@ -20,8 +22,19 @@ const ProductController = {
     },
 
     async searchByName(el) {
-        const results = await Core.searchProduct(el.value, searchFilter);
-        MainView.updateProductSearchResult(results);
+        if (searchTimer) {
+            clearTimeout(searchTimer);
+        }
+
+        searchTimer = setTimeout(async () => {
+            const query = el.value.trim();
+
+            const results = await Core.searchProduct(query, searchFilter);
+            MainView.updateProductSearchResult(results);
+        }, 200);
+
+        /*const results = await Core.searchProduct(el.value, searchFilter);
+        MainView.updateProductSearchResult(results);*/
     },
 
     async showImages(el) {
@@ -42,13 +55,13 @@ const ProductController = {
         const {code, description, thumbnail} = el.dataset;
 
         searchFilter.toggleFamilyFilter(code, description, thumbnail);
-        eventManager.emit('onProductFilterChange', searchFilter);
+        eventManager.emit('product:filter:changed', searchFilter);
     },
 
     init() {
-        dispatcher.register('productImageAction', this.showImages);
-        dispatcher.register('stockDetailAction', this.showStockDetail);
-        dispatcher.register('setFamilyFilterAction', this.setFamilyFilter);
+        dispatcher.register('product:image:show', this.showImages);
+        dispatcher.register('product:stock:show', this.showStockDetail);
+        dispatcher.register('product:filter:family:toggle', this.setFamilyFilter);
 
         // Escáner de código de barras
         document.addEventListener('scan', (event) => {

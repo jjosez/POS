@@ -27,7 +27,6 @@ class TerminalPuntoVenta extends ModelClass
 
     public const PRODUCTS_FROM_COMPANY = 1;
     public const PRODUCTS_FROM_WAREHOUSE = 2;
-
     public const MODE_CASHIER = 'cashier';
     public const MODE_SELLER = 'seller';
     public const MODE_CUSTOMER = 'customer';
@@ -42,8 +41,6 @@ class TerminalPuntoVenta extends ModelClass
     public $defaultdocument;
     public $disponible;
     public $idempresa;
-
-    public $idformatoticket;
 
     public $idterminal;
     public $nombre;

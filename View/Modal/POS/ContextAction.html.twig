@@ -1,8 +1,8 @@
-<div id="contextActionModal" class="modal hidden">
+<div id="context:action:modal" class="modal hidden">
     <div class="modal-content md:modal-content-sm">
         <div class="modal-header">
             <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ trans('select') }}</h2>
-            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="contextActionModal">
+            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="context:action:modal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
@@ -17,7 +17,7 @@
 <script id="printOrderActionTemplate" type="text/template">
     {% for action in fsc.getPrintSaleTicketActions() %}
         <button class="btn btn-block btn-light cursor-pointer"
-                data-action="printOrderTicketAction"
+                data-action="print:order:ticket"
                 data-code="<%= data.code %>"
                 data-document="<%= data.model %>"
                 data-order="<%= data.order %>"
@@ -32,7 +32,7 @@
 <script id="printOrderContextActionTemplate" type="text/template">
     {% for action in fsc.getPrintSaleTicketActions() %}
         <button class="btn btn-block btn-light cursor-pointer"
-                data-action="printOrderTicketAction"
+                data-action="print:order:ticket"
                 data-code="<%= data.code %>"
                 data-document="<%= data.model %>"
                 data-order="<%= data.order %>"
@@ -47,7 +47,7 @@
 <script id="printDraftActionTemplate" type="text/template">
     {% for action in fsc.getPrintDraftTicketActions() %}
         <button class="btn btn-block btn-light cursor-pointer"
-                data-action="printDraftTicketAction"
+                data-action="print:draft:ticket"
                 data-code="<%= data.code %>"
                 data-document="<%= data.document %>"
                 data-order="<%= data.order %>"
@@ -62,7 +62,7 @@
 <script id="printClosingActionTemplate" type="text/template">
     {% for action in fsc.getPrintClosingTicketActions() %}
         <button class="btn btn-block btn-light cursor-pointer"
-                data-action="printClosingTicketAction"
+                data-action="session:report:x"
                 data-code="<%= data.code %>"
                 data-name="{{ action.actionName }}"
                 data-params='{{ action.params }}'

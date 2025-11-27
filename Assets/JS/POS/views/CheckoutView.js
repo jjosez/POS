@@ -44,7 +44,7 @@ export function getPaymentData({code, description}) {
 }
 
 export function togglePaymentModal() {
-    Modals.toggleModal('checkoutModal');
+    Modals.toggleModal('checkout:modal');
 }
 
 export function enableConfirmButton() {

@@ -48,7 +48,7 @@
     <div class="mb-4 flex flex-col rounded-lg bg-<%= order.rowcolor %>-100 p-2 shadow-sm
                 hover:bg-<%= order.rowcolor %>-200 md:flex-row">
         <div role="listitem" class="flex-1 flex-col self-center"
-             data-action="orderResumeAction" data-code="<%= order.idpausada %>">
+             data-action="order:draft:resume" data-code="<%= order.idpausada %>">
             <div class="flex flex-1 flex-col text-center md:flex-row md:text-left">
                 <div class="flex-1">
                     <span class="font-semibold capitalize italic md:hidden">{{ trans('code') }}: </span>
@@ -74,11 +74,11 @@
         </div>
         <div class="mt-4 flex items-center justify-between md:mt-0">
             <button type="button" class="mr-2 btn btn-icon btn-light"
-                    data-action="printDraftContextAction" data-code="<%= order.idpausada %>" data-model="BorradorPuntoVenta" data-order="">
+                    data-action="print:draft:context" data-code="<%= order.idpausada %>" data-model="BorradorPuntoVenta" data-order="">
                 <i class="fas fa-print fa-sm"></i>
             </button>
             <button type="button" class="btn btn-icon btn-danger"
-                    data-action="orderDeleteAction" data-code="<%= order.idpausada %>">
+                    data-action="order:draft:delete" data-code="<%= order.idpausada %>">
                 <i class="fas fa-trash fa-sm"></i>
             </button>
         </div>

@@ -117,10 +117,10 @@ const PrintController = {
     },
 
     init() {
-        dispatcher.register('printOrderTicketAction', this.handleSaleContextAction.bind(this));
-        dispatcher.register('printDraftTicketAction', this.handleDraftContextAction.bind(this));
-        dispatcher.register('printOrderContextAction', this.printOrderContext);
-        dispatcher.register('printDraftContextAction', this.printDraftContext);
+        dispatcher.register('print:order:ticket', this.handleSaleContextAction.bind(this));
+        dispatcher.register('print:draft:ticket', this.handleDraftContextAction.bind(this));
+        dispatcher.register('print:order:context', this.printOrderContext);
+        dispatcher.register('print:draft:context', this.printDraftContext);
     }
 };
 

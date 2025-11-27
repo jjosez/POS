@@ -80,18 +80,22 @@ export async function postRequestCore(data) {
 }
 
 export async function printerServerRequest({print_job_id}) {
-    if (print_job_id == null) return;
+    let url = 'http://127.0.0.1:8089';
 
-    let params = new URLSearchParams({"documento": print_job_id});
+    if (print_job_id != null && print_job_id !== '') {
+        let params = new URLSearchParams({documento: print_job_id});
+        url += '?' + params.toString();
+    }
 
     try {
-        const response = await fetch('http://127.0.0.1:8089?' + params, {
+        const response = await fetch(url, {
             mode: 'cors', method: 'GET'
         });
 
         if (!response.ok) {
             throw new Error(`❌ HTTP error: ${response.status}`);
         }
+
         return response;
     } catch (error) {
         console.warn('❌ Error al conectar al servidor de impresión:', error);
@@ -198,7 +202,7 @@ export function searchRequest(action, query, filters = {}) {
  */
 function showMessages(response) {
     if (null == response.messages) return;
-    
+
     templates.render('messageListTemplate', response, 'messageListTemplateView');
 
     cleanMessages();
