@@ -75,7 +75,8 @@ class PointOfSaleProduct
         $where = [
             new DataBaseWhere('V.codbarras', $text, 'LIKE'),
             new DataBaseWhere('V.referencia', $text, 'LIKE', 'OR'),
-            new DataBaseWhere('P.descripcion', $text, 'XLIKE', 'OR')
+            new DataBaseWhere('P.descripcion', $text, 'XLIKE', 'OR'),
+            new DataBaseWhere('P.sevende', true)
         ];
 
         if ($company) {
