@@ -28,9 +28,9 @@ class TerminalPuntoVenta extends ModelClass
     public const PRODUCTS_FROM_COMPANY = 1;
     public const PRODUCTS_FROM_WAREHOUSE = 2;
 
-    public const MODE_CASHIER = 'cashier';
-    public const MODE_SELLER = 'seller';
-    public const MODE_CUSTOMER = 'customer';
+    public const MODE_CASHIER = 'cshr';
+    public const MODE_SELLER = 'sllr';
+    public const MODE_CUSTOMER = 'cstr';
 
     public $anchopapel;
     public $aceptapagos;
