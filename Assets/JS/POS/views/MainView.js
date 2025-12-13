@@ -40,6 +40,7 @@ class MainView {
 
     updateProductFamilyList = (data = []) => {
         templates.render('productFilterListTemplate', {filters: data}, 'productFilterListTemplateView');
+        templates.render('productFilterListTemplate', {filters: data}, 'product:filter:family:view');
     };
     updateProductSearchResult = (data = []) => {
         templates.render('productSearchListTemplate', {products: data}, 'productSearchListTemplateView');

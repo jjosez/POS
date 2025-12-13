@@ -7,37 +7,25 @@
 namespace FacturaScripts\Plugins\POS\Controller;
 
 use Exception;
-use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\KernelException;
 use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
+use FacturaScripts\Plugins\POS\Lib\BasePointOfSaleController;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleCustomer;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleProduct;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleRequest;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleSession;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleStorage;
-use FacturaScripts\Plugins\POS\Lib\PointOfSaleTrait;
 use FacturaScripts\Plugins\POS\Lib\PointOfSaleTransaction;
 
-class POS extends Controller
+class POS extends BasePointOfSaleController
 {
-    use PointOfSaleTrait;
 
     const DEFAULT_POS_DOCUMENT = 'FacturaCliente';
     const DRAFT_POS_DOCUMENT = 'BorradorPuntoVenta';
-
-    /**
-     * @var string
-     */
-    protected $token;
-
-    /**
-     * @var array
-     */
-    protected $responseData = [];
 
     /**
      * @param Response $response
@@ -50,6 +38,10 @@ class POS extends Controller
     {
         parent::privateCore($response, $user, $permissions);
         $this->setTemplate(false);
+
+        // Initialize services
+        $this->setupServices();
+
         $action = $this->request->inputOrQuery('action', '');
 
         if ($action && true === $this->execCartQueryAction($action)) {
@@ -205,19 +197,6 @@ class POS extends Controller
         }
     }
 
-    /**
-     * @param array $data
-     * @return void
-     */
-    protected function buildResponse(array $data = []): void
-    {
-        $response = array_merge($data, $this->responseData);
-
-        $response['messages'] = $this->getMessages();
-        $response['token'] = $this->token;
-
-        $this->setResponse($response);
-    }
 
     /**
      * Remove paused order from a list.
@@ -451,7 +430,7 @@ class POS extends Controller
         $this->setSuccessResponse([
             'code' => $document->id(),
             'model' => $document->modelClassName(),
-            'order' => null,
+            'order' => null
         ]);
     }
 
@@ -506,6 +485,7 @@ class POS extends Controller
             'code' => $document->id(),
             'model' => $document->modelClassName(),
             'order' => $order->id(),
+            'token' => $order->id(),
         ]);
     }
 

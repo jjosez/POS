@@ -2,6 +2,10 @@
 /**
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2022 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ *
+ * @deprecated This trait has been refactored into separate services.
+ *             Use BasePointOfSaleController instead.
+ *             This trait is kept for backward compatibility and will be removed in future versions.
  */
 
 namespace FacturaScripts\Plugins\POS\Lib;
@@ -16,6 +20,9 @@ use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Plugins\POS\Model\TipoDocumentoPuntoVenta;
 
+/**
+ * @deprecated Use BasePointOfSaleController with injected services instead
+ */
 trait PointOfSaleTrait
 {
     use ExtensionsTrait;

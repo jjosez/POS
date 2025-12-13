@@ -3,6 +3,7 @@
 namespace FacturaScripts\Plugins\POS\Lib;
 
 use FacturaScripts\Core\Request;
+use FacturaScripts\Core\Tools;
 use RuntimeException;
 
 class PointOfSaleRequest
@@ -26,7 +27,10 @@ class PointOfSaleRequest
 
         $this->documentType = $data['tipo-documento'] ?? 'FacturaCliente';
 
+        //Tools::log('POS')->warning('POS Request: ' . json_encode($data));
+
         if (!empty($data['draft'])) {
+            //Tools::log('POS')->warning('draft-mode');
             $data['generadocumento'] = $this->documentType;
             $this->documentType = $data['tipo-documento'] = 'BorradorPuntoVenta';
         }

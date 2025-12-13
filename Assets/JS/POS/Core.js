@@ -79,7 +79,11 @@ export async function postRequestCore(data) {
     return Promise.resolve({});
 }
 
-export async function printerServerRequest({print_job_id}) {
+export async function printerServerRequest({print_job_id, print_enabled}) {
+    if (!print_enabled) {;
+        return null;
+    }
+
     let url = 'http://127.0.0.1:8089';
 
     if (print_job_id != null && print_job_id !== '') {
