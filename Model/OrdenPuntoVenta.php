@@ -45,6 +45,11 @@ class OrdenPuntoVenta extends ModelClass
     /**
      * @var string
      */
+    public $totalFormatted;
+
+    /**
+     * @var string
+     */
     public $nombrecliente;
 
     /**
@@ -101,6 +106,7 @@ class OrdenPuntoVenta extends ModelClass
         $this->descuadre = $this->testDescuadre();
         $this->tipodocumento = Tools::trans($this->tipodoc);
         $this->nombrecliente = $this->getSubject()->nombre;
+        $this->totalFormatted = Tools::number($this->total);
         $this->url = $this->url('edit');
     }
 

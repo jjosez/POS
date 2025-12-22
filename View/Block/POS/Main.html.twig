@@ -6,7 +6,6 @@
 {% import 'Macro/POS.html.twig' as pos %}
 
 {% set grid = fsc.getFieldOptions() %}
-{% set terminal = fsc.getTerminal() %}
 {% block body %}
     {# {{ include('Block/POS/NewNavbar.html.twig') }} #}
     <div class="flex h-screen flex-row antialiased">
@@ -39,7 +38,7 @@
     {{ include('Modal/POS/ProductFilter.html.twig') }}
     {{ include('Modal/POS/ProductStockDetail.html.twig') }}
     {{ include('Modal/POS/ProductImages.html.twig') }}
-   {# {{ include('Modal/POS/ReturnSale.html.twig') }}#}
+     {{ include('Modal/POS/ReturnSale.html.twig') }}
     {{ include('Modal/POS/User.html.twig') }}
     {% for includeView in getIncludeViews('POS', 'modals') %}
         {% include includeView['path'] %}
@@ -59,32 +58,7 @@
     <script src="{{ asset('Dinamic/Assets/JS/vendor/onscan.min.js?v=1') }}"></script>
     <script type="module" src="{{ asset('Dinamic/Assets/JS/POS/App.js') }}?v={{ 'now' | date('ymd') }}"></script>
     <script type="application/javascript">
-        const AppSettings = {
-            'cash': '{{ fsc.getCashPaymentMethod() }}',
-            'token': '{{ fsc.getNewToken() }}',
-            'url': 'POS',
-            'codalmacen': '{{ fsc.getDefaultWarehouse() }}',
-            'customer': {
-                'codcliente': '{{ fsc.getDefaultCustomer().codcliente }}',
-                'nombre': '{{ fsc.getDefaultCustomer().nombre }}'
-            },
-            'document': {
-                'code': '{{ fsc.getDefaultDocument().tipodoc }}',
-                'serie': '{{ fsc.getDefaultDocument().codserie }}',
-                'description': '{{ fsc.getDefaultDocument().primaryDescription() }}',
-                'draft-document': '{{ fsc.getDraftDocumentModel() }}',
-            },
-            'currency': {
-                'divisa': '{{ settings('default', 'coddivisa') }}',
-                'decimals': '{{ settings('default', 'decimals') }}',
-                'separator': '{{ settings('default', 'decimal_separator') }}',
-            },
-            'payment': {
-                'codpago': '{{ fsc.getCashPaymentMethod() }}'
-            },
-            'terminal': '{{ fsc.getTerminal().idterminal }}',
-            'supported-documents': {{ (terminal.getSupportedDocuments()|json_encode|raw) }}
-        }
+        const AppSettings = {{ fsc.getAppSettings()|json_encode|raw }};
 
         window.POS = {
             'customActions': [],

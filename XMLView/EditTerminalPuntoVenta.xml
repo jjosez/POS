@@ -37,12 +37,18 @@
                 <widget type="checkbox" fieldname="disponible" readonly="true"/>
             </column>
         </group>
-        <group name="extra" title="other-settings" numcolumns="12" valign="bottom">
+        <group name="extra" title="settings" numcolumns="12" valign="bottom">
             <column name="Numero tickets" numcolumns="3" order="110">
                 <widget type="number" fieldname="numerotickets"/>
             </column>
             <column name="pos-checkout-available" numcolumns="3" order='120'>
                 <widget type="checkbox" fieldname="aceptapagos"/>
+            </column>
+            <column name="free-product-line" numcolumns="3" order='120'>
+                <widget type="checkbox" fieldname="free_cart_lines"/>
+            </column>
+            <column name="group-product-lines" numcolumns="3" order='120'>
+                <widget type="checkbox" fieldname="group_cart_lines"/>
             </column>
         </group>
     </columns>

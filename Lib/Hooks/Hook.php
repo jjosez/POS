@@ -1,8 +1,11 @@
 <?php
 
-namespace FacturaScripts\Plugins\POS\Lib;
+namespace FacturaScripts\Plugins\POS\Lib\Hooks;
 
-enum PointOfSaleHook: string
+/**
+ * Enum defining available hook points in the POS system.
+ */
+enum Hook: string
 {
     case OnClosingTicketPrinting = 'onClosingTicketPrinting';
     case OnSaleTicketPrinting = 'onSaleTicketPrinting';

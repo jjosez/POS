@@ -86,7 +86,7 @@ const CartController = {
     async editProductField(el, value) {
         const {index, field} = el.dataset;
         await Cart.editProduct(index, field, value);
-        await CartController.cartChange();
+        //await CartController.cartChange();
         CartView.renderCartEditView(Cart.getProduct(index));
     },
 
@@ -174,9 +174,19 @@ const CartController = {
      */
     addProduct(el) {
         const {code, description, thumbnail} = el.dataset;
-        if (!code) return;
 
-        Cart.setProduct(code, description, thumbnail);
+        const freeLinesEnabled = !!AppSettings.cart.freeLines;
+        const groupLinesEnabled = !!AppSettings.cart.groupLines;
+        const isFreeLine = code === '';
+
+        const forceNewLine = (isFreeLine && freeLinesEnabled) || !groupLinesEnabled;
+
+        if (forceNewLine) {
+            Cart.addProduct(code, description, thumbnail);          // "siempre nueva línea"
+        } else {
+            Cart.addOrUpdateProduct(code, description, thumbnail);  // agrupa/incrementa
+        }
+
         CartController.playBeepSound();
     },
 
@@ -195,7 +205,7 @@ const CartController = {
         CartView.updateTotals(data);
     },
 
-    orderResume(doc) {
+    handleOrderResume(doc) {
         const documentClass = AppSettings['supported-documents']
             .find(item => item.codserie === doc.codserie && item.tipodoc === doc.generadocumento);
 
@@ -240,11 +250,12 @@ const CartController = {
         eventDispatcher.register('cart:customer:set', this.setCustomer.bind(this));
         eventDispatcher.register('cart:document:set', this.setDocument.bind(this));
 
-        eventManager.on('cart:change', this.cartChange.bind(this));
-        eventManager.on('cart:update', this.cartUpdateTotals.bind(this));
-        eventManager.on('customer:change', this.setCustomer.bind(this));
+        //eventManager.on('cart:changed', this.cartChange.bind(this));
+        eventManager.on('product:scanned:success', this.addProduct.bind(this));
+        eventManager.on('cart:updated', this.cartUpdateTotals.bind(this));
+        eventManager.on('customer:changed', this.setCustomer.bind(this));
         eventManager.on('order:completed', this.resetDocument.bind(this));
-        eventManager.on('order:resumed', (doc) => this.orderResume(doc));
+        eventManager.on('order:resumed', (doc) => this.handleOrderResume(doc));
         eventManager.on('order:recalculated', (result) => {
             this.update(result);
         });

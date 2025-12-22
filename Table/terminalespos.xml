@@ -44,6 +44,18 @@
         <null>NO</null>
     </column>
     <column>
+        <name>free_cart_lines</name>
+        <type>boolean</type>
+        <null>YES</null>
+        <default>null</default>
+    </column>
+    <column>
+        <name>group_cart_lines</name>
+        <type>boolean</type>
+        <null>YES</null>
+        <default>true</default>
+    </column>
+    <column>
         <name>idterminal</name>
         <type>serial</type>
         <null>NO</null>

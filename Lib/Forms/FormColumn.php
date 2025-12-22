@@ -1,8 +1,12 @@
 <?php
 
-namespace FacturaScripts\Plugins\POS\Lib;
+namespace FacturaScripts\Plugins\POS\Lib\Forms;
 
-class PointOfSaleFormColumn
+/**
+ * Value Object representing a form column configuration.
+ * Stores field properties for POS form customization.
+ */
+class FormColumn
 {
     /**
      * @var string

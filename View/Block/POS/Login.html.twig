@@ -5,7 +5,6 @@
  */
 #}
 {% extends 'Master/POS.html.twig' %}
-{% set terminal = fsc.getTerminal() %}
 {% block body %}
     <div class="flex modal">
         <div class="modal-content">
@@ -33,7 +32,7 @@
                                 </div>
                             </div>
                         {% else %}
-                            <input name="action" type="hidden" value="open-session">
+                            <input name="action" type="hidden" value="session:open">
                             <input name="terminal" type="hidden" value="{{ terminal.idterminal }}">
                             <input name="multireqtoken" type="hidden" value="{{ fsc.getNewToken() }}">
                             <p class="mb-3">{{ i18n.trans('cash-initial-amount-input') }}</p>
@@ -53,9 +52,10 @@
                             </div>
                         {% endif %}
                     {% else %}
-                        <input type="hidden" name="action" value="open-terminal"/>
+                        <input type="hidden" name="action" value="terminal:open"/>
+                        <input name="multireqtoken" type="hidden" value="{{ fsc.getNewToken() }}">
                         <p class="mb-3">{{ i18n.trans('select-cash-register') }}</p>
-                        {% for terminal in fsc.getTerminalFromCompany() %}
+                        {% for terminal in fsc.getAvalibleTerminals() %}
                             <div class="flex flex-col w-full">
                                 <div class="py-2 mx-auto">
                                     <button class="btn btn-primary" name="terminal"

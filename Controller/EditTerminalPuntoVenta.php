@@ -11,7 +11,7 @@ use FacturaScripts\Core\Lib\ExtendedController;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\User;
-use FacturaScripts\Plugins\POS\Lib\PointOfSaleForms;
+use FacturaScripts\Plugins\POS\Lib\Forms\FormManager;
 use FacturaScripts\Plugins\POS\Model\DenominacionMoneda;
 use FacturaScripts\Plugins\POS\Model\OpcionesTerminalPuntoVenta;
 
@@ -215,7 +215,7 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
 
     public function getTerminalFields(): array
     {
-        return PointOfSaleForms::getFormsGrid($this->selectedUser ?? '');
+        return FormManager::getFormsGrid($this->selectedUser ?? '');
     }
 
     public function getUserList(): array

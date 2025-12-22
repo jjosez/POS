@@ -14,7 +14,7 @@
             <div id="productFilterListTemplateView" class="flex flex-wrap gap-2 mb-4">
             </div>
             <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-                {% for familia in fsc.getParentFamilies() %}
+                {% for familia in context.families().getParentFamilies() %}
                     {% set bgcolor =  familia.madre ? 'bg-slate-50' : 'bg-slate-100' %}
                     {% set imageUrl =  familia.shorcutImage() %}
                     <div role="listitem"

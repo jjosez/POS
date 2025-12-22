@@ -4,7 +4,7 @@
  * Copyright (C) 2025 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 
-namespace FacturaScripts\Plugins\POS\Lib;
+namespace FacturaScripts\Plugins\POS\Lib\Services;
 
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Dinamic\Model\FacturaCliente;
@@ -13,9 +13,23 @@ use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use FacturaScripts\Dinamic\Model\ReciboCliente;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 
-class PointOfSalePayments
+/**
+ * Service for managing POS payments.
+ * Handles payment processing, receipts, and cash management.
+ */
+class Payments
 {
-    public static function cleanInvoiceReceipts(SalesDocument $invoice): void
+    private ?SesionPuntoVenta $session = null;
+
+    public function __construct(?SesionPuntoVenta $session = null)
+    {
+        $this->session = $session;
+    }
+
+    /**
+     * Clean all receipts from an invoice.
+     */
+    public function cleanInvoiceReceipts(SalesDocument $invoice): void
     {
         if ('FacturaCliente' !== $invoice->modelClassName()) {
             return;
@@ -27,7 +41,10 @@ class PointOfSalePayments
         }
     }
 
-    public static function saveInvoiceReceipt(
+    /**
+     * Save a receipt for an invoice payment.
+     */
+    public function saveInvoiceReceipt(
         SalesDocument $invoice,
         PagoPuntoVenta $payment,
         int $number = 1
@@ -51,19 +68,20 @@ class PointOfSalePayments
     }
 
     /**
+     * Save all payments for an order.
+     * Handles receipts and cash balance updates.
+     *
      * @param SalesDocument $document
      * @param OrdenPuntoVenta $orden
-     * @param SesionPuntoVenta $session
      * @param PagoPuntoVenta[] $payments
      * @return bool
      */
-    public static function savePayments(
+    public function savePayments(
         SalesDocument $document,
         OrdenPuntoVenta $orden,
-        SesionPuntoVenta $session,
         array $payments
     ): bool {
-        self::cleanInvoiceReceipts($document);
+        $this->cleanInvoiceReceipts($document);
 
         $counter = 1;
         $cashAmount = 0.0;
@@ -79,11 +97,15 @@ class PointOfSalePayments
                 return false;
             }
 
-            self::saveInvoiceReceipt($document, $payment, $counter++);
+            $this->saveInvoiceReceipt($document, $payment, $counter++);
         }
 
-        $session->saldoesperado += $cashAmount;
+        // Update session cash balance if session is available
+        if ($this->session !== null) {
+            $this->session->saldoesperado += $cashAmount;
+            return $this->session->save();
+        }
 
-        return $session->save();
+        return true;
     }
 }

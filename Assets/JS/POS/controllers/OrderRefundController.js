@@ -1,11 +1,11 @@
 import EventManager from '../core/EventManager.js';
-import mainViewInstance from './MainView.js';
+import MainView from '../views/MainView.js';
 import * as Core from '../Core.js';
 
 const OrderRefundController = class OrderRefundController {
     init() {
         // abrir desde el modal de últimas operaciones
-        EventManager.register(
+        EventManager.on(
             'click',
             '[data-action="returns:sale-open-from-list:action"]',
             this.openFromList.bind(this)
@@ -50,13 +50,13 @@ const OrderRefundController = class OrderRefundController {
         const order = btn.dataset.order;
 
         // cierra el modal de últimas operaciones
-        mainViewInstance().toggleLastOrdersModal();
+        MainView.toggleLastOrdersModal();
 
         // pide la venta al backend
         const data = await Core.getOrderForReturn({ code, model, order });
 
         // muestra el modal de devoluciones con esas líneas
-        mainViewInstance().showReturnSaleModal(data);
+        MainView.showReturnSaleModal(data);
     };
 
     async searchOrder(ev) {
@@ -67,16 +67,16 @@ const OrderRefundController = class OrderRefundController {
         if (!term) return;
 
         const data = await Core.searchOrderForReturn({ term });
-        mainViewInstance().showReturnSaleModal(data);
+        MainView.showReturnSaleModal(data);
     };
 
     async loadLastOrder() {
         const data = await Core.getLastOrderForReturn();
-        mainViewInstance().showReturnSaleModal(data);
+        MainView.showReturnSaleModal(data);
     };
 
     clear() {
-        mainViewInstance().showReturnSaleModal([]); // o limpias vistas específicas
+        MainView.showReturnSaleModal([]); // o limpias vistas específicas
     };
 
     confirm() {

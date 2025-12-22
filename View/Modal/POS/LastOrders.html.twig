@@ -8,25 +8,25 @@
     <div class="h-full modal-content md:modal-content-lg">
         <div class="modal-header">
             <h2 class="text-2xl font-semibold text-slate-gray-700">{{ trans('last-orders') }}</h2>
-            {# <button class="ml-auto btn btn-icon btn-primary" data-action="session:close">
+             {#<button class="ml-auto btn btn-icon btn-primary" data-action="session:close">
                 <i class="fa fw fa-arrow-down-wide-short"></i>
             </button> #}
             <button class="ml-2 btn btn-icon btn-danger" data-toggle="modal" data-target="order:last:list:modal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
-        <div class="m-4 hidden items-center rounded-lg bg-blue-500 p-4 text-white md:flex">
+        <div class="m-4 hidden items-center rounded-lg bg-blue-500 p-4 text-white md:flex shadow-sm ">
             <div class="flex-1">
                 <span class="font-semibold capitalize italic">{{ trans('code') }}</span>
             </div>
             <div class="flex-1">
                 <span class="font-semibold capitalize italic">{{ trans('customer') }}</span>
             </div>
-            <div class="flex-1">
-                <span class="font-semibold capitalize italic">{{ trans('date') }}</span>
-            </div>
-            <div class="flex-1">
+            <div class="flex-1 text-center">
                 <span class="font-semibold capitalize italic">{{ trans('total') }}</span>
+            </div>
+            <div class="flex-1 text-center">
+                <span class="font-semibold capitalize italic">{{ trans('date') }}</span>
             </div>
             <div class="flex justify-center w-24">
                 <span class="font-semibold capitalize italic"><i class="fas fa-tools"></i></span>
@@ -51,7 +51,7 @@
     </div>
     <% } %>
     <% orders.forEach(function(order){ %>
-    <div class="mb-4 flex cursor-pointer flex-col rounded-lg bg-slate-100 p-2 shadow-sm md:flex-row
+    <div class="mb-4 p-2 flex cursor-pointer flex-col rounded-lg bg-slate-100 md:flex-row
     <% if (order.dtomecanico) { %>table-row-red<% } else { %>hover:bg-yellow-100<% } %>">
         <div class="flex flex-1 flex-col items-center md:flex-row">
             <div class="flex-1">
@@ -63,25 +63,25 @@
                 <%= order.nombrecliente %>
             </div>
             <div class="flex-1">
+                <span class="font-semibold capitalize italic md:hidden">{{ trans('total') }}: </span>
+                <%= order.totalFormatted %>
+            </div>
+            <div class="flex-1 text-right">
                 <span class="font-semibold capitalize italic md:hidden">{{ trans('date') }}: </span>
                 <%= order.fecha %> <%= order.hora %>
-            </div>
-            <div class="flex-1">
-                <span class="font-semibold capitalize italic md:hidden">{{ trans('total') }}: </span>
-                <%= order.total %>
             </div>
             <p><%= order.observaciones || '' %></p>
         </div>
         <div class="mt-4 flex items-center justify-between md:mt-0">
             <button type="button"
-                    class="mr-2 btn btn-icon btn-light"
+                    class="mx-2 btn btn-icon btn-light"
                     data-action="print:order:context"
                     data-code="<%= order.iddocumento %>"
                     data-model="<%= order.tipodoc %>"
                     data-order="<%= order.idoperacion %>">
                 <i class="fas fa-print fa-sm"></i>
             </button>
-            {#<button type="button"
+             <button type="button"
                     class="mr-2 btn btn-icon btn-warning"
                     title="{{ trans('refund') }}"
                     data-action="order:return:show"
@@ -89,7 +89,7 @@
                     data-model="<%= order.tipodoc %>"
                     data-order="<%= order.idoperacion %>">
                 <i class="fa-solid fa-hand-holding-dollar fa-fw"></i>
-            </button>#}
+            </button>
             <a href="<%= order.url %>" type="button" target="_blank" class="btn btn-icon btn-primary">
                 <i class="fas fa-file-invoice fa-sm"></i>
             </a>

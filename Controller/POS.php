@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of POS plugin for FacturaScripts
- * Copyright (C) 2022 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ * Copyright (C) 2022-2025 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 
 namespace FacturaScripts\Plugins\POS\Controller;
@@ -13,19 +13,19 @@ use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
-use FacturaScripts\Plugins\POS\Lib\BasePointOfSaleController;
-use FacturaScripts\Plugins\POS\Lib\PointOfSaleCustomer;
-use FacturaScripts\Plugins\POS\Lib\PointOfSaleProduct;
-use FacturaScripts\Plugins\POS\Lib\PointOfSaleRequest;
-use FacturaScripts\Plugins\POS\Lib\PointOfSaleSession;
-use FacturaScripts\Plugins\POS\Lib\PointOfSaleStorage;
-use FacturaScripts\Plugins\POS\Lib\PointOfSaleTransaction;
+use FacturaScripts\Plugins\POS\Lib\Core\BaseController;
+use FacturaScripts\Plugins\POS\Lib\Core\SessionManager;
+use FacturaScripts\Plugins\POS\Lib\Services\TransactionRequest;
+use FacturaScripts\Plugins\POS\Lib\Services\Transactions;
+use RuntimeException;
 
-class POS extends BasePointOfSaleController
+/**
+ * POS controller using simplified architecture with Context and lazy loading.
+ */
+class POS extends BaseController
 {
-
-    const DEFAULT_POS_DOCUMENT = 'FacturaCliente';
-    const DRAFT_POS_DOCUMENT = 'BorradorPuntoVenta';
+    const string DEFAULT_POS_DOCUMENT = 'FacturaCliente';
+    const string DRAFT_POS_DOCUMENT = 'BorradorPuntoVenta';
 
     /**
      * @param Response $response
@@ -39,23 +39,27 @@ class POS extends BasePointOfSaleController
         parent::privateCore($response, $user, $permissions);
         $this->setTemplate(false);
 
-        // Initialize services
+        // Initialize minimal services
         $this->setupServices();
 
-        $action = $this->request->inputOrQuery('action', '');
+        // Initialize session and context (lazy loading)
+        $this->session = new SessionManager($user);
+        $this->setupContext();
 
-        if ($action && true === $this->execCartQueryAction($action)) {
+        $action = $this->request->inputOrQuery('action', '');
+        // Execute cart-specific actions
+        if ($action && $this->execCartQueryAction($action)) {
             return;
         }
 
-        $this->session = new PointOfSaleSession($user);
-
-        if ($action && false === $this->execAction($action)) {
+        // Execute actions
+        if ($action && !$this->execAction($action)) {
             return;
         }
 
         $this->execAfterAction($action);
 
+        // Load hooks
         $this->loadCustomDocumentFields();
         $this->loadCustomMenuElements();
         $this->loadPointOfSaleHooks();
@@ -65,153 +69,148 @@ class POS extends BasePointOfSaleController
     }
 
     /**
-     * @throws Exception
+     * Execute main POS actions.
      */
     protected function execAction(string $action): bool
     {
         switch ($action) {
-            case 'search-barcode':
+            case 'product:barcode:search':
                 $this->searchBarcode();
                 return false;
 
-            case 'cash-entry-action':
-                $this->saveCashEntry();
-                return true;
-
-            case 'cash-withdraw-action':
-                $this->saveCashWithdraw();
-                return true;
-
-            case 'get-product-stock':
-                $this->searchStock();
+            case 'product:stock:get':
+                $query = $this->request->request->get('query', '');
+                $this->setResponse($this->context->products()->getStock($query));
                 return false;
 
-            case 'get-product-images':
+            case 'product:images:get':
                 $id = $this->request->request->get('id', '');
                 $code = $this->request->request->get('code', '');
-
-                $this->setResponse(PointOfSaleProduct::getImagesUrl($id, $code));
+                $this->setResponse($this->context->products()->getImagesUrl($id, $code));
                 return false;
 
-            case 'save-draft':
-                $this->saveDraft();
-                $this->buildResponse();
-                return false;
-
-            case 'save-order':
+            case 'order:save':
                 $this->saveOrder();
                 $this->buildResponse();
                 return false;
 
-            case 'get-order-to-refund':
+            case 'order:refund:get':
                 $this->getOrderToRefund();
                 return false;
 
-            case 'get-orders-on-hold':
-                $this->setResponse(PointOfSaleStorage::getDraftDocuments());
+            case 'order:last:list':
+                $this->setResponse($this->context->storage()->getOrders());
                 return false;
 
-            case 'get-last-orders':
-                $result = PointOfSaleStorage::getOrders(PointOfSaleSession::getSessionID());
-                $this->setResponse($result);
+            case 'order:draft:save':
+                $this->saveDraft();
                 return false;
 
-            case 'print-x-report':
+            case 'order:draft:resume':
+                $this->resumeOrder();
+                return false;
+
+            case 'order:draft:list':
+                $this->setResponse($this->context->storage()->getDrafts());
+                return false;
+
+            case 'family:filter:set':
+                $codfamilia = $this->request->request->get('code', '');
+                // TODO: Implement FamilyService in context
+                // $result = $this->context->families()->getHierarchy($codfamilia);
+                // $this->setResponse($result);
+                return false;
+
+            case 'print:draft':
+                $this->printDraftTicket();
+                return false;
+
+            case 'print:ticket':
+                $this->printOrderTicket();
+                return false;
+
+            case 'print:report:x':
                 $this->printCashRegisterReportX();
                 $this->buildResponse();
                 return false;
 
-            case 'set-family-filter':
-                $this->setFamilyFilter();
-                return false;
-
-            case 'print-draft-ticket':
-                $this->printDraftTicket();
-                return false;
-
-            case 'print-sales-ticket':
-                $this->printOrderTicket();
-                return false;
-
-            case 'close-session':
+            case 'session:close':
                 $this->closeSession();
                 return false;
 
-            default:
-                //$this->setResponse('not-found-action', false);
+            case 'session:cash:entry':
+                $this->saveCashEntry();
                 return true;
+
+            case 'session:cash:withdraw':
+                $this->saveCashWithdraw();
+                return true;
+
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * Execute cart-specific actions (no session required).
+     */
+    protected function execCartQueryAction(string $action): bool
+    {
+        switch ($action) {
+            case 'order:draft:delete':
+                $this->deleteDraftOrder();
+                return true;
+
+            case 'order:recalculate':
+                $this->recalculateOrder();
+                return true;
+
+            case 'customer:create':
+                $this->saveNewCustomer();
+                return true;
+
+            case 'customer:search':
+                $query = $this->request->request->get('query');
+                $this->setResponse($this->context->customers()->search($query));
+                return true;
+
+            case 'product:search':
+                $this->searchProduct();
+                return true;
+
+            default:
+                return false;
         }
     }
 
     protected function execAfterAction(string $action): void
     {
         switch ($action) {
-            case 'change-user':
+            case 'user:change':
                 $this->changeUser();
                 break;
-            case 'open-session':
+            case 'session:open':
                 $this->openSession();
                 break;
-            case 'open-terminal':
+            case 'terminal:open':
                 $this->openTerminal();
                 break;
         }
     }
 
-    /**
-     * Execute Cart specific actions.
-     *
-     * @param string $action
-     * @return bool
-     */
-    protected function execCartQueryAction(string $action): bool
-    {
-        switch ($action) {
-            case 'delete-order-on-hold':
-                $this->deleteDraftOrder();
-                return true;
+    // ========================================================================
+    // Draft Operations
+    // ========================================================================
 
-            case 'recalculate-order':
-                $this->recalculateOrder();
-                return true;
-
-            case 'resume-order':
-                $this->resumeOrder();
-                return true;
-
-            case 'save-new-customer':
-                $this->saveNewCustomer();
-                return true;
-
-            case 'search-customer':
-                $this->searchCustomer();
-                return true;
-
-            case 'search-product':
-                $this->searchProduct();
-                return true;
-
-            default:
-                //$this->setResponse('not-found-action', false);
-                return false;
-        }
-    }
-
-
-    /**
-     * Remove paused order from a list.
-     */
     protected function deleteDraftOrder(): void
     {
-        if (false === self::validateDelete()) {
+        if (!$this->validateDelete()) {
             $this->buildResponse();
-
             return;
         }
 
         $code = $this->request->request->get('code', '');
-
-        if (PointOfSaleStorage::deleteDraftDocument($code)) {
+        if ($this->context->storage()->deleteDraft($code)) {
             Tools::log()->info('pos-order-on-hold-deleted');
         }
 
@@ -219,205 +218,35 @@ class POS extends BasePointOfSaleController
         $this->buildResponse();
     }
 
-    protected function getOrder()
-    {
-        $code = $this->request()->input('code', '');
-
-        if (empty($code)) {
-            Tools::log()->info('pos-order-no-code');
-            $this->buildResponse();
-            return;
-        }
-
-        $order = PointOfSaleStorage::getOrder($code);
-        $document = $order->getDocument();
-
-        $data = [
-            'doc' => $document,
-            'lines' => array_map(function ($line) {
-                $data = $line->toArray(true);
-
-                if (method_exists($line, 'refundedQuantity')) {
-                    $data['refunded'] = $line->refundedQuantity();
-                } else {
-                    $data['refunded'] = 0;
-                }
-            }, $document->getLines())
-        ];
-
-        $this->buildResponse($data);
-    }
-
-    public function getOrderToRefund()
-    {
-        $code = $this->request()->input('code', '');
-
-        try {
-            $data = PointOfSaleStorage::getOrderToRefund($code);
-
-            $this->buildResponse([
-                'success' => true,
-                'doc' => $data['document'],
-                'lines' => $data['lines'],
-            ]);
-        } catch (Exception $e) {
-            $this->buildResponse([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ]);
-        }
-    }
-
-    /**
-     * Recalculate order data.
-     *
-     * @return void
-     */
-    protected function recalculateOrder(): void
-    {
-        $request = new PointOfSaleRequest($this->request);
-        $transaction = new PointOfSaleTransaction($request);
-
-        $this->setResponse($transaction->recalculate());
-    }
-
-    /**
-     * Load order on hold by code.
-     */
     protected function resumeOrder(): void
     {
         $code = $this->request->request->get('code', '');
-
-        if ($code) {
-            $document = PointOfSaleStorage::getDraftDocument($code);
-
-            $result = ['doc' => $document, 'lines' => $document->getLines()];
-
-            $this->setNewToken();
-            $this->buildResponse($result);
-        }
-    }
-
-    protected function saveCashEntry(): void
-    {
-        if (false === $this->validateRequest()) return;
-
-        $amount = $this->request->request->get('amount', 0);
-        $description = $this->request->request->get('description');
-
-        if (!is_numeric($amount) || $amount <= 0) {
-            Tools::log()->error('invalid-amount');
+        if (!$code) {
             return;
         }
 
-        if (PointOfSaleStorage::saveCashMovment($amount, $description)) {
-            Tools::log()->notice('cash-entry-ok');
-        }
-
-        $this->buildResponse();
-    }
-
-    protected function saveCashWithdraw(): void
-    {
-        if (false === $this->validateRequest()) return;
-
-        $amount = $this->request()->input('amount', 0);
-        $description = $this->request()->input('description');
-
-        if (!is_numeric($amount) || $amount <= 0) {
-            Tools::log()->error('invalid-amount');
+        $draft = $this->context->storage()->getDraft($code);
+        if (!$draft) {
             return;
         }
 
-        $amount *= -1;
-        if (PointOfSaleStorage::saveCashMovment($amount, $description)) {
-            Tools::log()->notice('cash-withdraw-ok');
-        }
-
-        $this->buildResponse();
-    }
-
-    protected function saveNewCustomer(): void
-    {
-        $customer = new PointOfSaleCustomer();
-
-        $taxID = $this->request->request->get('taxID');
-        $name = $this->request->request->get('name');
-        $result = [];
-
-        if ($customer->saveNew($taxID, $name)) {
-            Tools::log()->notice('Nuevo cliente registrado');
-            $result = ['customer' => $customer->getCustomer()];
-        }
-
+        $result = ['doc' => $draft, 'lines' => $draft->getLines()];
+        $this->setNewToken();
         $this->buildResponse($result);
     }
 
-    /**
-     * Search customer by text.
-     */
-    protected function searchCustomer(): void
-    {
-        $customer = new PointOfSaleCustomer();
-        $query = $this->request->request->get('query');
-
-        $this->setResponse($customer->search($query));
-    }
-
-    /**
-     * Search product by barcode.
-     */
-    protected function searchBarcode(): void
-    {
-        $barcode = $this->request->request->get('query');
-
-        $this->setResponse(PointOfSaleProduct::searchBarcode($barcode));
-    }
-
-    /**
-     * Search product by text.
-     */
-    protected function searchProduct(): void
-    {
-        $query = $this->request->request->get('query', '');
-        $terminalCode = $this->request->request->get('terminal', '');
-        $filters = $this->request->request->get('filters', '');
-
-        $filterRules = json_decode($filters, true) ?: [];
-
-        $terminal = PointOfSaleSession::getSessionTerminal($terminalCode);
-
-        $company = $terminal->productsource === $terminal::PRODUCTS_FROM_COMPANY ? $terminal->idempresa : '';
-        $warehouse = $terminal->productsource === $terminal::PRODUCTS_FROM_WAREHOUSE ? $terminal->codalmacen : '';
-
-        $this->setResponse(PointOfSaleProduct::search($query, $filterRules, $warehouse, $company));
-    }
-
-    /**
-     * Search product by text.
-     */
-    protected function searchStock(): void
-    {
-        $query = $this->request->request->get('query', '');
-
-        $this->setResponse(PointOfSaleProduct::getStock($query));
-    }
-
-    /**
-     * Put the order on hold.
-     *
-     * @return void
-     */
     protected function saveDraft(): void
     {
-        if (false === $this->validateRequest()) return;
+        if (!$this->validateRequest()) {
+            return;
+        }
 
-        $request = new PointOfSaleRequest($this->request);
-        $transaction = new PointOfSaleTransaction($request);
+        $request = new TransactionRequest($this->request);
+        $transaction = new Transactions($request);
 
         $this->dataBase->beginTransaction();
 
-        if (false === $transaction->saveDocument()) {
+        if (!$transaction->saveDocument()) {
             Tools::log()->warning('pos-order-on-hold-error');
             $this->dataBase->rollback();
             return;
@@ -432,19 +261,50 @@ class POS extends BasePointOfSaleController
             'model' => $document->modelClassName(),
             'order' => null
         ]);
+
+        $this->buildResponse();
     }
 
-    /**
-     * Save order and payments.
-     *
-     * @return void
-     */
+    // ========================================================================
+    // Order Operations
+    // ========================================================================
+
+    protected function getOrderToRefund(): void
+    {
+        $code = $this->request->input('code', '');
+
+        try {
+            $data = $this->context->storage()->getOrderForRefund($code);
+
+            $this->buildResponse([
+                'success' => true,
+                'doc' => $data['document'],
+                'lines' => $data['lines'],
+            ]);
+        } catch (Exception $e) {
+            $this->buildResponse([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    protected function recalculateOrder(): void
+    {
+        $request = new TransactionRequest($this->request);
+        $transaction = new Transactions($request);
+
+        $this->setResponse($transaction->recalculate());
+    }
+
     protected function saveOrder(): void
     {
-        if (false === $this->validateRequest()) return;
+        if (!$this->validateRequest()) {
+            return;
+        }
 
-        $request = new PointOfSaleRequest($this->request);
-        $transaction = new PointOfSaleTransaction($request);
+        $request = new TransactionRequest($this->request);
+        $transaction = new Transactions($request);
 
         if ($this->pipeFalse('saveBefore', $request, $transaction) === false) {
             return;
@@ -452,7 +312,7 @@ class POS extends BasePointOfSaleController
 
         $this->dataBase->beginTransaction();
 
-        if (false === $transaction->saveDocument()) {
+        if (!$transaction->saveDocument()) {
             Tools::log('POS')->warning('fail-update');
             $this->dataBase->rollback();
             return;
@@ -462,19 +322,24 @@ class POS extends BasePointOfSaleController
         $payments = $transaction->getPayments();
 
         $order = new OrdenPuntoVenta();
-        if (false === PointOfSaleStorage::saveOrder($order, $document)) {
+        if (!$this->context->storage()->saveOrder($order, $document)) {
+            Tools::log('POS')->warning('fail-save-order');
             $this->dataBase->rollback();
             return;
         }
 
-        if ((false === PointOfSaleStorage::completeDraftDocument($document))) {
+        if (!$this->context->storage()->completeDraft($document)) {
             Tools::log('POS')->warning('fail-update-paused-document');
-
             $this->dataBase->rollback();
             return;
         }
 
-        $this->session->savePayments($order, $payments);
+        // Save payments and receipts
+        if (!$this->context->payments()->savePayments($document, $order, $payments)) {
+            Tools::log('POS')->warning('fail-save-payments');
+            $this->dataBase->rollback();
+            return;
+        }
 
         $this->dataBase->commit();
 
@@ -489,15 +354,211 @@ class POS extends BasePointOfSaleController
         ]);
     }
 
-    protected function printCashRegisterClosing(bool $reportZ = true): void
+    /**
+     * @return Transactions|null
+     */
+    protected function prepareOrderTransaction(): ?Transactions
     {
-        if ($reportZ) {
-            $this->pipeFalse('printReportZ', $this->session->getSession(), $this->empresa, $this->request);
+        $request = new TransactionRequest($this->request);
+        $transaction = new Transactions($request);
 
+        if ($this->pipeFalse('saveBefore', $request, $transaction) === false) {
+            return null;
+        }
+
+        return $transaction;
+    }
+
+    protected function executeTransaction(Transactions $transaction): bool
+    {
+        try {
+            $this->dataBase->beginTransaction();
+
+            if (!$transaction->saveDocument()) {
+                throw new RuntimeException('fail-update');
+            }
+
+            $document = $transaction->getDocument();
+            $payments = $transaction->getPayments();
+            $order = new OrdenPuntoVenta();
+
+            if (!$this->context->storage()->saveOrder($order, $document)) {
+                throw new RuntimeException('fail-save-order');
+            }
+
+            if (!$this->context->storage()->completeDraft($document)) {
+                throw new RuntimeException('fail-update-paused-document');
+            }
+
+            if (!$this->context->payments()->savePayments($document, $order, $payments)) {
+                throw new RuntimeException('fail-save-payments');
+            }
+
+            $this->dataBase->commit();
+
+            $this->pipe('save', $document, $payments);
+            Tools::log('POS')->notice('record-updated-correctly');
+
+            $this->setSuccessResponse([
+                'code' => $document->id(),
+                'model' => $document->modelClassName(),
+                'order' => $order->id(),
+                'token' => $order->id(),
+            ]);
+
+            return true;
+        } catch (Exception $exception) {
+            $this->dataBase->rollback();
+            Tools::log('POS')->warning($exception->getMessage());
+            return false;
+        }
+    }
+
+    // ========================================================================
+    // Cash Operations
+    // ========================================================================
+
+    protected function saveCashEntry(): void
+    {
+        if (!$this->validateRequest()) {
             return;
         }
 
-        $this->pipeFalse('printReportX', $this->session->getSession(), $this->empresa, $this->request);
+        $amount = $this->request->request->get('amount', 0);
+        $description = $this->request->request->get('description');
+
+        if (!is_numeric($amount) || $amount <= 0) {
+            Tools::log()->error('invalid-amount');
+            return;
+        }
+
+        if ($this->context->storage()->recordCashMovement($amount, $description)) {
+            Tools::log()->notice('cash-entry-ok');
+        }
+
+        $this->buildResponse();
+    }
+
+    protected function saveCashWithdraw(): void
+    {
+        if (!$this->validateRequest()) {
+            return;
+        }
+
+        $amount = $this->request->input('amount', 0);
+        $description = $this->request->input('description');
+
+        if (!is_numeric($amount) || $amount <= 0) {
+            Tools::log()->error('invalid-amount');
+            return;
+        }
+
+        $amount *= -1;
+        if ($this->context->storage()->recordCashMovement($amount, $description)) {
+            Tools::log()->notice('cash-withdraw-ok');
+        }
+
+        $this->buildResponse();
+    }
+
+    // ========================================================================
+    // Customer Operations
+    // ========================================================================
+
+    protected function saveNewCustomer(): void
+    {
+        $taxID = $this->request->request->get('taxID');
+        $name = $this->request->request->get('name');
+        $result = [];
+
+        if ($this->context->customers()->saveNew($taxID, $name)) {
+            Tools::log()->notice('Nuevo cliente registrado');
+            $result = ['customer' => $this->context->customers()->getCustomer()];
+        }
+
+        $this->buildResponse($result);
+    }
+
+    // ========================================================================
+    // Product Operations
+    // ========================================================================
+
+    protected function searchProduct(): void
+    {
+        $query = $this->request->request->get('query', '');
+        $filters = $this->request->request->get('filters', '');
+
+        $filterRules = json_decode($filters, true) ?: [];
+        $terminal = $this->context->config()->getTerminal();
+
+        $company = $terminal->productsource === $terminal::PRODUCTS_FROM_COMPANY ? $terminal->idempresa : '';
+        $warehouse = $terminal->productsource === $terminal::PRODUCTS_FROM_WAREHOUSE ? $terminal->codalmacen : '';
+
+        $this->setResponse($this->context->products()->search($query, $filterRules, $warehouse, $company));
+    }
+
+    protected function searchBarcode(): void
+    {
+        $barcode = $this->request->request->get('query');
+        $result = $this->context->products()->searchBarcode($barcode);
+
+        if (!$result) {
+            $this->setResponse([
+                'messages' => [
+                    [
+                        'type' => 'info',
+                        'message' => 'barcode-not-found',
+                    ]
+                ],
+                'token' => null,
+            ]);
+            return;
+        }
+
+        $this->setResponse($result);
+    }
+
+    // ========================================================================
+    // Print Operations
+    // ========================================================================
+
+    protected function printOrderTicket(): void
+    {
+        $documentCode = $this->request->request->get('document-code', '');
+        $documentModel = $this->request->request->get('document-model', '');
+        $documentOrder = $this->request->request->get('document-order', '');
+
+        if ($documentModel === self::DRAFT_POS_DOCUMENT) {
+            $document = $this->context->storage()->getDraft($documentCode);
+            $payments = [];
+        } elseif ($documentOrder) {
+            $order = $this->context->storage()->getOrder($documentOrder);
+            $document = $order->getDocument();
+            $payments = $order->getPayments();
+        } else {
+            $order = $this->context->storage()->getOrderFromDocument($documentModel, $documentCode);
+            $document = $order->getDocument();
+            $payments = $order->getPayments();
+        }
+
+        Tools::log('POS')->info('printing-sale-ticket');
+        $this->pipeFalse('printOrderTicket', $document, $payments, $this->request);
+        $this->buildResponse();
+    }
+
+    protected function printDraftTicket(): void
+    {
+        $code = $this->request->request->get('code', '');
+        if (empty($code)) {
+            Tools::log('POS')->warning('cant-print-ticket');
+            return;
+        }
+
+        $document = $this->context->storage()->getDraft($code);
+        Tools::log('POS')->info('printing-draft-ticket');
+
+        $this->pipeFalse('printOrderTicket', $document, [], $this->request);
+        $this->buildResponse();
     }
 
     protected function printCashRegisterReportX(): void
@@ -510,100 +571,21 @@ class POS extends BasePointOfSaleController
         $this->pipeFalse('printReportZ', $this->session->getSession(), $this->empresa, $this->request);
     }
 
-    /**
-     * Reprint order by code.
-     */
-    protected function printOrderTicket(): void
-    {
-        $documentCode = $this->request->request->get('document-code', '');
-        $documentModel = $this->request->request->get('document-model', '');
-        $documentOrder = $this->request->request->get('document-order', '');
-        $request = $this->request->request;
-
-
-        if ($documentModel === self::DRAFT_POS_DOCUMENT) {
-            $document = PointOfSaleStorage::getDraftDocument($documentCode);
-            $payments = [];
-        } else if ($documentOrder) {
-            $order = PointOfSaleStorage::getOrder($documentOrder);
-            $document = $order->getDocument();
-            $payments = $order->getPayments();
-        } else {
-            $order = PointOfSaleStorage::getOrderFromDocument($documentModel, $documentCode);
-            $document = $order->getDocument();
-            $payments = $order->getPayments();
-        }
-
-        Tools::log('POS')->info('printing-sale-ticket');
-
-        $this->pipeFalse('printOrderTicket', $document, $payments, $request);
-        $this->buildResponse();
-    }
-
-    /**
-     * Reprint point of a sale document by code.
-     */
-    protected function printDraftTicket(): void
-    {
-        $code = $this->request->request->get('code', '');
-        $request = $this->request->request;
-
-        if (empty($code)) {
-            Tools::log('POS')->warning('cant-print-ticket');
-            return;
-        }
-
-        $document = PointOfSaleStorage::getDraftDocument($code);
-        Tools::log('POS')->info('printing-draft-ticket');
-
-        $this->pipeFalse('printOrderTicket', $document, [], $request);
-        $this->buildResponse();
-    }
+    // ========================================================================
+    // Session Operations
+    // ========================================================================
 
     protected function changeUser(): void
     {
-        /*$user = new User();
-        $nick = $this->request->request->get('userNick', '');
-        $password = $this->request->request->get('userPassword', '');
-
-        if ($nick === '' || $password === '') {
-            return;
-        }
-
-        if ($user->loadFromCode($nick) && $user->enabled) {
-            if ($user->verifyPassword($password)) {
-                $user->newLogkey($this->user->lastip, $this->user->lastbrowser);
-                $user->save();
-                $this->session->updateUser($user);
-
-                $expire = time() + FS_COOKIES_EXPIRE;
-                $this->response->headers->setCookie(new Cookie('fsNick', $user->nick, $expire, FS_ROUTE));
-                $this->response->headers->setCookie(new Cookie('fsLogkey', $user->logkey, $expire, FS_ROUTE));
-                $this->response->headers->setCookie(new Cookie('fsLang', $user->langcode, $expire, FS_ROUTE));
-                $this->response->headers->setCookie(new Cookie('fsCompany', $user->idempresa, $expire, FS_ROUTE));
-
-                $this->toolBox()->i18nLog()->info('login-ok', ['%nick%' => $user->nick]);
-                header("Refresh:0");
-                return;
-            }
-
-            $ipFilter = $this->toolBox()->ipFilter();
-            $ipFilter->setAttempt($this->user->lastip);
-
-            $this->toolBox()->i18nLog()->warning('login-password-fail');
-        }*/
+        // TODO: Implement if needed
     }
 
-    /**
-     * Close current user POS session.
-     */
     protected function closeSession(): void
     {
         $cash = $this->request->request->getArray('cash') ?? [];
 
-        if ($this->session->closeSession($cash)) {
+        if ($this->session->close($cash)) {
             $this->printCashRegisterReportZ();
-
             $this->pipe('closeSession', $this->session->getSession());
         }
 
@@ -612,7 +594,7 @@ class POS extends BasePointOfSaleController
 
     protected function openSession(): void
     {
-        if (false === $this->validateFormToken()) {
+        if (!$this->validateFormToken()) {
             return;
         }
 
@@ -621,14 +603,22 @@ class POS extends BasePointOfSaleController
         $this->session->open($terminal, $amount);
     }
 
-    /**
-     * @return void
-     */
     protected function openTerminal(): void
     {
         $id = $this->request->request->get('terminal', '');
         $this->session->getTerminal($id);
+
+        $this->setupContext();
     }
+
+    public function getAvalibleTerminals()
+    {
+        return $this->context->terminal()->getAvailable($this->user->idempresa);
+    }
+
+    // ========================================================================
+    // Page Data
+    // ========================================================================
 
     public function getDraftDocumentModel(): string
     {
@@ -636,10 +626,55 @@ class POS extends BasePointOfSaleController
     }
 
     /**
-     * Returns basic page attributes
-     *
-     * @return array
+     * Returns some products to populate starting product list.
      */
+    public function getHomeProducts(): array
+    {
+        return $this->context->products()->search('');
+    }
+
+    /**
+     * Returns all app settings as a single array for JavaScript.
+     */
+    public function getAppSettings(): array
+    {
+        $config = $this->context->config();
+        $defaultCustomer = $config->getDefaultCustomer();
+        $defaultDocument = $config->getDefaultDocument();
+        $terminal = $this->session->getTerminal();
+
+        return [
+            'cash' => $config->getCashPaymentMethod(),
+            'token' => $this->multiRequestProtection->newToken(),
+            'url' => 'POS',
+            'codalmacen' => $config->getDefaultWarehouse(),
+            'customer' => [
+                'codcliente' => $defaultCustomer->codcliente,
+                'nombre' => $defaultCustomer->nombre
+            ],
+            'document' => [
+                'code' => $defaultDocument->tipodoc,
+                'serie' => $defaultDocument->codserie,
+                'description' => $defaultDocument->primaryDescription(),
+                'draft-document' => self::DRAFT_POS_DOCUMENT
+            ],
+            'currency' => [
+                'divisa' => Tools::settings('default', 'coddivisa'),
+                'decimals' => Tools::settings('default', 'decimals'),
+                'separator' => Tools::settings('default', 'decimal_separator')
+            ],
+            'payment' => [
+                'codpago' => $config->getCashPaymentMethod()
+            ],
+            'terminal' => $terminal->idterminal,
+            'cart' => [
+                'freeLines' => $terminal->free_cart_lines,
+                'groupLines' => $terminal->group_cart_lines,
+            ],
+            'supported-documents' => $terminal->getSupportedDocuments()
+        ];
+    }
+
     public function getPageData(): array
     {
         $pagedata = parent::getPageData();

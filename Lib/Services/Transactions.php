@@ -1,6 +1,6 @@
 <?php
 
-namespace FacturaScripts\Plugins\POS\Lib;
+namespace FacturaScripts\Plugins\POS\Lib\Services;
 
 use FacturaScripts\Core\Lib\Calculator;
 use FacturaScripts\Core\Model\Base\SalesDocument;
@@ -9,10 +9,14 @@ use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use RuntimeException;
 
-class PointOfSaleTransaction
+/**
+ * Application Service for managing POS transactions.
+ * Orchestrates document creation, line management, and payment processing.
+ */
+class Transactions
 {
-    const SALES_DOCUMENT_CLASS = '\\FacturaScripts\\Core\\Model\\Base\\SalesDocument';
-    const MODEL_NAMESPACE = '\\FacturaScripts\\Dinamic\\Model\\';
+    const string SALES_DOCUMENT_CLASS = '\\FacturaScripts\\Core\\Model\\Base\\SalesDocument';
+    const string MODEL_NAMESPACE = '\\FacturaScripts\\Dinamic\\Model\\';
 
     /**
      * @var SalesDocument
@@ -37,9 +41,9 @@ class PointOfSaleTransaction
 
     /**
      * Transaction constructor.
-     * @param PointOfSaleRequest $request
+     * @param TransactionRequest $request
      */
-    public function __construct(PointOfSaleRequest $request)
+    public function __construct(TransactionRequest $request)
     {
         $this->setDocument($request->getDocumentData(), $request->getDocumentType());
         $this->setPayments($request->getPaymentData());
@@ -72,7 +76,7 @@ class PointOfSaleTransaction
         Calculator::calculate($this->document, $this->documentLines, false);
 
         return [
-            'doc' => $this->document,
+            'doc' => $this->document->toArray(true),
             'lines' => array_map(function ($line) {
                 return $line->toArray(true);
             }, $this->documentLines),

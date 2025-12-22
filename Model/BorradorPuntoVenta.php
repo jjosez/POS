@@ -88,6 +88,24 @@ class BorradorPuntoVenta extends SalesDocument
         $this->setListRowColor();
     }
 
+    /**
+     * Override toArray to ensure critical fields are always included.
+     *
+     * @param bool $dynamic_attributes
+     * @return array
+     */
+    public function toArray(bool $dynamic_attributes = false): array
+    {
+        $data = parent::toArray($dynamic_attributes);
+
+        // Ensure primary key is always present even if not in model fields
+        if (!isset($data['idpausada']) && $this->idpausada) {
+            $data['idpausada'] = $this->idpausada;
+        }
+
+        return $data;
+    }
+
     public function setAsCompleted(): bool
     {
         foreach ($this->getAvailableStatus() as $status) {

@@ -72,7 +72,7 @@ const CheckoutController = {
             if (isCheckoutVisible) CheckoutView.render(CheckoutModel);
         });
 
-        EventManager.on('cart:update', ({doc}) => {
+        EventManager.on('cart:updated', ({doc}) => {
             CheckoutModel.updateTotal(doc.total);
         });
 

@@ -39,7 +39,7 @@
                 <div id="cash-entry" role="tabpanel"
                      class="tabcontent">
                     <form id="cashEntryForm" method="POST">
-                        <input type="hidden" name="action" value="cash-entry-action">
+                        <input type="hidden" name="action" value="cash:entry">
                         <input type="hidden" name="token" value="{{ fsc.getNewToken() }}">
                         <div class="form-group mt-4">
                             <span class="font-medium">{{ trans('amount') }}</span>
@@ -58,7 +58,7 @@
                 <div id="cash-withdraw" class="tabcontent hidden" role="tabpanel"
                      aria-labelledby="cash-withdraw">
                     <form id="cashWithdrawForm" method="POST">
-                        <input type="hidden" name="action" value="cash-withdraw-action">
+                        <input type="hidden" name="action" value="cash:withdraw">
                         <input type="hidden" name="token" value="{{ fsc.getNewToken() }}">
                         <div class="form-group mt-4">
                             <span class="font-medium">{{ trans('amount') }}</span>

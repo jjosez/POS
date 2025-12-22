@@ -44,14 +44,14 @@ export async function postRequest(data) {
 
         return result;
     } catch (e) {
-        /*Promise.resolve({
-            messages: [{type: "warning", message: e.name + e.message}]
-        }).then((messages) => showMessages(messages));*/
+        console.log(e.message);
 
-        console.log("Ocurrio un error.", e.message);
+        return {
+            error: true,
+            message: e.message,
+            messages: [{type: "error", message: e.message}]
+        };
     }
-
-    return Promise.resolve({});
 }
 
 /**
@@ -69,14 +69,14 @@ export async function postRequestCore(data) {
 
         return response;
     } catch (e) {
-        /*Promise.resolve({
-            messages: [{type: "warning", message: e.name + e.message}]
-        }).then((messages) => showMessages(messages));*/
-
         console.log("Ocurrio un error.", e.message);
-    }
 
-    return Promise.resolve({});
+        return {
+            error: true,
+            message: e.message,
+            messages: [{type: "error", message: e.message}]
+        };
+    }
 }
 
 export async function printerServerRequest({print_job_id, print_enabled}) {
@@ -107,61 +107,11 @@ export async function printerServerRequest({print_job_id, print_enabled}) {
 }
 
 /**
- * @param {string} taxID
- * @param {string} name
- */
-export function saveNewCustomer(taxID, name) {
-    const data = new FormData();
-
-    data.set('action', 'save-new-customer');
-    data.set('taxID', taxID);
-    data.set('name', name);
-
-    return postRequest(data);
-}
-
-/**
- * @param {string} query
- */
-export function searchBarcode(query = '') {
-    return searchRequest('search-barcode', query);
-}
-
-/**
- * @param {string} query
- */
-export function searchCustomer(query = '') {
-    return searchRequest('search-customer', query);
-}
-
-/**
  * @param {string} query
  * @param filters
  */
 export function searchProduct(query = '', filters = {}) {
-    return searchRequest('search-product', query, filters);
-}
-
-/**
- * @param {string} code
- */
-export function getProductStock(code) {
-    return searchRequest('get-product-stock', code);
-}
-
-/**
- * @param {string} id
- * @param {string} code
- */
-export function getProductImages(id, code) {
-    const data = new FormData();
-
-    data.set('action', 'get-product-images');
-
-    data.set('id', id);
-    data.set('code', code);
-
-    return postRequest(data);
+    return searchRequest('product:search', query, filters);
 }
 
 /**
@@ -171,7 +121,7 @@ export function getProductImages(id, code) {
 export function getProductFamilyChild(code, madre) {
     const data = new FormData();
 
-    data.set('action', 'set-family-filter');
+    data.set('action', 'family:filter:set');
     data.set('code', code);
     data.set('madre', madre);
 
@@ -204,7 +154,7 @@ export function searchRequest(action, query, filters = {}) {
  * Show alerts in response
  * @param {Promise} response
  */
-function showMessages(response) {
+export function showMessages(response) {
     if (null == response.messages) return;
 
     templates.render('messageListTemplate', response, 'messageListTemplateView');

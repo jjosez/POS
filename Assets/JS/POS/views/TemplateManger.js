@@ -36,7 +36,7 @@ class TemplateManager {
 
     /**
      * Renderiza una plantilla con datos en un contenedor
-     * @param {string} templateName - clave del template
+     * @param {string} templateName - clave de la plantilla
      * @param {object} data - datos para renderizar
      * @param {HTMLElement|string} container - contenedor DOM o id
      */

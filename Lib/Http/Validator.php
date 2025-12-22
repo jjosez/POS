@@ -4,15 +4,16 @@
  * Copyright (C) 2022 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 
-namespace FacturaScripts\Plugins\POS\Lib;
+namespace FacturaScripts\Plugins\POS\Lib\Http;
 
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Tools;
 
 /**
- * Service for validating Point of Sale requests and permissions.
+ * Infrastructure Service for validating HTTP requests and permissions.
+ * Handles request validation, token verification, and permission checks.
  */
-class PointOfSaleValidator
+class Validator
 {
     private Controller $controller;
 

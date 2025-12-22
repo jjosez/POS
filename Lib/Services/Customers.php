@@ -1,10 +1,14 @@
 <?php
 
-namespace FacturaScripts\Plugins\POS\Lib;
+namespace FacturaScripts\Plugins\POS\Lib\Services;
 
 use FacturaScripts\Dinamic\Model\Cliente;
 
-class PointOfSaleCustomer
+/**
+ * Customer service for POS operations.
+ * Handles customer search and creation.
+ */
+class Customers
 {
     /**
      * @var Cliente

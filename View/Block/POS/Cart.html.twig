@@ -1,3 +1,4 @@
+{% set grid = fsc.getFieldOptions() %}
 <div class="flex h-full flex-col bg-white md:shadow-lg">
     <div class="flex flex-col gap-4 p-4">
         <button id="documentTypeButton" class="w-full bg-gray-200 text-slate-800 btn focus:ring-gray-600"
@@ -5,7 +6,7 @@
                 data-target="document:type:modal">
             <i class="fa fa-file-invoice"></i>
             <span id="documentClassLabel" class="mx-2" data-view="CartView">
-                {{ fsc.getDefaultDocument().descripcion ?: trans(fsc.getDefaultDocument().tipodoc) }}
+                {{ context.config().getDefaultDocument().descripcion ?: trans(context.config().getDefaultDocument().tipodoc) }}
             </span>
             <i class="ml-auto fa fa-ellipsis-v"></i>
         </button>
@@ -13,7 +14,7 @@
                 data-toggle="modal" data-target="customer:search:modal">
             <i class="fa fa-user"></i>
             <span id="customerNameLabel" class="mx-2" data-view="CartView">
-                {{ fsc.getDefaultCustomer().nombre }}</span>
+                {{ context.config().getDefaultCustomer().nombre }}</span>
             <i class="ml-auto fa fa-ellipsis-v"></i>
         </button>
         {% for button in fsc.getCustomButtons %}
@@ -87,7 +88,7 @@
         <div class="flex select-none py-2">
             <div class="mr-1 flex flex-1 items-center gap-2">
                 <% if (product.thumbnail) { %>
-                <img class="pointer-events-auto w-16 object-scale-down" src="<%= product.thumbnail %>"
+                <img class="pointer-events-auto w-16 object-cover rounded-md" src="<%= product.thumbnail %>"
                      alt="<%= product.referencia %>"
                      data-action="product:image:show"
                      data-id="<%= product.idproducto %>"
@@ -110,7 +111,7 @@
                             data-action="cart:product:quantity:decrease" data-index="<%= index %>">
                         <i class="fa fw fa-minus"></i>
                     </button>
-                    <input type="number"
+                    <input type="number" id="cart_quantity<%= index %>"
                            class="h-8 w-12 rounded-none p-1.5 form-control-base"
                            value="<%= product.cantidad %>"
                            data-action="cart:product:field:edit" data-index="<%= index %>" data-field="cantidad">
@@ -127,7 +128,8 @@
                                     {% if column.readonly %}
                                         <p><%= product.{{ column.data }} %></p>
                                     {% else %}
-                                        <input class="h-8 w-20 text-right p-1.5 form-control-base"
+                                        <input id="cart_{{ column.data }}<%= index %>"
+                                                class="h-8 w-20 text-right p-1.5 form-control-base"
                                                tabindex="0"
                                                type="{{ column.type }}"
                                                value="<%= product.{{ column.data }} %>"

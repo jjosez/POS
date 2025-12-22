@@ -52,7 +52,7 @@ const PrintController = {
         const formData = new FormData();
         const parsedParams = JSON.parse(params || '{}');
 
-        formData.set('action', 'print-sales-ticket');
+        formData.set('action', 'print:ticket');
         formData.set('action-name', name);
         formData.set('action-params', JSON.stringify(parsedParams));
         formData.set('document-code', code);
@@ -83,7 +83,7 @@ const PrintController = {
         const formData = new FormData();
         const parsedParams = JSON.parse(params || '{}');
 
-        formData.set('action', 'print-draft-ticket');
+        formData.set('action', 'print:draft');
         formData.set('code', code);
         formData.set('action-name', name);
         formData.set('action-params', JSON.stringify(parsedParams));

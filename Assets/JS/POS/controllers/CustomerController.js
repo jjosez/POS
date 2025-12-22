@@ -5,19 +5,19 @@ import CartView from '../views/CartView.js';
 
 const CustomerController = {
 
-    async search(query) {
-        const results = await Core.searchCustomer(query);
-        CartView.updateCustomerListView(results);
-    },
-
     async create() {
         const taxID = Core.getElement('newCustomerTaxID').value;
         const name = Core.getElement('newCustomerName').value;
+        const data = new FormData();
 
-        const response = await Core.saveNewCustomer(taxID, name);
+        data.set('action', 'customer:create');
+        data.set('taxID', taxID);
+        data.set('name', name);
+
+        const response = await Core.postRequest(data);
 
         if (response.customer?.codcliente) {
-            eventManager.emit('customer:change', {
+            eventManager.emit('customer:changed', {
                 code: response.customer.codcliente,
                 description: response.customer.nombre
             });
@@ -30,6 +30,11 @@ const CustomerController = {
         CartView.customerSearchBox().addEventListener('keyup', (event) => {
             this.search(event.target.value);
         });
+    },
+
+    async search(query) {
+        const results = await Core.searchRequest('customer:search', query);
+        CartView.updateCustomerListView(results);
     }
 };
 

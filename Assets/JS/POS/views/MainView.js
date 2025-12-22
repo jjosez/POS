@@ -147,14 +147,6 @@ const updateDocumentFieldValue = (data = {}, element) => {
     }
 }
 
-const updateProductFilter = async searchFilter => {
-    let query = mainViewInstance().productSearchBox().value ?? '';
-    let result = await Core.searchProduct(query, searchFilter);
-
-    mainViewInstance().updateProductFamilyList(searchFilter.families);
-    mainViewInstance().updateProductSearchResult(result);
-};
-
 const updateView = data => {
     mainViewInstance().updateView(data);
 };
@@ -192,8 +184,7 @@ function cleanMessages() {
 
 const mainViewInstance = () => Object.freeze(new MainView());
 
-EventManager.on('cart:update', mainViewInstance().updateView);
-EventManager.on('product:filter:changed', updateProductFilter);
+EventManager.on('cart:updated', mainViewInstance().updateView);
 EventManager.on('responseMessages', showMessages);
 
 export default mainViewInstance();

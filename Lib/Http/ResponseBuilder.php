@@ -4,21 +4,23 @@
  * Copyright (C) 2022 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 
-namespace FacturaScripts\Plugins\POS\Lib;
+namespace FacturaScripts\Plugins\POS\Lib\Http;
 
 use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Plugins\POS\Lib\Core\BaseController;
 
 /**
- * Service for building and sending HTTP responses for Point of Sale operations.
+ * Infrastructure Service for building and sending HTTP responses.
+ * Handles response formatting, JSON encoding, and message management.
  */
-class PointOfSaleResponseBuilder
+class ResponseBuilder
 {
-    private BasePointOfSaleController $controller;
+    private BaseController $controller;
     private array $responseData = [];
     private ?string $token = null;
 
-    public function __construct(BasePointOfSaleController $controller)
+    public function __construct(BaseController $controller)
     {
         $this->controller = $controller;
     }

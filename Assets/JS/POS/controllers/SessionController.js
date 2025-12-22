@@ -6,22 +6,35 @@ const SessionController = {
     async closeSession() {
         MainView.toggleLoadingModal();
         const formData = new FormData(MainView.closeSessionForm());
-        const response = await Core.postRequest(formData);
+        const result = await Core.postRequest(formData);
 
-        await Core.printerServerRequest(response);
+        if (result.error) {
+            MainView.toggleLoadingModal();
+            Core.showMessages(result);
+
+            return;
+        }
+
+        if (result.success === false) {
+            MainView.toggleLoadingModal();
+            Core.showMessages(result);
+            return;
+        }
+
+        await Core.printerServerRequest(result);
         Core.reloadApp();
     },
 
     async cashEntry() {
         const formData = new FormData(MainView.cashEntryForm());
-        const response = await Core.postRequest(formData);
+        await Core.postRequest(formData);
 
         MainView.cashEntryForm().reset();
     },
 
     async cashWithdraw() {
         const formData = new FormData(MainView.cashWithdrawForm());
-        const response = await Core.postRequest(formData);
+        await Core.postRequest(formData);
 
         MainView.cashWithdrawForm().reset();
     },
@@ -30,7 +43,7 @@ const SessionController = {
         MainView.toggleLoadingModal();
         try {
             const data = new FormData();
-            data.set('action', 'print-x-report');
+            data.set('action', 'print:report:x');
 
             const response = await Core.postRequest(data);
             await Core.printerServerRequest(response);

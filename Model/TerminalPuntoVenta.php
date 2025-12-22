@@ -48,7 +48,9 @@ class TerminalPuntoVenta extends ModelClass
     public $productsource;
     public $restringealmacen;
 
-    public $productolibre;
+    public $free_cart_lines;
+
+    public $group_cart_lines;
 
     public $terminal_type;
 

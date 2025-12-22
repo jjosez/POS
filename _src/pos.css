@@ -1,8 +1,10 @@
 @import 'tailwindcss';
 
-@config '../tailwind.config.js';
+/*@config '../tailwind.config.js';*/
 
 @source inline('alert-{success,info,warning,error}');
+@source inline("bg-{blue,emerald,green}-{500}");
+@source inline("{hover:,}bg-{red,yellow,gray,slate}-{100,200,300,500}");
 
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,

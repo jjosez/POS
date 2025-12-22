@@ -32,7 +32,7 @@
 
 {% macro menuToggleElement(toggle, target, icon, text, title) %}
     <li>
-        <button class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
+        <button class="btn flex items-center justify-center hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
                 data-toggle="{{ toggle }}" data-target="{{ target }}" title="{{ title }}">
             <i class="text-lg leading-lg {{ icon }} fa-fw"></i>
             {% if text %}
@@ -56,7 +56,8 @@
 
 {% macro menuLinkElement(url, icon, text, title) %}
     <li>
-        <a class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100" href="{{ url }}"
+        <a class="btn flex items-center justify-center hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
+           href="{{ url }}"
            target="_blank" title="{{ title }}">
             <i class="text-lg leading-lg {{ icon }} fa-fw"></i>
             {% if text %}

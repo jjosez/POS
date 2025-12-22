@@ -5,6 +5,8 @@
  */
 #}
 {% extends 'Master/MicroTemplate.html.twig' %}
+{% set context = fsc.getContext() %}
+{% set terminal = context.terminal() %}
 {% block css %}
     <link rel="stylesheet" href="{{ asset('node_modules/@fortawesome/fontawesome-free/css/all.min.css') }}"/>
     <link rel="stylesheet" href="{{ asset('Dinamic/Assets/CSS/pos.app.min.css') }}?v={{ 'now' | date('ymd') }}"/>

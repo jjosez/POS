@@ -1,8 +1,12 @@
 <?php
 
-namespace FacturaScripts\Plugins\POS\Lib;
+namespace FacturaScripts\Plugins\POS\Lib\Hooks;
 
-class PointOfSaleAction
+/**
+ * Value Object representing a POS action/button.
+ * Encapsulates action configuration for UI elements.
+ */
+class Action
 {
     protected const DEFAULT_ICON = 'fa-solid fa-circle-dot';
     protected const ACTION_TYPE_LINK = 'link';

@@ -1,12 +1,15 @@
 <?php
 
-namespace FacturaScripts\Plugins\POS\Lib;
+namespace FacturaScripts\Plugins\POS\Lib\Services;
 
 use FacturaScripts\Core\Request;
-use FacturaScripts\Core\Tools;
 use RuntimeException;
 
-class PointOfSaleRequest
+/**
+ * DTO (Data Transfer Object) for transaction requests.
+ * Parses and validates incoming HTTP requests for POS transactions.
+ */
+class TransactionRequest
 {
     protected array $documentData = [];
     protected array $documentLinesData = [];
@@ -27,10 +30,7 @@ class PointOfSaleRequest
 
         $this->documentType = $data['tipo-documento'] ?? 'FacturaCliente';
 
-        //Tools::log('POS')->warning('POS Request: ' . json_encode($data));
-
         if (!empty($data['draft'])) {
-            //Tools::log('POS')->warning('draft-mode');
             $data['generadocumento'] = $this->documentType;
             $this->documentType = $data['tipo-documento'] = 'BorradorPuntoVenta';
         }

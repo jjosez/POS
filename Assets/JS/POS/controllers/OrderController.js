@@ -11,10 +11,6 @@ import CheckoutController from './CheckoutController.js';
 import MainView from '../views/MainView.js';
 
 const OrderController = {
-    // =====================================================
-    //  MÉTODOS "DE SERVICIO" (peticiones al backend)
-    // =====================================================
-
     /**
      * Eliminar un pedido en pausa / borrador
      * @param {string} code
@@ -22,7 +18,7 @@ const OrderController = {
     async deleteDraftOrder(code) {
         const data = new FormData();
 
-        data.set('action', 'delete-order-on-hold');
+        data.set('action', 'order:draft:delete');
         data.set('code', code);
 
         return Core.postRequest(data);
@@ -35,7 +31,7 @@ const OrderController = {
     async resumeOrder(code) {
         const data = new FormData();
 
-        data.set('action', 'resume-order');
+        data.set('action', 'order:draft:resume');
         data.set('code', code);
 
         return Core.postRequest(data);
@@ -53,7 +49,7 @@ const OrderController = {
             payments
         };
 
-        const resource = `POS?action=save-order&token=${state.token}`;
+        const resource = `POS?action=order:save&token=${state.token}`;
         return this.postJsonRequest(resource, payload);
     },
 
@@ -69,14 +65,14 @@ const OrderController = {
             token: state.token
         };
 
-        const resource = `POS?action=save-draft&token=${state.token}`;
+        const resource = `POS?action=order:draft:save&token=${state.token}`;
         return this.postJsonRequest(resource, payload);
     },
 
     async getDraftOrdersRequest() {
         const data = new FormData();
 
-        data.set('action', 'get-orders-on-hold');
+        data.set('action', 'order:draft:list');
 
         return Core.postRequest(data);
     },
@@ -84,7 +80,7 @@ const OrderController = {
     async getLastOrders() {
         const data = new FormData();
 
-        data.set('action', 'get-last-orders');
+        data.set('action', 'order:last:list');
 
         return Core.postRequest(data);
     },
@@ -92,7 +88,7 @@ const OrderController = {
     async getOrder({order}) {
         const data = new FormData();
 
-        data.set('action', 'get-order-to-refund');
+        data.set('action', 'order:refund:get');
         data.set('code', order || '');
 
         return Core.postRequest(data);
@@ -104,12 +100,12 @@ const OrderController = {
             lines
         };
 
-        const resource = 'POS?action=recalculate-order';
+        const resource = 'POS?action=order:recalculate';
         return this.postJsonRequest(resource, payload);
     },
 
     /**
-     * POST JSON genérico
+     * Base POST JSON
      * @param {string} resource
      * @param {Object} payload
      */
@@ -148,11 +144,6 @@ const OrderController = {
         }
     },
 
-    // =====================================================
-    //  HANDLERS DE UI (lo que antes estaba en App.js)
-    //  Se disparan por data-action="..."
-    // =====================================================
-
     /**
      * data-action="order:draft:delete"
      */
@@ -182,9 +173,11 @@ const OrderController = {
         MainView.toggleDraftOrdersModal();
     },
 
+    /**
+     * event:on="cart:changed"
+     */
     async handleOrderRecalculate(cartState) {
         const result = await this.recalculateRequest(cartState);
-
         EventManager.emit('order:recalculated', result);
     },
 
@@ -254,7 +247,7 @@ const OrderController = {
         dispatcher.register('order:last:list', this.handleShowLastOrdersAction.bind(this));
         dispatcher.register('order:return:show', this.handleShowReturnSaleAction.bind(this));
 
-        EventManager.on('order:recalculate', this.handleOrderRecalculate.bind(this));
+        EventManager.on('cart:changed', this.handleOrderRecalculate.bind(this));
     }
 };
 

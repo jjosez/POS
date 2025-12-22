@@ -4,15 +4,16 @@
  * Copyright (C) 2022 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 
-namespace FacturaScripts\Plugins\POS\Lib;
+namespace FacturaScripts\Plugins\POS\Lib\Hooks;
 
 /**
- * Service for managing Point of Sale hooks and custom elements.
+ * Infrastructure Service for managing hooks and extension points.
+ * Handles custom document fields, menu elements, and hook actions.
  */
-class PointOfSaleHookManager
+class HookManager
 {
-    private array $customDocumentFields = [];
-    private array $customMenuElements = [];
+    private array $customDocumentFields;
+    private array $customMenuElements;
     private array $hookActions = [];
 
     public function __construct()
@@ -22,11 +23,11 @@ class PointOfSaleHookManager
     }
 
     /**
-     * Adds a custom field to document view based on a specified hook.
+     * Adds a custom field to the document view based on a specified hook.
      */
-    public function addCustomDocumentField(string $hook, array $element): void
+    public function addCustomDocumentField(Hook $hook, array $element): void
     {
-        $this->customDocumentFields[$hook][] = $element;
+        $this->customDocumentFields[$hook->value][] = $element;
     }
 
     /**
@@ -40,9 +41,9 @@ class PointOfSaleHookManager
     /**
      * Adds a custom top menu element based on a specified hook.
      */
-    public function addCustomMenuElement(string $hook, array $element): void
+    public function addCustomMenuElement(Hook $hook, array $element): void
     {
-        $this->customMenuElements[$hook][] = $element;
+        $this->customMenuElements[$hook->value][] = $element;
     }
 
     /**
@@ -56,12 +57,12 @@ class PointOfSaleHookManager
     /**
      * Adds a hook action.
      */
-    public function addHookAction(string $hook, array $action): void
+    public function addHookAction(Hook $hook, array $action): void
     {
-        if (!isset($this->hookActions[$hook])) {
-            $this->hookActions[$hook] = [];
+        if (!isset($this->hookActions[$hook->value])) {
+            $this->hookActions[$hook->value] = [];
         }
-        $this->hookActions[$hook][] = $action;
+        $this->hookActions[$hook->value][] = $action;
     }
 
     /**
@@ -77,7 +78,7 @@ class PointOfSaleHookManager
      */
     public function getPrintSaleTicketActions(): array
     {
-        return $this->getHookActions(PointOfSaleHook::OnSaleTicketPrinting->value);
+        return $this->getHookActions(Hook::OnSaleTicketPrinting->value);
     }
 
     /**
@@ -85,7 +86,7 @@ class PointOfSaleHookManager
      */
     public function getPrintDraftTicketActions(): array
     {
-        return $this->getHookActions(PointOfSaleHook::OnDraftTicketPrinting->value);
+        return $this->getHookActions(Hook::OnDraftTicketPrinting->value);
     }
 
     /**
@@ -93,6 +94,6 @@ class PointOfSaleHookManager
      */
     public function getPrintClosingTicketActions(): array
     {
-        return $this->getHookActions(PointOfSaleHook::OnClosingTicketPrinting->value);
+        return $this->getHookActions(Hook::OnClosingTicketPrinting->value);
     }
 }

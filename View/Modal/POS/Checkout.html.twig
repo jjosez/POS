@@ -20,7 +20,7 @@
             </div>
             <div class="py-4">
                 <div class="flex flex-wrap justify-center gap-4">
-                    {% for element in fsc.getPaymentMethods() %}
+                    {% for element in context.config().getPaymentMethods() %}
                         <button class="btn btn-primary payment-modal-btn" data-action="checkout:payment:add"
                                 data-code="{{ element.codpago }}" data-description="{{ element.descripcion }}"
                                 data-paid="{{ element.formaPago().pagado ?? 0}}">
