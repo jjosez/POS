@@ -66,6 +66,6 @@ class TipoDocumentoPuntoVenta extends ModelClass
 
     public function primaryDescription(): string
     {
-        return $this->descripcion;
+        return $this->descripcion ?? '';
     }
 }

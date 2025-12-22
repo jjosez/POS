@@ -89,7 +89,7 @@ class Validator
         $validations = [
             'no-payment-method-set' => empty($paymentMethods),
             'no-cash-payment-method-set' => trim($cashPaymentMethod) === '',
-            'no-default-document-set' => $defaultDocumentType === false,
+            'no-default-document-set' => empty($defaultDocumentType) === true,
             'no-currency-denominations' => empty($denominations)
         ];
 

@@ -29,7 +29,7 @@ const ProductController = {
             clearTimeout(searchTimer);
         }
 
-        searchTimer = setTimeout(async () => {
+        searchTimer = setTimeout(async() => {
             const query = el.value.trim();
 
             const results = await Core.searchRequest('product:search', query, searchFilter);
