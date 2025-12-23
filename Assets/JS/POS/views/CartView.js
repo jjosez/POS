@@ -39,7 +39,7 @@ class CartView {
     };
 
     updateCustomerListView = (data = []) => {
-        templates.render('customerListTemplate', {customers: data}, 'customerListTemplateView');
+        templates.render('customer:list:template', {customers: data}, 'customer:list:view');
     };
 
     updateCustomerNameLabel = (name = '') => {
@@ -51,7 +51,7 @@ class CartView {
     };
 
     renderCartEditView = (product = {}) => {
-        templates.render('cartEditTemplate', {product}, 'cartEditTemplateView');
+        templates.render('cart:edit:form:template', {product}, 'cart:edit:form:view');
     };
 
     updateTotals = (data = {}) => {

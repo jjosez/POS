@@ -115,10 +115,9 @@ class POS extends BaseController
                 return false;
 
             case 'family:filter:set':
-                $codfamilia = $this->request->request->get('code', '');
-                // TODO: Implement FamilyService in context
-                // $result = $this->context->families()->getHierarchy($codfamilia);
-                // $this->setResponse($result);
+                $codfamilia = $this->request->request->get('query', '');
+                $result = $this->context->families()->getFamilyHierarchy($codfamilia);
+                $this->setResponse($result);
                 return false;
 
             case 'print:draft':

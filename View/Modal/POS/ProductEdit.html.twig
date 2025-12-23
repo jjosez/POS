@@ -16,12 +16,12 @@
         </div>
         <!--body-->
         <div class="modal-body">
-            <div id="cartEditTemplateView" class="grid grid-cols-2 gap-4 items-end">
+            <div id="cart:edit:form:view" class="grid grid-cols-2 gap-4 items-end">
             </div>
         </div>
     </div>
 </div>
-<script id="cartEditTemplate" type="text/template">
+<script id="cart:edit:form:template" type="text/template">
     {% for column in grid %}
         {% set label = column.tittle ?: trans(column.name)%}
         {%- if column.data == 'referencia' -%}

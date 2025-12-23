@@ -4,7 +4,7 @@
         <input type="search" id="productSearchBox" placeholder="{{ trans('search') }}">
     </label>
     <button id="productFilterButton" class="ml-2 bg-gray-200 text-slate-800 btn focus:ring-gray-600"
-            data-toggle="modal" data-target="productFilterModal">
+            data-toggle="modal" data-target="product:filter:modal">
         <i class="fa fa-tags"></i>
         <span id="productFilterLabel" class="mx-2">{{ trans('filters') }}</span>
     </button>
@@ -12,7 +12,7 @@
 <div id="product:filter:family:view" class="mb-4 flex flex-wrap gap-2 px-4">
 </div>
 <div class="mb-4 flex-1 overflow-y-auto px-4">
-    <div id="productSearchListTemplateView" role="list">
+    <div id="product:search:list:view" role="list">
         <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {% if context.terminal().free_cart_lines %}
                 {{ _self.freeProductLineTemplate() }}
@@ -80,7 +80,7 @@
         <i class="fas fa-shopping-cart fa-fw"></i>
     </button>
 </div>
-<script id="productSearchListTemplate" type="text/template">
+<script id="product:search:list:template" type="text/template">
     <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {% if context.terminal().free_cart_lines %}
             {{ _self.freeProductLineTemplate() }}

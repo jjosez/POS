@@ -30,7 +30,7 @@
                     {% endfor %}
                 </div>
             </div>
-            <div id="paymentListTemplateView" class="flex-1">
+            <div id="payment:list:view" class="flex-1">
             </div>
             <div class="flex flex-col place-content-between text-lg font-medium">
                 <div class="p-3 flex justify-between border-t-2 border-dashed">
@@ -59,7 +59,7 @@
         </div>
     </div>
 </div>
-<script id="paymentListTemplate" type="text/template">
+<script id="payment:list:template" type="text/template">
     <% payments.forEach(function(value, index) { %>
     <div class="my-4 flex rounded-lg bg-slate-100 p-4 shadow-sm">
         <div class="mr-4 flex items-center">

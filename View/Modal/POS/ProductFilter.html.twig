@@ -1,4 +1,4 @@
-<div id="productFilterModal" class="hidden modal">
+<div id="product:filter:modal" class="hidden modal">
     <div class="modal-content md:modal-content-md">
         <div class="modal-header">
             <div class="block">
@@ -6,36 +6,78 @@
                 <p class="text-xs italic">Configura las familias que quieras que se muestren como filtro en el listado
                     de familias.</p>
             </div>
-            <button class="ml-2 btn btn-icon btn-danger" data-toggle="modal" data-target="productFilterModal">
+            <button class="ml-2 btn btn-icon btn-danger" data-toggle="modal" data-target="product:filter:modal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
         <div class="modal-body">
-            <div id="productFilterListTemplateView" class="flex flex-wrap gap-2 mb-4">
+            <div id="family:breadcrumb:template:view" class="mb-4 flex flex-wrap items-center gap-2 text-sm">
             </div>
-            <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div id="product:filter:template:view" class="flex flex-wrap gap-2 mb-4">
+            </div>
+            <div id="family:list:template:view" class="grid grid-cols-2 gap-4 md:grid-cols-4">
                 {% for familia in context.families().getParentFamilies() %}
                     {% set bgcolor =  familia.madre ? 'bg-slate-50' : 'bg-slate-100' %}
                     {% set imageUrl =  familia.shorcutImage() %}
+                    {% set hasChildren = context.families().getChildFamilies(familia.codfamilia)|length > 0 %}
                     <div role="listitem"
-                         class="{{ bgcolor }} p-2 shadow-xs rounded-lg font-semibold cursor-pointer"
+                         class="{{ bgcolor }} relative p-2 rounded-lg font-semibold cursor-pointer"
                          data-action="product:filter:family:toggle"
                          data-code="{{ familia.codfamilia }}"
                          data-madre="{{ familia.madre }}"
                          data-description="{{ familia.descripcion }}"
-                         data-thumbnail="{{ imageUrl }}">
+                         data-thumbnail="{{ imageUrl }}"
+                         data-has-children="{{ hasChildren ? 'true' : 'false' }}">
                         {% if imageUrl %}
-                            <img class="pointer-events-none mx-auto rounded-md mb-2 object-scale-down border-2 border-gray-50"
+                            <img class="pointer-events-none mx-auto rounded-md mb-2 object-cover bg-white"
                                  src="{{ imageUrl }}" alt="{{ familia.codfamilia }}">
                         {% endif %}
-                        <p class="text-sm text-center">{{ familia.descripcion }}</p>
+                        <p class="text-sm text-center">
+                            {% if hasChildren %}
+                                <span class="text-blue-500"><i class="fa-solid fa-folder-tree"></i></span>
+                            {% endif %}
+                            {{ familia.descripcion }}</p>
                     </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 </div>
-<script id="productFilterListTemplate" type="text/template">
+<script id="family:breadcrumb:template" type="text/template">
+    <button class="btn btn-sm bg-slate-800 hover:bg-slate-500"
+            data-action="product:family:navigate" data-code="">
+        {{ trans('all') }}
+    </button>
+    <% breadcrumb.forEach(function(familia, index){ %>
+    <i class="fas fa-chevron-right text-gray-400"></i>
+    <button class="btn btn-sm bg-slate-800 hover:bg-slate-500"
+            data-action="product:family:navigate"
+            data-code="<%= familia.codfamilia %>">
+        <%= familia.descripcion %>
+    </button>
+    <% }) %>
+</script>
+<script id="family:list:template" type="text/template">
+    <% children.forEach(function(familia){ %>
+    <div role="listitem"
+         class="bg-slate-200 relative p-2 rounded-lg font-semibold cursor-pointer"
+         data-action="product:filter:family:toggle"
+         data-code="<%= familia.codfamilia %>"
+         data-description="<%= familia.descripcion %>"
+         data-thumbnail="<%= familia.thumbnail %>"
+         data-has-children="<%= familia.hasChildren ? 'true' : 'false' %>">
+        <% if(familia.thumbnail) { %>
+        <img class="pointer-events-none mx-auto rounded-md mb-2 object-cover bg-white"
+             src="<%= familia.thumbnail %>" alt="<%= familia.codfamilia %>">
+        <% } %>
+        <p class="text-sm text-center">
+            <% if(familia.hasChildren) { %>
+            <span class="text-blue-500"><i class="fa-solid fa-folder-tree"></i></span>
+            <% } %><%= familia.descripcion %></p>
+    </div>
+    <% }) %>
+</script>
+<script id="product:filter:template" type="text/template">
     <% filters.forEach(function(filter){ %>
     <div role="listitem"
          class="items-center bg-slate-800 flex flex-row p-2 shadow-xs rounded-lg font-semibold cursor-pointer"

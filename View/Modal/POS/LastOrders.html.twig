@@ -33,7 +33,7 @@
             </div>
         </div>
         <div class="modal-body">
-            <div id="lastOrdersListTemplateView">
+            <div id="last:order:list:view">
                 {# <div class="m-auto w-1/2">
                     <i class="animate-spin fas fa-circle-notch text-4xl text-sky-500"></i>
                 </div> #}
@@ -44,7 +44,7 @@
         </div>
     </div>
 </div>
-<script id="lastOrdersListTemplate" type="text/template">
+<script id="last:order:list:template" type="text/template">
     <% if(orders.length === 0) { %>
     <div class="flex flex-1 rounded-lg bg-blue-100 p-2 shadow-xs md:flex-row">
         <span>{{ trans('no-data') }}</span>

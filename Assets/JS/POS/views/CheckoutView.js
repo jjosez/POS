@@ -9,8 +9,6 @@ const viewElements = {
 
     paymentInput: document.getElementById('paymentApplyInput'),
     confirmButton: document.getElementById('orderSaveButton'),
-
-    paymentListView: 'paymentListTemplateView'
 };
 
 export function render(model) {
@@ -20,7 +18,7 @@ export function render(model) {
     viewElements.tenderedAmount.textContent = roundFixed(model.getPaymentsTotal());
     viewElements.changeAmount.textContent = roundFixed(state.change);
 
-    templates.render('paymentListTemplate', state, viewElements.paymentListView);
+    templates.render('payment:list:template', state, 'payment:list:view');
 
     updateConfirmButton(state);
 }

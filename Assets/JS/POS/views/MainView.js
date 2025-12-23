@@ -39,11 +39,17 @@ class MainView {
     };
 
     updateProductFamilyList = (data = []) => {
-        templates.render('productFilterListTemplate', {filters: data}, 'productFilterListTemplateView');
-        templates.render('productFilterListTemplate', {filters: data}, 'product:filter:family:view');
+        templates.render('product:filter:template', {filters: data}, 'product:filter:template:view');
+        templates.render('product:filter:template', {filters: data}, 'product:filter:family:view');
     };
+
+    updateFamilyNavigator = ({madre, children, breadcrumb}) => {
+        templates.render('family:breadcrumb:template', {breadcrumb}, 'family:breadcrumb:template:view');
+        templates.render('family:list:template', {children}, 'family:list:template:view');
+    };
+
     updateProductSearchResult = (data = []) => {
-        templates.render('productSearchListTemplate', {products: data}, 'productSearchListTemplateView');
+        templates.render('product:search:list:template', {products: data}, 'product:search:list:view');
     };
 
     updateView({doc}) {
@@ -58,14 +64,14 @@ class MainView {
         this.toggleLastOrdersModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
-        templates.render('lastOrdersListTemplate', { orders:data }, 'lastOrdersListTemplateView');
+        templates.render('last:order:list:template', { orders:data }, 'last:order:list:view');
     }
 
     showPausedOrdersModal = (data) => {
         this.toggleDraftOrdersModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
-        templates.render('draftOrderListTemplate', {orders: data}, 'draftOrderListTemplateView')
+        templates.render('draft:order:list:template', {orders: data}, 'draft:order:list:view')
     };
 
     showPrintDraftContextModal = data => {
@@ -86,14 +92,14 @@ class MainView {
         this.toggleProductImagesModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
-        templates.render('productImageListTemplate', {images: data}, 'productImageListTemplateView');
+        templates.render('product:image:list:template', {images: data}, 'product:image:list:template:view');
     };
 
     showProductStockDetailModal = data => {
         this.toggleProductStockDetailModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
-        templates.render('productStockListTemplate', {stocks: data}, 'productStockListTemplateView');
+        templates.render('product:stock:list:template', {stocks: data}, 'product:stock:list:view');
     };
 
     showReturnSaleModal({doc, lines}) {

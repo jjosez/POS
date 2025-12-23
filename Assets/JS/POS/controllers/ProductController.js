@@ -62,11 +62,50 @@ const ProductController = {
     /**
      * data-action="product:filter:family:toggle"
      */
-    setFamilyFilter(el) {
-        const {code, description, thumbnail} = el.dataset;
+    async setFamilyFilter(el) {
+        const {code, description, thumbnail, hasChildren} = el.dataset;
 
-        searchFilter.toggleFamilyFilter(code, description, thumbnail);
-        eventManager.emit('product:filter:changed', searchFilter);
+        // Si tiene hijos, navegar en lugar de filtrar
+        if (hasChildren === 'true') {
+            await this.navigateToFamily(el);
+        } else {
+            // Si no tiene hijos, agregar a filtro
+            searchFilter.toggleFamilyFilter(code, description, thumbnail);
+            eventManager.emit('product:filter:changed', searchFilter);
+        }
+    },
+
+    /**
+     * data-action="product:family:navigate"
+     */
+    async navigateToFamily(el) {
+        const {code} = el.dataset;
+
+        const result = await Core.searchRequest('family:filter:set', code || '');
+
+        searchFilter.navigateToFamily(result.madre);
+
+        MainView.updateFamilyNavigator({
+            madre: result.madre,
+            children: result.children,
+            breadcrumb: searchFilter.breadcrumb
+        });
+    },
+
+    /**
+     * data-action="product:family:back"
+     */
+    async navigateBack(el) {
+        searchFilter.navigateBack();
+        const code = searchFilter.currentFamily?.codfamilia || '';
+
+        const result = await Core.searchRequest('family:filter:set', code);
+
+        MainView.updateFamilyNavigator({
+            madre: result.madre,
+            children: result.children,
+            breadcrumb: searchFilter.breadcrumb
+        });
     },
 
     /**
@@ -91,9 +130,11 @@ const ProductController = {
     },
 
     init() {
-        dispatcher.register('product:image:show', this.showImages);
-        dispatcher.register('product:stock:show', this.showStockDetail);
-        dispatcher.register('product:filter:family:toggle', this.setFamilyFilter);
+        dispatcher.register('product:image:show', this.showImages.bind(this));
+        dispatcher.register('product:stock:show', this.showStockDetail.bind(this));
+        dispatcher.register('product:filter:family:toggle', this.setFamilyFilter.bind(this));
+        dispatcher.register('product:family:navigate', this.navigateToFamily.bind(this));
+        dispatcher.register('product:family:back', this.navigateBack.bind(this));
 
         eventManager.on('product:filter:changed', this.handleFilterChanged.bind(this));
         eventManager.on('product:search:completed', this.handleSearchCompleted.bind(this));

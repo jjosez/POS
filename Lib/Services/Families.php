@@ -9,11 +9,13 @@ class Families
 {
     /**
      * Returns parent families configured as POS shortcuts.
+     * Returns only root families (without parent).
      */
     public function getParentFamilies(): array
     {
         $where = [
-            Where::eq('pos_shortcut', true)
+            Where::eq('pos_shortcut', true),
+            Where::isNull('madre')
         ];
 
         return Familia::all($where);
@@ -21,6 +23,7 @@ class Families
 
     /**
      * Returns child families of a parent family.
+     * Only returns children that are marked as POS shortcuts.
      *
      * @param string $codfamilia Parent family code
      * @return array Child families
@@ -28,7 +31,8 @@ class Families
     public function getChildFamilies(string $codfamilia): array
     {
         $where = [
-            Where::eq('madre', $codfamilia)
+            Where::eq('madre', $codfamilia),
+            Where::eq('pos_shortcut', true)
         ];
 
         return Familia::all($where);
@@ -54,23 +58,48 @@ class Families
     /**
      * Gets family hierarchy data for filter navigation.
      *
-     * @param string $codfamilia Parent family code (empty for root)
+     * @param string $code Parent family code (empty for root)
      * @return array Array with 'madre' and 'children' keys
      */
-    public function getFamilyHierarchy(string $codfamilia = ''): array
+    public function getFamilyHierarchy(string $code = ''): array
     {
-        if (empty($codfamilia)) {
+        if (empty($code)) {
+            $children = $this->getParentFamilies();
             return [
-                'madre' => '',
-                'children' => $this->getParentFamilies()
+                'madre' => null,
+                'children' => array_map(callback: function ($family) {
+                    return $this->formatFamily($family);
+                }, array: $children)
             ];
         }
 
-        $familia = $this->getFamilyByCode($codfamilia);
+        $family = $this->getFamilyByCode($code);
+        $children = $family ? $this->getChildFamilies($code) : [];
 
         return [
-            'madre' => $familia ?: '',
-            'children' => $familia ? $this->getChildFamilies($codfamilia) : $this->getParentFamilies()
+            'madre' => $family ? $this->formatFamily($family) : null,
+            'children' => array_map(callback: function ($family) {
+                return $this->formatFamily($family);
+            }, array: $children)
+        ];
+    }
+
+    /**
+     * Formats a family object for frontend consumption.
+     *
+     * @param Familia $family Family to format
+     * @return array Formatted family data
+     */
+    private function formatFamily(Familia $family): array
+    {
+        $hasChildren = count($this->getChildFamilies($family->codfamilia)) > 0;
+
+        return [
+            'codfamilia' => $family->codfamilia,
+            'descripcion' => $family->descripcion,
+            'madre' => $family->madre,
+            'thumbnail' => $family->shorcutImage(),
+            'hasChildren' => $hasChildren
         ];
     }
 }
