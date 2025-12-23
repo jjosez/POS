@@ -32,7 +32,7 @@
 
 {% macro menuToggleElement(toggle, target, icon, text, title) %}
     <li>
-        <button class="btn flex items-center justify-center hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
+        <button class="btn w-full flex items-center justify-center hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
                 data-toggle="{{ toggle }}" data-target="{{ target }}" title="{{ title }}">
             <i class="text-lg leading-lg {{ icon }} fa-fw"></i>
             {% if text %}
@@ -44,7 +44,7 @@
 
 {% macro menuActionElement(action, icon, text, title) %}
     <li>
-        <button class="btn hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
+        <button class="btn w-full items-center justify-center hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
                 data-action="{{ action }}" title="{{ title }}">
             <i class="text-lg leading-lg {{ icon }} fa-fw"></i>
             {% if text %}

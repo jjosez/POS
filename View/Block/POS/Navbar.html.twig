@@ -5,13 +5,14 @@
            href="{{ asset('') }}">
             <i class="text-xl fa fa-home"></i>
         </a>
-        <button class="py-1 text-xl text-slate-100 btn focus:bg-gray-100 focus:text-slate-700 focus:ring-gray-300 md:hidden"
+        <button class="py-1 text-xl text-slate-100 btn bg-transparent focus:text-slate-700 focus:ring-transparent md:hidden"
                 type="button" data-toggle="collapse" data-target="navbarMenu">
             <span class="flex font-medium"><i class="fa fa-bars"></i></span>
         </button>
     </div>
     <div class="hidden md:flex" id="navbarMenu">
-        <ul class="flex list-none flex-col flex-wrap items-center justify-center md:flex-row md:space-x-2 md:p-0">
+        {# <ul class="flex list-none flex-col flex-wrap items-center justify-center md:flex-row md:space-x-2 md:p-0"> #}
+        <ul class="flex list-none w-full flex-col md:flex-row md:flex-wrap md:space-x-2 md:items-center md:p-0">
             {% for element in fsc.getCustomMenuElements('navbar') %}
                 {% if element.type == 'modal' %}
                     {{ pos.menuToggleElement('modal', element.action, element.icon, element.text, element.title) }}

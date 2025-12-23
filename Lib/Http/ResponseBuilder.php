@@ -19,6 +19,7 @@ class ResponseBuilder
     private BaseController $controller;
     private array $responseData = [];
     private ?string $token = null;
+    private array $inlineMessages = [];
 
     public function __construct(BaseController $controller)
     {
@@ -60,16 +61,29 @@ class ResponseBuilder
     }
 
     /**
+     * Adds a message directly to the response without saving to database.
+     *
+     * @param string $message The message text or translation key
+     * @param string $type Message type: 'info', 'success', 'warning', 'error'
+     */
+    public function addMessage(string $message, string $type = 'info'): void
+    {
+        $this->inlineMessages[] = ['type' => $type, 'message' => $message];
+    }
+
+    /**
      * Builds the complete response including messages and token.
      */
     public function buildResponse(array $data = []): void
     {
         $response = array_merge($data, $this->responseData);
 
-        $response['messages'] = $this->getMessages();
+        $response['messages'] = array_merge($this->inlineMessages, $this->getMessages());
         $response['token'] = $this->token;
 
         $this->setResponse($response);
+
+        $this->clearMessages();
     }
 
     /**
@@ -119,5 +133,13 @@ class ResponseBuilder
     public function clearResponseData(): void
     {
         $this->responseData = [];
+    }
+
+    /**
+     * Clears inline messages.
+     */
+    public function clearMessages(): void
+    {
+        $this->inlineMessages = [];
     }
 }

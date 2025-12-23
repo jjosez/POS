@@ -253,7 +253,7 @@ class POS extends BaseController
         }
 
         $this->dataBase->commit();
-        Tools::log()->notice('pos-order-on-hold');
+        $this->addMessage('pos-order-on-hold');
 
         $document = $transaction->getDocument();
         $this->setSuccessResponse([
@@ -428,12 +428,12 @@ class POS extends BaseController
         $description = $this->request->request->get('description');
 
         if (!is_numeric($amount) || $amount <= 0) {
-            Tools::log()->error('invalid-amount');
+            $this->addMessage('invalid-amount', 'warning');
             return;
         }
 
         if ($this->context->storage()->recordCashMovement($amount, $description)) {
-            Tools::log()->notice('cash-entry-ok');
+             $this->addMessage('cash-entry-ok');
         }
 
         $this->buildResponse();
@@ -449,13 +449,13 @@ class POS extends BaseController
         $description = $this->request->input('description');
 
         if (!is_numeric($amount) || $amount <= 0) {
-            Tools::log()->error('invalid-amount');
+            $this->addMessage('invalid-amount', 'warning');
             return;
         }
 
         $amount *= -1;
         if ($this->context->storage()->recordCashMovement($amount, $description)) {
-            Tools::log()->notice('cash-withdraw-ok');
+            $this->addMessage('cash-withdraw-ok');
         }
 
         $this->buildResponse();
@@ -472,7 +472,7 @@ class POS extends BaseController
         $result = [];
 
         if ($this->context->customers()->saveNew($taxID, $name)) {
-            Tools::log()->notice('Nuevo cliente registrado');
+            $this->addMessage('save-ok');
             $result = ['customer' => $this->context->customers()->getCustomer()];
         }
 
@@ -503,19 +503,10 @@ class POS extends BaseController
         $result = $this->context->products()->searchBarcode($barcode);
 
         if (!$result) {
-            $this->setResponse([
-                'messages' => [
-                    [
-                        'type' => 'info',
-                        'message' => 'barcode-not-found',
-                    ]
-                ],
-                'token' => null,
-            ]);
-            return;
+            $this->addMessage('barcode-not-found', 'info');
         }
 
-        $this->setResponse($result);
+        $this->buildResponse($result);
     }
 
     // ========================================================================
@@ -541,7 +532,7 @@ class POS extends BaseController
             $payments = $order->getPayments();
         }
 
-        Tools::log('POS')->info('printing-sale-ticket');
+        $this->addMessage('printing-sale-ticket');
         $this->pipeFalse('printOrderTicket', $document, $payments, $this->request);
         $this->buildResponse();
     }
@@ -550,12 +541,12 @@ class POS extends BaseController
     {
         $code = $this->request->request->get('code', '');
         if (empty($code)) {
-            Tools::log('POS')->warning('cant-print-ticket');
+            $this->addMessage('cant-print-ticket', 'warning');
             return;
         }
 
         $document = $this->context->storage()->getDraft($code);
-        Tools::log('POS')->info('printing-draft-ticket');
+        $this->addMessage('printing-draft-ticket');
 
         $this->pipeFalse('printOrderTicket', $document, [], $this->request);
         $this->buildResponse();

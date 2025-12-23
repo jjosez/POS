@@ -9,6 +9,7 @@ namespace FacturaScripts\Plugins\POS\Lib\Core;
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Template\ExtensionsTrait;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Plugins\POS\Lib\Forms\FormManager;
 use FacturaScripts\Plugins\POS\Lib\Hooks\Hook;
 use FacturaScripts\Plugins\POS\Lib\Hooks\HookManager;
@@ -92,6 +93,18 @@ abstract class BaseController extends Controller
     protected function setResponse($content, bool $encode = true): void
     {
         $this->responseBuilder->setResponse($content, $encode);
+    }
+
+    /**
+     * Adds a message directly to the response without saving to database.
+     *
+     * @param string $message The message text or translation key
+     * @param string $type Message type: 'info', 'success', 'warning', 'error'
+     */
+    protected function addMessage(string $message, string $type = 'info'): void
+    {
+        $message = Tools::lang()->trans($message);
+        $this->responseBuilder->addMessage($message, $type);
     }
 
     // ========================================================================
