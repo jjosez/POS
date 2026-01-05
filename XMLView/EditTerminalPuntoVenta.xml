@@ -15,40 +15,46 @@
                     <values source='clientes' fieldcode='codcliente' fieldtitle='nombre'/>
                 </widget>
             </column>
-            <column name="warehouse" titleurl="ListAlmacen" numcolumns="4" order="120">
-                <widget type="select" fieldname="codalmacen" required='true' onclick="EditAlmacen"
-                        icon="fas fa-warehouse">
-                    <values source="almacenes" fieldcode="codalmacen" fieldtitle="nombre"/>
-                </widget>
-            </column>
-            <column name="company" titleurl="ListEmpresa" order="130">
+             <column name="company" titleurl="ListEmpresa" order="120">
                 <widget type="select" fieldname="idempresa" required='true' onclick="EditEmpresa" icon="fas fa-building"
                         readonly="true">
                     <values source="empresas" fieldcode="idempresa" fieldtitle="nombre"/>
                 </widget>
             </column>
-            <column name="product-source" numcolumns="3" order="150">
+            <column name="warehouse" titleurl="ListAlmacen" numcolumns="4" order="130">
+                <widget type="select" fieldname="codalmacen" parent="idpemresa" required='true' onclick="EditAlmacen"
+                        icon="fas fa-warehouse" readonly="dinamic">
+                    <values source="almacenes" fieldcode="codalmacen" fieldtitle="nombre" fieldfilter="idempresa"/>
+                </widget>
+            </column>
+            <column name="product-source" numcolumns="4" order="150">
                 <widget type="select" fieldname="productsource" translate="true" icon="fas fa-search">
                     <values title="company">1</values>
                     <values title="warehouse">2</values>
                 </widget>
             </column>
-            <column name="enabled" title="Disponible" numcolumns="3" order="160">
-                <widget type="checkbox" fieldname="disponible" readonly="true"/>
+             <column name="product-display-mode" numcolumns="4" order="160">
+                <widget type="select" fieldname="product_display_mode" translate="true" icon="fas fa-list">
+                    <values title="grid">grid</values>
+                    <values title="row">list</values>
+                </widget>
             </column>
         </group>
         <group name="extra" title="settings" numcolumns="12" valign="bottom">
             <column name="Numero tickets" numcolumns="3" order="110">
                 <widget type="number" fieldname="numerotickets"/>
             </column>
-            <column name="pos-checkout-available" numcolumns="3" order='120'>
+            <column name="pos-checkout-available" numcolumns="2" order='120'>
                 <widget type="checkbox" fieldname="aceptapagos"/>
             </column>
-            <column name="free-product-line" numcolumns="3" order='120'>
+            <column name="free-product-line" numcolumns="2" order='120'>
                 <widget type="checkbox" fieldname="free_cart_lines"/>
             </column>
-            <column name="group-product-lines" numcolumns="3" order='120'>
+            <column name="group-product-lines" numcolumns="2" order='120'>
                 <widget type="checkbox" fieldname="group_cart_lines"/>
+            </column>
+            <column name="enabled" title="Disponible" numcolumns="2" order="130">
+                <widget type="checkbox" fieldname="disponible" readonly="true"/>
             </column>
         </group>
     </columns>

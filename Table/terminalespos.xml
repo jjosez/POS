@@ -79,12 +79,18 @@
     <column>
         <name>productsource</name>
         <type>integer</type>
-        <default>null</default>
+        <default>NULL</default>
+    </column>
+    <column>
+        <name>product_display_mode</name>
+        <type>character varying(10)</type>
+        <null>YES</null>
+        <default>'grid'</default>
     </column>
     <column>
         <name>terminal_type</name>
         <type>character varying(10)</type>
-        <default>null</default>
+        <default>NULL</default>
     </column>
     <constraint>
         <name>terminalespos_pkey</name>
