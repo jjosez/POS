@@ -58,7 +58,8 @@ class FilterClass {
 
 const searchFilter = new FilterClass({
     families: [],
-    filters: []
+    filters: [],
+    customer: ''
 });
 
 export {FilterClass, searchFilter};
