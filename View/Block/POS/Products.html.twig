@@ -202,20 +202,6 @@
             </div>
             <!-- Sección desktop XL: Badges y Precio en fila -->
             <div class="hidden xl:flex items-center gap-3 flex-shrink-0">
-                <!-- Familia y Marca -->
-                {# <div class="flex flex-col items-start gap-1 w-24 2xl:w-28">
-                    <% if(product.family) { %>
-                    <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md truncate w-full text-center">
-                        <i class="fa-solid fa-tag"></i><%= product.family %>
-                    </span>
-                    <% } %>
-                    <% if(product.brandname) { %>
-                    <span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full truncate w-full text-center">
-                        <%= product.brandname %>
-                    </span>
-                    <% } %>
-                </div> #}
-
                 <!-- Precio y acción -->
                 <div class="text-right w-24 2xl:w-28">
                     <div class="text-base 2xl:text-lg font-bold text-blue-600 mb-1">
@@ -247,7 +233,7 @@
 
                 <% if (!product.isOutOfStock) { %>
                 <div class="text-xs text-gray-500">
-                    <i class="fa-solid fa-plus-circle"></i> Tocar para agregar
+                    <i class="fa-solid fa-plus-circle"></i> {{ trans('touch-to-add') }}
                 </div>
                 <% } %>
             </div>
@@ -402,7 +388,7 @@
                                 </span>
                             {% endif %}
                         </div>
-                        <!-- Stock y acción (visible solo en desktop XL, alineado con imagen) -->
+                        <!-- Stock y acción (visible solo en desktop XL) -->
                         <div class="hidden xl:flex items-center gap-3 mt-2">
                             <button type="button"
                                     class="pointer-events-auto hover:bg-gray-100 rounded px-2 py-1 transition-colors flex items-center gap-2 text-xs"
@@ -414,9 +400,14 @@
                                 </span>
                             </button>
 
-                            {% if not product.isOutOfStock %}
-                                <div class="text-xs text-gray-500">
-                                    <i class="fa-solid fa-plus-circle"></i> Tocar para agregar
+                            {% if product.family %}
+                                <div class="text-xs font-semibold text-gray-500">
+                                    <i class="fa-solid fa-tag"></i> {{ product.family }}
+                                </div>
+                            {% endif %}
+                            {% if product.family %}
+                                <div class="text-xs font-semibold text-blue-500">
+                                    <i class="fa-solid fa-tag"></i> {{ product.brandname }}
                                 </div>
                             {% endif %}
                         </div>
@@ -424,19 +415,6 @@
                 </div>
                 <!-- Sección desktop XL: Badges y Precio en fila -->
                 <div class="hidden xl:flex items-center gap-3 flex-shrink-0">
-                    <!-- Familia y Marca (solo desktop XL) -->
-                    <div class="flex flex-col items-start gap-1 w-24 2xl:w-28">
-                        {% if product.family %}
-                            <span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full truncate w-full text-center">
-                                {{ product.family }}
-                            </span>
-                        {% endif %}
-                        {% if product.brandname %}
-                            <span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full truncate w-full text-center">
-                                {{ product.brandname }}
-                            </span>
-                        {% endif %}
-                    </div>
                     <!-- Precio y acción (solo desktop XL) -->
                     <div class="text-right w-24 2xl:w-28">
                         <div class="text-base 2xl:text-lg font-bold text-blue-600 mb-1">
@@ -444,11 +422,11 @@
                         </div>
                         {% if not product.isOutOfStock %}
                             <div class="text-xs text-gray-500">
-                                <i class="fa-solid fa-plus-circle"></i> Agregar
+                                <i class="fa-solid fa-plus-circle"></i> {{ trans('touch-to-add') }}
                             </div>
                         {% else %}
                             <div class="text-xs text-red-500 font-medium">
-                                Sin stock
+                                {{ trans('out-of-stock') }}
                             </div>
                         {% endif %}
                     </div>
