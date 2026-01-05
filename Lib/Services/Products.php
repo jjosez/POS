@@ -5,6 +5,7 @@ namespace FacturaScripts\Plugins\POS\Lib\Services;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Almacenes;
 use FacturaScripts\Core\Model\CodeModel;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Join\ProductoStock;
 use FacturaScripts\Dinamic\Model\Join\ProductoVariante;
 use FacturaScripts\Dinamic\Model\Variante;
@@ -30,7 +31,7 @@ class Products
     public function __construct()
     {
         $this->product = new ProductoVariante();
-        $this->variante = new Variante();
+        //$this->variante = new Variante();
     }
 
     /**

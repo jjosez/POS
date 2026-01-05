@@ -56,6 +56,12 @@
                         {% if product.detail %}
                             <p>{{ product.detail }}</p>
                         {% endif %}
+                        {% if product.brandname %}
+                        <p class="font-semibold">{{ product.brandname }}</p>
+                        {% endif %}
+                         {% if product.family %}
+                        <p class="font-semibold">{{ product.family }}</p>
+                        {% endif %}
                     </div>
                     <!-- Precio / Stock -->
                     <div class="mt-auto pt-2 border-t border-dashed border-gray-200 flex items-center justify-between text-sm">
@@ -123,6 +129,13 @@
                 <p class="italic text-gray-600"><%= product.description %></p>
                 <% if(product.detail) { %>
                 <p><%= product.detail %></p>
+                <% } %>
+                <br>
+                <% if(product.brandname) { %>
+                <p class="font-semibold"><%= product.brandname %></p>
+                <% } %>
+                <% if(product.family) { %>
+                <p class="font-semibold"><%= product.family %></p>
                 <% } %>
             </div>
             <!-- Precio / Stock -->

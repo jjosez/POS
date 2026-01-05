@@ -22,7 +22,9 @@ class ProductoVariante extends JoinModel implements JsonSerializable
     {
         return [
             'variantes',
-            'productos'
+            'productos',
+            'familias',
+            'fabricantes',
         ];
     }
 
@@ -46,6 +48,8 @@ class ProductoVariante extends JoinModel implements JsonSerializable
             'atribute4' => 'A4.descripcion',
             'image_file' => 'MIN(IMG.idfile)',
             'allow_no_stock' => 'P.ventasinstock',
+            'family' => 'F.descripcion',
+            'brandname' => 'B.nombre'
         ];
     }
 
@@ -65,7 +69,10 @@ class ProductoVariante extends JoinModel implements JsonSerializable
             . ' LEFT JOIN atributos_valores A3 ON V.idatributovalor3 = A3.id'
             . ' LEFT JOIN atributos_valores A4 ON V.idatributovalor4 = A4.id'
             . ' LEFT JOIN stocks S ON V.referencia = S.referencia'
-            . ' LEFT JOIN productos_imagenes IMG ON IMG.idproducto = P.idproducto AND (IMG.referencia IS NULL OR IMG.referencia = V.referencia)';
+            . ' LEFT JOIN productos_imagenes IMG ON IMG.idproducto = P.idproducto'
+            . ' AND (IMG.referencia IS NULL OR IMG.referencia = V.referencia)'
+            . ' LEFT JOIN familias F ON F.codfamilia = P.codfamilia'
+            . ' LEFT JOIN fabricantes B ON B.codfabricante = P.codfabricante';
     }
 
     /**

@@ -13,6 +13,7 @@ class Init extends InitClass
         $this->loadExtension(new Extension\Model\Familia());
         $this->loadExtension(new Extension\Model\Base\SalesDocument());
         $this->loadExtension(new Extension\Controller\EditEstadoDocumento());
+        $this->loadExtension(new Extension\Controller\EditSecuenciaDocumento());
     }
 
     public function update(): void
