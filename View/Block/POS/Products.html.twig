@@ -179,7 +179,7 @@
                  data-thumbnail="{{ product.thumbnail }}">
 
                 <!-- Fila superior: Imagen + Info + Precio (móvil/tablet) / Única fila (desktop XL) -->
-                <div class="flex items-center gap-3 flex-1">
+                <div class="flex gap-3 flex-1">
                     <!-- Imagen (60x60px en móvil, 80x80px en desktop) -->
                     <div class="flex-shrink-0 w-16 h-16 xl:w-20 xl:h-20 relative overflow-hidden rounded-md bg-gray-100">
                         {% if product.thumbnail %}
@@ -202,12 +202,30 @@
                         {% endif %}
                     </div>
 
-                    <!-- Información principal del producto -->
-                    <div class="flex-1 min-w-0">
-                        <div class="font-semibold text-gray-900 uppercase truncate text-xs xl:text-sm">
-                            {{ product.code }}
+                    <!-- Contenedor de información (crece para llenar espacio) -->
+                    <div class="flex-1 min-w-0 flex flex-col">
+                        <!-- Fila: Código + Precio (móvil) -->
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <div class="font-semibold text-gray-900 uppercase truncate text-xs xl:text-sm">
+                                    {{ product.code }}
+                                </div>
+                            </div>
+                            <!-- Precio (visible solo en móvil/tablet) -->
+                            <div class="xl:hidden flex-shrink-0 text-right">
+                                <div class="text-base font-bold text-blue-600">
+                                    {{ product.priceWithFormat }}
+                                </div>
+                                {% if product.isOutOfStock %}
+                                    <div class="text-xs text-red-500 font-medium">
+                                        Sin stock
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
-                        <div class="text-gray-700 text-xs xl:text-sm leading-tight line-clamp-2">
+
+                        <!-- Descripción -->
+                        <div class="text-gray-700 text-xs xl:text-sm leading-tight line-clamp-2 xl:line-clamp-none">
                             {{ product.description }}
                         </div>
                         {% if product.detail %}
@@ -229,18 +247,25 @@
                                 </span>
                             {% endif %}
                         </div>
-                    </div>
 
-                    <!-- Precio (visible en móvil/tablet) -->
-                    <div class="xl:hidden flex-shrink-0 text-right">
-                        <div class="text-base font-bold text-blue-600">
-                            {{ product.priceWithFormat }}
+                        <!-- Stock y acción (visible solo en desktop XL, alineado con imagen) -->
+                        <div class="hidden xl:flex items-center gap-3 mt-2">
+                            <button type="button"
+                                    class="pointer-events-auto hover:bg-gray-100 rounded px-2 py-1 transition-colors flex items-center gap-2 text-xs"
+                                    data-action="product:stock:show"
+                                    data-code="{{ product.code }}">
+                                <i class="fa-solid fa-dolly-flatbed text-gray-500 pointer-events-none"></i>
+                                <span class="font-semibold text-gray-900 pointer-events-none">
+                                    Stock: {{ product.stock | default('0') }}
+                                </span>
+                            </button>
+
+                            {% if not product.isOutOfStock %}
+                                <div class="text-xs text-gray-500">
+                                    <i class="fa-solid fa-plus-circle"></i> Tocar para agregar
+                                </div>
+                            {% endif %}
                         </div>
-                        {% if product.isOutOfStock %}
-                            <div class="text-xs text-red-500 font-medium">
-                                Sin stock
-                            </div>
-                        {% endif %}
                     </div>
                 </div>
 
