@@ -49,7 +49,10 @@ class MainView {
     };
 
     updateProductSearchResult = (data = []) => {
-        templates.render('product:search:list:template', {products: data}, 'product:search:list:view');
+        const templateId = AppSettings.productsearch.templateDisplayMode === 'list'
+            ? 'product:search:list:template'
+            : 'product:search:grid:template';
+        templates.render(templateId, {products: data}, 'product:search:list:view');
     };
 
     updateView({doc}) {
@@ -64,7 +67,7 @@ class MainView {
         this.toggleLastOrdersModal();
 
         data = Core.isObjectEmpty(data) ? [] : data;
-        templates.render('last:order:list:template', { orders:data }, 'last:order:list:view');
+        templates.render('last:order:list:template', {orders: data}, 'last:order:list:view');
     }
 
     showPausedOrdersModal = (data) => {
@@ -108,11 +111,11 @@ class MainView {
         doc = Core.isObjectEmpty(doc) ? [] : doc;
         lines = Core.isObjectEmpty(lines) ? [] : lines;
 
-        console.log('Document',doc);
-        console.log('Document lines',lines);
+        console.log('Document', doc);
+        console.log('Document lines', lines);
 
-        templates.render('returnSaleSearchResultTemplate', { order:doc, lines:lines }, 'returnSaleSearchResultView');
-        templates.render('returnSaleLinesTemplate', { order:doc, lines:lines }, 'returnSaleLinesTemplateView');
+        templates.render('returnSaleSearchResultTemplate', {order: doc, lines: lines}, 'returnSaleSearchResultView');
+        templates.render('returnSaleLinesTemplate', {order: doc, lines: lines}, 'returnSaleLinesTemplateView');
     }
 
     toggleLoadingModal = () => Modals.toggleModal('loadingModal');

@@ -150,6 +150,11 @@ class TerminalPuntoVenta extends ModelClass
         return Almacenes::get($this->codalmacen);
     }
 
+    public function getProductDisplayMode(): string
+    {
+        return $this->product_display_mode ?? 'grid';
+    }
+
     public function save(): bool
     {
         $this->idempresa = $this->getWarehouse()->idempresa;

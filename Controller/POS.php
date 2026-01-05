@@ -661,6 +661,9 @@ class POS extends BaseController
                 'freeLines' => $terminal->free_cart_lines,
                 'groupLines' => $terminal->group_cart_lines,
             ],
+            'productsearch' => [
+                'templateDisplayMode' => $terminal->getProductDisplayMode()
+            ],
             'supported-documents' => $terminal->getSupportedDocuments()
         ];
     }

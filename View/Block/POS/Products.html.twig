@@ -29,7 +29,7 @@
         <i class="fas fa-shopping-cart fa-fw"></i>
     </button>
 </div>
-<script id="product:search:list:template" type="text/template">
+<script id="product:search:grid:template" type="text/template">
     <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {% if context.terminal().free_cart_lines %}
             {{ _self.freeProductLineTemplate() }}
@@ -91,6 +91,165 @@
                       data-code="<%= product.code %>">
                     <i class="fa-solid fa-dolly-flatbed fa-fw pointer-events-none"></i> <%= product.stock | 0 %>
                 </span>
+            </div>
+        </div>
+        <% }) %>
+    </div>
+</script>
+
+<script id="product:search:list:template" type="text/template">
+    <div class="flex flex-col gap-2">
+        {% if context.terminal().free_cart_lines %}
+            {{ _self.freeProductLineListTemplate() }}
+        {% endif %}
+        <% products.forEach(function(product){ %>
+        <div role="listitem"
+             class="flex flex-col xl:flex-row xl:items-center gap-2 xl:gap-3 rounded-lg p-3 text-sm border transition-all product-add-btn
+                    <%= product.isOutOfStock ? 'bg-gray-100 border-gray-300 cursor-not-allowed opacity-60' : 'bg-white border-gray-200 cursor-pointer hover:border-blue-400' %>"
+             data-action="<%= product.isOutOfStock ? '' : 'cart:product:add' %>"
+             data-code="<%= product.code %>"
+             data-description="<%= product.description %>"
+             data-thumbnail="<%= product.thumbnail %>">
+            <!-- Fila superior: Imagen + Info + Precio -->
+            <div class="flex gap-3 flex-1">
+                <!-- Imagen -->
+                <div class="flex-shrink-0 w-16 h-16 xl:w-20 xl:h-20 relative overflow-hidden rounded-md bg-gray-100">
+                    <% if (product.thumbnail) { %>
+                    <img class="w-full h-full object-cover"
+                         src="<%= product.thumbnail %>"
+                         alt="<%= product.code %>"
+                         loading="lazy">
+                    <button type="button"
+                            class="absolute inset-0 hidden xl:flex items-center justify-center bg-black/0 hover:bg-black/40 transition-colors group pointer-events-auto"
+                            title="{{ trans('view-image')|default('Ver imagen') }}"
+                            data-action="product:image:show"
+                            data-id="<%= product.id %>"
+                            data-code="<%= product.code %>">
+                        <i class="fas fa-search-plus text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></i>
+                    </button>
+                    <% } else { %>
+                    <div class="w-full h-full flex items-center justify-center">
+                        <i class="fas fa-image text-xl xl:text-2xl text-gray-300"></i>
+                    </div>
+                    <% } %>
+                </div>
+                <!-- Contenedor de información -->
+                <div class="flex-1 min-w-0 flex flex-col">
+                    <!-- Fila: Código + Precio (móvil) -->
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex-1 min-w-0">
+                            <div class="font-semibold text-gray-900 uppercase truncate text-xs xl:text-sm">
+                                <%= product.code %>
+                            </div>
+                        </div>
+                        <!-- Precio (visible solo en móvil/tablet) -->
+                        <div class="xl:hidden flex-shrink-0 text-right">
+                            <div class="text-base font-bold text-blue-600">
+                                <%= product.priceWithFormat %>
+                            </div>
+                            <% if (product.isOutOfStock) { %>
+                            <div class="text-xs text-red-500 font-medium">
+                                Sin stock
+                            </div>
+                            <% } %>
+                        </div>
+                    </div>
+                    <!-- Descripción -->
+                    <div class="text-gray-700 text-xs xl:text-sm leading-tight line-clamp-2 xl:line-clamp-none">
+                        <%= product.description %>
+                    </div>
+                    <% if(product.detail) { %>
+                    <div class="text-xs text-gray-500 italic truncate hidden xl:block">
+                        <%= product.detail %>
+                    </div>
+                    <% } %>
+                    <!-- Badges en móvil/tablet -->
+                    <div class="flex flex-wrap gap-1 mt-1 xl:hidden">
+                        <% if(product.family) { %>
+                        <span class="text-xs px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded">
+                            <%= product.family %>
+                        </span>
+                        <% } %>
+                        <% if(product.brandname) { %>
+                        <span class="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">
+                            <%= product.brandname %>
+                        </span>
+                        <% } %>
+                    </div>
+                    <!-- Stock y acción (visible solo en desktop XL) -->
+                    <div class="hidden xl:flex items-center gap-3 mt-2">
+                        <button type="button"
+                                class="pointer-events-auto hover:bg-gray-100 rounded px-2 py-1 transition-colors flex items-center gap-2 text-xs"
+                                data-action="product:stock:show"
+                                data-code="<%= product.code %>">
+                            <i class="fa-solid fa-dolly-flatbed text-gray-500 pointer-events-none"></i>
+                            <span class="font-semibold text-gray-900 pointer-events-none">
+                                Stock: <%= product.stock | 0 %>
+                            </span>
+                        </button>
+                        <% if(product.family) { %>
+                        <div class="text-xs font-semibold text-gray-500">
+                            <i class="fa-solid fa-tag"></i> <%= product.family %>
+                        </div>
+                        <% } %>
+                        <% if(product.brandname) { %>
+                        <div class="text-xs font-semibold text-blue-500">
+                            <i class="fa-solid fa-tag"></i> <%= product.brandname %>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            <!-- Sección desktop XL: Badges y Precio en fila -->
+            <div class="hidden xl:flex items-center gap-3 flex-shrink-0">
+                <!-- Familia y Marca -->
+                {# <div class="flex flex-col items-start gap-1 w-24 2xl:w-28">
+                    <% if(product.family) { %>
+                    <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md truncate w-full text-center">
+                        <i class="fa-solid fa-tag"></i><%= product.family %>
+                    </span>
+                    <% } %>
+                    <% if(product.brandname) { %>
+                    <span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full truncate w-full text-center">
+                        <%= product.brandname %>
+                    </span>
+                    <% } %>
+                </div> #}
+
+                <!-- Precio y acción -->
+                <div class="text-right w-24 2xl:w-28">
+                    <div class="text-base 2xl:text-lg font-bold text-blue-600 mb-1">
+                        <%= product.priceWithFormat %>
+                    </div>
+                    <% if (!product.isOutOfStock) { %>
+                    <div class="text-xs text-gray-500">
+                        <i class="fa-solid fa-plus-circle"></i> {{ trans('touch-to-add') }}
+                    </div>
+                    <% } else { %>
+                    <div class="text-xs text-red-500 font-medium">
+                        Sin stock
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Fila inferior: Stock (solo móvil/tablet) -->
+            <div class="flex xl:hidden items-center justify-between pt-2 border-t border-gray-200">
+                <button type="button"
+                        class="pointer-events-auto hover:bg-gray-100 rounded px-2 py-1 transition-colors flex items-center gap-2 text-xs"
+                        data-action="product:stock:show"
+                        data-code="<%= product.code %>">
+                    <i class="fa-solid fa-dolly-flatbed text-gray-500 pointer-events-none"></i>
+                    <span class="font-semibold text-gray-900 pointer-events-none">
+                        Stock: <%= product.stock | 0 %>
+                    </span>
+                </button>
+
+                <% if (!product.isOutOfStock) { %>
+                <div class="text-xs text-gray-500">
+                    <i class="fa-solid fa-plus-circle"></i> Tocar para agregar
+                </div>
+                <% } %>
             </div>
         </div>
         <% }) %>
@@ -177,7 +336,6 @@
                  data-code="{{ product.code }}"
                  data-description="{{ product.description }}"
                  data-thumbnail="{{ product.thumbnail }}">
-
                 <!-- Fila superior: Imagen + Info + Precio (móvil/tablet) / Única fila (desktop XL) -->
                 <div class="flex gap-3 flex-1">
                     <!-- Imagen (60x60px en móvil, 80x80px en desktop) -->
@@ -201,7 +359,6 @@
                             </div>
                         {% endif %}
                     </div>
-
                     <!-- Contenedor de información (crece para llenar espacio) -->
                     <div class="flex-1 min-w-0 flex flex-col">
                         <!-- Fila: Código + Precio (móvil) -->
@@ -223,7 +380,6 @@
                                 {% endif %}
                             </div>
                         </div>
-
                         <!-- Descripción -->
                         <div class="text-gray-700 text-xs xl:text-sm leading-tight line-clamp-2 xl:line-clamp-none">
                             {{ product.description }}
@@ -233,7 +389,6 @@
                                 {{ product.detail }}
                             </div>
                         {% endif %}
-
                         <!-- Badges en móvil/tablet -->
                         <div class="flex flex-wrap gap-1 mt-1 xl:hidden">
                             {% if product.family %}
@@ -247,7 +402,6 @@
                                 </span>
                             {% endif %}
                         </div>
-
                         <!-- Stock y acción (visible solo en desktop XL, alineado con imagen) -->
                         <div class="hidden xl:flex items-center gap-3 mt-2">
                             <button type="button"
@@ -268,8 +422,7 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Sección desktop XL: Badges, Stock y Precio en fila -->
+                <!-- Sección desktop XL: Badges y Precio en fila -->
                 <div class="hidden xl:flex items-center gap-3 flex-shrink-0">
                     <!-- Familia y Marca (solo desktop XL) -->
                     <div class="flex flex-col items-start gap-1 w-24 2xl:w-28">
@@ -284,28 +437,14 @@
                             </span>
                         {% endif %}
                     </div>
-
-                    <!-- Stock (solo desktop XL) -->
-                    <div class="w-16 2xl:w-20 text-center">
-                        <button type="button"
-                                class="pointer-events-auto hover:bg-gray-100 rounded px-2 py-1 transition-colors w-full"
-                                data-action="product:stock:show"
-                                data-code="{{ product.code }}">
-                            <i class="fa-solid fa-dolly-flatbed text-gray-500 pointer-events-none text-sm"></i>
-                            <div class="text-sm font-semibold text-gray-900 pointer-events-none">
-                                {{ product.stock | default('0') }}
-                            </div>
-                        </button>
-                    </div>
-
                     <!-- Precio y acción (solo desktop XL) -->
-                    <div class="text-right w-20 2xl:w-24">
+                    <div class="text-right w-24 2xl:w-28">
                         <div class="text-base 2xl:text-lg font-bold text-blue-600 mb-1">
                             {{ product.priceWithFormat }}
                         </div>
                         {% if not product.isOutOfStock %}
                             <div class="text-xs text-gray-500">
-                                <i class="fa-solid fa-plus-circle"></i> <span class="hidden 2xl:inline">Agregar</span>
+                                <i class="fa-solid fa-plus-circle"></i> Agregar
                             </div>
                         {% else %}
                             <div class="text-xs text-red-500 font-medium">
@@ -314,7 +453,6 @@
                         {% endif %}
                     </div>
                 </div>
-
                 <!-- Fila inferior: Stock (solo móvil/tablet) -->
                 <div class="flex xl:hidden items-center justify-between pt-2 border-t border-gray-200">
                     <button type="button"
@@ -326,7 +464,6 @@
                             Stock: {{ product.stock | default('0') }}
                         </span>
                     </button>
-
                     {% if not product.isOutOfStock %}
                         <div class="text-xs text-gray-500">
                             <i class="fa-solid fa-plus-circle"></i> Tocar para agregar
@@ -349,11 +486,9 @@
                 <i class="fas fa-tags fa-2x text-gray-400"></i>
             </div>
         </div>
-        <!-- Descripción -->
         <div class="flex-1 text-center mb-3">
             <p class="italic text-gray-600">{{ trans('free-product-line') }}</p>
         </div>
-        <!-- Precio / Stock -->
         <div class="mt-auto pt-2 border-t border-dashed border-gray-200 flex items-center justify-between text-sm">
             <span class="font-semibold text-blue-500">
                 <i class="fa-solid fa-tag fa-fw"></i> {{ number(0) }}
@@ -371,23 +506,19 @@
          data-action="cart:product:add"
          data-code=""
          data-description="Producto Generico">
-        <!-- Imagen -->
         <div class="flex-shrink-0 w-20 h-20 relative overflow-hidden rounded-md bg-gray-100">
             <div class="w-full h-full flex items-center justify-center">
                 <i class="fas fa-tags fa-2x text-gray-400"></i>
             </div>
         </div>
-        <!-- Información -->
         <div class="flex-1 min-w-0">
             <div class="text-gray-700 italic text-sm">{{ trans('free-product-line') }}</div>
         </div>
-        <!-- Espaciadores para alinear con otras filas -->
         <div class="hidden md:flex w-32 flex-shrink-0"></div>
         <div class="flex-shrink-0 w-20 text-center">
             <i class="fa-solid fa-dolly-flatbed text-gray-400"></i>
             <div class="text-sm font-semibold text-gray-600">&infin;</div>
         </div>
-        <!-- Precio -->
         <div class="flex-shrink-0 text-right w-28">
             <div class="text-lg font-bold text-blue-600">{{ number(0) }}</div>
             <div class="text-xs text-gray-500">
