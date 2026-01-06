@@ -50,7 +50,7 @@
             <column name="free-product-line" numcolumns="2" order='120'>
                 <widget type="checkbox" fieldname="free_cart_lines"/>
             </column>
-            <column name="group-product-lines" numcolumns="2" order='120'>
+            <column name="group-by-product" numcolumns="2" order='120'>
                 <widget type="checkbox" fieldname="group_cart_lines"/>
             </column>
             <column name="enabled" title="Disponible" numcolumns="2" order="130">
