@@ -77,7 +77,7 @@ class SessionStorage
         }
 
         if ($draft->delete()) {
-            Tools::log('POS')->info('draft-deleted', ['code' => $code]);
+            Tools::log('POS')->info('draft-deleted', ['%code%' => $draft->codigo]);
             return true;
         }
 

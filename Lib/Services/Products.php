@@ -1,14 +1,20 @@
 <?php
+/**
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2022-2026 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
 
 namespace FacturaScripts\Plugins\POS\Lib\Services;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Almacenes;
-use FacturaScripts\Core\Model\CodeModel;
-use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Plugins;
+use FacturaScripts\Dinamic\Model\Cliente;
+use FacturaScripts\Dinamic\Model\GrupoClientes;
 use FacturaScripts\Dinamic\Model\Join\ProductoStock;
 use FacturaScripts\Dinamic\Model\Join\ProductoVariante;
-use FacturaScripts\Dinamic\Model\Variante;
+use FacturaScripts\Dinamic\Model\Tarifa;
+use FacturaScripts\Plugins\TarifasAvanzadas\Model\TarifaFamilia;
 
 /**
  * Product service for POS operations.
@@ -17,7 +23,7 @@ use FacturaScripts\Dinamic\Model\Variante;
  * -- Índice en codbarras (búsqueda por barcode)
  * CREATE INDEX idx_variantes_codbarras ON variantes(codbarras);
  *
- * -- Índice en referencia
+ * -- Índice en referencia (búsqueda por referencia)
  * CREATE INDEX idx_variantes_referencia ON variantes(referencia);
  *
  * -- Índice fulltext para descripción (búsqueda de texto)
@@ -26,12 +32,11 @@ use FacturaScripts\Dinamic\Model\Variante;
 class Products
 {
     private ProductoVariante $product;
-    private Variante $variante;
+    private mixed $familyRateCache = [];
 
     public function __construct()
     {
         $this->product = new ProductoVariante();
-        //$this->variante = new Variante();
     }
 
     /**
@@ -82,10 +87,10 @@ class Products
     }
 
     /**
-     * Searches products by text, filters, warehouse or company.
+     * Searches products by text, filters, warehouse, or company.
      *
      * @param string $text Search text (barcode, reference, or description)
-     * @param array $filters Additional filters (e.g., families)
+     * @param array $filters Additional filters (e.g., families, codcliente)
      * @param string $wharehouse Warehouse code filter
      * @param string $company Company ID filter
      * @return array Product list
@@ -111,7 +116,11 @@ class Products
             $where[] = new DataBaseWhere('codfamilia', $families, 'IN');
         }
 
-        return $this->product->all($where, [], 0, 30);
+        $products = $this->product->all($where, [], 0, 30);
+
+        $this->applyProductRates($products, $filters);
+
+        return $products;
     }
 
     /**
@@ -137,5 +146,77 @@ class Products
             'description' => $model->description,
             'thumbnail' => $model->thumbnail ?? '',
         ];
+    }
+
+    /**
+     * Applies customer price rates to products.
+     *
+     * @param ProductoVariante[] $products Product list
+     * @param array $filters Filters including customer code
+     */
+    private function applyProductRates(array $products, array $filters): void
+    {
+        $codcliente = $filters['codcliente'] ?? '';
+        if (empty($codcliente)) return;
+
+        $rate = $this->getCustomerRate($codcliente);
+        if (empty($rate->codtarifa)) return;
+
+        if (Plugins::isEnabled('TarifasAvanzadas')) {
+            $this->preloadFamilyRates($products, $rate);
+        }
+
+        foreach ($products as $product) {
+            $familyRate = $this->getFamilyRate($product, $rate);
+            if ($familyRate) {
+                $product->applyFamilyRate($familyRate);
+                continue;
+            }
+
+            $product->applyRate($rate);
+        }
+    }
+
+    public function getCustomerRate(string $customerCode): Tarifa
+    {
+        $rate = new Tarifa();
+        $customer = new Cliente();
+
+        if ($customer->load($customerCode) && !empty($customer->codtarifa) && $rate->load($customer->codtarifa)) {
+            return $rate;
+        }
+
+        $group = new GrupoClientes();
+        if (!empty($customer->codgrupo) && $group->load($customer->codgrupo) && !empty($group->codtarifa)) {
+            $rate->load($group->codtarifa);
+        }
+
+        return $rate;
+    }
+
+    public function getFamilyRate(ProductoVariante $product, Tarifa $rate): ?TarifaFamilia
+    {
+        if (empty($product->codfamilia)) return null;
+
+        $cacheKey = $product->codfamilia . '-' . $rate->codtarifa;
+        return $this->familyRateCache[$cacheKey] ?? null;
+    }
+
+    protected function preloadFamilyRates(array $products, Tarifa $rate): void
+    {
+        $familias = array_unique(array_filter(array_map(fn($p) => $p->codfamilia, $products)));
+        if (empty($familias)) return;
+
+        $where = [
+            new DataBaseWhere('codfamilia', implode(',', $familias), 'IN'),
+            new DataBaseWhere('codtarifa', $rate->codtarifa)
+        ];
+
+        $familyRates = new TarifaFamilia()->all($where);
+
+        foreach ($familyRates as $familyRate) {
+            $cacheKey = $familyRate->codfamilia . '-' . $familyRate->codtarifa;
+            $this->familyRateCache[$cacheKey] = $familyRate;
+        }
     }
 }

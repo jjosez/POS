@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of POS plugin for FacturaScripts
- * Copyright (C) 2022-2025 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ * Copyright (C) 2022-2026 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 
 namespace FacturaScripts\Plugins\POS\Controller;
@@ -20,7 +20,7 @@ use FacturaScripts\Plugins\POS\Lib\Services\Transactions;
 use RuntimeException;
 
 /**
- * POS controller using simplified architecture with Context and lazy loading.
+ * POS controller.
  */
 class POS extends BaseController
 {
@@ -209,9 +209,7 @@ class POS extends BaseController
         }
 
         $code = $this->request->request->get('code', '');
-        if ($this->context->storage()->deleteDraft($code)) {
-            Tools::log()->info('pos-order-on-hold-deleted');
-        }
+        $this->context->storage()->deleteDraft($code);
 
         $this->setNewToken();
         $this->buildResponse();
@@ -432,7 +430,7 @@ class POS extends BaseController
         }
 
         if ($this->context->storage()->recordCashMovement($amount, $description)) {
-             $this->addMessage('cash-entry-ok');
+            $this->addMessage('cash-entry-ok');
         }
 
         $this->buildResponse();
@@ -493,6 +491,7 @@ class POS extends BaseController
         $company = $terminal->productsource === $terminal::PRODUCTS_FROM_COMPANY ? $terminal->idempresa : '';
         $warehouse = $terminal->productsource === $terminal::PRODUCTS_FROM_WAREHOUSE ? $terminal->codalmacen : '';
 
+        // El codcliente viene en filterRules desde el frontend para aplicar tarifas específicas del cliente
         $this->setResponse($this->context->products()->search($query, $filterRules, $warehouse, $company));
     }
 
@@ -620,7 +619,8 @@ class POS extends BaseController
      */
     public function getHomeProducts(): array
     {
-        return $this->context->products()->search('');
+        $filters = ['codcliente' => $this->context->terminal()->codcliente];
+        return $this->context->products()->search('', $filters);
     }
 
     /**

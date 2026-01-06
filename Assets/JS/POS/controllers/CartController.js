@@ -120,12 +120,12 @@ const CartController = {
     /**
      * Update the customer code on the document.
      *
-     * @param {HTMLElement} el - The DOM element that triggered the action.
-     * @property {string} el.dataset.index - The index of the product to delete.
-     * @property {string} el.dataset.description - The index of the product to delete.
+     * @param {code, description} customer
+     * @property {string} customer.code - The codcliente.
+     * @property {string} customer.description - The cliente name.
      */
-    setCustomer(el) {
-        const {code, description} = el.dataset;
+    setCustomer(customer) {
+        const {code, description} = customer;
         if (!code) return;
 
         Cart.setCustomer(code);
@@ -247,7 +247,6 @@ const CartController = {
         eventDispatcher.register('cart:product:quantity:decrease', this.quantityDecrease.bind(this));
         eventDispatcher.register('cart:product:quantity:increase', this.quantityIncrease.bind(this));
         eventDispatcher.register('cart:product:add', this.addProduct.bind(this));
-        eventDispatcher.register('cart:customer:set', this.setCustomer.bind(this));
         eventDispatcher.register('cart:document:set', this.setDocument.bind(this));
 
         //eventManager.on('cart:changed', this.cartChange.bind(this));

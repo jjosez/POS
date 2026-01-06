@@ -1,14 +1,21 @@
 <?php
+/**
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2022-2026 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
 
 namespace FacturaScripts\Plugins\POS\Model\Join;
 
 use FacturaScripts\Core\DataSrc\Impuestos;
-use FacturaScripts\Core\Model\AttachedFile;
+use FacturaScripts\Core\Lib\MyFilesToken;
 use FacturaScripts\Core\Model\Base\JoinModel;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\Impuesto;
 use FacturaScripts\Dinamic\Model\ProductoImagen;
+use FacturaScripts\Dinamic\Model\Tarifa;
+use FacturaScripts\Dinamic\Model\Variante;
+use FacturaScripts\Plugins\TarifasAvanzadas\Model\TarifaFamilia;
 use JsonSerializable;
 
 class ProductoVariante extends JoinModel implements JsonSerializable
@@ -18,6 +25,9 @@ class ProductoVariante extends JoinModel implements JsonSerializable
     public bool $isOutOfStock = false;
     public string $thumbnail = '';
 
+    /**
+     * @inheritDoc
+     */
     protected function getTables(): array
     {
         return [
@@ -25,6 +35,7 @@ class ProductoVariante extends JoinModel implements JsonSerializable
             'productos',
             'familias',
             'fabricantes',
+            'attached_files'
         ];
     }
 
@@ -40,6 +51,7 @@ class ProductoVariante extends JoinModel implements JsonSerializable
             'barcode' => 'V.codbarras',
             'description' => 'P.descripcion',
             'price' => 'V.precio',
+            'cost' => 'V.coste',
             'stock' => 'SUM(S.disponible)',
             'detail' => 'CONCAT_WS(" - ", A1.descripcion, A2.descripcion, A3.descripcion, A4.descripcion)',
             'atribute1' => 'A1.descripcion',
@@ -47,12 +59,18 @@ class ProductoVariante extends JoinModel implements JsonSerializable
             'atribute3' => 'A3.descripcion',
             'atribute4' => 'A4.descripcion',
             'image_file' => 'MIN(IMG.idfile)',
+            'image_path' => 'MIN(AF.path)',
+            'image_filename' => 'MIN(AF.filename)',
             'allow_no_stock' => 'P.ventasinstock',
+            'codfamilia' => 'P.codfamilia',
             'family' => 'F.descripcion',
             'brandname' => 'B.nombre'
         ];
     }
 
+    /**
+     * @inheritDoc
+     */
     protected function getGroupFields(): string
     {
         return 'V.referencia';
@@ -71,8 +89,25 @@ class ProductoVariante extends JoinModel implements JsonSerializable
             . ' LEFT JOIN stocks S ON V.referencia = S.referencia'
             . ' LEFT JOIN productos_imagenes IMG ON IMG.idproducto = P.idproducto'
             . ' AND (IMG.referencia IS NULL OR IMG.referencia = V.referencia)'
+            . ' LEFT JOIN attached_files AF ON AF.idfile = IMG.idfile'
             . ' LEFT JOIN familias F ON F.codfamilia = P.codfamilia'
             . ' LEFT JOIN fabricantes B ON B.codfabricante = P.codfabricante';
+    }
+
+    /**
+     * Returns the current product variant model.
+     *
+     * @return Variante|null
+     */
+    public function getVariant(): ?Variante
+    {
+        $variant = new Variante();
+
+        if ($variant->loadWhereEq('referencia', $this->code ?? '')) {
+            return $variant;
+        }
+
+        return null;
     }
 
     /**
@@ -85,31 +120,64 @@ class ProductoVariante extends JoinModel implements JsonSerializable
         return Impuestos::get($this->codimpuesto);
     }
 
+    /**
+     * Applies a customer rate to the product and recalculates custom fields.
+     *
+     * @param Tarifa $rate Customer rate to apply
+     */
+    public function applyRate($rate): void
+    {
+        $this->price = $rate->apply($this->cost ?? 0.0, $this->price ?? 0.0);
+        $this->recalculateCustomPriceFields();
+    }
+
+    /**
+     * Applies a family rate to the product and recalculates custom fields.
+     *
+     * @param TarifaFamilia $rate Family rate to apply
+     */
+    public function applyFamilyRate($rate): void
+    {
+        $this->price = $rate->apply($this->cost ?? 0.0, $this->price ?? 0.0);
+        $this->recalculateCustomPriceFields();
+    }
+
+    /**
+     * Recalculates custom fields (priceWithTax, priceWithFormat).
+     * Should be called after modifying the price.
+     */
+    public function recalculateCustomPriceFields(): void
+    {
+        $iva = $this->getTax()->iva;
+        $this->priceWithTax = $this->price * (100 + $iva) / 100;
+        $this->priceWithFormat = Tools::number($this->priceWithTax);
+    }
+
     protected function loadFromData($data): void
     {
         parent::loadFromData($data);
 
-        $iva = $this->getTax()->iva;
+        $this->recalculateCustomPriceFields();
 
-        $this->priceWithTax = $this->price * (100 + $iva) / 100;
-        $this->priceWithFormat = Tools::number($this->priceWithTax);
+        $this->isOutOfStock = (int)$this->stock === 0 && (int)$this->allow_no_stock !== 1;
 
-        $this->isOutOfStock = ((int)$this->stock === 0)
-            && ((int)$this->allow_no_stock !== 1);
-
-        $this->addThumbnail();
+        $this->setThumbnail();
     }
 
-    protected function addThumbnail(): void
+    protected function setThumbnail(): void
     {
         $this->thumbnail = '';
 
-        if (!empty($this->image_file)) {
+        if (!empty($this->image_path) && !empty($this->image_filename)) {
+            $this->thumbnail = $this->image_path . '?myft=' . MyFilesToken::get($this->image_path ?? '', true);
+        }
+
+        /*if (!empty($this->image_file)) {
             $imageFile = new AttachedFile();
             if ($imageFile->load($this->image_file)) {
                 $this->thumbnail = FS_ROUTE . $imageFile->url('download-permanent');
             }
-        }
+        }*/
     }
 
     /**

@@ -80,7 +80,7 @@ export async function postRequestCore(data) {
 }
 
 export async function printerServerRequest({print_job_id, print_enabled}) {
-    if (!print_enabled) {;
+    if (!print_enabled) {
         return null;
     }
 

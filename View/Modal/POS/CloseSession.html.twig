@@ -7,9 +7,14 @@
 <div id="session:close:modal" class="modal hidden">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ trans('cashup') }} &centerdot; {{ fsc.getTerminal().nombre }}</h2>
-            <a class="btn btn-icon btn-light ml-auto" href="{{ fsc.getSessionModel().url() }}" target="_blank">
+            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ trans('cashup') }}
+                &centerdot; {{ terminal.nombre }}
+            </h2>
+            <a class="btn btn-icon btn-light ml-auto" href="{{ context.session().url() }}" target="_blank">
                 <i class="fa fw fa-eye"></i>
+            </a>
+            <a class="btn btn-icon btn-primary ml-2" href="{{ terminal.url('edit') }}" target="_blank" title="{{ terminal.nombre }}">
+                <i class="fa-solid fa-desktop"></i>
             </a>
             <button class="btn btn-icon btn-success ml-2" title="{{ trans('print-z') }}"
                     data-action="session:report:x">

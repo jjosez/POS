@@ -24,8 +24,27 @@ const CustomerController = {
         }
     },
 
+
+    /**
+     * Update the customer code on the document.
+     *
+     * @param {HTMLElement} el - The DOM element that triggered the action.
+     * @property {string} el.dataset.index - The index of the product to delete.
+     * @property {string} el.dataset.description - The index of the product to delete.
+     */
+    setCustomer(el) {
+        const {code, description} = el.dataset;
+        if (!code) return;
+
+        eventManager.emit('customer:changed', {
+            code: code,
+            description: description
+        });
+    },
+
     init() {
         dispatcher.register('customer:save', this.create);
+        dispatcher.register('cart:customer:set', this.setCustomer.bind(this));
 
         CartView.customerSearchBox().addEventListener('keyup', (event) => {
             this.search(event.target.value);

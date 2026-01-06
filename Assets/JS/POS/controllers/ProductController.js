@@ -121,6 +121,13 @@ const ProductController = {
         });
     },
 
+    handleCustomerChanged({code}) {
+        console.log('Customer changed', code);
+        searchFilter.setCustomer(code);
+
+        this.handleFilterChanged(searchFilter);
+    },
+
     /**
      * event:on="product:search:completed"
      */
@@ -130,12 +137,14 @@ const ProductController = {
     },
 
     init() {
+        searchFilter.setCustomer(AppSettings.customer.codcliente);
         dispatcher.register('product:image:show', this.showImages.bind(this));
         dispatcher.register('product:stock:show', this.showStockDetail.bind(this));
         dispatcher.register('product:filter:family:toggle', this.setFamilyFilter.bind(this));
         dispatcher.register('product:family:navigate', this.navigateToFamily.bind(this));
         dispatcher.register('product:family:back', this.navigateBack.bind(this));
 
+        eventManager.on('customer:changed', this.handleCustomerChanged.bind(this));
         eventManager.on('product:filter:changed', this.handleFilterChanged.bind(this));
         eventManager.on('product:search:completed', this.handleSearchCompleted.bind(this));
 
