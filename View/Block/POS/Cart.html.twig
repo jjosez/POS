@@ -15,27 +15,32 @@
                 <i class="ml-auto fa-solid fa-pencil"></i>
             </button>
         </div>
-        <button id="customerSearchButton" class="w-full btn btn-primary"
-                data-toggle="modal" data-target="customer:search:modal">
-            <i class="fa fa-user"></i>
-            <span id="customerNameLabel" class="mx-2" data-view="CartView">
-                {{ config.getDefaultCustomer().nombre }}</span>
-            <i class="ml-auto fa fa-ellipsis-v"></i>
-        </button>
-        <button id="agentSelectButton"
-                class="w-full btn btn-success"
-                data-toggle="modal"
-                data-target="agent:select:modal">
-            <i class="fa fa-user-tie"></i>
-            <span id="agentNameLabel" class="mx-2" data-view="CartView">
-                {% if fsc.user.codagente %}
-                    {{ fsc.user.codagente }}
-                {% else %}
-                    {{ trans('select-agent') }}
-                {% endif %}
-            </span>
-            <i class="ml-auto fa fa-ellipsis-v"></i>
-        </button>
+        <div class="grid grid-cols-2 gap-4">
+            <button class="btn btn-light grid grid-cols-[auto_1fr] gap-x-3 items-center h-auto py-2 px-4 text-left"
+                    data-toggle="modal" data-target="customer:search:modal">
+                <span class="h-8 w-8 rounded-full bg-gray-50 text-center"><i class="fa-solid fa-user align-middle"></i></span>
+                <span class="flex flex-col">
+                    <span class="text-[10px] opacity-80">{{ trans('customer') }}</span>
+                    <span id="customerNameLabel"
+                          class="text-sm font-bold leading-none"> {{ config.getDefaultCustomer().nombre }}</span>
+                </span>
+            </button>
+            <button class="btn btn-light grid grid-cols-[auto_1fr] gap-x-3 items-center h-auto py-2 px-4 text-left"
+                    data-toggle="modal" data-target="agent:select:modal">
+                <span class="h-8 w-8 rounded-full bg-gray-50 text-center"><i
+                            class="fa-solid fa-user-tie align-middle"></i></span>
+                <span class="flex flex-col">
+                    <span class="text-[10px] opacity-80">{{ trans('agent') }}</span>
+                    <span id="agentNameLabel" class="text-sm font-bold leading-none">
+                        {% if fsc.user.codagente %}
+                            {{ fsc.user.codagente }}
+                        {% else %}
+                            {{ trans('select-agent') }}
+                        {% endif %}
+                    </span>
+                </span>
+            </button>
+        </div>
         {% for button in fsc.getCustomButtons %}
             {{ include(button) }}
         {% endfor %}

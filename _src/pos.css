@@ -84,7 +84,7 @@
 }
 
 @utility btn-primary {
-    @apply bg-blue-500 hover:bg-blue-500/90 focus:ring-blue-600;
+    @apply bg-blue-600 hover:bg-blue-500 focus:ring-blue-600 active:ring-blue-700;
 }
 
 @utility btn-secondary {
