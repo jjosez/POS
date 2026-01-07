@@ -34,6 +34,11 @@ class CartModel {
         return this.lines[index];
     }
 
+    setAgent(codagente) {
+        this.doc.codagente = codagente;
+        this.cartChangeEvent();
+    }
+
     setCustomer(codcliente) {
         this.doc.nombrecliente = '';
         this.doc.codcliente = codcliente;

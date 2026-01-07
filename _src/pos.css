@@ -67,7 +67,7 @@
 }
 
 @utility btn {
-    @apply flex flex-shrink-0 select-none items-center rounded-lg px-4 font-medium text-white outline-hidden py-2.5 focus:ring-3 cursor-pointer;
+    @apply flex flex-shrink-0 select-none items-center rounded-lg px-4 font-medium text-white outline-hidden py-2.5 focus:ring-3 focus:outline-none cursor-pointer;
 }
 
 @utility btn-block {
@@ -92,7 +92,7 @@
 }
 
 @utility btn-success {
-    @apply bg-green-500 hover:bg-green-500/90 focus:ring-green-600;
+    @apply bg-emerald-600 hover:bg-emerald-500 focus:ring-green-600 active:bg-emerald-700;
 }
 
 @utility btn-danger {
@@ -100,12 +100,47 @@
 }
 
 @utility btn-warning {
-    @apply bg-yellow-500 hover:bg-yellow-500/90 focus:ring-yellow-600;
+    @apply
+    bg-yellow-500
+    hover:bg-yellow-500/90
+    focus:ring-yellow-600;
 }
 
 @utility btn-light {
-    @apply bg-gray-200 text-slate-800 hover:bg-gray-200/90 focus:ring-gray-600;
+    @apply bg-slate-100 text-slate-700
+    border border-slate-200
+    hover:bg-slate-200
+    active:bg-slate-300
+    focus:ring-slate-400/30
+    disabled:bg-slate-100 disabled:text-slate-400;
 }
+
+@utility btn-naked {
+    @apply bg-transparent text-slate-700
+    hover:bg-slate-100 active:bg-slate-200
+    disabled:bg-transparent disabled:text-slate-300;
+}
+/*@utility btn-ghost {
+    @apply bg-transparent text-slate-700
+    border border-slate-300
+    hover:bg-slate-50
+    active:bg-slate-100
+    focus:ring-slate-500/30
+    disabled:bg-transparent disabled:text-slate-300;
+}*/
+
+@utility btn-dark {
+    @apply bg-slate-800 text-slate-100
+    border border-slate-700
+    hover:bg-slate-700
+    active:bg-slate-600
+    focus:ring-slate-500/30
+    disabled:bg-slate-800 disabled:text-slate-300;
+}
+
+/*@utility btn-light {
+    @apply bg-gray-50 text-slate-800 hover:bg-gray-200/90 focus:ring-gray-600;
+}*/
 
 @utility input-icon {
     @apply relative block;

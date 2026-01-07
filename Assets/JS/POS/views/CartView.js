@@ -3,6 +3,7 @@ import templates from "../views/TemplateManger.js";
 import * as Money from "../Money.js";
 
 const viewElements = {
+    agentNameLabel: document.getElementById('agentNameLabel'),
     customerNameLabel: document.getElementById('customerNameLabel'),
     customerSearchBox: document.getElementById('customerSearchBox'),
     cartTotalLabel: document.getElementById('cartTotal'),
@@ -38,6 +39,12 @@ class CartView {
         Modals.toggleModal('productQuantityEditModal');
     };
 
+    updateAgentLabel = (name = '') => {
+        if (viewElements.agentNameLabel) {
+            viewElements.agentNameLabel.textContent = name;
+        }
+    };
+
     updateCustomerListView = (data = []) => {
         templates.render('customer:list:template', {customers: data}, 'customer:list:view');
     };
@@ -55,12 +62,16 @@ class CartView {
     };
 
     updateTotals = (data = {}) => {
-        this.cartTotalLabel().textContent = Money.roundFixed(data.doc.total);
+        this.cartTotalLabel().textContent = '$' + Money.roundFixed(data.doc.total);
         this.orderItemsNumberLabel().textContent = Money.roundFixed(data.count);
         this.orderDiscountAmountInput().value = data.doc.dtopor1 ?? 0;
         this.orderDiscountAmountLabel().textContent = Money.roundFixed(data.getDiscountAmount());
         this.orderNetoLabel().textContent = Money.roundFixed(data.doc.neto);
         templates.render('cartListTemplate', data, 'cartListTemplateView');
+    };
+
+    toggleAgentSelectModal = () => {
+        Modals.toggleModal('agent:select:modal');
     };
 
     toggleCustomerSearchModal = () => {

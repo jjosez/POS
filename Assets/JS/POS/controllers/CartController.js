@@ -118,6 +118,22 @@ const CartController = {
     },
 
     /**
+     * Update the agent code on the document.
+     *
+     * @param {HTMLElement} el - The DOM element that triggered the action.
+     * @property {string} el.dataset.code - The codagente.
+     * @property {string} el.dataset.description - The agent name.
+     */
+    setAgent(el) {
+        const {code, description} = el.dataset;
+        if (!code) return;
+
+        Cart.setAgent(code);
+        CartView.updateAgentLabel(description);
+        CartView.toggleAgentSelectModal();
+    },
+
+    /**
      * Update the customer code on the document.
      *
      * @param {code, description} customer
@@ -248,6 +264,7 @@ const CartController = {
         eventDispatcher.register('cart:product:quantity:increase', this.quantityIncrease.bind(this));
         eventDispatcher.register('cart:product:add', this.addProduct.bind(this));
         eventDispatcher.register('cart:document:set', this.setDocument.bind(this));
+        eventDispatcher.register('cart:agent:set', this.setAgent.bind(this));
 
         //eventManager.on('cart:changed', this.cartChange.bind(this));
         eventManager.on('product:scanned:success', this.addProduct.bind(this));

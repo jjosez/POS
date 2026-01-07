@@ -1,20 +1,39 @@
 {% set grid = fsc.getFieldOptions() %}
+{% set config = context.config() %}
 <div class="flex h-full flex-col bg-white md:shadow-lg">
     <div class="flex flex-col gap-4 p-4">
-        <button id="documentTypeButton" class="w-full bg-gray-200 text-slate-800 btn focus:ring-gray-600"
-                data-toggle="modal"
-                data-target="document:type:modal">
-            <i class="fa fa-file-invoice"></i>
-            <span id="documentClassLabel" class="mx-2" data-view="CartView">
-                {{ context.config().getDefaultDocument().descripcion ?: trans(context.config().getDefaultDocument().tipodoc) }}
-            </span>
-            <i class="ml-auto fa fa-ellipsis-v"></i>
-        </button>
+        <div class="flex items-start justify-between gap-3">
+            <div>
+                <p class="text-xs font-semibold text-slate-500">{{ trans('document') }}</p>
+                <h2 id="documentClassLabel" class="text-lg font-bold tracking-tight">
+                    {{ config.getDefaultDocument().descripcion ?: trans(config.getDefaultDocument().tipodoc) }}
+                </h2>
+            </div>
+            <button class="btn btn-icon btn-naked" title="{{ trans('edit') }}"
+                    data-toggle="modal"
+                    data-target="document:type:modal">
+                <i class="ml-auto fa-solid fa-pencil"></i>
+            </button>
+        </div>
         <button id="customerSearchButton" class="w-full btn btn-primary"
                 data-toggle="modal" data-target="customer:search:modal">
             <i class="fa fa-user"></i>
             <span id="customerNameLabel" class="mx-2" data-view="CartView">
-                {{ context.config().getDefaultCustomer().nombre }}</span>
+                {{ config.getDefaultCustomer().nombre }}</span>
+            <i class="ml-auto fa fa-ellipsis-v"></i>
+        </button>
+        <button id="agentSelectButton"
+                class="w-full btn btn-success"
+                data-toggle="modal"
+                data-target="agent:select:modal">
+            <i class="fa fa-user-tie"></i>
+            <span id="agentNameLabel" class="mx-2" data-view="CartView">
+                {% if fsc.user.codagente %}
+                    {{ fsc.user.codagente }}
+                {% else %}
+                    {{ trans('select-agent') }}
+                {% endif %}
+            </span>
             <i class="ml-auto fa fa-ellipsis-v"></i>
         </button>
         {% for button in fsc.getCustomButtons %}
@@ -27,28 +46,27 @@
         </div>
     </div>
     <div class="flex flex-col gap-4 border-t-2 border-dashed p-4">
-        <div class="flex flex-1 items-center justify-between font-medium">
-            <button class="text-slate-800 btn btn-light" data-toggle="modal" data-target="totalsDetailModal">
-                <i class="fas fa-ellipsis-v fa-fw"></i> {{ trans('detail') }} / {{ trans('payable-amount') }}
-            </button>
-            <span id="cartTotal" class="text-right text-xl" data-view="CartView">0.000</span>
-        </div>
-        <div class="flex h-auto select-none flex-row gap-4">
-            <button class="btn btn-icon btn-light md:hidden" data-toggle="block"
-                    data-target="cartMainView" data-ontoggle="productMainView">
-                <i class="fa fa-arrow-left"></i>
-            </button>
-            <button class="flex-1 btn btn-secondary" data-action="order:draft:save">
-                <span class="mr-auto">{{ trans('hold') }}</span>
-                <i class="fa fa-hourglass-start"></i>
-            </button>
-            {% if terminal.aceptapagos %}
-                <button class="flex-1 btn btn-success" data-action="checkout:show">
-                {#<button class="flex-1 btn btn-success" data-toggle="modal" data-target="checkoutModal">#}
-                    <span class="mr-auto">{{ trans('charge') }}</span>
-                    <i class="fa fa-calculator"></i>
+        <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+                <div>
+                    <div class="text-xs font-semibold text-slate-500 uppercase">{{ trans('total') }}</div>
+                    <span id="cartTotal" class="text-2xl font-extrabold tracking-tight"
+                          data-view="CartView">$0.000</span>
+                </div>
+                <button class="btn btn-icon btn-naked" data-toggle="modal" data-target="totalsDetailModal">
+                    <i class="fas fa-chevron-up text-slate-400 group-hover:text-slate-600 text-sm"></i>
                 </button>
-            {% endif %}
+            </div>
+            <div class="flex items-center gap-2">
+                <button class="btn btn-light" data-action="order:draft:save">
+                    <span class="mr-auto">{{ trans('hold') }}</span>
+                </button>
+                {% if terminal.aceptapagos %}
+                    <button class="btn btn-success px-6 font-bold" data-action="checkout:show">
+                        <span class="mr-auto">{{ trans('charge') }}</span>
+                    </button>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
@@ -129,7 +147,7 @@
                                         <p><%= product.{{ column.data }} %></p>
                                     {% else %}
                                         <input id="cart_{{ column.data }}<%= index %>"
-                                                class="h-8 w-20 text-right p-1.5 form-control-base"
+                                               class="h-8 w-20 text-right p-1.5 form-control-base"
                                                tabindex="0"
                                                type="{{ column.type }}"
                                                value="<%= product.{{ column.data }} %>"

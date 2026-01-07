@@ -1,0 +1,38 @@
+<div id="agent:select:modal" class="modal hidden">
+    <!--content-->
+    <div class="modal-content md:modal-content-sm">
+        <!--header-->
+        <div class="modal-header">
+            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ trans('agent') }}</h2>
+            <button class="btn btn-icon btn-danger ml-2" data-toggle="modal" data-target="agent:select:modal">
+                <i class="fa fw fa-times"></i>
+            </button>
+        </div>
+        <!--body-->
+        <div class="modal-body p-0">
+            <div class="overflow-hidden">
+                <table class="w-full">
+                    <tbody id="agentSelectList" class="font-semibold text-slate-gray-700">
+                    {% for agent in fsc.getAgentsList() %}
+                        <tr class="bg-blue-100 cursor-pointer hover:bg-blue-500 hover:text-white">
+                            <td class="p-4 font-medium" data-action="cart:agent:set"
+                                data-code="{{ agent.codagente }}" data-description="{{ agent.nombre }}">
+                                <i class="fa-solid fa-user-tie fa-fw"></i>{{ agent.nombre }}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td class="m-4 p-4 w-auto bg-blue-500 text-white rounded-lg">
+                                {{ trans('no-agents-available') }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span>{{ trans('slide-to-see-more-items') }}</span>
+        </div>
+    </div>
+</div>
