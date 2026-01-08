@@ -56,7 +56,7 @@
                     <span class="font-semibold capitalize italic md:hidden">{{ trans('customer') }}:</span>
                     <%= order.nombrecliente %>
                 </div>
-                <div class="flex-1 pointer-events-none">
+                <div class="flex-1 pointer-events-none text-right">
                     <span class="font-semibold capitalize italic md:hidden">{{ trans('total') }}: </span>
                     <span class="<% if (order.total <= 0) { %>text-red-500<% } %>">
                     <%= order.total %></span>

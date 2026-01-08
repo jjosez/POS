@@ -229,6 +229,14 @@ const CartController = {
             CartView.updateDocumentClassLabel(documentClass.descripcion);
         }
 
+        // Update agent label if agent is assigned
+        if (doc.codagente) {
+            const agent = AppSettings['agents']?.find(item => item.codagente === doc.codagente);
+            if (agent) {
+                CartView.updateAgentLabel(agent.nombre);
+            }
+        }
+
         Cart.updateDocumentClass();
     },
 

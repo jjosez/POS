@@ -666,25 +666,8 @@ class POS extends BaseController
                 'templateDisplayMode' => $terminal->getProductDisplayMode()
             ],
             'supported-documents' => $terminal->getSupportedDocuments(),
-            'agents' => $this->getAgentsList()
+            'agents' => $this->context->agents()->getAgentsList()
         ];
-    }
-
-    /**
-     * Returns the list of available agents for the POS.
-     */
-    public function getAgentsList(): array
-    {
-        $agents = [];
-        foreach (Agentes::all() as $agente) {
-            if (!$agente->debaja) {
-                $agents[] = [
-                    'codagente' => $agente->codagente,
-                    'nombre' => $agente->nombre
-                ];
-            }
-        }
-        return $agents;
     }
 
     public function getPageData(): array

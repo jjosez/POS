@@ -1,14 +1,3 @@
-<div class="flex p-4">
-    <label class="flex-1 text-gray-400 input-icon">
-        <span><i class="fa fa-sm fa-search"></i></span>
-        <input type="search" id="productSearchBoxa" placeholder="{{ trans('search') }}">
-    </label>
-    <button id="productFilterButton" class="ml-2 bg-gray-200 text-slate-800 btn focus:ring-gray-600"
-            data-toggle="modal" data-target="product:filter:modal">
-        <i class="fa fa-tags"></i>
-        <span id="productFilterLabel" class="mx-2">{{ trans('filters') }}</span>
-    </button>
-</div>
 <div class="sticky top-[57px] z-30 m-4 rounded-xl bg-white p-3 ring-1 ring-slate-200">
     <div class="flex flex-col gap-2 md:flex-row md:items-center">
         <!-- Search -->
@@ -18,34 +7,6 @@
                 <input id="productSearchBox"  class="rounded-xl border border-slate-200 bg-slate-50"
                        type="search" placeholder="{{ trans('search') }} SKU, {{ trans('code') }}, {{ trans('name') }}">
             </label>
-            {#<span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-            <i class="fa-solid fa-search text-sm"></i>
-          </span>
-
-            <input id="productSearchBox"
-                   class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 p-10 text-sm outline-none
-                    focus:border-slate-300 focus:bg-white"
-                   placeholder="{{ trans('search') }} SKU, {{ trans('code') }}, {{ trans('name') }}"
-                   value="" type="search">#}
-
-            <!-- Clear button (muestra solo si hay texto) -->
-            {# <button type="button"
-                    class="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-slate-500
-                     hover:bg-slate-100 active:bg-slate-200"
-                    title="Limpiar"
-                    data-action="product:search:clear">
-                <i class="fa-solid fa-times"></i>
-            </button> #}
-
-            <!-- Optional: scan/search action -->
-
-            {# <button type="button"
-                    class="absolute right-10 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-slate-500
-                           hover:bg-slate-100 active:bg-slate-200"
-                    title="Escanear"
-                    data-action="product:search:scan">
-                <i class="fa-solid fa-barcode"></i>
-            </button> #}
         </div>
 
         <!-- Actions -->
@@ -69,7 +30,7 @@
 <div id="product:filter:family:view" class="mb-4 flex flex-wrap gap-2 px-4">
 </div>
 <div class="mb-4 flex-1 overflow-y-auto px-4">
-    <div id="product:search:list:view" role="list">
+    <div id="product:search:list:view" class="mt-1" role="list">
         {% if terminal.product_display_mode == 'grid' %}
             {{ _self.productGridView(fsc, terminal) }}
         {% elseif terminal.product_display_mode == 'list' %}
@@ -88,9 +49,6 @@
 </div>
 <script id="product:search:grid:template" type="text/template">
     <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {% if context.terminal().free_cart_lines %}
-            {{ _self.freeProductLineTemplate() }}
-        {% endif %}
         <% products.forEach(function(product){ %>
         <div role="listitem"
              class="flex flex-col rounded-lg p-4 text-xs shadow-xs product-add-btn
@@ -156,10 +114,6 @@
 
 <script id="product:search:list:template" type="text/template">
     <div class="flex flex-col gap-3">
-        {% if context.terminal().free_cart_lines %}
-            {{ _self.freeProductLineListTemplate() }}
-        {% endif %}
-
         <% products.forEach(function(product){ %>
         <div role="listitem"
              class="group rounded-lg bg-white p-3 ring-1 transition product-add-btn
@@ -281,9 +235,6 @@
 
 {% macro productGridView(fsc, terminal) %}
     <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {% if terminal.free_cart_lines %}
-            {{ _self.freeProductLineTemplate() }}
-        {% endif %}
         {% for product in fsc.getHomeProducts() %}
             <div role="listitem"
                  class="flex flex-col rounded-lg p-4 text-xs shadow-xs product-add-btn
@@ -348,10 +299,6 @@
 
 {% macro productListView(fsc, terminal) %}
     <div class="flex flex-col gap-3">
-        {% if terminal.free_cart_lines %}
-            {{ _self.freeProductLineListTemplate() }}
-        {% endif %}
-
         {% for product in fsc.getHomeProducts() %}
             {# Base card #}
             {% set cardBase = 'group rounded-lg bg-white p-3 ring-1 transition' %}
@@ -483,64 +430,5 @@
                 </div> #}
             </div>
         {% endfor %}
-    </div>
-{% endmacro %}
-
-{% macro freeProductLineTemplate() %}
-    <div role="listitem"
-         class="flex flex-col rounded-lg p-4 text-xs bg-white shadow-xs product-add-btn"
-         data-action="cart:product:add"
-         data-code=""
-         data-description="{{ trans('generic') }}">
-        <div class="relative mb-3 pointer-events-none">
-            <div class="w-full h-24 flex items-center justify-center bg-gray-100 rounded-md pointer-events-auto">
-                <i class="fas fa-tags fa-2x text-gray-400"></i>
-            </div>
-        </div>
-        <div class="flex-1 text-center mb-3">
-            <p class="italic text-gray-600">{{ trans('free-product-line') }}</p>
-        </div>
-        <div class="mt-auto pt-2 border-t border-dashed border-gray-200 flex items-center justify-between text-sm">
-            <span class="font-semibold text-blue-500">
-                <i class="fa-solid fa-tag fa-fw"></i> {{ number(0) }}
-            </span>
-            <span class="pointer-events-auto font-medium text-gray-900">
-                <i class="fa-solid fa-dolly-flatbed fa-fw pointer-events-none"></i>  &infin;
-            </span>
-        </div>
-    </div>
-{% endmacro %}
-
-{% macro freeProductLineListTemplate() %}
-    <div role="listitem"
-         class="group rounded-lg bg-white p-3 ring-1 transition ring-slate-200 hover:ring-slate-300 hover:shadow-sm active:scale-[0.99] cursor-pointer product-add-btn"
-         data-action="cart:product:add"
-         data-code=""
-         data-description="Producto Generico">
-
-        <div class="flex gap-3">
-            {# Thumbnail #}
-            <div class="relative flex h-14 w-14 xl:h-16 xl:w-16 shrink-0 items-center justify-center overflow-hidden rounded-md bg-slate-100 text-slate-400">
-                <i class="fas fa-image text-xl xl:text-2xl text-slate-300"></i>
-            </div>
-            {# Content #}
-            <div class="min-w-0 flex-1">
-                <div class="flex items-start justify-between gap-3">
-                    <div class="min-w-0">
-                        <p class="mt-0.5 text-sm font-semibold leading-snug line-clamp-2">
-                            {{ trans('free-product-line') }}
-                        </p>
-                    </div>
-                    <div class="flex-shrink-0 text-right">
-                        <div class="text-lg font-extrabold text-slate-900">
-                            {{ number(0) }}
-                        </div>
-                        <div class="mt-1 text-xs text-slate-500">
-                            {{ trans('touch-to-add') }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 {% endmacro %}

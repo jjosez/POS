@@ -8,6 +8,7 @@ namespace FacturaScripts\Plugins\POS\Lib\Core;
 
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
+use FacturaScripts\Plugins\POS\Lib\Services\Agents;
 use FacturaScripts\Plugins\POS\Lib\Services\Configuration;
 use FacturaScripts\Plugins\POS\Lib\Services\Customers;
 use FacturaScripts\Plugins\POS\Lib\Services\Families;
@@ -30,6 +31,11 @@ class Context
     {
         $this->session = $session;
         $this->terminal = $terminal;
+    }
+
+    public function agents(): Agents
+    {
+        return $this->services['agents'] ??= new Agents();
     }
 
     /**

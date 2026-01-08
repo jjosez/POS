@@ -33,6 +33,7 @@ class TerminalPuntoVenta extends ModelClass
 
     public $anchopapel;
     public $aceptapagos;
+    public $can_change_agent;
     public $codalmacen;
     public $codcliente;
     public $codserie;
@@ -41,7 +42,6 @@ class TerminalPuntoVenta extends ModelClass
     public $defaultdocument;
     public $disponible;
     public $idempresa;
-
     public $idterminal;
     public $nombre;
     public $numerotickets;

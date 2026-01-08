@@ -33,17 +33,17 @@
                     <values title="warehouse">2</values>
                 </widget>
             </column>
-             <column name="product-display-mode" numcolumns="4" order="160">
+             <column name="product-display-mode" numcolumns="2" order="160">
                 <widget type="select" fieldname="product_display_mode" translate="true" icon="fas fa-list">
                     <values title="grid">grid</values>
                     <values title="row">list</values>
                 </widget>
             </column>
-        </group>
-        <group name="extra" title="settings" numcolumns="12" valign="bottom">
-            <column name="Numero tickets" numcolumns="3" order="110">
+            <column name="ticket-copies" numcolumns="2" order="170">
                 <widget type="number" fieldname="numerotickets"/>
             </column>
+        </group>
+        <group name="extra" title="settings" numcolumns="12" valign="bottom">
             <column name="pos-checkout-available" numcolumns="2" order='120'>
                 <widget type="checkbox" fieldname="aceptapagos"/>
             </column>
@@ -53,7 +53,10 @@
             <column name="group-by-product" numcolumns="2" order='120'>
                 <widget type="checkbox" fieldname="group_cart_lines"/>
             </column>
-            <column name="enabled" title="Disponible" numcolumns="2" order="130">
+            <column name="can-change-agent" numcolumns="2" order='120'>
+                <widget type="checkbox" fieldname="can_change_agent"/>
+            </column>
+            <column name="available" title="available" numcolumns="2" order="130">
                 <widget type="checkbox" fieldname="disponible" readonly="true"/>
             </column>
         </group>

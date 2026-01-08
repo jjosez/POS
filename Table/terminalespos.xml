@@ -19,6 +19,12 @@
         <null>NO</null>
     </column>
     <column>
+        <name>can_change_agent</name>
+        <type>boolean</type>
+        <null>YES</null>
+        <null>false</null>
+    </column>
+    <column>
         <name>codalmacen</name>
         <type>character varying(4)</type>
         <null>NO</null>
