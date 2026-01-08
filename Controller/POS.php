@@ -630,6 +630,7 @@ class POS extends BaseController
     public function getAppSettings(): array
     {
         $config = $this->context->config();
+        $currency = $this->context->currency();
         $defaultCustomer = $config->getDefaultCustomer();
         $defaultDocument = $config->getDefaultDocument();
         $terminal = $this->session->getTerminal();
@@ -650,9 +651,10 @@ class POS extends BaseController
                 'draft-document' => self::DRAFT_POS_DOCUMENT
             ],
             'currency' => [
-                'divisa' => Tools::settings('default', 'coddivisa'),
-                'decimals' => Tools::settings('default', 'decimals'),
-                'separator' => Tools::settings('default', 'decimal_separator')
+                'divisa' => $currency->getCurrency()->coddivisa,
+                'decimals' => $currency->getDecimals(),
+                'separator' => $currency->getSeparator(),
+                'symbol' => $currency->getCurrency()->simbolo,
             ],
             'payment' => [
                 'codpago' => $config->getCashPaymentMethod()

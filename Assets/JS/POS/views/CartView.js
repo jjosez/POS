@@ -62,7 +62,7 @@ class CartView {
     };
 
     updateTotals = (data = {}) => {
-        this.cartTotalLabel().textContent = '$' + Money.roundFixed(data.doc.total);
+        this.cartTotalLabel().textContent = Money.roundFixed(data.doc.total);
         this.orderItemsNumberLabel().textContent = Money.roundFixed(data.count);
         this.orderDiscountAmountInput().value = data.doc.dtopor1 ?? 0;
         this.orderDiscountAmountLabel().textContent = Money.roundFixed(data.getDiscountAmount());

@@ -8,7 +8,7 @@
     <div class="h-full modal-content md:modal-content-lg">
         <div class="modal-header">
             <h2 class="text-2xl font-semibold text-slate-gray-700">{{ trans('pos-orders-on-hold') }}</h2>
-            <button class="ml-2 btn btn-icon btn-danger" data-toggle="modal" data-target="draftOrdersModal">
+            <button class="ml-2 btn btn-icon btn-naked" data-toggle="modal" data-target="draftOrdersModal">
                 <i class="fa fw fa-times"></i>
             </button>
         </div>
@@ -34,7 +34,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <span><i class="fas fa-arrow-down"></i> Deslice para ver mas registros</span>
+            <span><i class="fas fa-arrow-down"></i> {{ trans('scroll-to-more') }}</span>
         </div>
     </div>
 </div>
@@ -74,7 +74,7 @@
                     data-action="print:draft:context" data-code="<%= order.idpausada %>" data-model="BorradorPuntoVenta" data-order="">
                 <i class="fas fa-print fa-sm"></i>
             </button>
-            <button type="button" class="btn btn-icon btn-danger"
+            <button type="button" class="btn btn-icon bg-red-50 text-red-700 hover:bg-red-100 active:bg-red-200"
                     data-action="order:draft:delete" data-code="<%= order.idpausada %>">
                 <i class="fas fa-trash fa-sm"></i>
             </button>

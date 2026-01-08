@@ -18,7 +18,7 @@
                     data-target="newCustomerForm">
                 <i class="fa fw fa-user-plus fa-fw"></i>
             </button>
-            <button class="btn btn-icon btn-danger ml-2"
+            <button class="btn btn-icon btn-naked ml-2"
                     data-toggle="modal"
                     data-target="customer:search:modal">
                 <i class="fa fw fa-times"></i>
@@ -60,7 +60,7 @@
     </tr>
     <% } %>
     <% customers.forEach(function(customer){ %>
-    <tr class="cursor-pointer bg-blue-100 hover:bg-blue-500 hover:text-white">
+    <tr class="cursor-pointer bg-slate-50 hover:bg-blue-500 hover:text-white">
         <td class="p-4 font-medium add-customer-btn" data-action="cart:customer:set"
             data-code="<%= customer.code %>" data-description="<%= customer.description %>">
             <%= customer.description %>

@@ -66,8 +66,9 @@
             <div class="flex items-center gap-2">
                 <div>
                     <div class="text-xs font-semibold text-slate-500 uppercase">{{ trans('total') }}</div>
+                    {{ context.currency().getCurrency().simbolo }}
                     <span id="cartTotal" class="text-2xl font-extrabold tracking-tight"
-                          data-view="CartView">$0.000</span>
+                          data-view="CartView">0.000</span>
                 </div>
                 <button class="btn btn-icon btn-naked" data-toggle="modal" data-target="totalsDetailModal">
                     <i class="fas fa-chevron-up text-slate-400 group-hover:text-slate-600 text-sm"></i>
@@ -119,7 +120,6 @@
         <i class="fa fa-shopping-cart fa-5x text-slate-gray-300"></i>
     </div>
     <% } %>
-    <% console.log('Cart lines', lines) %>
     <% lines.forEach(function(product, index) { %>
     {{ _self.newProductLine(grid, excludedColumns, priceColumns, cartColumnCount) }}
     <% }) %>
@@ -166,10 +166,6 @@
                             {% endif %}
                         {% endif -%}
                     {% endfor %}
-                    <button class="btn rounded-lg font-normal text-slate-500 bg-slate-100 px-2 py-0.5 hover:bg-slate-200"
-                            data-action="cart:product:edit" data-index="<%= index %>">
-                        <i class="fa-solid fa-pen-to-square"></i>&nbsp;{{ trans('edit') }}
-                    </button>
                 </div>
             </div>
 
@@ -201,7 +197,7 @@
             </div>
         </div>
         <div class="col-span-12 xl:col-span-5 2xl:col-span-4 flex items-center gap-3">
-            <div class="flex flex-1 flex-row gap-2 justify-around">
+            <div class="flex flex-1 flex-row gap-2 justify-start xl:justify-evenly">
                 {% for column in grid %}
                     {% if column.data in priceColumns and column.eneabled and column.carrito and not column.readonly %}
                         {% set label = column.tittle ?: trans(column.name) %}
@@ -229,7 +225,7 @@
             <div class="ml-auto flex items-center gap-2">
                 <div class="text-right">
                     <div class="text-[11px] text-slate-500">{{ trans('line-total') }}</div>
-                    <div class="text-base font-extrabold text-slate-900">$<%= product.pvptotaliva %></div>
+                    <div class="text-base font-extrabold text-slate-900">$ <%= product.pvptotaliva %></div>
                 </div>
                 <button class="h-8 w-8 text-xs btn btn-icon bg-red-50 text-red-700 hover:bg-red-100 active:bg-red-200 focus:ring-1"
                         data-action="cart:product:delete"

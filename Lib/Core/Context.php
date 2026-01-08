@@ -10,6 +10,7 @@ use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Plugins\POS\Lib\Services\Agents;
 use FacturaScripts\Plugins\POS\Lib\Services\Configuration;
+use FacturaScripts\Plugins\POS\Lib\Services\Currencies;
 use FacturaScripts\Plugins\POS\Lib\Services\Customers;
 use FacturaScripts\Plugins\POS\Lib\Services\Families;
 use FacturaScripts\Plugins\POS\Lib\Services\Payments;
@@ -54,6 +55,11 @@ class Context
     public function config(): Configuration
     {
         return $this->services['config'] ??= new Configuration($this->terminal);
+    }
+
+    public function currency(): Currencies
+    {
+        return $this->services['currency'] ??= new Currencies();
     }
 
     /**

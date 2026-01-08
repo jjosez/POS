@@ -122,7 +122,6 @@ const ProductController = {
     },
 
     handleCustomerChanged({code}) {
-        console.log('Customer changed', code);
         searchFilter.setCustomer(code);
 
         this.handleFilterChanged(searchFilter);
