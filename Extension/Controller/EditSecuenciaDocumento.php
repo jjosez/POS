@@ -16,6 +16,19 @@ class EditSecuenciaDocumento
     public function createViews(): Closure
     {
         return function () {
+            $column = $this->views[$this->getMainViewName()]->columnForName('doc-type');
+
+            if ($column && $column->widget->getType() === 'select') {
+                $values = array_merge($column->widget->values, [
+                    [
+                        'value' => 'BorradorPuntoVenta',
+                        'title' => 'pos-draft'
+                    ],
+                ]);
+
+                $column->widget->setValuesFromArray($values);
+            }
+
             $this->createViewsDocuments('ListBorradorPuntoVenta', 'BorradorPuntoVenta', 'cash-register');
         };
     }
