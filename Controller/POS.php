@@ -11,7 +11,6 @@ use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\KernelException;
 use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Core\DataSrc\Agentes;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\POS\Lib\Core\BaseController;
@@ -599,11 +598,6 @@ class POS extends BaseController
         $this->session->getTerminal($id);
 
         $this->setupContext();
-    }
-
-    public function getAvalibleTerminals()
-    {
-        return $this->context->terminal()->getAvailable($this->user->idempresa);
     }
 
     // ========================================================================

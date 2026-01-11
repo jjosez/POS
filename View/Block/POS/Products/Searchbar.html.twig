@@ -1,0 +1,29 @@
+<div class="sticky top-[57px] z-30 m-4 rounded-xl bg-white">
+    <div class="flex flex-col gap-2 md:flex-row md:items-center">
+        <!-- Search -->
+        <div class="relative flex-1">
+            <label class="flex-1 text-gray-400 input-icon">
+                <span><i class="fa fa-sm fa-search"></i></span>
+                <input id="productSearchBox" class="rounded-xl border border-slate-200 bg-slate-50"
+                       type="search" placeholder="{{ trans('search') }} SKU, {{ trans('code') }}, {{ trans('name') }}">
+            </label>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-2">
+            <button class="btn btn-light rounded-lg text-sm font-semibold gap-2"
+                    data-toggle="modal" data-target="product:filter:modal">
+                <i class="fa-solid fa-filter text-slate-500"></i> {{ trans('filters') }}
+            </button>
+            {% if context.terminal().free_cart_lines %}
+                <button class="btn gap-2 rounded-lg bg-slate-900 text-sm font-extrabold text-white
+                     hover:bg-slate-800 active:bg-slate-950"
+                        data-action="cart:product:add"
+                        data-code=""
+                        data-description="{{ trans('generic') }}">
+                    <i class="fa-solid fa-plus-circle"></i> {{ trans('free-product-line') }}
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</div>

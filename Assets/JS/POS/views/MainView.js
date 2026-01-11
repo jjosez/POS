@@ -4,6 +4,7 @@
  */
 
 import EventManager from "../core/EventManager.js";
+import EventDispatcher from "../core/EventDispatcher.js";
 import Modals from "../components/Modals.js";
 import templates from "./TemplateManger.js";
 import * as Core from "../Core.js";
@@ -191,9 +192,23 @@ function cleanMessages() {
     }, 1000);
 }
 
+function handleViewPaneChange(el) {
+    const cart = document.getElementById('cartPane');
+    const products = document.getElementById('productsPane');
+    const showCart = el.dataset.action === 'view:cart:pane';
+
+    cart.classList.toggle('hidden', !showCart);
+    cart.classList.toggle('flex', showCart);
+    products.classList.toggle('hidden', showCart);
+    products.classList.toggle('flex', !showCart);
+}
+
 const mainViewInstance = () => Object.freeze(new MainView());
 
 EventManager.on('cart:updated', mainViewInstance().updateView);
 EventManager.on('responseMessages', showMessages);
+
+EventDispatcher.register('view:cart:pane', handleViewPaneChange.bind(this));
+EventDispatcher.register('view:products:pane', handleViewPaneChange.bind(this));
 
 export default mainViewInstance();

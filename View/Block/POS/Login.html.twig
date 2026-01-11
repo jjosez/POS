@@ -55,7 +55,8 @@
                         <input type="hidden" name="action" value="terminal:open"/>
                         <input name="multireqtoken" type="hidden" value="{{ fsc.getNewToken() }}">
                         <p class="mb-3">{{ i18n.trans('select-cash-register') }}</p>
-                        {% for terminal in fsc.getAvalibleTerminals() %}
+                        {% set availableTerminals = terminal.getAvailable(fsc.user.idempresa) %}
+                        {% for terminal in availableTerminals %}
                             <div class="flex flex-col w-full">
                                 <div class="py-2 mx-auto">
                                     <button class="btn btn-primary" name="terminal"

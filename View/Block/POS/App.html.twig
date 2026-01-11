@@ -1,0 +1,125 @@
+{# /**
+ *  This file is part of POS plugin for FacturaScripts
+ *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */ #}
+{% extends 'Master/POS.html.twig' %}
+{% import 'Macro/POS.html.twig' as pos %}
+
+{% set grid = fsc.getFieldOptions() %}
+{% block body %}
+    <!-- App frame -->
+    <div class="antialiased flex h-[100dvh] w-full overflow-hidden">
+
+        <!-- Main layout -->
+        <div class="flex w-full min-h-0 flex-col md:flex-row">
+
+            <!-- PRODUCTS -->
+            <section id="productsPane" class="flex w-full md:w-1/2 bg-slate-50 flex-col min-h-0 h-full">
+
+                <!-- Products navbar / search -->
+                <div class="shrink-0 border-b border-slate-200 bg-white">
+                    {% include 'Block/POS/Products/Navbar.html.twig' %}
+                    {% include 'Block/POS/Products/Searchbar.html.twig' %}
+                </div>
+
+                <!-- Products list (scroll) -->
+                <div class="flex-1 min-h-0 overflow-auto">
+                    {% include 'Block/POS/Products/Content.html.twig' %}
+                </div>
+
+            </section>
+
+            <!-- CART -->
+            <aside id="cartPane"
+                   class="hidden md:flex w-full md:w-1/2 bg-white md:border-r border-slate-200
+                   flex-col min-h-0 h-full shadow-sm">
+
+                <!-- Cart header (no scroll) -->
+                <div class="shrink-0">
+                    {% include 'Block/POS/Cart/Header.html.twig' %}
+                </div>
+
+                <!-- Cart content (scroll) -->
+                <div class="flex-1 min-h-0 overflow-auto pb-20 md:pb-0">
+                    {% include 'Block/POS/Cart/Content.html.twig' %}
+                </div>
+
+                <!-- Cart footer / payment bar -->
+                <div class="shrink-0 border-t border-slate-200">
+                    {% include 'Block/POS/Cart/Footer.html.twig' %}
+                </div>
+
+            </aside>
+
+            <div class="md:hidden sticky bottom-0 z-40 bg-white border-t border-slate-200 p-2">
+                <div class="grid grid-cols-2 gap-2">
+                    <button
+                            class="rounded-xl bg-slate-900 px-3 py-2 text-sm font-extrabold text-white"
+                            data-action="view:products:pane">
+                        Productos
+                    </button>
+
+                    <button
+                            class="rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700"
+                            data-action="view:cart:pane">
+                        Carrito
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block modals %}
+    {{ include('Modal/POS/AgentSelect.html.twig') }}
+    {{ include('Modal/POS/CashMovments.html.twig') }}
+    {{ include('Modal/POS/Checkout.html.twig') }}
+    {{ include('Modal/POS/CloseSession.html.twig') }}
+    {{ include('Modal/POS/CustomerSearch.html.twig') }}
+    {{ include('Modal/POS/DocumentDetail.html.twig') }}
+    {{ include('Modal/POS/DocumentType.html.twig') }}
+    {{ include('Modal/POS/DraftDocuments.html.twig') }}
+    {{ include('Modal/POS/LastOrders.html.twig') }}
+    {{ include('Modal/POS/LoadingDialog.html.twig') }}
+    {{ include('Modal/POS/ContextAction.html.twig') }}
+    {{ include('Modal/POS/ProductEdit.html.twig') }}
+    {{ include('Modal/POS/ProductQuantity.html.twig') }}
+    {{ include('Modal/POS/ProductFilter.html.twig') }}
+    {{ include('Modal/POS/ProductStockDetail.html.twig') }}
+    {{ include('Modal/POS/ProductImages.html.twig') }}
+    {# {{ include('Modal/POS/ReturnSale.html.twig') }} #}
+    {{ include('Modal/POS/User.html.twig') }}
+    {% for includeView in getIncludeViews('POS', 'modals') %}
+        {% include includeView['path'] %}
+    {% endfor %}
+{% endblock %}
+
+{% block js %}
+    <script id="messageListTemplate" type="text/template">
+        <% it.messages.forEach(function(message){ %>
+        <div class="alert alert-<%= message.type %>" role="alert">
+            <%~ message.message %>
+        </div>
+        <% }) %>
+    </script>
+    {{ parent() }}
+    <audio id="beepAudio" src="{{ asset('Dinamic/Assets/Sounds/beep.mp3') }}" preload="auto"></audio>
+    <script src="{{ asset('Dinamic/Assets/JS/vendor/onscan.min.js?v=1') }}"></script>
+    <script type="module" src="{{ asset('Dinamic/Assets/JS/POS/App.js') }}?v={{ 'now' | date('ymd') }}"></script>
+    <script type="application/javascript">
+        const AppSettings = {{ fsc.getAppSettings()|json_encode|raw }};
+
+        window.POS = {
+            'customActions': [],
+            'customFields': []
+        }
+
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-action="view:products"],[data-action="view:cart"]');
+            if (!btn) return;
+
+
+        });
+    </script>
+{% endblock %}

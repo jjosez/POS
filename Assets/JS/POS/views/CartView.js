@@ -67,7 +67,7 @@ class CartView {
         this.orderDiscountAmountInput().value = data.doc.dtopor1 ?? 0;
         this.orderDiscountAmountLabel().textContent = Money.roundFixed(data.getDiscountAmount());
         this.orderNetoLabel().textContent = Money.roundFixed(data.doc.neto);
-        templates.render('cartListTemplate', data, 'cartListTemplateView');
+        templates.render('cart:list:template', data, 'cart:list:template:view');
     };
 
     toggleAgentSelectModal = () => {

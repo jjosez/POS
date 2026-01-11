@@ -7,6 +7,7 @@
 {% extends 'Master/MicroTemplate.html.twig' %}
 {% set context = fsc.getContext() %}
 {% set terminal = context.terminal() %}
+{% set config = context.config() %}
 {% block meta -%}
     {{ parent() }}
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="white">
@@ -24,9 +25,9 @@
 {% block javascripts %}
 {% endblock %}
 {% block fullBody %}
-    <body class="bg-slate-100 text-slate-800">
+    <body class="bg-slate-100 text-slate-800 min-h-[100dvh]">
     {% block messages %}
-        <div id="messageListTemplateView" class="opacity-90 alert-container" style="z-index:99999;">
+        <div id="messageListTemplateView" class="opacity-90 alert-container pointer-events-none" style="z-index:99999;">
             {{- _self.alert(log, ['warning', 'error', 'critical'], 'warning') -}}
             {{- _self.alert(log, ['notice'], 'success') -}}
             {{- _self.alert(log, ['info'], 'info') -}}
