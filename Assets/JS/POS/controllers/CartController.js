@@ -53,17 +53,7 @@ const CartController = {
         const row = el.closest('.cart-line');
         if (!row) return;
 
-        const index = Number(row.dataset.index);
-
-        // Clear previous selection
-        document
-            .querySelectorAll('.cart-line[aria-selected="true"]')
-            .forEach(r => r.setAttribute('aria-selected', 'false'));
-
-        // Current cart line
-        row.setAttribute('aria-selected', 'true');
-
-        EventManager.emit('cart:line:select:request', index);
+        this.setSelectedIndex(row.dataset.index);
     },
 
     /**
@@ -75,6 +65,14 @@ const CartController = {
     deleteProduct(el) {
         const {index} = el.dataset;
         Cart.deleteProduct(index);
+
+        if (!Cart.lines.length) {
+            this.clearSelection();
+            return;
+        }
+
+        const next = Math.min(Number(index), Cart.lines.length - 1);
+        this.setSelectedIndex(next);
     },
 
     /**
@@ -85,6 +83,8 @@ const CartController = {
      */
     editProduct(el) {
         const {index} = el.dataset;
+        if (index === null || index === undefined) return;
+
         const item = Cart.getProduct(index);
         CartView.showProductEditModal(item);
     },
@@ -124,11 +124,12 @@ const CartController = {
      */
     quantityDecrease(el) {
         const {index} = el.dataset;
+        if (index === null || index === undefined) return;
+
         const product = Cart.getProduct(index);
         const value = Math.max(product.cantidad - 1, 0);
 
         CartController.editProductField({dataset: {index, field: 'cantidad'}}, value);
-        EventManager.emit('cart:line:select:request', index);
     },
 
 
@@ -140,11 +141,12 @@ const CartController = {
      */
     quantityIncrease(el) {
         const {index} = el.dataset;
+        if (index === null || index === undefined) return;
+
         const product = Cart.getProduct(index);
         const value = product.cantidad + 1;
 
         CartController.editProductField({dataset: {index, field: 'cantidad'}}, value);
-        EventManager.emit('cart:line:select:request', index);
     },
 
     /**
@@ -235,9 +237,7 @@ const CartController = {
         }
 
         CartController.playBeepSound();
-        /*
-                const lastIndex = Cart.lines.length - 1;
-                EventManager.emit('cart:line:selected', lastIndex);*/
+        this.setSelectedIndex(0);
     },
 
     /**
@@ -335,6 +335,21 @@ const CartController = {
         this.showLineToolbar(this.selectedIndex);
     },
 
+    hideLineToolbar() {
+        const bar = document.getElementById('cartLineToolbar');
+        if (bar) bar.classList.add('hidden');
+    },
+
+    clearSelection() {
+        this.selectedIndex = null;
+
+        document
+            .querySelectorAll('.cart-line[aria-selected="true"]')
+            .forEach(r => r.setAttribute('aria-selected', 'false'));
+
+        this.hideLineToolbar();
+    },
+
     init() {
         EventDispatcher.register('cart:product:delete', this.deleteProduct.bind(this));
         EventDispatcher.register('cart:product:edit', this.editProduct.bind(this));
@@ -347,6 +362,7 @@ const CartController = {
         EventDispatcher.register('cart:line:selection:change', this.cartLineSelectionChange.bind(this));
 
         //eventManager.on('cart:changed', this.cartChange.bind(this));
+        EventManager.on('cart:line:select', (idx) => this.setSelectedIndex(idx));
         EventManager.on('product:scanned:success', this.addProduct.bind(this));
         EventManager.on('cart:updated', this.cartUpdateTotals.bind(this));
         EventManager.on('customer:changed', this.setCustomer.bind(this));
@@ -356,80 +372,41 @@ const CartController = {
             this.update(result);
         });
 
-
-        let pendingSelectIndex = null;
-        let applyingSelection = false;
-
-        EventManager.on('cart:line:select:request', (index) => {
-            pendingSelectIndex = Number(index);
-        });
-
         EventManager.on('cart:rendered', () => {
-            if (pendingSelectIndex === null) return;
-            if (applyingSelection) return;
-
-            const idx = Number(pendingSelectIndex);
-
-            const row = document.querySelector(`.cart-line[data-index="${idx}"]`);
-            if (!row) return;
-
-            applyingSelection = true;
-            try {
-                // ahora sí: ya existe -> consumimos pending
-                pendingSelectIndex = null;
-
-                document
-                    .querySelectorAll('.cart-line[aria-selected="true"]')
-                    .forEach(r => r.setAttribute('aria-selected', 'false'));
-
-                row.setAttribute('aria-selected', 'true');
-                row.focus?.({preventScroll: true});
-                row.scrollIntoView?.({behavior: 'smooth', block: 'nearest'});
-
-                // toolbar aquí es más seguro (cuando ya se aplicó)
-                this.showLineToolbar(idx);
-
-                EventManager.emit('cart:line:selected', idx);
-            } finally {
-                applyingSelection = false;
-            }
+            this.applySelection();
         });
 
         EventDispatcher.register('cart:line:toolbar:edit', () => {
-            if (pendingSelectIndex == null) return;
-            EventManager.emit('cart:line:edit', pendingSelectIndex);
+            this.editProduct({dataset: {index: this.selectedIndex}});
         });
 
         EventDispatcher.register('cart:line:toolbar:delete', () => {
-            if (pendingSelectIndex == null) return;
-            EventManager.emit('cart:line:delete', pendingSelectIndex);
+            this.deleteProduct({dataset: {index: this.selectedIndex}});
         });
 
         EventDispatcher.register('cart:line:toolbar:qty:increase', () => {
-            if (pendingSelectIndex == null) return;
-            EventManager.emit('cart:line:qty:increase', pendingSelectIndex);
+            this.quantityIncrease({dataset: {index: this.selectedIndex}})
         });
 
         EventDispatcher.register('cart:line:toolbar:qty:decrease', () => {
-            if (pendingSelectIndex == null) return;
-            EventManager.emit('cart:line:qty:decrease', pendingSelectIndex);
+            this.quantityDecrease({dataset: {index: this.selectedIndex}})
         });
 
 
         EventManager.on('cart:line:edit', (index) => {
-            document.querySelector(`[data-action="cart:product:edit"][data-index="${index}"]`)?.click();
+            this.editProduct({dataset: {index: index}});
         });
 
         EventManager.on('cart:line:delete', (index) => {
-            document.querySelector(`[data-action="cart:product:delete"][data-index="${index}"]`)?.click();
+            this.deleteProduct({dataset: {index: index}});
         });
 
         EventManager.on('cart:line:qty:increase', (index) => {
-            document.querySelector(`[data-action="cart:product:quantity:increase"][data-index="${index}"]`)?.click();
+            this.quantityIncrease({dataset: {index: index}})
         });
 
         EventManager.on('cart:line:qty:decrease', (index) => {
-            document.querySelector(`[data-action="cart:product:quantity:decrease"][data-index="${index}"]`)?.click();
+            this.quantityDecrease({dataset: {index: index}})
         });
 
         document.addEventListener('change', (event) => {

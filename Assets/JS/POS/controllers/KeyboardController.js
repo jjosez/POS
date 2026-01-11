@@ -23,7 +23,7 @@ const KeyboardController = {
         row.setAttribute('aria-selected', 'true');
         row.focus({ preventScroll: true });
 
-        EventManager.emit('cart:line:select:request', idx);
+        EventManager.emit('cart:line:select', idx);
         return true;
     },
 

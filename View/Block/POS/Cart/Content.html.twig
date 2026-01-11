@@ -1,4 +1,4 @@
-<div id="cart:list:template:view" class="flex-1 px-4 divide-y-2 divide-dotted flex flex-col h-full">
+<div id="cart:list:template:view" class="flex-1 divide-y-2 divide-dotted flex flex-col h-full">
     <div class="flex flex-1 items-center justify-center">
         <i class="fa fa-shopping-cart fa-5x text-slate-300"></i>
     </div>
@@ -9,17 +9,6 @@
     {% set excludedColumns = ['referencia', 'descripcion', 'cantidad'] %}
     {% set priceColumns = ['pvpunitario', 'pvpunitarioiva'] %}
 
-    <div class="flex text-xs mb-1.5">
-        <div class="flex-1 text-center">
-            <span class="font-semibold">{{ trans('product') }}</span>
-        </div>
-        <div class="w-32 text-center">
-            <span class="font-semibold">{{ trans('line-total') }}</span>
-        </div>
-        <div class="h-8 w-8 content-center text-right">
-            <span class="font-semibold"><i class="fas fa-trash"></i></span>
-        </div>
-    </div>
     <% if(lines.length === 0) { %>
     <div class="flex h-full items-center justify-center">
         <i class="fa fa-shopping-cart fa-5x text-slate-300"></i>
@@ -27,16 +16,17 @@
     <% } %>
     <% lines.forEach(function(product, index) { %>
     {{ _self.newProductLine(grid, excludedColumns, priceColumns, cartColumnCount) }}
+     {#{{ _self.newLineMockup() }}#}
     <% }) %>
 </script>
 
 {% macro newProductLine(grid, excludedColumns, priceColumns, cartColumnCount) %}
-    <div class="cart-line grid grid-cols-12 items-center gap-3 py-2 cursor-pointer hover:bg-slate-50"
+    <div class="cart-line grid grid-cols-12 items-center gap-3 py-2 px-4 cursor-pointer hover:bg-slate-50"
          data-action="cart:line:selection:change"
          data-index="<%= index %>"
          aria-selected="false">
         <!-- Producto -->
-        <div class="col-span-12 xl:col-span-7 2xl:col-span-8 flex items-center gap-3 min-w-0">
+        <div class="col-span-7 xl:col-span-7 2xl:col-span-7 flex items-center gap-3 min-w-0">
             <!-- Thumbnail -->
             <% if (product.thumbnail) { %>
             <img class="pointer-events-auto h-12 w-12 shrink-0 rounded-xl object-cover" src="<%= product.thumbnail %>"
@@ -65,58 +55,47 @@
                     {% for column in grid %}
                         {% if column.data not in excludedColumns and column.eneabled and column.carrito and column.readonly %}
                             {% set label = column.tittle ?: trans(column.name) %}
-                            {% if column.name == 'price-with-tax' or column.name == 'price' %}
+                            {# {% if column.name == 'price-with-tax' or column.name == 'price' %}
                                 <span class="font-extrabold rounded-full bg-slate-100 px-2 py-0.5">
                                     {{ label }}: <%= product.{{ column.data }} %>
                                 </span>
                             {% else %}
                                 <span class="rounded-full bg-slate-100 px-2 py-0.5">{{ label }}: <%= product.{{ column.data }} %></span>
-                            {% endif %}
+                            {% endif %} #}
+                            <div class="mt-1 text-xs text-slate-500">
+                                <span class="text-slate-400">{{ label }}: </span>
+                                <span class="font-semibold text-slate-700"><%= product.{{ column.data }} %></span>
+                            </div>
+                            {#<span class="rounded-full bg-slate-100 px-2 py-0.5">{{ label }}: <%= product.{{ column.data }} %></span>#}
                         {% endif -%}
                     {% endfor %}
                 </div>
             </div>
 
             <!-- Cantidad -->
-            <div class="flex gap-2 text-xs items-end">
-                <button class="h-8 w-8 text-center btn btn-icon btn-light"
-                        data-action="cart:product:edit" data-index="<%= index %>">
-                    <i class="fas fa-pen-alt"></i>
-                </button>
-                <div class="w-28 flex-col">
-                    <div class="h-4 text-[11px] text-slate-500">
-                        {{ trans('quantity') }}
-                    </div>
-                    <div class="flex">
-                        <button class="h-8 w-8 rounded-r-none btn btn-icon btn-light"
-                                data-action="cart:product:quantity:decrease" data-index="<%= index %>">
-                            <i class="fa fw fa-minus"></i>
-                        </button>
-                        <input type="number" id="cart_quantity<%= index %>"
-                               class="h-8 w-full rounded-none p-1.5 form-control-base font-bold text-center text-sm"
-                               value="<%= product.cantidad %>"
-                               data-action="cart:product:field:edit" data-index="<%= index %>" data-field="cantidad">
-                        <button class="h-8 w-8 rounded-l-none btn btn-icon btn-light"
-                                data-action="cart:product:quantity:increase" data-index="<%= index %>">
-                            <i class="fa fw fa-plus"></i>
-                        </button>
-                    </div>
+            <div class="w-20 flex-col">
+                <div class="h-4 text-[11px] font-semibold text-slate-500">
+                    {{ trans('quantity') }}
                 </div>
+                <input type="number" id="cart_quantity<%= index %>"
+                       class="form-control-base p-1.5 w-full rounded-lg text-right text-sm bg-white"
+                       value="<%= product.cantidad %>"
+                       data-action="cart:product:field:edit" data-index="<%= index %>" data-field="cantidad">
             </div>
         </div>
-        <div class="col-span-12 xl:col-span-5 2xl:col-span-4 flex items-center gap-3">
+        <div class="col-span-5 xl:col-span-5 flex items-center gap-3">
             <div class="flex flex-1 flex-row gap-2 justify-start xl:justify-evenly">
                 {% for column in grid %}
                     {% if column.data in priceColumns and column.eneabled and column.carrito and not column.readonly %}
                         {% set label = column.tittle ?: trans(column.name) %}
-                        <div class="flex-col w-28">
-                            <div class="text-[11px] text-slate-500">{{ label }}</div>
+                        <div class="flex-col w-24">
+                            <div class="h-4 text-[11px] font-semibold text-slate-500">{{ label }}</div>
                             {% if column.readonly %}
                                 <div class="text-sm font-extrabold text-slate-900"><%= product.{{ column.data }}%>
                                 </div>
                             {% else %}
                                 <input id="cart_{{ column.data }}<%= index %>"
-                                       class="form-control-base p-1.5 w-full rounded-xl text-right text-sm font-bold"
+                                       class="form-control-base p-1.5 w-full rounded-lg text-right text-sm font-bold bg-white"
                                        tabindex="0"
                                        inputmode="decimal"
                                        type="{{ column.type }}"
@@ -132,15 +111,116 @@
             <!-- Total + Delete -->
             <div class="ml-auto flex items-center gap-2">
                 <div class="text-right">
-                    <div class="text-[11px] text-slate-500">{{ trans('line-total') }}</div>
-                    <div class="text-base font-extrabold text-slate-900">$ <%= product.pvptotaliva %></div>
+                    <div class="h-4 text-[11px] font-semibold text-slate-500">{{ trans('line-total') }}</div>
+                    <div class="text-lg font-extrabold tracking-tight text-slate-900">$ <%= product.pvptotaliva %></div>
                 </div>
-                <button class="h-8 w-8 text-xs btn btn-icon bg-red-50 text-red-700 hover:bg-red-100 active:bg-red-200 focus:ring-1"
-                        data-action="cart:product:delete"
-                        data-index="<%= index %>">
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+{% macro newLineMockup() %}
+    <!-- CART LINE (Mockup recomendado) -->
+    <div class="rounded-xl bg-white ring-1 ring-slate-200 p-3">
+        <div class="grid grid-cols-12 gap-3 items-start">
+            <!-- Thumbnail -->
+            <div class="col-span-2 sm:col-span-1">
+                <button type="button"
+                        class="h-12 w-12 overflow-hidden rounded-xl bg-slate-100 ring-1 ring-slate-200 flex items-center justify-center text-slate-400"
+                        title="Ver imagen">
+                    <i class="fa-regular fa-image text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Product info -->
+            <div class="col-span-10 sm:col-span-6 min-w-0">
+                <div class="flex items-center gap-2 min-w-0">
+                    <span class="text-xs font-semibold text-slate-500 truncate">FLR-FOI-00002</span>
+                    <!-- optional small badge -->
+                    <span class="hidden sm:inline-flex rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700">
+          IVA 16%
+        </span>
+                </div>
+
+                <div class="mt-0.5 line-clamp-2 text-sm font-semibold text-slate-900">
+                    FILTRO DE ACEITE AVEO
+                </div>
+
+                <!-- Secondary line: qty × unit -->
+                <div class="mt-1 text-xs text-slate-500">
+                    <span class="font-semibold text-slate-700">5</span> ×
+                    <span class="font-semibold text-slate-700">$348.00</span>
+                    <span class="text-slate-400">c/ impuestos</span>
+                </div>
+
+                <!-- Optional actions (keep subtle) -->
+                <div class="mt-2 flex flex-wrap items-center gap-2">
+                    <button type="button"
+                            class="rounded-lg bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700
+                       hover:bg-slate-200 active:bg-slate-300"
+                            title="Editar detalles">
+                        <i class="fa-solid fa-pen-to-square"></i> Editar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Editors: qty + unit -->
+            <div class="col-span-12 sm:col-span-3">
+                <div class="grid grid-cols-2 gap-2">
+                    <!-- Qty -->
+                    <div>
+                        <div class="h-4 text-[11px] font-semibold text-slate-500">Cantidad</div>
+                        <div class="flex items-center overflow-hidden rounded-xl ring-1 ring-slate-200 bg-white">
+                            <button class="w-10 py-2 text-lg font-bold text-slate-700 hover:bg-slate-50 active:bg-slate-100"
+                                    aria-label="menos">−
+                            </button>
+                            <input type="number"
+                                   class="w-full bg-white px-2 py-2 text-center text-sm font-extrabold text-slate-900 outline-none
+                          focus:ring-4 focus:ring-slate-400/20"
+                                   value="5">
+                            <button class="w-10 py-2 text-lg font-bold text-slate-700 hover:bg-slate-50 active:bg-slate-100"
+                                    aria-label="más">+
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Unit price (captura) -->
+                    <div>
+                        <div class="h-4 text-[11px] font-semibold text-slate-500">Precio c/IVA</div>
+                        <div class="flex items-center gap-2 justify-end">
+                            <div class="relative w-full">
+                                <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">$</span>
+                                <input type="number"
+                                       class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 pl-7 text-right text-sm font-extrabold text-slate-900
+                            outline-none focus:border-slate-300 focus:ring-4 focus:ring-slate-400/20"
+                                       value="348.00"
+                                       inputmode="decimal">
+                            </div>
+                        </div>
+
+                        <!-- Hint del otro precio (solo si quieres) -->
+                        <div class="mt-1 text-right text-[11px] text-slate-500">
+                            Base: $300.00
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total + delete -->
+            <div class="col-span-12 sm:col-span-2 flex items-start justify-between sm:justify-end gap-3">
+                <div class="text-left sm:text-right">
+                    <div class="h-4 text-[11px] font-semibold text-slate-400">Total línea</div>
+                    <div class="text-xl font-extrabold tracking-tight text-slate-900">$1,740.00</div>
+                </div>
+
+                <button type="button"
+                        class="inline-flex h-10 w-10 items-center justify-center rounded-xl
+                     bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-700 active:bg-red-200
+                     focus:outline-none focus:ring-4 focus:ring-red-500/20"
+                        title="Eliminar">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </div>
         </div>
     </div>
 {% endmacro %}
+

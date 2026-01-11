@@ -84,7 +84,7 @@ class SessionManager
      */
     public function getView(): string
     {
-        return $this->isOpen() ? '/Block/POS/Main' : '/Block/POS/Login';
+        return $this->isOpen() ? '/Block/POS/App' : '/Block/POS/Login';
     }
 
     /**
