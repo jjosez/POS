@@ -22,11 +22,11 @@ class EventDispatcher {
         }
     }
 
-    dispatch(action, el) {
+    dispatch(action, el, event) {
         if (this.listeners[action]) {
-            this.listeners[action].forEach(handler => handler(el));
-        } else {
-            if (this.debug) console.warn(`⚠️ No handler registered for action: ${action}`);
+            this.listeners[action].forEach(handler => handler(el, event));
+        } else if (this.debug) {
+            console.warn(`⚠️ No handler registered for action: ${action}`);
         }
     }
 
@@ -38,14 +38,15 @@ class EventDispatcher {
         this._listening = true;
 
         document.addEventListener('click', (event) => {
-            const action = event.target.dataset.action;
-            if (action) {
-                this.dispatch(action, event.target);
-            }
+            const el = event.target.closest('[data-action]');
+            if (!el) return;
+
+            const action = el.dataset.action;
+            this.dispatch(action, el, event);
         });
     }
 }
 
 const dispatcher = new EventDispatcher();
-dispatcher.debug = false;
+dispatcher.debug = true;
 export default dispatcher;

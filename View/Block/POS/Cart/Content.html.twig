@@ -31,26 +31,10 @@
 </script>
 
 {% macro newProductLine(grid, excludedColumns, priceColumns, cartColumnCount) %}
-    <div class="cart-line grid grid-cols-12 items-center gap-3 py-2 rounded-xl cursor-pointer
-            hover:bg-slate-50"
-         data-action="cart:line:select"
-         data-index="{{ index }}"
-         aria-selected="true">
-        <div class="col-span-12 xl:col-span-7 2xl:col-span-8 flex items-center gap-3 min-w-0">
-            <% if (product.thumbnail) { %>
-            <img class="pointer-events-auto h-12 w-12 shrink-0 rounded-xl object-cover" src="<%= product.thumbnail %>"
-                 alt="<%= product.referencia %>"
-                 data-action="product:image:show"
-                 data-id="<%= product.idproducto %>"
-                 data-code="<%= product.referencia %>">
-            <% } else { %>
-            <div class="h-12 w-12 shrink-0 rounded-xl bg-slate-100 ring-1 ring-slate-200 flex items-center justify-center text-slate-400">
-                <div class="w-16 text-center"><i class="fa-regular fa-image text-xl "></i></div>
-            </div>
-            <% } %>
-        </div>
-    </div>
-    <div class="grid grid-cols-12 items-center gap-3 py-2">
+    <div class="cart-line grid grid-cols-12 items-center gap-3 py-2 cursor-pointer hover:bg-slate-50"
+         data-action="cart:line:selection:change"
+         data-index="<%= index %>"
+         aria-selected="false">
         <!-- Producto -->
         <div class="col-span-12 xl:col-span-7 2xl:col-span-8 flex items-center gap-3 min-w-0">
             <!-- Thumbnail -->

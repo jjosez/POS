@@ -5,6 +5,7 @@
 import CartController from "./controllers/CartController.js";
 import CheckoutController from "./controllers/CheckoutController.js";
 import CustomerController from "./controllers/CustomerController.js";
+import KeyboardController from "./controllers/KeyboardController.js";
 import OrderController from "./controllers/OrderController.js";
 import PrintController from "./controllers/PrintController.js";
 import ProductController from "./controllers/ProductController.js";
@@ -20,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     CheckoutController.init();
     CartController.init();
     CustomerController.init();
+    KeyboardController.init();
     OrderController.init();
     PrintController.init();
     ProductController.init();

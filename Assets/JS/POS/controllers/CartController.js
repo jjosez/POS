@@ -1,7 +1,7 @@
 import CartModel from '../models/CartModel.js';
 import CartView from '../views/CartView.js';
-import eventDispatcher from '../core/EventDispatcher.js';
-import eventManager from '../core/EventManager.js';
+import EventDispatcher from '../core/EventDispatcher.js';
+import EventManager from '../core/EventManager.js';
 
 const Cart = new CartModel({
     'doc': {
@@ -38,6 +38,32 @@ const CartController = {
 
     isDraftOrder(code) {
         return parseInt(code, 10) === parseInt(Cart.doc.idpausada, 10);
+    },
+
+    /**
+     * Select a cart line using the provided element's dataset index'.
+     *
+     * @param {HTMLElement} el - The DOM element that triggered the action.
+     * @property {string} el.dataset.index - The index of the product to delete.
+     */
+    cartLineSelectionChange(el) {
+        // Avoid selection if triggered by buttons/inputs
+        if (el.closest('[data-stop="1"]')) return;
+
+        const row = el.closest('.cart-line');
+        if (!row) return;
+
+        const index = Number(row.dataset.index);
+
+        // Clear previous selection
+        document
+            .querySelectorAll('.cart-line[aria-selected="true"]')
+            .forEach(r => r.setAttribute('aria-selected', 'false'));
+
+        // Current cart line
+        row.setAttribute('aria-selected', 'true');
+
+        EventManager.emit('cart:line:select:request', index);
     },
 
     /**
@@ -100,7 +126,9 @@ const CartController = {
         const {index} = el.dataset;
         const product = Cart.getProduct(index);
         const value = Math.max(product.cantidad - 1, 0);
+
         CartController.editProductField({dataset: {index, field: 'cantidad'}}, value);
+        EventManager.emit('cart:line:select:request', index);
     },
 
 
@@ -114,7 +142,9 @@ const CartController = {
         const {index} = el.dataset;
         const product = Cart.getProduct(index);
         const value = product.cantidad + 1;
+
         CartController.editProductField({dataset: {index, field: 'cantidad'}}, value);
+        EventManager.emit('cart:line:select:request', index);
     },
 
     /**
@@ -197,13 +227,17 @@ const CartController = {
 
         const forceNewLine = (isFreeLine && freeLinesEnabled) || !groupLinesEnabled;
 
+        /* forceNewLine = true; // Always add a new line */
         if (forceNewLine) {
-            Cart.addProduct(code, description, thumbnail);          // "siempre nueva línea"
+            Cart.addProduct(code, description, thumbnail);
         } else {
-            Cart.addOrUpdateProduct(code, description, thumbnail);  // agrupa/incrementa
+            Cart.addOrUpdateProduct(code, description, thumbnail);
         }
 
         CartController.playBeepSound();
+        /*
+                const lastIndex = Cart.lines.length - 1;
+                EventManager.emit('cart:line:selected', lastIndex);*/
     },
 
     /**
@@ -260,28 +294,142 @@ const CartController = {
         });
     },
 
+    showLineToolbar(index) {
+        const bar = document.getElementById('cartLineToolbar');
+        const lbl = document.getElementById('cartLineToolbarIndex');
+        if (!bar || !lbl) return;
+
+        lbl.textContent = index + 1;
+        bar.classList.remove('hidden');
+    },
+
     async cartChange() {
-        eventManager.emit('order:recalculate', this.Cart);
+        EventManager.emit('order:recalculate', this.Cart);
+    },
+
+    setSelectedIndex(index) {
+        const idx = (index === null || index === undefined) ? null : Number(index);
+        this.selectedIndex = Number.isFinite(idx) ? idx : null;
+
+        // feedback inmediato (optimista) si existe en DOM
+        this.applySelection();
+    },
+
+    applySelection() {
+        if (this.selectedIndex === null) return;
+
+        const row = document.querySelector(`.cart-line[data-index="${this.selectedIndex}"]`);
+        if (!row) return; // todavía no existe en DOM (render pendiente)
+
+        document
+            .querySelectorAll('.cart-line[aria-selected="true"]')
+            .forEach(r => r.setAttribute('aria-selected', 'false'));
+
+        row.setAttribute('aria-selected', 'true');
+        row.focus?.({preventScroll: true});
+
+        // opcional: scroll
+        row.scrollIntoView?.({behavior: 'smooth', block: 'nearest'});
+
+        // toolbar
+        this.showLineToolbar(this.selectedIndex);
     },
 
     init() {
-        eventDispatcher.register('cart:product:delete', this.deleteProduct.bind(this));
-        eventDispatcher.register('cart:product:edit', this.editProduct.bind(this));
-        eventDispatcher.register('cart:product:quantity:edit', this.editProductQuantity.bind(this));
-        eventDispatcher.register('cart:product:quantity:decrease', this.quantityDecrease.bind(this));
-        eventDispatcher.register('cart:product:quantity:increase', this.quantityIncrease.bind(this));
-        eventDispatcher.register('cart:product:add', this.addProduct.bind(this));
-        eventDispatcher.register('cart:document:set', this.setDocument.bind(this));
-        eventDispatcher.register('cart:agent:set', this.setAgent.bind(this));
+        EventDispatcher.register('cart:product:delete', this.deleteProduct.bind(this));
+        EventDispatcher.register('cart:product:edit', this.editProduct.bind(this));
+        EventDispatcher.register('cart:product:quantity:edit', this.editProductQuantity.bind(this));
+        EventDispatcher.register('cart:product:quantity:decrease', this.quantityDecrease.bind(this));
+        EventDispatcher.register('cart:product:quantity:increase', this.quantityIncrease.bind(this));
+        EventDispatcher.register('cart:product:add', this.addProduct.bind(this));
+        EventDispatcher.register('cart:document:set', this.setDocument.bind(this));
+        EventDispatcher.register('cart:agent:set', this.setAgent.bind(this));
+        EventDispatcher.register('cart:line:selection:change', this.cartLineSelectionChange.bind(this));
 
         //eventManager.on('cart:changed', this.cartChange.bind(this));
-        eventManager.on('product:scanned:success', this.addProduct.bind(this));
-        eventManager.on('cart:updated', this.cartUpdateTotals.bind(this));
-        eventManager.on('customer:changed', this.setCustomer.bind(this));
-        eventManager.on('order:completed', this.resetDocument.bind(this));
-        eventManager.on('order:resumed', (doc) => this.handleOrderResume(doc));
-        eventManager.on('order:recalculated', (result) => {
+        EventManager.on('product:scanned:success', this.addProduct.bind(this));
+        EventManager.on('cart:updated', this.cartUpdateTotals.bind(this));
+        EventManager.on('customer:changed', this.setCustomer.bind(this));
+        EventManager.on('order:completed', this.resetDocument.bind(this));
+        EventManager.on('order:resumed', (doc) => this.handleOrderResume(doc));
+        EventManager.on('order:recalculated', (result) => {
             this.update(result);
+        });
+
+
+        let pendingSelectIndex = null;
+        let applyingSelection = false;
+
+        EventManager.on('cart:line:select:request', (index) => {
+            pendingSelectIndex = Number(index);
+        });
+
+        EventManager.on('cart:rendered', () => {
+            if (pendingSelectIndex === null) return;
+            if (applyingSelection) return;
+
+            const idx = Number(pendingSelectIndex);
+
+            const row = document.querySelector(`.cart-line[data-index="${idx}"]`);
+            if (!row) return;
+
+            applyingSelection = true;
+            try {
+                // ahora sí: ya existe -> consumimos pending
+                pendingSelectIndex = null;
+
+                document
+                    .querySelectorAll('.cart-line[aria-selected="true"]')
+                    .forEach(r => r.setAttribute('aria-selected', 'false'));
+
+                row.setAttribute('aria-selected', 'true');
+                row.focus?.({preventScroll: true});
+                row.scrollIntoView?.({behavior: 'smooth', block: 'nearest'});
+
+                // toolbar aquí es más seguro (cuando ya se aplicó)
+                this.showLineToolbar(idx);
+
+                EventManager.emit('cart:line:selected', idx);
+            } finally {
+                applyingSelection = false;
+            }
+        });
+
+        EventDispatcher.register('cart:line:toolbar:edit', () => {
+            if (pendingSelectIndex == null) return;
+            EventManager.emit('cart:line:edit', pendingSelectIndex);
+        });
+
+        EventDispatcher.register('cart:line:toolbar:delete', () => {
+            if (pendingSelectIndex == null) return;
+            EventManager.emit('cart:line:delete', pendingSelectIndex);
+        });
+
+        EventDispatcher.register('cart:line:toolbar:qty:increase', () => {
+            if (pendingSelectIndex == null) return;
+            EventManager.emit('cart:line:qty:increase', pendingSelectIndex);
+        });
+
+        EventDispatcher.register('cart:line:toolbar:qty:decrease', () => {
+            if (pendingSelectIndex == null) return;
+            EventManager.emit('cart:line:qty:decrease', pendingSelectIndex);
+        });
+
+
+        EventManager.on('cart:line:edit', (index) => {
+            document.querySelector(`[data-action="cart:product:edit"][data-index="${index}"]`)?.click();
+        });
+
+        EventManager.on('cart:line:delete', (index) => {
+            document.querySelector(`[data-action="cart:product:delete"][data-index="${index}"]`)?.click();
+        });
+
+        EventManager.on('cart:line:qty:increase', (index) => {
+            document.querySelector(`[data-action="cart:product:quantity:increase"][data-index="${index}"]`)?.click();
+        });
+
+        EventManager.on('cart:line:qty:decrease', (index) => {
+            document.querySelector(`[data-action="cart:product:quantity:decrease"][data-index="${index}"]`)?.click();
         });
 
         document.addEventListener('change', (event) => {

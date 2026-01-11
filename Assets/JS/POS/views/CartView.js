@@ -1,5 +1,6 @@
 import Modals from "../components/Modals.js";
 import templates from "../views/TemplateManger.js";
+import EventManager from "../core/EventManager.js";
 import * as Money from "../Money.js";
 
 const viewElements = {
@@ -68,6 +69,7 @@ class CartView {
         this.orderDiscountAmountLabel().textContent = Money.roundFixed(data.getDiscountAmount());
         this.orderNetoLabel().textContent = Money.roundFixed(data.doc.neto);
         templates.render('cart:list:template', data, 'cart:list:template:view');
+        EventManager.emit('cart:rendered');
     };
 
     toggleAgentSelectModal = () => {

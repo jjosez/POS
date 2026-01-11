@@ -37,5 +37,5 @@ class EventManager {
 }
 
 const eventManager = new EventManager();
-eventManager.debug = false;
+eventManager.debug = true;
 export default eventManager;
