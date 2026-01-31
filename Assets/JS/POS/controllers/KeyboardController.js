@@ -1,4 +1,5 @@
 import EventManager from '../core/EventManager.js';
+import OrderController from './OrderController.js';
 
 const KeyboardController = {
     keydownHandler: null,
@@ -12,8 +13,8 @@ const KeyboardController = {
         return sel ? Number(sel.dataset.index) : null;
     },
 
-    selectByIndex(idx) {
-        const row = document.querySelector(`.cart-line[data-index="${idx}"]`);
+    selectByIndex(index) {
+        const row = document.querySelector(`.cart-line[data-index="${index}"]`);
         if (!row) return false;
 
         document
@@ -23,7 +24,7 @@ const KeyboardController = {
         row.setAttribute('aria-selected', 'true');
         row.focus({ preventScroll: true });
 
-        EventManager.emit('cart:line:select', idx);
+        EventManager.emit('event:cart:line:selected', index);
         return true;
     },
 
@@ -71,26 +72,36 @@ const KeyboardController = {
             case 'Enter':
                 if (idx === null) return;
                 e.preventDefault();
-                EventManager.emit('cart:line:edit', idx);
+                EventManager.emit('event:cart:line:edit', idx);
                 break;
 
             case 'Delete':
                 if (idx === null) return;
                 e.preventDefault();
-                EventManager.emit('cart:line:delete', idx);
+                EventManager.emit('event:cart:line:delete', idx);
                 break;
 
             case '+':
             case '=':
                 if (idx === null) return;
                 e.preventDefault();
-                EventManager.emit('cart:line:qty:increase', idx);
+                EventManager.emit('event:cart:line:qty:increase', idx);
                 break;
 
             case '-':
                 if (idx === null) return;
                 e.preventDefault();
-                EventManager.emit('cart:line:qty:decrease', idx);
+                EventManager.emit('event:cart:line:qty:decrease', idx);
+                break;
+
+            case 'F2':
+                e.preventDefault();
+                EventManager.emit('keyboard:checkout:show');
+                break;
+
+            case 'F4':
+                e.preventDefault();
+                EventManager.emit('keyboard:order:draft:save');
                 break;
 
             case 'Escape':

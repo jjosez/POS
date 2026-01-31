@@ -1,4 +1,4 @@
-<div id="cart:list:template:view" class="flex-1 divide-y-2 divide-dotted flex flex-col h-full">
+<div id="cart:list:template:view" class="flex h-full flex-1 flex-col divide-y-2 divide-dotted">
     <div class="flex flex-1 items-center justify-center">
         <i class="fa fa-shopping-cart fa-5x text-slate-300"></i>
     </div>
@@ -21,12 +21,12 @@
 </script>
 
 {% macro newProductLine(grid, excludedColumns, priceColumns, cartColumnCount) %}
-    <div class="cart-line grid grid-cols-12 items-center gap-3 py-2 px-4 cursor-pointer hover:bg-slate-50"
-         data-action="cart:line:selection:change"
+    <div class="cart-line py-2 px-4 grid w-full flex-shrink-0 grid-cols-[1fr_auto_auto] items-stretch cursor-pointer hover:bg-slate-50"
+         data-action="ui:cart:line:selection:change"
          data-index="<%= index %>"
          aria-selected="false">
         <!-- Producto -->
-        <div class="col-span-7 xl:col-span-7 2xl:col-span-7 flex items-center gap-3 min-w-0">
+        <div class="flex min-w-0 items-center gap-3">
             <!-- Thumbnail -->
             <% if (product.thumbnail) { %>
             <img class="pointer-events-auto h-12 w-12 shrink-0 rounded-xl object-cover" src="<%= product.thumbnail %>"
@@ -66,24 +66,23 @@
                                 <span class="text-slate-400">{{ label }}: </span>
                                 <span class="font-semibold text-slate-700"><%= product.{{ column.data }} %></span>
                             </div>
-                            {#<span class="rounded-full bg-slate-100 px-2 py-0.5">{{ label }}: <%= product.{{ column.data }} %></span>#}
+                            {# <span class="rounded-full bg-slate-100 px-2 py-0.5">{{ label }}: <%= product.{{ column.data }} %></span> #}
                         {% endif -%}
                     {% endfor %}
                 </div>
             </div>
-
+        </div>
+        <div class="flex items-center gap-3">
             <!-- Cantidad -->
-            <div class="w-20 flex-col">
+            <div class="w-24 flex-col">
                 <div class="h-4 text-[11px] font-semibold text-slate-500">
                     {{ trans('quantity') }}
                 </div>
                 <input type="number" id="cart_quantity<%= index %>"
                        class="form-control-base p-1.5 w-full rounded-lg text-right text-sm bg-white"
                        value="<%= product.cantidad %>"
-                       data-action="cart:product:field:edit" data-index="<%= index %>" data-field="cantidad">
+                       data-action="ui:cart:line:field:edit" data-index="<%= index %>" data-field="cantidad">
             </div>
-        </div>
-        <div class="col-span-5 xl:col-span-5 flex items-center gap-3">
             <div class="flex flex-1 flex-row gap-2 justify-start xl:justify-evenly">
                 {% for column in grid %}
                     {% if column.data in priceColumns and column.eneabled and column.carrito and not column.readonly %}
@@ -101,7 +100,7 @@
                                        type="{{ column.type }}"
                                        value="<%= product.{{ column.data }} %>"
                                        data-index="<%= index %>"
-                                       data-action="cart:product:field:edit"
+                                       data-action="ui:cart:line:field:edit"
                                        data-field="{{ column.data }}">
                             {% endif %}
                         </div>
@@ -109,9 +108,9 @@
                 {% endfor %}
             </div>
             <!-- Total + Delete -->
-            <div class="ml-auto flex items-center gap-2">
+            <div class="w-24 gap-2">
                 <div class="text-right">
-                    <div class="h-4 text-[11px] font-semibold text-slate-500">{{ trans('line-total') }}</div>
+                    <div class="h-4 text-[11px] font-semibold text-slate-500">{{ trans('line-total-abbr') }}</div>
                     <div class="text-lg font-extrabold tracking-tight text-slate-900">$ <%= product.pvptotaliva %></div>
                 </div>
             </div>
@@ -119,106 +118,51 @@
     </div>
 {% endmacro %}
 {% macro newLineMockup() %}
-    <!-- CART LINE (Mockup recomendado) -->
-    <div class="rounded-xl bg-white ring-1 ring-slate-200 p-3">
-        <div class="grid grid-cols-12 gap-3 items-start">
-            <!-- Thumbnail -->
-            <div class="col-span-2 sm:col-span-1">
-                <button type="button"
-                        class="h-12 w-12 overflow-hidden rounded-xl bg-slate-100 ring-1 ring-slate-200 flex items-center justify-center text-slate-400"
-                        title="Ver imagen">
-                    <i class="fa-regular fa-image text-xl"></i>
-                </button>
-            </div>
-
-            <!-- Product info -->
-            <div class="col-span-10 sm:col-span-6 min-w-0">
-                <div class="flex items-center gap-2 min-w-0">
-                    <span class="text-xs font-semibold text-slate-500 truncate">FLR-FOI-00002</span>
-                    <!-- optional small badge -->
-                    <span class="hidden sm:inline-flex rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700">
-          IVA 16%
-        </span>
+    <div class="grid w-full flex-shrink-0 grid-cols-[1fr_auto_auto] items-stretch">
+        <!-- ITEM 1: El "flexible" que empuja a los demás -->
+        <div class="bg-blue-200 p-4">
+            <div class="flex min-w-0 items-center gap-3">
+                <!-- Thumbnail -->
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-400 ring-1 ring-slate-200">
+                    <div class="w-16 text-center"><i class="fa-regular fa-image text-xl"></i></div>
                 </div>
 
-                <div class="mt-0.5 line-clamp-2 text-sm font-semibold text-slate-900">
-                    FILTRO DE ACEITE AVEO
-                </div>
-
-                <!-- Secondary line: qty × unit -->
-                <div class="mt-1 text-xs text-slate-500">
-                    <span class="font-semibold text-slate-700">5</span> ×
-                    <span class="font-semibold text-slate-700">$348.00</span>
-                    <span class="text-slate-400">c/ impuestos</span>
-                </div>
-
-                <!-- Optional actions (keep subtle) -->
-                <div class="mt-2 flex flex-wrap items-center gap-2">
-                    <button type="button"
-                            class="rounded-lg bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700
-                       hover:bg-slate-200 active:bg-slate-300"
-                            title="Editar detalles">
-                        <i class="fa-solid fa-pen-to-square"></i> Editar
-                    </button>
-                </div>
-            </div>
-
-            <!-- Editors: qty + unit -->
-            <div class="col-span-12 sm:col-span-3">
-                <div class="grid grid-cols-2 gap-2">
-                    <!-- Qty -->
-                    <div>
-                        <div class="h-4 text-[11px] font-semibold text-slate-500">Cantidad</div>
-                        <div class="flex items-center overflow-hidden rounded-xl ring-1 ring-slate-200 bg-white">
-                            <button class="w-10 py-2 text-lg font-bold text-slate-700 hover:bg-slate-50 active:bg-slate-100"
-                                    aria-label="menos">−
-                            </button>
-                            <input type="number"
-                                   class="w-full bg-white px-2 py-2 text-center text-sm font-extrabold text-slate-900 outline-none
-                          focus:ring-4 focus:ring-slate-400/20"
-                                   value="5">
-                            <button class="w-10 py-2 text-lg font-bold text-slate-700 hover:bg-slate-50 active:bg-slate-100"
-                                    aria-label="más">+
-                            </button>
-                        </div>
+                <div class="min-w-0 flex-1">
+                    <div class="flex min-w-0 items-center gap-2">
+                        <span class="text-xs font-semibold text-slate-500">FLR-FOI-00002</span>
                     </div>
-
-                    <!-- Unit price (captura) -->
-                    <div>
-                        <div class="h-4 text-[11px] font-semibold text-slate-500">Precio c/IVA</div>
-                        <div class="flex items-center gap-2 justify-end">
-                            <div class="relative w-full">
-                                <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">$</span>
-                                <input type="number"
-                                       class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 pl-7 text-right text-sm font-extrabold text-slate-900
-                            outline-none focus:border-slate-300 focus:ring-4 focus:ring-slate-400/20"
-                                       value="348.00"
-                                       inputmode="decimal">
-                            </div>
-                        </div>
-
-                        <!-- Hint del otro precio (solo si quieres) -->
-                        <div class="mt-1 text-right text-[11px] text-slate-500">
-                            Base: $300.00
-                        </div>
+                    <div class="line-clamp-2 text-sm font-semibold text-slate-900">FILTRO DE ACEITE AVEO</div>
+                    <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                        <span class="text-slate-400">Precio:</span>
+                        <span class="font-semibold text-slate-700">300</span>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Total + delete -->
-            <div class="col-span-12 sm:col-span-2 flex items-start justify-between sm:justify-end gap-3">
-                <div class="text-left sm:text-right">
-                    <div class="h-4 text-[11px] font-semibold text-slate-400">Total línea</div>
-                    <div class="text-xl font-extrabold tracking-tight text-slate-900">$1,740.00</div>
+        <div class="flex items-center gap-3 px-4">
+            <!-- Cantidad (Sigue dentro del primer bloque) -->
+            <div class="w-24 shrink-0">
+                <div class="h-4 text-[11px] font-semibold text-slate-500">Cantidad</div>
+                <input type="number" class="form-control-base w-full rounded-lg bg-white p-1.5 text-right text-sm"
+                       value="1"/>
+            </div>
+            <div class="flex flex-1 flex-row justify-start gap-2 xl:justify-evenly">
+                <div class="w-24 flex-col">
+                    <div class="h-4 text-[11px] font-semibold text-slate-500">Precio + impuestos</div>
+                    <input id="cart_pvpunitarioiva0"
+                           class="form-control-base w-full rounded-lg bg-white p-1.5 text-right text-sm font-bold"
+                           tabindex="0" inputmode="decimal" type="number" value="348.00" data-index="0"
+                           data-action="ui:cart:line:field:edit" data-field="pvpunitarioiva"
+                           data-np-intersection-state="visible"/>
                 </div>
-
-                <button type="button"
-                        class="inline-flex h-10 w-10 items-center justify-center rounded-xl
-                     bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-700 active:bg-red-200
-                     focus:outline-none focus:ring-4 focus:ring-red-500/20"
-                        title="Eliminar">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
+            </div>
+            <!-- Total + Delete -->
+            <div class="ml-auto flex items-center gap-2">
+                <div class="text-right">
+                    <div class="h-4 text-[11px] font-semibold text-slate-500">line-total</div>
+                    <div class="text-lg font-extrabold tracking-tight text-slate-900">$ 348.00</div>
+                </div>
             </div>
         </div>
     </div>

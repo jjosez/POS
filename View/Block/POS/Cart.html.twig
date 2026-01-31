@@ -172,7 +172,7 @@
             <!-- Cantidad -->
             <div class="flex gap-2 text-xs items-end">
                 <button class="h-8 w-8 text-center btn btn-icon btn-light"
-                        data-action="cart:product:edit" data-index="<%= index %>">
+                        data-action="ui:cart:line:edit" data-index="<%= index %>">
                     <i class="fas fa-pen-alt"></i>
                 </button>
                 <div class="w-28 flex-col">
@@ -181,15 +181,15 @@
                     </div>
                     <div class="flex">
                         <button class="h-8 w-8 rounded-r-none btn btn-icon btn-light"
-                                data-action="cart:product:quantity:decrease" data-index="<%= index %>">
+                                data-action="ui:cart:line:quantity:decrease" data-index="<%= index %>">
                             <i class="fa fw fa-minus"></i>
                         </button>
                         <input type="number" id="cart_quantity<%= index %>"
                                class="h-8 w-full rounded-none p-1.5 form-control-base font-bold text-center text-sm"
                                value="<%= product.cantidad %>"
-                               data-action="cart:product:field:edit" data-index="<%= index %>" data-field="cantidad">
+                               data-action="ui:cart:line:field:edit" data-index="<%= index %>" data-field="cantidad">
                         <button class="h-8 w-8 rounded-l-none btn btn-icon btn-light"
-                                data-action="cart:product:quantity:increase" data-index="<%= index %>">
+                                data-action="ui:cart:line:quantity:increase" data-index="<%= index %>">
                             <i class="fa fw fa-plus"></i>
                         </button>
                     </div>
@@ -214,7 +214,7 @@
                                        type="{{ column.type }}"
                                        value="<%= product.{{ column.data }} %>"
                                        data-index="<%= index %>"
-                                       data-action="cart:product:field:edit"
+                                       data-action="ui:cart:line:field:edit"
                                        data-field="{{ column.data }}">
                             {% endif %}
                         </div>
@@ -228,7 +228,7 @@
                     <div class="text-base font-extrabold text-slate-900">$ <%= product.pvptotaliva %></div>
                 </div>
                 <button class="h-8 w-8 text-xs btn btn-icon bg-red-50 text-red-700 hover:bg-red-100 active:bg-red-200 focus:ring-1"
-                        data-action="cart:product:delete"
+                        data-action="ui:cart:line:delete"
                         data-index="<%= index %>">
                     <i class="fa-solid fa-trash"></i>
                 </button>

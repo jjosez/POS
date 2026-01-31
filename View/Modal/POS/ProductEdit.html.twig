@@ -82,14 +82,14 @@
             <div class="col-span-2 form-group">
                 <label for="{{ column.data }}" class="font-semibold capitalize">{{ label }} </label>
                 <input id="{{ column.data }}" type="{{ column.type }}" class="font-normal form-control"
-                       value="<%= product.referencia %>" data-action="cart:product:field:edit"
+                       value="<%= product.referencia %>" data-action="ui:cart:line:field:edit"
                        data-index="<%= product.index %>" data-field="{{ column.data }}" readonly>
             </div>
         {%- elseif column.data == 'descripcion' %}
             <div class="col-span-2 form-group">
                 <label for="{{ column.data }}" class="font-semibold capitalize">{{ label }}</label>
                 <textarea id="{{ column.data }}" class="font-normal form-control" rows="3"
-                          data-action="cart:product:field:edit"
+                          data-action="ui:cart:line:field:edit"
                           data-index="<%= product.index %>" data-field="{{ column.data }}"
                         {% if column.readonly %} readonly {% endif %}><%- = product.descripcion %></textarea>
             </div>
@@ -99,7 +99,7 @@
                 <input id="{{ column.data }}" class="font-normal form-control" type="{{ column.type }}"
                        value="<%= product.{{ column.data }} %>"
                        step=".001" data-index="<%= product.index %>"
-                       data-action="{{ column.readonly ? '' : 'cart:product:field:edit' }}"
+                       data-action="{{ column.readonly ? '' : 'ui:cart:line:field:edit' }}"
                        data-field="{{ column.data }}" {% if column.readonly %} readonly {% endif %}>
             </div>
         {% endif -%}

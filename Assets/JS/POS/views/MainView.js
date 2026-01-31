@@ -50,10 +50,8 @@ class MainView {
     };
 
     updateProductSearchResult = (data = []) => {
-        const templateId = AppSettings.productsearch.templateDisplayMode === 'list'
-            ? 'product:search:list:template'
-            : 'product:search:grid:template';
-        templates.render(templateId, {products: data}, 'product:search:list:view');
+        const mode = AppSettings.productsearch.templateDisplayMode === 'list' ? 'list' : 'grid';
+        templates.render('product:search:template', {products: data, mode: mode}, 'product:search:list:view');
     };
 
     updateView({doc}) {
@@ -205,7 +203,7 @@ function handleViewPaneChange(el) {
 
 const mainViewInstance = () => Object.freeze(new MainView());
 
-EventManager.on('cart:updated', mainViewInstance().updateView);
+EventManager.on('event:cart:updated', mainViewInstance().updateView);
 EventManager.on('responseMessages', showMessages);
 
 EventDispatcher.register('view:cart:pane', handleViewPaneChange.bind(this));

@@ -17,7 +17,7 @@ const CustomerController = {
         const response = await Core.postRequest(data);
 
         if (response.customer?.codcliente) {
-            eventManager.emit('customer:changed', {
+            eventManager.emit('event:customer:changed', {
                 code: response.customer.codcliente,
                 description: response.customer.nombre
             });
@@ -36,7 +36,7 @@ const CustomerController = {
         const {code, description} = el.dataset;
         if (!code) return;
 
-        eventManager.emit('customer:changed', {
+        eventManager.emit('event:customer:changed', {
             code: code,
             description: description
         });

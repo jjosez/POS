@@ -18,7 +18,7 @@
             {% if context.terminal().free_cart_lines %}
                 <button class="btn gap-2 rounded-lg bg-slate-900 text-sm font-extrabold text-white
                      hover:bg-slate-800 active:bg-slate-950"
-                        data-action="cart:product:add"
+                        data-action="ui:cart:line:add"
                         data-code=""
                         data-description="{{ trans('generic') }}">
                     <i class="fa-solid fa-plus-circle"></i> {{ trans('free-product-line') }}

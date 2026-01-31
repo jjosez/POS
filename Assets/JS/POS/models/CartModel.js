@@ -129,7 +129,7 @@ class CartModel {
     }
 
     cartUpdateEvent() {
-        EventManager.emit('cart:updated', this);
+        EventManager.emit('event:cart:updated', this);
     }
 
     cartChangeEvent() {

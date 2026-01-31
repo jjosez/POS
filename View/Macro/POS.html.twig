@@ -1,7 +1,7 @@
 {% macro customCheckboxInput(id, name, label, value) %}
     <div class="flex items-center text-sm mb-2">
         <input id="{{ id }}" name="{{ name }}" type="checkbox" class="mr-2"
-               data-action="document:field:edit" data-document-field="{{ name }}">
+               data-action="ui:order:field:edit" data-document-field="{{ name }}">
         <label for="{{ id }}">{{ label }}</label>
     </div>
 {% endmacro %}
@@ -10,7 +10,7 @@
     <div class="form-group text-sm mb-2">
         <label for="{{ id }}" class="font-semibold capitalize mb-1.5">{{ label }}</label>
         <input id="{{ id }}" name="{{ name }}" class="form-control" type="text"
-               data-action="document:field:edit" data-document-field="{{ name }}">
+               data-action="ui:order:field:edit" data-document-field="{{ name }}">
     </div>
 {% endmacro %}
 
@@ -18,7 +18,7 @@
     <div class="form-group text-sm mb-2">
         <label for="{{ id }}" class="font-semibold capitalize mb-1.5">{{ label }}</label>
         <input id="{{ id }}" name="{{ name }}" class="form-control" type="number"
-               data-action="document:field:edit" data-document-field="{{ name }}">
+               data-action="ui:order:field:edit" data-document-field="{{ name }}">
     </div>
 {% endmacro %}
 
@@ -26,7 +26,7 @@
     <div class="form-group text-sm mb-2">
         <label for="{{ id }}" class="font-semibold capitalize mb-1.5">{{ label }}</label>
         <textarea id="{{ id }}" name="{{ name }}" cols="30" rows="4"
-                  data-action="document:field:edit" data-document-field="{{ name }}"></textarea>
+                  data-action="ui:order:field:edit" data-document-field="{{ name }}"></textarea>
     </div>
 {% endmacro %}
 

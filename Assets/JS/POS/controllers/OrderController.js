@@ -169,7 +169,7 @@ const OrderController = {
 
         CartController.update(updatedCart);
 
-        EventManager.emit('order:resumed', updatedCart.doc);
+        EventManager.emit('event:order:resumed', updatedCart.doc);
         MainView.toggleDraftOrdersModal();
     },
 
@@ -178,7 +178,7 @@ const OrderController = {
      */
     async handleOrderRecalculate(cartState) {
         const result = await this.recalculateRequest(cartState);
-        EventManager.emit('order:recalculated', result);
+        EventManager.emit('event:order:recalculated', result);
     },
 
     /**
@@ -196,7 +196,7 @@ const OrderController = {
 
         if (result?.status === 'success') {
             MainView.showPrintOrderContextModal(result.data);
-            EventManager.emit('order:completed', result);
+            EventManager.emit('event:order:completed', result);
         }
     },
 
@@ -209,7 +209,7 @@ const OrderController = {
         const result = await this.saveDraftRequest(CartController.getState());
 
         CartController.update(result);
-        EventManager.emit('order:completed', result);
+        EventManager.emit('event:order:completed', result);
     },
 
     /**
@@ -248,6 +248,7 @@ const OrderController = {
         dispatcher.register('order:return:show', this.handleShowReturnSaleAction.bind(this));
 
         EventManager.on('cart:changed', this.handleOrderRecalculate.bind(this));
+        EventManager.on('keyboard:order:draft:save', this.handleDraftOrderSaveAction.bind(this));
     }
 };
 

@@ -68,15 +68,17 @@ const CheckoutController = {
         dispatcher.register('checkout:show', this.showCheckoutModal);
         dispatcher.register('order:save', this.hideCheckoutModal);
 
+        EventManager.on('keyboard:checkout:show', this.showCheckoutModal);
+
         EventManager.on('checkout:update', () => {
             if (isCheckoutVisible) CheckoutView.render(CheckoutModel);
         });
 
-        EventManager.on('cart:updated', ({doc}) => {
+        EventManager.on('event:cart:updated', ({doc}) => {
             CheckoutModel.updateTotal(doc.total);
         });
 
-        EventManager.on('order:completed', () => {
+        EventManager.on('event:order:completed', () => {
             CheckoutModel.clear();
             CheckoutView.render(CheckoutModel);
         });
