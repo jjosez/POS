@@ -192,11 +192,12 @@ const OrderController = {
             CheckoutController.getState().payments
         );
 
-        CartController.update(result);
-
         if (result?.status === 'success') {
+            CartController.update(result);
             MainView.showPrintOrderContextModal(result.data);
             EventManager.emit('event:order:completed', result);
+        } else if (result?.token) {
+            CartController.Cart.token = result.token;
         }
     },
 

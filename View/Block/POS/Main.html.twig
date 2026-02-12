@@ -63,7 +63,14 @@
 
         window.POS = {
             'customActions': [],
-            'customFields': []
+            'customFields': [],
+            'hooks': {},
         }
     </script>
+{% endblock %}
+
+{% block plugins %}
+    {% for includeView in getIncludeViews('POS', 'plugins') %}
+        {% include includeView['path'] %}
+    {% endfor %}
 {% endblock %}

@@ -9,6 +9,8 @@ namespace FacturaScripts\Plugins\POS\Model\Join;
 use FacturaScripts\Core\DataSrc\Impuestos;
 use FacturaScripts\Core\Lib\MyFilesToken;
 use FacturaScripts\Core\Model\Base\JoinModel;
+use FacturaScripts\Core\Plugins;
+use FacturaScripts\Core\Template\ExtensionsTrait;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\Impuesto;
@@ -20,6 +22,7 @@ use JsonSerializable;
 
 class ProductoVariante extends JoinModel implements JsonSerializable
 {
+    use ExtensionsTrait;
     public float $priceWithTax = 0.0;
     public string $priceWithFormat = '0,00';
     public bool $isOutOfStock = false;
@@ -44,7 +47,7 @@ class ProductoVariante extends JoinModel implements JsonSerializable
      */
     protected function getFields(): array
     {
-        return [
+        $fields = [
             'id' => 'P.idproducto',
             'code' => 'V.referencia',
             'codimpuesto' => 'MIN(P.codimpuesto)',
@@ -66,6 +69,12 @@ class ProductoVariante extends JoinModel implements JsonSerializable
             'family' => 'F.descripcion',
             'brandname' => 'B.nombre'
         ];
+        
+        if (Plugins::isEnabled('SKU')) {
+            $fields['oem_code'] = 'P.referencia_fabricante';
+        }
+        
+        return $fields;
     }
 
     /**

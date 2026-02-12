@@ -59,7 +59,7 @@ class BorradorPuntoVenta extends SalesDocument
             $where[] = Where::eq('idsesion', $sessionID);
         }
 
-        return self::all($where);
+        return self::all($where, ['fecha' => 'DESC', 'hora' => 'DESC', 'codigo' => 'DESC']);
     }
 
     public static function allCompleted(?string $sessionID = null): array

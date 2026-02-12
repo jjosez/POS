@@ -12,6 +12,7 @@ import ProductController from "./controllers/ProductController.js";
 import SessionController from "./controllers/SessionController.js";
 import eventDispatcher from "./core/EventDispatcher.js";
 import "./View.js";
+import globalEvents from "./core/GlobalEventBus.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     /* global onScan */

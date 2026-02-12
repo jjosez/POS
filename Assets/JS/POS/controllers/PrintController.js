@@ -1,6 +1,7 @@
 import dispatcher from '../core/EventDispatcher.js';
 import * as Core from '../Core.js';
 import MainView from '../views/MainView.js';
+import globalEventBus from "../core/GlobalEventBus.js";
 
 const PrintController = {
     async handleSaleContextAction(el) {
@@ -60,13 +61,18 @@ const PrintController = {
         formData.set('document-order', order);
 
         const response = await Core.postRequest(formData);
-        Core.printerServerRequest(response);
+        
+        Core.printerServerRequest(response).then(r => {
+            globalEventBus.emit('print:order:completed', {
+                response
+            });
+        });
 
         MainView.togglePrintSelectionModal();
     },
 
     async handleDraftLinkAction(el) {
-         const {controller, code, document, name} = el.dataset;
+        const {controller, code, document, name} = el.dataset;
 
         Core.openLinkAction(controller, {
             action: name,
@@ -90,7 +96,11 @@ const PrintController = {
         formData.set('document', document);
 
         const response = await Core.postRequest(formData);
-        Core.printerServerRequest(response);
+        Core.printerServerRequest(response).then(r => {
+            globalEventBus.emit('print:draft:completed', {
+                response
+            });
+        });
 
         MainView.togglePrintSelectionModal();
 

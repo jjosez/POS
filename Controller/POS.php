@@ -304,14 +304,15 @@ class POS extends BaseController
         $transaction = new Transactions($request);
 
         if ($this->pipeFalse('saveBefore', $request, $transaction) === false) {
+            $this->buildResponse();
             return;
         }
 
         $this->dataBase->beginTransaction();
 
         if (!$transaction->saveDocument()) {
-            Tools::log('POS')->warning('fail-update');
             $this->dataBase->rollback();
+            $this->buildResponse();
             return;
         }
 
@@ -322,12 +323,14 @@ class POS extends BaseController
         if (!$this->context->storage()->saveOrder($order, $document)) {
             Tools::log('POS')->warning('fail-save-order');
             $this->dataBase->rollback();
+            $this->buildResponse();
             return;
         }
 
         if (!$this->context->storage()->completeDraft($document)) {
             Tools::log('POS')->warning('fail-update-paused-document');
             $this->dataBase->rollback();
+            $this->buildResponse();
             return;
         }
 
@@ -335,6 +338,7 @@ class POS extends BaseController
         if (!$this->context->payments()->savePayments($document, $order, $payments)) {
             Tools::log('POS')->warning('fail-save-payments');
             $this->dataBase->rollback();
+            $this->buildResponse();
             return;
         }
 
@@ -346,8 +350,7 @@ class POS extends BaseController
         $this->setSuccessResponse([
             'code' => $document->id(),
             'model' => $document->modelClassName(),
-            'order' => $order->id(),
-            'token' => $order->id(),
+            'order' => $order->id()
         ]);
     }
 
@@ -482,16 +485,15 @@ class POS extends BaseController
 
     protected function searchProduct(): void
     {
-        $query = $this->request->request->get('query', '');
-        $filters = $this->request->request->get('filters', '');
+        $query = $this->request()->request->get('query', '');
+        $filters = $this->request()->request->get('filters', '');
 
         $filterRules = json_decode($filters, true) ?: [];
         $terminal = $this->context->config()->getTerminal();
 
         $company = $terminal->productsource === $terminal::PRODUCTS_FROM_COMPANY ? $terminal->idempresa : '';
         $warehouse = $terminal->productsource === $terminal::PRODUCTS_FROM_WAREHOUSE ? $terminal->codalmacen : '';
-
-        // El codcliente viene en filterRules desde el frontend para aplicar tarifas específicas del cliente
+        
         $this->setResponse($this->context->products()->search($query, $filterRules, $warehouse, $company));
     }
 

@@ -149,7 +149,7 @@ class OrdenPuntoVenta extends ModelClass
     {
         return self::all([
             Where::eq('idsesion', $sessionID)
-        ]);
+        ], ['fecha' => 'DESC', 'hora' => 'DESC']);
     }
 
     protected function testDescuadre(): bool

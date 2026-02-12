@@ -9,6 +9,7 @@ namespace FacturaScripts\Plugins\POS\Lib\Services;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Almacenes;
 use FacturaScripts\Core\Plugins;
+use FacturaScripts\Core\Template\ExtensionsTrait;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\GrupoClientes;
 use FacturaScripts\Dinamic\Model\Join\ProductoStock;
@@ -31,6 +32,8 @@ use FacturaScripts\Plugins\TarifasAvanzadas\Model\TarifaFamilia;
  */
 class Products
 {
+    use ExtensionsTrait;
+
     private ProductoVariante $product;
     private mixed $familyRateCache = [];
 
@@ -100,9 +103,14 @@ class Products
         $where = [
             new DataBaseWhere('V.codbarras', $text, 'LIKE'),
             new DataBaseWhere('V.referencia', $text, 'LIKE', 'OR'),
-            new DataBaseWhere('P.descripcion', $text, 'XLIKE', 'OR'),
-            new DataBaseWhere('P.sevende', true)
+            new DataBaseWhere('P.descripcion', $text, 'XLIKE', 'OR')
         ];
+        
+        if (Plugins::isEnabled('SKU')) {
+            $where[] = new DataBaseWhere('P.referencia_fabricante', $text, 'LIKE', 'OR');
+        }
+        
+        $where[] = new DataBaseWhere('P.sevende', true);
 
         if ($company) {
             $where[] = $this->getCompanyDatabaseWhere($company);
@@ -113,9 +121,9 @@ class Products
 
         if (!empty($filters['families'])) {
             $families = implode(',', array_column($filters['families'], 'code'));
-            $where[] = new DataBaseWhere('codfamilia', $families, 'IN');
+            $where[] = new DataBaseWhere('P.codfamilia', $families, 'IN');
         }
-
+        
         $products = $this->product->all($where, [], 0, 30);
 
         $this->applyProductRates($products, $filters);

@@ -1,7 +1,7 @@
 <div id="product:filter:family:view" class="mb-4 flex flex-wrap gap-2 px-4">
 </div>
 <div class="mb-4 flex-1 overflow-y-auto px-4">
-    <div id="product:search:list:view" class="mt-1" role="list">
+    <div id="product:search:list:view" class="my-1" role="list">
         {% set mode = terminal.product_display_mode | default('grid') %}
         {{ _self.productView(fsc, terminal, mode) }}
     </div>
