@@ -50,7 +50,9 @@
                 </div>
 
             </aside>
-
+            <div id="checkoutMainView" class="hidden w-full">
+                {{ include('Block/POS/CheckoutScreen.html.twig') }}
+            </div>
             <div class="md:hidden sticky bottom-0 z-40 bg-white border-t border-slate-200 p-2">
                 <div class="grid grid-cols-2 gap-2">
                     <button
@@ -66,7 +68,6 @@
                     </button>
                 </div>
             </div>
-
         </div>
     </div>
 {% endblock %}
@@ -118,8 +119,6 @@
         document.addEventListener('click', (e) => {
             const btn = e.target.closest('[data-action="view:products"],[data-action="view:cart"]');
             if (!btn) return;
-
-
         });
     </script>
 {% endblock %}

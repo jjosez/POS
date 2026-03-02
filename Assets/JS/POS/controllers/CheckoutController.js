@@ -2,6 +2,7 @@ import * as CheckoutView from '../views/CheckoutView.js';
 import CheckoutModel from '../models/CheckoutModel.js';
 import dispatcher from '../core/EventDispatcher.js';
 import EventManager from '../core/EventManager.js';
+import CartController from './CartController.js';
 
 let isCheckoutVisible = false;
 
@@ -48,13 +49,18 @@ const CheckoutController = {
     showCheckoutModal() {
         isCheckoutVisible = true;
 
-        CheckoutView.togglePaymentModal();
+        // Usar bloques en lugar de modal
+        CheckoutView.toggleCheckoutBlock();
         CheckoutView.render(CheckoutModel);
+
+        // Renderizar el resumen del carrito
+        const cartState = CartController.getState();
+        CheckoutView.renderCartSummary(cartState);
     },
 
     hideCheckoutModal() {
         isCheckoutVisible = false;
-        CheckoutView.togglePaymentModal();
+        CheckoutView.toggleCheckoutBlock();
     },
 
     getState() {

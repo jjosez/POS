@@ -2,7 +2,7 @@ import templates from "../views/TemplateManger.js";
 import Modals from "../components/Modals.js";
 import {roundFixed} from "../Money.js";
 
-const viewElements = {
+const elements = {
     checkoutTotal: document.getElementById('checkoutTotal'),
     tenderedAmount: document.getElementById('checkoutTenderedAmount'),
     changeAmount: document.getElementById('checkoutChangeAmount'),
@@ -13,24 +13,26 @@ const viewElements = {
 
 export function render(model) {
     const state = model.getState();
-
-    viewElements.checkoutTotal.textContent = roundFixed(state.total);
-    viewElements.tenderedAmount.textContent = roundFixed(model.getPaymentsTotal());
-    viewElements.changeAmount.textContent = roundFixed(state.change);
+    
+    elements.checkoutTotal.textContent = roundFixed(state.total);
+    elements.tenderedAmount.textContent = roundFixed(model.getPaymentsTotal());
+    elements.changeAmount.textContent = roundFixed(state.change);
 
     templates.render('payment:list:template', state, 'payment:list:view');
 
-    updateConfirmButton(state);
+    updateConfirmButton(state, elements.confirmButton);
+}
+
+export function renderCartSummary(cartData) {
+    templates.render('checkout:cart:template', cartData, 'checkout:cart:summary');
 }
 
 export function setPaymentInputValue(value) {
-    if (viewElements.paymentInput) {
-        viewElements.paymentInput.value = value;
-    }
+    elements.paymentInput.value = value;
 }
 
 export function getPaymentInputValue() {
-    return parseFloat(viewElements.paymentInput?.value ?? 0) || 0;
+    return parseFloat(elements.paymentInput?.value ?? 0) || 0;
 }
 
 export function getPaymentData({code, description}) {
@@ -45,14 +47,19 @@ export function togglePaymentModal() {
     Modals.toggleModal('checkout:modal');
 }
 
-export function enableConfirmButton() {
-    document.getElementById('orderSaveButton').disabled = false;
-}
+export function toggleCheckoutBlock() {
+    const checkoutView = document.getElementById('checkoutMainView');
+    const cartView = document.getElementById('cartPane');
 
-export function disableConfirmButton() {
-    document.getElementById('orderSaveButton').disabled = true;
+    if (checkoutView && cartView) {
+        checkoutView.classList.toggle('hidden');
+        cartView.classList.toggle('hidden');
+    }
 }
 
 function updateConfirmButton(state) {
-    viewElements.confirmButton.disabled = !(state.paymentsTotal >= state.total && state.total !== 0);
+    const button = elements.confirmButton;
+    if (button) {
+        button.disabled = !(state.paymentsTotal >= state.total && state.total !== 0);
+    }
 }

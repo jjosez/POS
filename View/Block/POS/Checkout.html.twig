@@ -1,73 +1,212 @@
-<div class="flex flex-col md:w-2/5 md:place-content-between text-xl font-medium bg-gray-50 md:shadow-lg">
-    <div class="p-4 flex justify-between">
-        <span><i class="fas fa-shopping-cart"></i></span>
-        <span id="orderItemsNumber" class="text-right">0</span>
-    </div>
-    <div class="p-4 flex justify-between border-t-2 border-dashed">
-        <span>{{ i18n.trans('subtotal') }}</span>
-        <span id="orderSubtotal" class="text-right">0.000</span>
-    </div>
-    <div class="p-4 flex justify-between border-t-2 border-dashed">
-        <div class="w-1/2">
-            <span class="text-sm">{{ i18n.trans('dto') }}</span>
-            <label class="input-icon text-gray-400">
-                <span><i class="fa fa-sm fa-percent"></i></span>
-                <input id="orderDiscount" type="number" class="grow-0" value="0" data-action="checkout:discount:add">
-            </label>
+{# /**
+ *  This file is part of POS plugin for FacturaScripts
+ *  Pantalla de cobro estilo Odoo - Reemplaza el modal de checkout
+ */ #}
+<div class="flex h-full w-full flex-col bg-slate-50 md:flex-row">
+    {# Panel Izquierdo - Resumen del pedido #}
+    <div class="flex w-full flex-col bg-white md:w-2/5 md:shadow-lg">
+        {# Header con información del documento #}
+        <div class="border-b-2 border-slate-200 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase text-slate-500">{{ trans('document') }}</p>
+                    <h2 id="checkoutDocumentLabel" class="text-xl font-bold tracking-tight text-slate-900">
+                        {{ context.config().getDefaultDocument().descripcion ?: trans(context.config().getDefaultDocument().tipodoc) }}
+                    </h2>
+                </div>
+                <button class="btn btn-icon btn-light" title="{{ trans('back') }}"
+                        data-toggle="block"
+                        data-target="checkoutMainView"
+                        data-ontoggle="cartMainView">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+            </div>
+
+            {# Cliente y Agente #}
+            <div class="mt-4 grid grid-cols-2 gap-3">
+                <div class="rounded-lg bg-slate-50 p-3">
+                    <p class="text-[10px] font-semibold uppercase text-slate-500">{{ trans('customer') }}</p>
+                    <p id="checkoutCustomerLabel" class="text-sm font-bold text-slate-900">
+                        {{ context.config().getDefaultCustomer().nombre }}
+                    </p>
+                </div>
+                {% if context.terminal().can_change_agent %}
+                    <div class="rounded-lg bg-slate-50 p-3">
+                        <p class="text-[10px] font-semibold uppercase text-slate-500">{{ trans('agent') }}</p>
+                        <p id="checkoutAgentLabel" class="text-sm font-bold text-slate-900">
+                            {% if fsc.user.codagente %}
+                                {% set agent = context.agents().getAgent(fsc.user.codagente) %}
+                                {{ agent.nombre }}
+                            {% else %}
+                                {{ trans('select-agent') }}
+                            {% endif %}
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
-        <span id="orderDiscountAmount" class="flex-1 self-center text-right">0.000</span>
-    </div>
-    <div class="p-4 flex justify-between border-t-2 border-dashed">
-        <span>{{ i18n.trans('total') }}</span>
-        <span id="orderTotalNet" class="text-right">0.000</span>
-    </div>
-    <div class="p-4 flex justify-between border-t-2 border-dashed">
-        <span>{{ i18n.trans('taxes') }}</span>
-        <span id="orderTaxes" class="text-right">0.000</span>
-    </div>
-    <div class="p-4 text-white bg-slate-800 border-t-4 border-solid">
-        <h2 class="text-2xl font-medium">{{ i18n.trans('due-amount') }}:</h2>
-        <h4 id="orderTotal" class="font-sans text-4xl font-bold text-center">0.000</h4>
-    </div>
-</div>
-<div class="flex flex-1 flex-col">
-    <div class="flex border-b-4 text-white font-medium">
-        <div class="flex-1 p-4 bg-green-500">
-            <h2 class="text-xl text-green-800">{{ i18n.trans('payment-amount') }}:</h2>
-            <h2 id="checkoutTotalTendered" class="text-right text-4xl">0</h2>
+
+        {# Lista de productos del carrito #}
+        <div id="checkout:cart:summary" class="flex-1 overflow-auto p-4">
+            <div class="space-y-3">
+                {# Los productos se renderizarán dinámicamente aquí #}
+            </div>
         </div>
-        <div class="flex-1 p-4 bg-yellow-500">
-            <h2 class="text-xl text-yellow-800">{{ i18n.trans('payment-change') }}:</h2>
-            <h2 id="checkoutChange" class="text-right text-4xl">0</h2>
-        </div>
-    </div>
-    <div class="flex flex-col flex-1">
-        <div id="paymentList" class="flex-1">
-        </div>
-        <div class="p-4">
-            <div class="flex flex-wrap justify-center gap-4">
-                {% for element in fsc.getPaymentMethods() %}
-                    <button class="btn btn-primary payment-modal-btn" data-code="{{ element.codpago }}"
-                            data-description="{{ element.descripcion }}" data-action="checkout:show"
-                            data-paid="{{ element.formaPago().pagado }}">
-                        <i class="fas fa-plus-circle mr-2"></i>
-                        <span class="w-full text-center">{{ element.descripcion }}</span>
-                    </button>
-                {% endfor %}
+
+        {# Totales #}
+        <div class="border-t-2 border-slate-200 bg-slate-50 p-4">
+            <div class="space-y-3 text-base font-medium">
+                <div class="flex justify-between">
+                    <span class="text-slate-600">{{ trans('subtotal') }}</span>
+                    <span id="checkoutSubtotal" class="font-bold text-slate-900">0.000</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-600">{{ trans('taxes') }}</span>
+                    <span id="checkoutTaxes" class="font-bold text-slate-900">0.000</span>
+                </div>
+                <div class="flex justify-between border-t-2 border-dashed pt-3 text-xl">
+                    <span class="font-bold text-slate-900">{{ trans('total') }}</span>
+                    <span id="checkoutTotal" class="font-extrabold text-slate-900">0.000</span>
+                </div>
             </div>
         </div>
     </div>
-    <div class="p-4 border-t-4">
-        <div class="flex">
-            <button class="btn btn-danger" data-toggle="block" data-target="checkoutView">
-                <i class="fa fa-arrow-alt-circle-left"></i>
-                <span class="mx-2 text-center">{{ i18n.trans('back') }}</span>
-            </button>
-            <button id="orderSaveButton" class="btn btn-success ml-auto" data-action="order:save"
-                    data-toggle="block" data-target="checkoutView" disabled>
-                <span class="mx-2 text-center">{{ i18n.trans('confirm') }}</span>
-                <i class="fa fa-arrow-alt-circle-right"></i>
-            </button>
+
+    {# Panel Derecho - Interfaz de pago #}
+    <div class="flex flex-1 flex-col">
+        {# Montos de pago #}
+        <div class="flex border-b-4 border-slate-300 text-white font-medium">
+            <div class="flex-1 bg-green-500 p-6">
+                <h2 class="text-base font-semibold uppercase text-green-800">{{ trans('tendered-amount') }}</h2>
+                <h2 id="checkoutTenderedAmount" class="text-right text-5xl font-extrabold tracking-tight">0.00</h2>
+            </div>
+            <div class="flex-1 bg-yellow-500 p-6">
+                <h2 class="text-base font-semibold uppercase text-yellow-800">{{ trans('change-amount') }}</h2>
+                <h2 id="checkoutChangeAmount" class="text-right text-5xl font-extrabold tracking-tight">0.00</h2>
+            </div>
+        </div>
+
+        {# Área de trabajo principal #}
+        <div class="flex flex-1 flex-col overflow-auto p-6">
+            {# Input de monto #}
+            <div class="mb-6">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">{{ trans('amount') }}</label>
+                <div class="flex gap-3">
+                    <input type="number"
+                           id="paymentApplyInput"
+                           class="form-control-base flex-1 rounded-xl px-6 py-4 text-right text-3xl font-bold"
+                           placeholder="0.00"
+                           inputmode="decimal"
+                           step="0.01">
+                    <button class="btn btn-secondary px-6 text-base font-bold"
+                            data-action="checkout:payment:recalc"
+                            data-value="balance">
+                        {{ trans('balance') }}
+                    </button>
+                </div>
+            </div>
+
+            {# Botones de métodos de pago #}
+            <div class="mb-6">
+                <h3 class="mb-3 text-sm font-semibold text-slate-700">{{ trans('payment-methods') }}</h3>
+                <div class="grid grid-cols-2 gap-3 lg:grid-cols-3">
+                    {% for element in context.config().getPaymentMethods() %}
+                        <button class="btn btn-primary flex h-20 flex-col items-center justify-center gap-2 rounded-xl text-base font-bold"
+                                data-action="checkout:payment:add"
+                                data-code="{{ element.codpago }}"
+                                data-description="{{ element.descripcion }}"
+                                data-paid="{{ element.formaPago().pagado ?? 0 }}">
+                            <i class="fa-solid fa-plus-circle text-xl"></i>
+                            <span>{{ element.descripcion }}</span>
+                        </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# Lista de pagos agregados #}
+            <div class="flex-1">
+                <h3 class="mb-3 text-sm font-semibold text-slate-700">{{ trans('payments') }}</h3>
+                <div id="payment:list:view" class="space-y-3">
+                    {# Los pagos se renderizarán dinámicamente aquí #}
+                </div>
+            </div>
+        </div>
+
+        {# Footer con acciones #}
+        <div class="border-t-4 border-slate-300 bg-white p-6">
+            <div class="flex gap-4">
+                <button class="btn btn-danger flex-1 py-4 text-lg font-bold"
+                        data-toggle="block"
+                        data-target="checkoutMainView"
+                        data-ontoggle="cartMainView">
+                    <i class="fa-solid fa-arrow-left mr-2"></i>
+                    <span>{{ trans('cancel') }}</span>
+                </button>
+                <button id="orderSaveButton"
+                        class="btn btn-success flex-[2] py-4 text-lg font-bold"
+                        data-action="order:save"
+                        disabled>
+                    <span>{{ trans('confirm') }}</span>
+                    <i class="fa-solid fa-check-circle ml-2"></i>
+                </button>
+            </div>
         </div>
     </div>
 </div>
+
+{# Template para la lista de pagos #}
+<script id="payment:list:template" type="text/template">
+    <% if (payments.length === 0) { %>
+    <div class="flex h-32 items-center justify-center rounded-lg border-2 border-dashed border-slate-300 text-slate-400">
+        <div class="text-center">
+            <i class="fa-solid fa-credit-card fa-2x mb-2"></i>
+            <p class="text-sm">{{ trans('no-payments-added') }}</p>
+        </div>
+    </div>
+    <% } %>
+    <% payments.forEach(function(value, index) { %>
+    <div class="flex items-center gap-4 rounded-xl bg-slate-100 p-4 shadow-sm">
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500 text-white">
+            <i class="fa-solid fa-dollar-sign text-xl"></i>
+        </div>
+        <div class="flex-1">
+            <p class="text-xs font-semibold uppercase text-slate-600"><%= value.description %></p>
+            <p class="text-2xl font-extrabold text-slate-900"><%= value.amount %></p>
+        </div>
+        <button class="btn btn-icon btn-danger h-12 w-12"
+                data-action="checkout:payment:delete"
+                data-index="<%= index %>"
+                title="{{ trans('delete') }}">
+            <i class="fa-solid fa-trash"></i>
+        </button>
+    </div>
+    <% }) %>
+</script>
+
+{# Template para el resumen de productos en checkout #}
+<script id="checkout:cart:template" type="text/template">
+    <% if (lines.length === 0) { %>
+    <div class="flex h-32 items-center justify-center text-slate-400">
+        <i class="fa-solid fa-shopping-cart fa-3x"></i>
+    </div>
+    <% } %>
+    <% lines.forEach(function(product, index) { %>
+    <div class="flex items-center gap-3 rounded-lg bg-slate-50 p-3">
+        <% if (product.thumbnail) { %>
+        <img class="h-12 w-12 rounded-lg object-cover" src="<%= product.thumbnail %>" alt="<%= product.referencia %>">
+        <% } else { %>
+        <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-200 text-slate-400">
+            <i class="fa-regular fa-image"></i>
+        </div>
+        <% } %>
+        <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-slate-500"><%= product.referencia %></p>
+            <p class="truncate text-sm font-bold text-slate-900"><%= product.descripcion %></p>
+            <p class="text-xs text-slate-600">{{ trans('quantity') }}: <span class="font-semibold"><%= product.cantidad %></span></p>
+        </div>
+        <div class="text-right">
+            <p class="text-base font-extrabold text-slate-900">$ <%= product.pvptotaliva %></p>
+        </div>
+    </div>
+    <% }) %>
+</script>
