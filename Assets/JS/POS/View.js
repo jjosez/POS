@@ -28,6 +28,18 @@ export function toggleCollapse(element) {
 }
 
 /**
+ * Función para manejar la lógica de un "block".
+ * @param {HTMLElement} element - El elemento que activa el cambio de bloque.
+ */
+export function toggleBlock(element) {
+    const target = document.getElementById(element.dataset.target);
+    const elementOntoggle = document.getElementById(element.dataset.ontoggle);
+
+    toggleVisibility(target);
+    if (elementOntoggle) toggleVisibility(elementOntoggle);
+}
+
+/**
  * Función para manejar el cambio de pestañas (tab).
  * @param {HTMLElement} element - El elemento que activa el cambio de pestaña.
  */
@@ -61,7 +73,8 @@ const eventHandler = element => {
     const toggleType = element.dataset.toggle;
     const toggleActions = {
         'collapse': toggleCollapse,
-        'tab': toggleTab
+        'tab': toggleTab,
+        'block': toggleBlock
     };
 
     const action = toggleActions[toggleType];
