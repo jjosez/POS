@@ -9,8 +9,8 @@ class TemplateManager {
         if (instance) throw new Error("TemplateManager instance error.");
         instance = this;
 
-        this.templates = templateMap; // Plantillas cargadas (nombre → HTML)
-        this.viewCache = {};          // Cache de nodos DOM (nombre → elemento)
+        this.templates = templateMap; 
+        this.viewCache = {};          
 
         this.preloadTemplatesFromDOM();
     }
@@ -35,16 +35,36 @@ class TemplateManager {
     }
 
     /**
+     * Recarga un template específico del DOM
+     * @param {string} templateId
+     */
+    loadTemplate(templateId) {
+        const templateElement = document.getElementById(templateId);
+        
+        if (templateElement && templateElement.type === 'text/template') {
+            this.templates[templateId] = templateElement.innerHTML;
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Renderiza una plantilla con datos en un contenedor
      * @param {string} templateName - clave de la plantilla
      * @param {object} data - datos para renderizar
      * @param {HTMLElement|string} container - contenedor DOM o id
      */
     render(templateName, data = {}, container) {
-        const template = this.templates[templateName];
+        let template = this.templates[templateName];
+        
         if (!template) {
-            console.error(`❌ Template "${templateName}" not found.`);
-            return;
+            const loaded = this.loadTemplate(templateName);
+            if (loaded) {
+                template = this.templates[templateName];
+            } else {
+                console.error(`❌ Template "${templateName}" not found.`);
+                return;
+            }
         }
 
         let target = container;
