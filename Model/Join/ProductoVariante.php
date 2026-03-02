@@ -71,7 +71,7 @@ class ProductoVariante extends JoinModel implements JsonSerializable
         ];
         
         if (Plugins::isEnabled('SKU')) {
-            $fields['oem_code'] = 'P.referencia_fabricante';
+            $fields['detail'] = 'CONCAT_WS(" - ", P.referencia_fabricante, A1.descripcion, A2.descripcion, A3.descripcion, A4.descripcion)';
         }
         
         return $fields;
