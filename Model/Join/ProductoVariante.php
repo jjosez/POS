@@ -8,7 +8,7 @@ namespace FacturaScripts\Plugins\POS\Model\Join;
 
 use FacturaScripts\Core\DataSrc\Impuestos;
 use FacturaScripts\Core\Lib\MyFilesToken;
-use FacturaScripts\Core\Model\Base\JoinModel;
+use FacturaScripts\Core\Template\JoinModel;
 use FacturaScripts\Core\Plugins;
 use FacturaScripts\Core\Template\ExtensionsTrait;
 use FacturaScripts\Core\Tools;
@@ -23,6 +23,7 @@ use JsonSerializable;
 class ProductoVariante extends JoinModel implements JsonSerializable
 {
     use ExtensionsTrait;
+
     public float $priceWithTax = 0.0;
     public string $priceWithFormat = '0,00';
     public bool $isOutOfStock = false;
@@ -69,11 +70,11 @@ class ProductoVariante extends JoinModel implements JsonSerializable
             'family' => 'F.descripcion',
             'brandname' => 'B.nombre'
         ];
-        
+
         if (Plugins::isEnabled('SKU')) {
             $fields['detail'] = 'CONCAT_WS(" - ", P.referencia_fabricante, A1.descripcion, A2.descripcion, A3.descripcion, A4.descripcion)';
         }
-        
+
         return $fields;
     }
 
@@ -134,7 +135,7 @@ class ProductoVariante extends JoinModel implements JsonSerializable
      *
      * @param Tarifa $rate Customer rate to apply
      */
-    public function applyRate($rate): void
+    public function applyRate(Tarifa $rate): void
     {
         $this->price = $rate->apply($this->cost ?? 0.0, $this->price ?? 0.0);
         $this->recalculateCustomPriceFields();
@@ -145,7 +146,7 @@ class ProductoVariante extends JoinModel implements JsonSerializable
      *
      * @param TarifaFamilia $rate Family rate to apply
      */
-    public function applyFamilyRate($rate): void
+    public function applyFamilyRate(TarifaFamilia $rate): void
     {
         $this->price = $rate->apply($this->cost ?? 0.0, $this->price ?? 0.0);
         $this->recalculateCustomPriceFields();
@@ -178,7 +179,7 @@ class ProductoVariante extends JoinModel implements JsonSerializable
         $this->thumbnail = '';
 
         if (!empty($this->image_path) && !empty($this->image_filename)) {
-            $this->thumbnail = $this->image_path . '?myft=' . MyFilesToken::get($this->image_path ?? '', true);
+            $this->thumbnail = $this->image_path . '?myft=' . MyFilesToken::get($this->image_path, true);
         }
 
         /*if (!empty($this->image_file)) {
@@ -222,7 +223,7 @@ class ProductoVariante extends JoinModel implements JsonSerializable
         return $data;
     }
 
-    public function jsonSerialize(): mixed
+    public function jsonSerialize(): array
     {
         return $this->toArray(true);
     }

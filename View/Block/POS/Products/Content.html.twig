@@ -85,7 +85,7 @@
 
                         {# Price + CTA #}
                         <div class="<%= mode === 'grid' ? 'mt-auto pt-2 flex items-center justify-center' : 'flex-shrink-0 text-right' %>">
-                            <div class="<%= mode === 'grid' ? 'text-base' : 'text-lg' %> font-extrabold text-slate-900">
+                            <div class="<%= mode === 'grid' ? 'text-lg' : 'text-base' %> font-extrabold text-slate-900">
                                 <%= product.priceWithFormat %>
                             </div>
                             <% if (!product.isOutOfStock && mode === 'list') { %>

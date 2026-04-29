@@ -6,10 +6,10 @@
 
 namespace FacturaScripts\Plugins\POS\Lib\Services;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Almacenes;
 use FacturaScripts\Core\Plugins;
 use FacturaScripts\Core\Template\ExtensionsTrait;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\GrupoClientes;
 use FacturaScripts\Dinamic\Model\Join\ProductoStock;
@@ -44,9 +44,9 @@ class Products
 
     /**
      * @param string $idempresa
-     * @return DataBaseWhere
+     * @return Where
      */
-    protected function getCompanyDatabaseWhere(string $idempresa): DataBaseWhere
+    protected function getCompanyDatabaseWhere(string $idempresa): Where
     {
         $almacenes = [];
         foreach (Almacenes::all() as $almacen) {
@@ -55,7 +55,7 @@ class Products
             }
         }
 
-        return new DataBaseWhere('S.codalmacen', implode(',', $almacenes), 'IN');
+        return Where::in('S.codalmacen', implode(',', $almacenes));
     }
 
     /**
@@ -83,7 +83,7 @@ class Products
     public function getStock(string $code): array
     {
         $where = [
-            new DataBaseWhere('LOWER(S.referencia)', mb_strtolower($code, 'UTF8'))
+            Where::eq('LOWER(S.referencia)', mb_strtolower($code, 'UTF8'))
         ];
 
         return (new ProductoStock())->all($where);
@@ -101,29 +101,29 @@ class Products
     public function search(string $text, array $filters = [], string $wharehouse = '', string $company = ''): array
     {
         $where = [
-            new DataBaseWhere('V.codbarras', $text, 'LIKE'),
-            new DataBaseWhere('V.referencia', $text, 'LIKE', 'OR'),
-            new DataBaseWhere('P.descripcion', $text, 'XLIKE', 'OR')
+            Where::like('V.codbarras', $text),
+            Where::orLike('V.referencia', $text),
+            Where::orXlike('P.descripcion', $text)
         ];
-        
+
         if (Plugins::isEnabled('SKU')) {
-            $where[] = new DataBaseWhere('P.referencia_fabricante', $text, 'LIKE', 'OR');
+            $where[] = Where::orLike('P.referencia_fabricante', $text);
         }
-        
-        $where[] = new DataBaseWhere('P.sevende', true);
+
+        $where[] = Where::eq('P.sevende', true);
 
         if ($company) {
             $where[] = $this->getCompanyDatabaseWhere($company);
         } elseif ($wharehouse) {
-            $where[] = new DataBaseWhere('S.codalmacen', $wharehouse);
-            $where[] = new DataBaseWhere('S.codalmacen', NULL, 'IS', 'OR');
+            $where[] = Where::eq('S.codalmacen', $wharehouse);
+            $where[] = Where::orIsNull('S.codalmacen');
         }
 
         if (!empty($filters['families'])) {
             $families = implode(',', array_column($filters['families'], 'code'));
-            $where[] = new DataBaseWhere('P.codfamilia', $families, 'IN');
+            $where[] = Where::in('P.codfamilia', $families);
         }
-        
+
         $products = $this->product->all($where, [], 0, 30);
 
         $this->applyProductRates($products, $filters);
@@ -140,13 +140,15 @@ class Products
     public function searchBarcode(string $text): array
     {
         $where = [
-            new DataBaseWhere('V.referencia', $text),
-            new DataBaseWhere('V.codbarras', $text, '=', 'OR')
+            Where::eq('V.referencia', $text),
+            Where::orEq('V.codbarras', $text)
         ];
 
         $result = $this->product->all($where, [], 0, 1);
 
-        if (empty($result)) return [];
+        if (empty($result)) {
+            return [];
+        }
 
         $model = current($result);
         return [
@@ -165,10 +167,14 @@ class Products
     private function applyProductRates(array $products, array $filters): void
     {
         $codcliente = $filters['codcliente'] ?? '';
-        if (empty($codcliente)) return;
+        if (empty($codcliente)) {
+            return;
+        }
 
         $rate = $this->getCustomerRate($codcliente);
-        if (empty($rate->codtarifa)) return;
+        if (empty($rate->codtarifa)) {
+            return;
+        }
 
         if (Plugins::isEnabled('TarifasAvanzadas')) {
             $this->preloadFamilyRates($products, $rate);
@@ -204,7 +210,9 @@ class Products
 
     public function getFamilyRate(ProductoVariante $product, Tarifa $rate): ?TarifaFamilia
     {
-        if (empty($product->codfamilia)) return null;
+        if (empty($product->codfamilia)) {
+            return null;
+        }
 
         $cacheKey = $product->codfamilia . '-' . $rate->codtarifa;
         return $this->familyRateCache[$cacheKey] ?? null;
@@ -213,11 +221,13 @@ class Products
     protected function preloadFamilyRates(array $products, Tarifa $rate): void
     {
         $familias = array_unique(array_filter(array_map(fn($p) => $p->codfamilia, $products)));
-        if (empty($familias)) return;
+        if (empty($familias)) {
+            return;
+        }
 
         $where = [
-            new DataBaseWhere('codfamilia', implode(',', $familias), 'IN'),
-            new DataBaseWhere('codtarifa', $rate->codtarifa)
+            Where::in('codfamilia', implode(',', $familias)),
+            Where::eq('codtarifa', $rate->codtarifa)
         ];
 
         $familyRates = new TarifaFamilia()->all($where);
