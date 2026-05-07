@@ -6,7 +6,6 @@
 
 namespace FacturaScripts\Plugins\POS\Model;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Template\ModelClass;
 use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
@@ -120,9 +119,10 @@ class SesionPuntoVenta extends ModelClass
     public function getCashMovements(): array
     {
         $operacion = new MovimientoPuntoVenta();
-        $where = [new DataBaseWhere('idsesion', $this->idsesion)];
 
-        return $operacion->all($where);
+        return $operacion->all([
+            Where::eq('idsesion', $this->idsesion)
+        ]);
     }
 
     /**

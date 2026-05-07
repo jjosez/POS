@@ -21,22 +21,22 @@ class Transactions
     /**
      * @var SalesDocument
      */
-    protected $document;
+    protected SalesDocument $document;
 
     /**
-     * @var SalesDocumentLine;
+     * @var SalesDocumentLine[];
      */
-    protected $documentLines = [];
+    protected array $documentLines = [];
 
     /**
      * @var PagoPuntoVenta[]
      */
-    protected $payments = [];
+    protected array $payments = [];
 
     /**
      * @var array
      */
-    protected $products = [];
+    protected array $products = [];
 
 
     /**
@@ -108,7 +108,7 @@ class Transactions
             throw new RuntimeException("Class $className not exist");
         }
 
-        $this->document = new $className;
+        $this->document = new $className();
 
         if (false === is_subclass_of($this->document, self::SALES_DOCUMENT_CLASS)) {
             throw new RuntimeException("Class $className is not a valid SalesDocument");

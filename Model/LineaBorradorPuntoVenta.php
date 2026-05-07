@@ -10,7 +10,6 @@ use FacturaScripts\Core\Template\ModelTrait;
 
 class LineaBorradorPuntoVenta extends SalesDocumentLine
 {
-
     use ModelTrait;
 
     /**
@@ -23,7 +22,7 @@ class LineaBorradorPuntoVenta extends SalesDocumentLine
     public $thumbnail;
 
     /**
-     * 
+     *
      * @return string
      */
     public function documentColumn(): string
@@ -32,7 +31,7 @@ class LineaBorradorPuntoVenta extends SalesDocumentLine
     }
 
     /**
-     * 
+     *
      * @return BorradorPuntoVenta
      */
     public function getDocument(): BorradorPuntoVenta

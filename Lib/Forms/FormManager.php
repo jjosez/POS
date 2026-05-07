@@ -6,7 +6,6 @@
 
 namespace FacturaScripts\Plugins\POS\Lib\Forms;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Lib\Widget\VisualItemLoadEngine;
@@ -104,7 +103,7 @@ class FormManager
         $options = new OpcionesTerminalPuntoVenta();
 
         $where = [
-            Where::eq('nick', NULL),
+            Where::eq('nick', null),
         ];
 
         if ($options->loadWhere($where)) {

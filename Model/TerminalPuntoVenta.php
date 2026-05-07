@@ -6,7 +6,6 @@
 
 namespace FacturaScripts\Plugins\POS\Model;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Almacenes;
 use FacturaScripts\Core\Model\Base\CompanyRelationTrait;
 use FacturaScripts\Core\Template\ModelClass;
@@ -109,8 +108,10 @@ class TerminalPuntoVenta extends ModelClass
      */
     public function getDefaultDocument(): TipoDocumentoPuntoVenta
     {
-        foreach (self::getSupportedDocuments() as $element) if ($element->preferido) {
-            return $element;
+        foreach (self::getSupportedDocuments() as $element) {
+            if ($element->preferido) {
+                return $element;
+            }
         }
 
         return new TipoDocumentoPuntoVenta();
@@ -128,8 +129,10 @@ class TerminalPuntoVenta extends ModelClass
 
     public function getCashPaymentMethod(): string
     {
-        foreach ($this->getSupportedPaymenthMethods() as $element) if ($element->recibecambio) {
-            return $element->codpago;
+        foreach ($this->getSupportedPaymenthMethods() as $element) {
+            if ($element->recibecambio) {
+                return $element->codpago;
+            }
         }
 
         return '';
@@ -141,7 +144,7 @@ class TerminalPuntoVenta extends ModelClass
     public function getSupportedDocuments(): array
     {
         return TipoDocumentoPuntoVenta::all([
-            new DataBaseWhere('idterminal', $this->idterminal)
+            Where::eq('idterminal', $this->idterminal)
         ]);
     }
 

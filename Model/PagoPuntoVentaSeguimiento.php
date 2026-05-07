@@ -29,7 +29,6 @@ use FacturaScripts\Core\Template\ModelTrait;
  */
 class PagoPuntoVentaSeguimiento extends ModelClass
 {
-
     use ModelTrait;
 
     /**

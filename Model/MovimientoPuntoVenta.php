@@ -5,10 +5,10 @@
  */
 namespace FacturaScripts\Plugins\POS\Model;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Template\ModelClass;
 use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 
 /**
  * Operaciones realizadas terminales POS.
@@ -45,7 +45,7 @@ class MovimientoPuntoVenta extends ModelClass
     }
 
     /**
-     * Returns all orders from given session ID.
+     * Returns all orders from a given session ID.
      *
      * @param string $code
      *
@@ -53,8 +53,8 @@ class MovimientoPuntoVenta extends ModelClass
      */
     public function allFromSession(string $code): array
     {
-        $where = [new DataBaseWhere('idsesion', $code)];
-
-        return $this->all($where);
+        return $this->all([
+            Where::eq('idsesion', $code)
+        ]);
     }
 }

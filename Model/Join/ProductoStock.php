@@ -2,7 +2,7 @@
 
 namespace FacturaScripts\Plugins\POS\Model\Join;
 
-use FacturaScripts\Core\Model\Base\JoinModel;
+use FacturaScripts\Core\Template\JoinModel;
 use JsonSerializable;
 
 /**
@@ -58,7 +58,7 @@ class ProductoStock extends JoinModel implements JsonSerializable
         return $data;
     }
 
-    public function jsonSerialize(): mixed
+    public function jsonSerialize(): array
     {
         return $this->toArray();
     }
