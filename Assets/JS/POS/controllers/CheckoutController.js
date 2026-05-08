@@ -48,19 +48,20 @@ const CheckoutController = {
 
     showCheckoutModal() {
         isCheckoutVisible = true;
-
-        // Usar bloques en lugar de modal
-        CheckoutView.toggleCheckoutBlock();
+                
+        CheckoutView.togglePaymentModal();
         CheckoutView.render(CheckoutModel);
 
         // Renderizar el resumen del carrito
-        const cartState = CartController.getState();
-        CheckoutView.renderCartSummary(cartState);
+        //CheckoutView.toggleCheckoutBlock();
+        //const cartState = CartController.getState();
+        //CheckoutView.renderCartSummary(cartState);
     },
 
     hideCheckoutModal() {
         isCheckoutVisible = false;
-        CheckoutView.toggleCheckoutBlock();
+        CheckoutView.togglePaymentModal();
+        //CheckoutView.toggleCheckoutBlock();
     },
 
     getState() {
