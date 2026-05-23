@@ -129,9 +129,7 @@ class BorradorPuntoVenta extends SalesDocument
         $order = ['orden' => 'DESC', 'idlinea' => 'ASC'];
 
         $lines = LineaBorradorPuntoVenta::all($where, $order);
-        foreach ($lines as &$line) {
-            $this->loadThumbnailForLine($line);
-        }
+        $this->loadThumbnailsForLines($lines);
 
         return $lines;
     }
@@ -182,19 +180,39 @@ class BorradorPuntoVenta extends SalesDocument
         $this->pipe('setListRowColor');
     }
 
-    protected function loadThumbnailForLine($line): void
+    protected function loadThumbnailsForLines(array $lines): void
     {
-        $where = [
-            Where::eq('idproducto', $line->idproducto),
-            Where::orEq('referencia', $line->referencia),
-        ];
+        $productIds = [];
 
-        $images = ProductoImagen::all($where);
+        foreach ($lines as $line) {
+            if (empty($line->idproducto)) {
+                continue;
+            }
 
-        if (empty($images)) {
+            $productIds[$line->idproducto] = $line->idproducto;
+        }
+
+        if (empty($productIds)) {
             return;
         }
 
-        $line->thumbnail = FS_ROUTE . $images[0]->getThumbnail(150, 150, true);
+        $where = [Where::in('idproducto', $productIds)];
+        $images = ProductoImagen::all($where);
+
+        $imagesByProduct = [];
+
+        foreach ($images as $image) {
+            $imagesByProduct[$image->idproducto] ??= $image;
+        }
+
+        foreach ($lines as $line) {
+            $image = $imagesByProduct[$line->idproducto] ?? null;
+
+            if ($image === null) {
+                continue;
+            }
+
+            $line->thumbnail = FS_ROUTE . $image->getThumbnail(150, 150, true);
+        }
     }
 }
