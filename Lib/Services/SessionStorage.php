@@ -161,9 +161,9 @@ class SessionStorage
         $order->total = $document->total;
 
         if ($order->save()) {
-            Tools::log('POS')->info('order-saved', [
-                'code' => $order->codigo,
-                'total' => $order->total
+            Tools::log('POS')->info('pos-order-save-ok', [
+                '%code%' => $order->codigo,
+                '%total%' => $order->total
             ]);
             return true;
         }

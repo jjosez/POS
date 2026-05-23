@@ -65,6 +65,7 @@
   "pos-order-on-hold": "La orden se ha puesto en espera.",
   "pos-order-on-hold-deleted": "La orden pendiente ha sido eliminada.",
   "pos-order-on-hold-error": "Error al pausar la orden.",
+  "pos-order-save-ok": "La orden %code% se registrado correntamente con un total de %total%.",
   "pos-orders-on-hold": "Ordenes pendientes",
   "pos-payment-method": "Forma de pago POS",
   "pos-payments": "Pagos POS",

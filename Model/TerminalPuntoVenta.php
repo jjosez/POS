@@ -120,7 +120,7 @@ class TerminalPuntoVenta extends ModelClass
     /**
      * @return FormaPagoPuntoVenta[]
      */
-    public function getSupportedPaymenthMethods(): array
+    public function getSupportedPaymentMethods(): array
     {
         return FormaPagoPuntoVenta::all([
             Where::eq('idterminal', $this->idterminal)
@@ -129,7 +129,7 @@ class TerminalPuntoVenta extends ModelClass
 
     public function getCashPaymentMethod(): string
     {
-        foreach ($this->getSupportedPaymenthMethods() as $element) {
+        foreach ($this->getSupportedPaymentMethods() as $element) {
             if ($element->recibecambio) {
                 return $element->codpago;
             }

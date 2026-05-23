@@ -15,7 +15,7 @@ use RuntimeException;
  */
 class Transactions
 {
-    const string SALES_DOCUMENT_CLASS = '\\FacturaScripts\\Core\\Model\\Base\\SalesDocument';
+    const string SALES_DOCUMENT_CLASS = SalesDocument::class;
     const string MODEL_NAMESPACE = '\\FacturaScripts\\Dinamic\\Model\\';
 
     /**

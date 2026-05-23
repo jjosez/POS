@@ -23,7 +23,7 @@ const viewElements = {
 };
 
 class CartView {
-    beepAudio = () => viewElements.beepAudio;
+    get beepAudio() { return document.getElementById('beepAudio'); }
     cartTotalLabel = () => viewElements.cartTotalLabel;
     customerSearchBox = () => viewElements.customerSearchBox;
     orderDiscountAmountLabel = () => viewElements.orderDiscountAmountLabel;
@@ -41,7 +41,7 @@ class CartView {
         }
 
         const row = document.querySelector(`.cart-line[data-index="${selectedIndex}"]`);
-        if (!row) return; // todavía no existe en DOM (render pendiente)
+        if (!row) return; 
 
         this.getSelectedCartLinesElements()
             .forEach(r => r.setAttribute('aria-selected', 'false'));

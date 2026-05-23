@@ -94,11 +94,11 @@ class Products
      *
      * @param string $text Search text (barcode, reference, or description)
      * @param array $filters Additional filters (e.g., families, codcliente)
-     * @param string $wharehouse Warehouse code filter
+     * @param string $warehouse Warehouse code filter
      * @param string $company Company ID filter
      * @return array Product list
      */
-    public function search(string $text, array $filters = [], string $wharehouse = '', string $company = ''): array
+    public function search(string $text, array $filters = [], string $warehouse = '', string $company = ''): array
     {
         $where = [
             Where::like('V.codbarras', $text),
@@ -114,8 +114,8 @@ class Products
 
         if ($company) {
             $where[] = $this->getCompanyDatabaseWhere($company);
-        } elseif ($wharehouse) {
-            $where[] = Where::eq('S.codalmacen', $wharehouse);
+        } elseif ($warehouse) {
+            $where[] = Where::eq('S.codalmacen', $warehouse);
             $where[] = Where::orIsNull('S.codalmacen');
         }
 

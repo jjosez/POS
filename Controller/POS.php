@@ -354,21 +354,6 @@ class POS extends BaseController
         ]);
     }
 
-    /**
-     * @return Transactions|null
-     */
-    protected function prepareOrderTransaction(): ?Transactions
-    {
-        $request = new TransactionRequest($this->request);
-        $transaction = new Transactions($request);
-
-        if ($this->pipeFalse('saveBefore', $request, $transaction) === false) {
-            return null;
-        }
-
-        return $transaction;
-    }
-
     protected function executeTransaction(Transactions $transaction): bool
     {
         try {
@@ -493,7 +478,7 @@ class POS extends BaseController
 
         $company = $terminal->productsource === $terminal::PRODUCTS_FROM_COMPANY ? $terminal->idempresa : '';
         $warehouse = $terminal->productsource === $terminal::PRODUCTS_FROM_WAREHOUSE ? $terminal->codalmacen : '';
-        
+
         $this->setResponse($this->context->products()->search($query, $filterRules, $warehouse, $company));
     }
 

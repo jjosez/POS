@@ -67,7 +67,7 @@ class BorradorPuntoVenta extends SalesDocument
         $where = [Where::eq('editable', false)];
 
         if ($sessionID) {
-            $where = [Where::eq('idsesion', $sessionID)];
+            $where[] = Where::eq('idsesion', $sessionID);
         }
 
         return self::all($where);

@@ -53,7 +53,7 @@ class Configuration
 
     public function getPaymentMethods(): array
     {
-        return $this->terminal->getSupportedPaymenthMethods();
+        return $this->terminal->getSupportedPaymentMethods();
     }
 
     public function getDefaultWarehouse(): string

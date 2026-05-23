@@ -15,11 +15,9 @@ const ProductController = {
 
         if (result.code) {
             eventManager.emit('event:product:scanned', {
-                dataset: {
-                    code: result.code,
-                    description: result.description,
-                    thumbnail: result.thumbnail || ''
-                }
+                code: result.code,
+                description: result.description,
+                thumbnail: result.thumbnail || ''
             })
         }
     },
@@ -29,7 +27,7 @@ const ProductController = {
             clearTimeout(searchTimer);
         }
 
-        searchTimer = setTimeout(async() => {
+        searchTimer = setTimeout(async () => {
             const query = el.value.trim();
 
             const results = await Core.searchRequest('product:search', query, searchFilter);
