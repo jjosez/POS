@@ -86,7 +86,7 @@ class Products
             Where::eq('LOWER(S.referencia)', mb_strtolower($code, 'UTF8'))
         ];
 
-        return (new ProductoStock())->all($where);
+        return ProductoStock::all($where);
     }
 
     /**

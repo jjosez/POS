@@ -52,9 +52,6 @@ class ProductoStock extends JoinModel implements JsonSerializable
             $data[$field_name] = $this->{$field_name} ?? null;
         }
 
-        if ($withCalculated) {
-        }
-
         return $data;
     }
 
