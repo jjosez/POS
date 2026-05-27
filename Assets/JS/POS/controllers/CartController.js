@@ -459,7 +459,7 @@ const CartController = {
             }
         });
 
-        CartController.beepAudio = CartView.beepAudio();
+        CartController.beepAudio = CartView.beepAudio;
     }
 };
 
