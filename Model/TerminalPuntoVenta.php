@@ -36,6 +36,7 @@ class TerminalPuntoVenta extends ModelClass
     public $codalmacen;
     public $codcliente;
     public $codserie;
+    public $codserierect;
     public $comandoapertura;
     public $comandocorte;
     public $defaultdocument;

@@ -203,6 +203,32 @@ export function parseParams(paramsJson) {
     }
 }
 
+export async function getOrderForReturn({code, model, order}) {
+    const data = new FormData();
+    data.set('action', 'order:refund:get');
+    data.set('code', order || '');
+    return postRequest(data);
+}
+
+export async function getRefundToken() {
+    const data = new FormData();
+    data.set('action', 'order:refund:token');
+    return postRequest(data);
+}
+
+export async function searchOrderForReturn({term}) {
+    const data = new FormData();
+    data.set('action', 'order:refund:search');
+    data.set('query', term || '');
+    return postRequest(data);
+}
+
+export async function getLastOrderForReturn() {
+    const data = new FormData();
+    data.set('action', 'order:last:list');
+    return postRequest(data);
+}
+
 export function openLinkAction(controllerUrl, actionParams, target = '_blank') {
     const urlBase = controllerUrl;
 

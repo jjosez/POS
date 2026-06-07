@@ -13,5 +13,18 @@
     "till-session-operations": "Operacions arqueig",
     "till-sessions": "Arqueigs",
     "total-counted": "Total comptat",
-    "total-expected": "Total esperat"
+    "total-expected": "Total esperat",
+  "new-refund": "Nova devolució",
+  "selected-lines-will-be-sent-as-negative-sale": "Les línies seleccionades s'enviaran com a venda negativa",
+  "return-total": "Total a retornar",
+  "apply-return": "Aplicar devolució",
+  "to-refund": "A retornar",
+  "no-lines-for-return": "No hi ha línies per retornar",
+  "qty-sold": "Venut",
+  "search-sale-to-return": "Cerca la venda per retornar",
+  "refund": "Devolució",
+  "order-refund-saved": "Devolució registrada correctament",
+  "order-refund-failed": "Error en registrar la devolució",
+  "available": "Disponible",
+  "max": "Màx"
 }

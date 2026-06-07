@@ -81,15 +81,15 @@
                     data-order="<%= order.idoperacion %>">
                 <i class="fas fa-print fa-sm"></i>
             </button>
-           {# <button type="button"
+            <button type="button"
                     class="mr-2 btn btn-icon btn-warning"
                     title="{{ trans('refund') }}"
-                    data-action="order:return:show"
+                    data-action="returns:sale-open-from-list:action"
                     data-code="<%= order.iddocumento %>"
                     data-model="<%= order.tipodoc %>"
                     data-order="<%= order.idoperacion %>">
                 <i class="fa-solid fa-hand-holding-dollar fa-fw"></i>
-            </button>#}
+            </button>
             <a href="<%= order.url %>" type="button" target="_blank" class="btn btn-icon btn-primary">
                 <i class="fas fa-file-invoice fa-sm"></i>
             </a>

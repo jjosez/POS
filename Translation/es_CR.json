@@ -101,5 +101,18 @@
   "unit-price": "Precio unitario",
   "updated-at": "Fecha de actualización",
   "updated-by": "Actualizado por",
-  "withdraw": "Retiro"
+  "withdraw": "Retiro",
+  "new-refund": "Nueva devolución",
+  "selected-lines-will-be-sent-as-negative-sale": "Las líneas seleccionadas se enviarán como venta negativa",
+  "return-total": "Total a devolver",
+  "apply-return": "Aplicar devolución",
+  "to-refund": "A devolver",
+  "no-lines-for-return": "No hay líneas para devolver",
+  "qty-sold": "Vendido",
+  "search-sale-to-return": "Busque la venta a devolver",
+  "refund": "Devolución",
+  "order-refund-saved": "Devolución registrada correctamente",
+  "order-refund-failed": "Error al registrar la devolución",
+  "available": "Disponible",
+  "max": "Máx"
 }

@@ -130,6 +130,32 @@ class CashBalanceManager
     }
 
     /**
+     * Records a refund cash movement and updates expected balance.
+     */
+    public function recordRefund(float $cashAmount, string $code): bool
+    {
+        if ($cashAmount >= 0) {
+            return true;
+        }
+
+        $movement = new \FacturaScripts\Dinamic\Model\MovimientoPuntoVenta();
+        $movement->idsesion = $this->session->idsesion;
+        $movement->nickusuario = $this->session->nickusuario;
+        $movement->descripcion = 'refund: ' . $code;
+        $movement->total = $cashAmount;
+
+        if (false === $movement->save()) {
+            Tools::log('POS')->error('cash-movement-save-failed', [
+                'amount' => $cashAmount,
+                'description' => $movement->descripcion
+            ]);
+            return false;
+        }
+
+        return $this->subtractCash(abs($cashAmount), 'refund: ' . $code);
+    }
+
+    /**
      * Updates counted balance during session closing.
      */
     public function updateCountedBalance(array $coinsCount): CashBalance

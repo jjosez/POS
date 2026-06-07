@@ -52,6 +52,17 @@
         <name>total</name>
         <type>double precision</type>
         <null>NO</null>
+    </column>
+    <column>
+        <name>idoperacion_original</name>
+        <type>integer</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>esdevolucion</name>
+        <type>boolean</type>
+        <null>NO</null>
+        <default>false</default>
     </column>    
     <constraint>
         <name>operacionespos_pkey</name>

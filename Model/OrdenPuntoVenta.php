@@ -26,7 +26,11 @@ class OrdenPuntoVenta extends ModelClass
 
     public $codigo;
 
+    public $esdevolucion;
+
     public $fecha;
+
+    public $idoperacion_original;
 
     public $hora;
     public $iddocumento;
@@ -125,7 +129,7 @@ class OrdenPuntoVenta extends ModelClass
         $className = '\\FacturaScripts\\Dinamic\\Model\\' . $this->tipodoc;
 
         /** @var SalesDocument $document */
-        $document = new $className;
+        $document = new $className();
         $document->load($this->iddocumento);
 
         return $document;

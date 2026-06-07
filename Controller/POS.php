@@ -11,10 +11,12 @@ use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\KernelException;
 use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\POS\Lib\Core\BaseController;
 use FacturaScripts\Plugins\POS\Lib\Core\SessionManager;
+use FacturaScripts\Plugins\POS\Lib\Services\Refunds;
 use FacturaScripts\Plugins\POS\Lib\Services\TransactionRequest;
 use FacturaScripts\Plugins\POS\Lib\Services\Transactions;
 use RuntimeException;
@@ -96,6 +98,20 @@ class POS extends BaseController
 
             case 'order:refund:get':
                 $this->getOrderToRefund();
+                return false;
+
+            case 'order:refund:token':
+                $this->buildResponse();
+                return false;
+
+            case 'order:refund:save':
+                if ($this->saveRefund()) {
+                    $this->buildResponse();
+                }
+                return false;
+
+            case 'order:refund:search':
+                $this->searchOrderForRefund();
                 return false;
 
             case 'order:last:list':
@@ -284,6 +300,154 @@ class POS extends BaseController
                 'message' => $e->getMessage(),
             ]);
         }
+    }
+
+    protected function saveRefund(): bool
+    {
+        if (!$this->validateRequest()) {
+            return false;
+        }
+
+        $originalCode = $this->request->input('original_code', '');
+
+        $linesRaw = $this->request->input('lines', '[]');
+        $refundLines = is_string($linesRaw) ? json_decode($linesRaw, true) : $linesRaw;
+
+        $paymentsRaw = $this->request->input('payments', '[]');
+        $payments = is_string($paymentsRaw) ? json_decode($paymentsRaw, true) : $paymentsRaw;
+
+        if (empty($originalCode) || empty($refundLines) || !is_array($refundLines)) {
+            $this->buildResponse(['success' => false]);
+            return false;
+        }
+
+        $originalOrder = $this->context->storage()->getOrder($originalCode);
+        if (null === $originalOrder) {
+            $this->buildResponse([
+                'success' => false,
+                'message' => 'order-not-found',
+            ]);
+            return false;
+        }
+
+        $refunds = new Refunds($this->session->getSession(), $this->session->getTerminal());
+
+        try {
+            $this->dataBase->beginTransaction();
+
+            $result = $refunds->processRefund($originalOrder, $refundLines, $payments);
+
+            $this->dataBase->commit();
+
+            $this->pipe('refund', $result);
+
+            $this->setSuccessResponse([
+                'code' => $result['document']['idfactura'] ?? $result['document']['idalbaran'] ?? null,
+                'model' => $originalOrder->tipodoc,
+                'order' => $result['order']['idoperacion'] ?? null,
+            ]);
+
+            return true;
+        } catch (\RuntimeException $e) {
+            $this->dataBase->rollback();
+            Tools::log('POS')->error('refund-save-error', [
+                '%code%' => $originalCode,
+                '%error%' => $e->getMessage(),
+            ]);
+            $this->buildResponse([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ]);
+            return false;
+        } catch (Exception $e) {
+            $this->dataBase->rollback();
+            Tools::log('POS')->error('refund-save-error', [
+                '%code%' => $originalCode,
+                '%error%' => $e->getMessage(),
+            ]);
+            $this->buildResponse([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
+    }
+
+    protected function searchOrderForRefund(): void
+    {
+        $query = $this->request->input('query', '');
+
+        if (empty($query)) {
+            $this->buildResponse([
+                'success' => false,
+                'message' => 'empty-query',
+            ]);
+            return;
+        }
+
+        try {
+            $order = $this->findOrderForRefund($query);
+
+            if ($order && $order->idoperacion) {
+                $data = $this->context->storage()->getRefundData($order);
+
+                $this->buildResponse([
+                    'success' => true,
+                    'doc' => $data['document'],
+                    'lines' => $data['lines'],
+                    'idoperacion' => $order->idoperacion,
+                ]);
+                return;
+            }
+        } catch (Exception $e) {
+            $this->buildResponse([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+            return;
+        }
+
+        $this->buildResponse([
+            'success' => false,
+            'message' => 'order-not-found',
+        ]);
+    }
+
+    protected function findOrderForRefund(string $query): ?OrdenPuntoVenta
+    {
+        $order = new OrdenPuntoVenta();
+
+        Tools::log('POS')->warning('Buscando Query : ' . $query);
+        // 1. Buscar por codigo
+        if ($order->loadWhereEq('codigo', $query)) {
+            Tools::log('POS')->warning('Encontrada por codigo: ' . $query);
+            return $order;
+        }
+
+        // 2. Buscar por iddocumento
+        if ($order->loadWhereEq('iddocumento', $query)) {
+            return $order;
+        }
+
+        // 3. Buscar por idoperacion
+        if ($order->load($query)) {
+            return $order;
+        }
+
+        // 4. Buscar documentos por codigo y luego la orden vinculada
+        $docModels = ['FacturaCliente', 'AlbaranCliente', 'PedidoCliente'];
+        foreach ($docModels as $modelClass) {
+            $className = '\\FacturaScripts\\Dinamic\\Model\\' . $modelClass;
+            $doc = new $className();
+            if ($doc->loadFromCode($query, [Where::eq('codigo', $query)])) {
+                $order->loadFromDocument($modelClass, $doc->primaryColumnValue());
+                if ($order->idoperacion) {
+                    return $order;
+                }
+            }
+        }
+
+        return null;
     }
 
     protected function recalculateOrder(): void

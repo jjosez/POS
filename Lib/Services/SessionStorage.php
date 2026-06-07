@@ -126,6 +126,11 @@ class SessionStorage
             throw new Exception('order-not-found');
         }
 
+        return $this->getRefundData($order);
+    }
+
+    public function getRefundData(OrdenPuntoVenta $order): array
+    {
         $document = $order->getDocument();
 
         $lines = [];
@@ -147,6 +152,7 @@ class SessionStorage
         return [
             'document' => $document->toArray(true),
             'lines' => $lines,
+            'idoperacion' => $order->idoperacion,
         ];
     }
 

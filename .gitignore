@@ -2,4 +2,5 @@
 composer.lock
 /node_modules/
 /session-opencode.md
+/session-ses_*.md
 /AGENTS.md

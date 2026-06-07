@@ -91,5 +91,18 @@
   "total-expected": "Total expected",
   "updated-at": "Updated at",
   "updated-by": "Updated by",
-  "withdraw": "Withdraw"
+  "withdraw": "Withdraw",
+  "new-refund": "New refund",
+  "selected-lines-will-be-sent-as-negative-sale": "Selected lines will be sent as negative sale",
+  "return-total": "Return total",
+  "apply-return": "Apply return",
+  "to-refund": "To refund",
+  "no-lines-for-return": "No lines to return",
+  "qty-sold": "Qty sold",
+  "search-sale-to-return": "Search sale to return",
+  "refund": "Refund",
+  "order-refund-saved": "Refund saved successfully",
+  "order-refund-failed": "Refund failed",
+  "available": "Available",
+  "max": "Max"
 }

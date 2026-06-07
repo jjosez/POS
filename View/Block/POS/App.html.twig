@@ -11,7 +11,7 @@
     <div class="antialiased flex h-[100dvh] w-full overflow-hidden">
 
         <!-- Main layout -->
-        <div class="flex w-full min-h-0 flex-col md:flex-row">
+        <div id="posMainLayout" class="flex w-full min-h-0 flex-col md:flex-row">
 
             <!-- PRODUCTS -->
             <section id="productsPane" class="flex w-full md:w-1/2 bg-slate-50 flex-col min-h-0 h-full">
@@ -50,6 +50,7 @@
                 </div>
 
             </aside>
+
             {#<div id="checkoutMainView" class="hidden w-full">
                 {{ include('Block/POS/Checkout.html.twig') }}
             </div>#}
@@ -68,6 +69,10 @@
                     </button>
                 </div>
             </div>
+        </div>
+
+        <div id="returnFullScreenView" class="hidden w-full h-full overflow-auto">
+            {% include 'Block/POS/ReturnSale/Content.html.twig' %}
         </div>
     </div>
 {% endblock %}
@@ -89,7 +94,6 @@
     {{ include('Modal/POS/ProductFilter.html.twig') }}
     {{ include('Modal/POS/ProductStockDetail.html.twig') }}
     {{ include('Modal/POS/ProductImages.html.twig') }}
-    {# {{ include('Modal/POS/ReturnSale.html.twig') }} #}
     {{ include('Modal/POS/User.html.twig') }}
     {% for includeView in getIncludeViews('POS', 'modals') %}
         {% include includeView['path'] %}

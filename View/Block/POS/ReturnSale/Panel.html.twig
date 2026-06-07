@@ -1,20 +1,26 @@
-{#
-/**
+{# /**
  *  This file is part of POS plugin for FacturaScripts
  *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
- */
-#}
-<div id="return:sale:modal" class="hidden modal">
-    <div class="h-full modal-content md:modal-content-xl">
-        <div class="modal-header">
-            <h2 class="text-2xl font-semibold text-slate-gray-700">
-                {{ trans('new-refund') }}
-            </h2>
-            <button class="ml-auto btn btn-icon btn-light" data-action="returns:sale-clear:action">
-                <i class="fa fw fa-eraser"></i>
+ */ #}
+<section id="returnSalePane"
+         class="hidden w-full md:w-1/2 bg-white md:border-r border-slate-200
+                flex-col min-h-0 h-full shadow-sm">
+
+    <!-- Header -->
+    <div class="shrink-0 border-b border-solid border-slate-200">
+        <div class="flex items-start justify-between gap-3 p-4">
+            <div>
+                <p class="text-xs font-semibold text-slate-500">{{ trans('refund') }}</p>
+                <h2 class="text-lg font-bold tracking-tight">{{ trans('new-refund') }}</h2>
+            </div>
+            <button class="btn btn-light btn-sm rounded-2 d-flex align-items-center gap-1"
+                    data-action="returns:fullscreen:show"
+                    title="Pantalla completa">
+                <i class="fa-solid fa-expand"></i>
             </button>
-            <button class="ml-2 btn btn-icon btn-naked" data-toggle="modal" data-target="return:sale:modal">
-                <i class="fa fw fa-times"></i>
+            <button class="btn btn-icon btn-naked" id="returnSaleCloseBtn"
+                    title="{{ trans('close') }}">
+                <i class="fa-solid fa-xmark text-xl"></i>
             </button>
         </div>
         <div class="border-b border-slate-200 bg-slate-50 p-4">
@@ -23,19 +29,27 @@
                     <input id="searchSaleInput"
                            class="font-normal form-control"
                            type="text"
-                           placeholder="{{ trans('code') }}"
+                           placeholder="{{ trans('search-sale-to-return') }}"
                            autocomplete="off">
                 </div>
                 <button type="button" class="btn btn-primary"
                         data-action="returns:sale-search:action">{{ trans('search') }}</button>
+                <button type="button" class="btn btn-light"
+                        data-action="returns:sale-last:action">{{ trans('last-orders') }}</button>
             </form>
             <div id="returnSaleSearchResultView" class="mt-3"></div>
         </div>
-        <div class="modal-body">
-            <div id="returnSaleLinesTemplateView"></div>
-        </div>
-        <div class="modal-footer flex flex-col gap-3">
-            <div id="returnSaleSummaryView" class="hidden flex items-center justify-between rounded-lg bg-slate-100 p-3 text-sm">
+    </div>
+
+    <!-- Lines (scrollable) -->
+    <div class="flex-1 min-h-0 overflow-auto">
+        <div id="returnSaleLinesTemplateView" class="p-4"></div>
+    </div>
+
+    <!-- Summary & confirm -->
+    <div class="shrink-0 border-t border-solid border-slate-200">
+        <div id="returnSaleSummaryView" class="hidden p-4">
+            <div class="flex items-center justify-between rounded-lg bg-slate-100 p-3 text-sm">
                 <div>
                     <span class="text-slate-500">{{ trans('total') }}:</span>
                     <span id="returnSaleDocTotal" class="font-semibold">0,00</span>
@@ -47,13 +61,20 @@
                     </span>
                 </div>
             </div>
-            <div class="flex items-center justify-between">
-                <div class="text-xs text-slate-500">
-                    <span class="font-semibold">{{ trans('info') }}:</span>
-                    {{ trans('selected-lines-will-be-sent-as-negative-sale') }}
-                </div>
+        </div>
+        <div class="flex items-center justify-between gap-3 p-4">
+            <div class="text-xs text-slate-500">
+                <span class="font-semibold">{{ trans('info') }}:</span>
+                {{ trans('selected-lines-will-be-sent-as-negative-sale') }}
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" class="btn btn-light"
+                        data-action="returns:sale-clear:action">
+                    <i class="fa fw fa-eraser"></i>
+                    {{ trans('cancel') }}
+                </button>
                 <button type="button"
-                        class="btn btn-danger"
+                        class="btn btn-danger px-6 font-bold"
                         id="returnSaleConfirmBtn"
                         data-action="returns:sale-confirm:action"
                         disabled>
@@ -62,7 +83,8 @@
             </div>
         </div>
     </div>
-</div>
+</section>
+
 <script id="returnSaleSearchResultTemplate" type="text/template">
     <% if (!order) { %>
     <div class="rounded-lg bg-blue-50 p-2 text-xs text-slate-600">
