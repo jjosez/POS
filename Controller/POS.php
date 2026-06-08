@@ -289,10 +289,12 @@ class POS extends BaseController
         try {
             $data = $this->context->storage()->getOrderForRefund($code);
 
+            $this->setNewToken();
             $this->buildResponse([
                 'success' => true,
                 'doc' => $data['document'],
                 'lines' => $data['lines'],
+                'token' => $this->multiRequestProtection->newToken()
             ]);
         } catch (Exception $e) {
             $this->buildResponse([
@@ -391,6 +393,7 @@ class POS extends BaseController
             if ($order && $order->idoperacion) {
                 $data = $this->context->storage()->getRefundData($order);
 
+                $this->setNewToken();
                 $this->buildResponse([
                     'success' => true,
                     'doc' => $data['document'],

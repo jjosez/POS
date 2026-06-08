@@ -104,5 +104,7 @@
   "order-refund-saved": "Refund saved successfully",
   "order-refund-failed": "Refund failed",
   "available": "Available",
-  "max": "Max"
+  "max": "Max",
+  "processing-request": "We are processing your request.",
+  "wait": "Please wait"
 }

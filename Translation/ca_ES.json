@@ -26,5 +26,7 @@
   "order-refund-saved": "Devolució registrada correctament",
   "order-refund-failed": "Error en registrar la devolució",
   "available": "Disponible",
-  "max": "Màx"
+  "max": "Màx",
+  "processing-request": "Estem processant la teva sol·licitud.",
+  "wait": "Espereu"
 }

@@ -105,6 +105,8 @@ class MainView {
         templates.render('product:stock:list:template', {stocks: data}, 'product:stock:list:view');
     };
 
+    showLoading = () => Modals.loadingModal().show();
+    hideLoading = () => Modals.loadingModal().hide();
     toggleLoadingModal = () => Modals.toggleModal('loadingModal');
 
     toggleCloseSessionModal = () => Modals.toggleModal('session:close:modal');

@@ -1,5 +1,14 @@
 @import 'tailwindcss';
 
+@theme {
+    --animate-indeterminate: indeterminate 1.5s ease-in-out infinite;
+}
+
+@keyframes indeterminate {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(400%); }
+}
+
 @source inline('alert-{success,info,warning,error}');
 @source inline("bg-{blue,emerald,green}-{500}");
 @source inline("{hover:,}bg-{red,sky,blue,violet,yellow,gray,slate,green,emerald}-{100,200,300,500}");

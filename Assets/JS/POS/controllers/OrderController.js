@@ -217,16 +217,26 @@ const OrderController = {
      * data-action="order:draft:list"
      */
     async handleShowDraftOrdersAction() {
-        const orders = await this.getDraftOrdersRequest();
-        MainView.showPausedOrdersModal(orders);
+        MainView.showLoading();
+        try {
+            const orders = await this.getDraftOrdersRequest();
+            MainView.showPausedOrdersModal(orders);
+        } finally {
+            MainView.hideLoading();
+        }
     },
 
     /**
      * data-action="order:last:list"
      */
     async handleShowLastOrdersAction() {
-        const orders = await this.getLastOrders();
-        MainView.showLastOrdersModal(orders);
+        MainView.showLoading();
+        try {
+            const orders = await this.getLastOrders();
+            MainView.showLastOrdersModal(orders);
+        } finally {
+            MainView.hideLoading();
+        }
     },
 
     /**

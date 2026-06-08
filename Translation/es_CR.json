@@ -114,5 +114,7 @@
   "order-refund-saved": "Devolución registrada correctamente",
   "order-refund-failed": "Error al registrar la devolución",
   "available": "Disponible",
-  "max": "Máx"
+  "max": "Máx",
+  "processing-request": "Estamos procesando tu solicitud.",
+  "wait": "Espere"
 }
