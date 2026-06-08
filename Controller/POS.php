@@ -100,7 +100,8 @@ class POS extends BaseController
                 $this->getOrderToRefund();
                 return false;
 
-            case 'order:refund:token':
+            case 'order:token:new':
+                $this->setNewToken();
                 $this->buildResponse();
                 return false;
 

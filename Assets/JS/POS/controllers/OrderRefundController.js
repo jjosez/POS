@@ -161,6 +161,7 @@ const OrderRefundController = {
             if (!term) return;
 
         const data = await Core.searchOrderForReturn({term});
+        this.token = data?.token || '';
         this.currentOrder = data?.doc ? {code: data.doc.codigo, model: data.doc.modelClassName, order: data?.idoperacion || null} : null;
             this.docTotal = parseFloat(data?.doc?.total) || 0;
             this.currentLines = Array.isArray(data?.lines) ? data.lines : [];
@@ -177,6 +178,7 @@ const OrderRefundController = {
         if (!code) return;
 
         const data = await Core.searchOrderForReturn({term: code});
+        this.token = data?.token || '';
         this.currentOrder = data?.doc ? {code: data.doc.codigo, model: data.doc.modelClassName, order: data?.idoperacion || null} : null;
         this.docTotal = parseFloat(data?.doc?.total) || 0;
         this.currentLines = Array.isArray(data?.lines) ? data.lines : [];
@@ -196,6 +198,7 @@ const OrderRefundController = {
         MainView.toggleLastOrdersModal();
 
         const data = await Core.getOrderForReturn({code, model, order});
+        this.token = data?.token || '';
         this.currentOrder = {code, model, order};
         this.docTotal = parseFloat(data?.doc?.total) || 0;
         this.currentLines = Array.isArray(data?.lines) ? data.lines : [];
@@ -215,6 +218,7 @@ const OrderRefundController = {
         if (!term) return;
 
         const data = await Core.searchOrderForReturn({term});
+        this.token = data?.token || '';
         this.currentOrder = data?.doc ? {code: data.doc.codigo, model: data.doc.modelClassName, order: data?.idoperacion || null} : null;
         this.docTotal = parseFloat(data?.doc?.total) || 0;
         this.currentLines = Array.isArray(data?.lines) ? data.lines : [];
@@ -246,6 +250,7 @@ const OrderRefundController = {
             model: lastOrder.tipodoc,
             order: lastOrder.idoperacion
         });
+        this.token = data?.token || '';
 
         this.currentOrder = {code: lastOrder.iddocumento, model: lastOrder.tipodoc, order: lastOrder.idoperacion};
         this.docTotal = parseFloat(data?.doc?.total) || 0;
@@ -272,9 +277,6 @@ const OrderRefundController = {
 
     async confirm() {
         if (!this.currentOrder || this.cartLines.length === 0) return;
-
-        const tokenResult = await Core.getRefundToken();
-        this.token = tokenResult?.token || '';
 
         const selectedLines = this.cartLines.map(l => ({
             idlinea: l.idlinea,

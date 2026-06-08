@@ -210,9 +210,9 @@ export async function getOrderForReturn({code, model, order}) {
     return postRequest(data);
 }
 
-export async function getRefundToken() {
+export async function getNewToken() {
     const data = new FormData();
-    data.set('action', 'order:refund:token');
+    data.set('action', 'order:token:new');
     return postRequest(data);
 }
 
