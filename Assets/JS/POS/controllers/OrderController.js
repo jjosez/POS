@@ -226,6 +226,19 @@ const OrderController = {
         }
     },
 
+    async deleteRefundDraftOrder(id) {
+        const data = new FormData();
+        data.set('action', 'order:refund:draft:delete');
+        data.set('id', id);
+        return Core.postRequest(data);
+    },
+
+    async handleRefundDraftDeleteAction(el) {
+        const {id} = el.dataset;
+        await this.deleteRefundDraftOrder(id);
+        MainView.toggleDraftOrdersModal();
+    },
+
     /**
      * data-action="order:last:list"
      */
@@ -257,6 +270,7 @@ const OrderController = {
         dispatcher.register('order:draft:list', this.handleShowDraftOrdersAction.bind(this));
         dispatcher.register('order:last:list', this.handleShowLastOrdersAction.bind(this));
         dispatcher.register('order:return:show', this.handleShowReturnSaleAction.bind(this));
+        dispatcher.register('order:refund:draft:delete', this.handleRefundDraftDeleteAction.bind(this));
 
         EventManager.on('cart:changed', this.handleOrderRecalculate.bind(this));
         EventManager.on('keyboard:order:draft:save', this.handleDraftOrderSaveAction.bind(this));

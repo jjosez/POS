@@ -59,11 +59,6 @@
                 <i class="fa-solid fa-file-invoice"></i>
                 Buscar factura
             </button>
-            <button class="btn btn-light gap-1.5 text-sm font-bold transition-colors"
-                    data-action="returns:sale-search:action" data-search-type="customer">
-                <i class="fa-solid fa-user"></i>
-                Buscar por cliente
-            </button>
         </div>
 
         {# ─── Sales Return ─── #}
@@ -202,6 +197,18 @@
     <% } %>
 </script>
 
+<script id="returnSaleAlreadyRefundedTemplate" type="text/template">
+    <tr>
+        <td colspan="6" class="px-2 py-8 text-center">
+            <div class="flex flex-col items-center justify-center text-amber-600 gap-2">
+                <i class="fa-solid fa-circle-exclamation text-3xl"></i>
+                <span class="text-sm font-semibold">Esta venta ya fue devuelta completamente.</span>
+                <span class="text-xs text-slate-500">No hay productos disponibles para devolver.</span>
+            </div>
+        </td>
+    </tr>
+</script>
+
 <script id="returnSaleProductsTemplate" type="text/template">
     <% if (!lines || lines.length === 0) { %>
     <tr>
@@ -217,6 +224,7 @@
             <input class="h-4 w-4 rounded border-slate-300 text-blue-600 return-product-check" type="checkbox"
                    value="<%= line.idlinea %>"
                    data-refundable="<%= line.refundable %>"
+                   aria-label="<%= line.descripcion %>"
             <%= parseFloat(line.refundable) > 0 ? '' : 'disabled' %> >
         </td>
         <td class="px-2 py-2">
@@ -231,7 +239,7 @@
             </div>
         </td>
         <td class="px-2 py-2 text-right font-semibold whitespace-nowrap"><%=
-            Number.parseFloat(line.pvpunitario).toFixed(2) %>
+            (parseFloat(line.pvpunitario) || 0).toFixed(2) %>
         </td>
         <td class="px-2 py-2 text-center">
             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-700"><%= line.cantidad %></span>
@@ -244,8 +252,8 @@
             <% } %>
         </td>
         <td class="px-2 py-2 text-center">
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-700"><%= line.refundable %></span>
-            <div class="text-[10px] text-green-600 font-semibold">Disponible</div>
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-700"><%= parseFloat(line.refundable) || 0 %></span>
+            <div class="text-[10px] text-green-600 font-semibold">{{ trans('available') }}</div>
         </td>
     </tr>
     <% }); %>
@@ -269,7 +277,7 @@
             <div class="flex-1 min-w-0">
                 <div class="font-semibold text-sm truncate"><%= item.descripcion %></div>
                 <div class="text-[11px] text-slate-500">SKU: <%= item.referencia %></div>
-                <div class="text-sm text-slate-500">Precio unitario: <span class="font-semibold text-slate-900"><%= Number.parseFloat(item.pvpunitario).toFixed(2) %></span>
+                <div class="text-sm text-slate-500">Precio unitario: <span class="font-semibold text-slate-900"><%= (parseFloat(item.pvpunitario) || 0).toFixed(2) %></span>
                 </div>
             </div>
             <button class="inline-flex items-center justify-center w-7 h-7 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0 return-cart-remove"

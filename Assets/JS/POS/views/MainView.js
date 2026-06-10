@@ -73,8 +73,8 @@ class MainView {
     showPausedOrdersModal = (data) => {
         this.toggleDraftOrdersModal();
 
-        data = Core.isObjectEmpty(data) ? [] : data;
-        templates.render('draft:order:list:template', {orders: data}, 'draft:order:list:view')
+        data = Core.isObjectEmpty(data) ? {drafts: [], refunds: []} : data;
+        templates.render('draft:order:list:template', data, 'draft:order:list:view')
     };
 
     showPrintDraftContextModal = data => {

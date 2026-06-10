@@ -19,6 +19,12 @@
         <null>NO</null>
     </column>
     <column>
+        <name>esdevolucion</name>
+        <type>boolean</type>
+        <null>NO</null>
+        <default>false</default>
+    </column>
+    <column>
         <name>fecha</name>
         <type>date</type>
         <null>NO</null>
@@ -39,10 +45,15 @@
         <null>NO</null>
     </column>
     <column>
+        <name>idoperacion_original</name>
+        <type>integer</type>
+        <null>YES</null>
+    </column>
+    <column>
         <name>idsesion</name>
         <type>integer</type>
         <null>NO</null>
-    </column>     
+    </column>
     <column>
         <name>tipodoc</name>
         <type>character varying(30)</type>
@@ -53,17 +64,6 @@
         <type>double precision</type>
         <null>NO</null>
     </column>
-    <column>
-        <name>idoperacion_original</name>
-        <type>integer</type>
-        <null>YES</null>
-    </column>
-    <column>
-        <name>esdevolucion</name>
-        <type>boolean</type>
-        <null>NO</null>
-        <default>false</default>
-    </column>    
     <constraint>
         <name>operacionespos_pkey</name>
         <type>PRIMARY KEY (idoperacion)</type>

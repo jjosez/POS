@@ -28,6 +28,19 @@ const ReturnSaleView = {
         elements.mainLayout.classList.remove('flex');
         elements.fullScreen.classList.remove('hidden');
         elements.fullScreen.classList.add('flex');
+
+        this.updateConfirmButtonLabel();
+    },
+
+    updateConfirmButtonLabel() {
+        const btn = elements.confirmBtn;
+        if (!btn) return;
+
+        if (AppSettings.aceptapagos) {
+            btn.innerHTML = '<i class="fa-solid fa-credit-card mr-1"></i> Cobrar devoluci\u00f3n';
+        } else {
+            btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i> Guardar borrador';
+        }
     },
 
     hide() {
@@ -44,12 +57,45 @@ const ReturnSaleView = {
         templates.render('returnSaleSearchResultTemplate', {order: doc}, 'returnSaleSummaryCard');
     },
 
-    renderProducts(lines) {
+    renderProducts(lines, alreadyRefunded) {
+        const items = Array.isArray(lines) && lines.length > 0 ? lines : [];
+
+        if (alreadyRefunded) {
+            templates.render('returnSaleAlreadyRefundedTemplate', {}, 'returnSaleProductsView');
+            if (elements.productsBadge) {
+                elements.productsBadge.textContent = '0';
+            }
+            return;
+        }
+
+        templates.render('returnSaleProductsTemplate', {lines: items}, 'returnSaleProductsView');
+        if (elements.productsBadge) {
+            elements.productsBadge.textContent = items.length;
+        }
+    },
+
+    renderProductsWithPreselect(lines) {
         const items = Array.isArray(lines) && lines.length > 0 ? lines : [];
         templates.render('returnSaleProductsTemplate', {lines: items}, 'returnSaleProductsView');
         if (elements.productsBadge) {
             elements.productsBadge.textContent = items.length;
         }
+
+        items.forEach(line => {
+            if (line._preselected) {
+                const checkbox = document.querySelector(`.return-product-check[value="${line.idlinea}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                    checkbox.dispatchEvent(new Event('change', {bubbles: true}));
+                }
+
+                const input = document.querySelector(`.return-qty-input[data-line="${line.idlinea}"]`);
+                if (input && line._preselected_qty) {
+                    input.value = line._preselected_qty;
+                    input.dispatchEvent(new Event('input', {bubbles: true}));
+                }
+            }
+        });
     },
 
     renderCart(cartLines) {

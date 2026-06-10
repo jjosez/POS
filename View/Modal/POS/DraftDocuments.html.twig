@@ -43,13 +43,20 @@
         </div>
     </div>
 </div>
+</div>
+
 <script id="draft:order:list:template" type="text/template">
-    <% if(orders.length === 0) { %>
+    <% if(drafts.length === 0 && refunds.length === 0) { %>
     <div class="flex flex-1 rounded-lg bg-blue-100 p-2 shadow-xs md:flex-row">
         <span>{{ trans('no-data') }}</span>
     </div>
     <% } %>
-    <% orders.forEach(function(order){ %>
+
+    <% if(drafts.length > 0) { %>
+    <div class="mb-2 px-2 py-1 text-sm font-semibold uppercase text-slate-500 border-b border-slate-200">
+        {{ trans('pos-orders-on-hold') }}
+    </div>
+    <% drafts.forEach(function(order){ %>
     <div class="mb-4 p-2 flex cursor-pointer flex-col rounded-lg md:flex-row bg-<%= order.rowcolor %>-100 hover:bg-<%= order.rowcolor %>-200">
         <div class="flex flex-1 flex-col items-center md:flex-row"
              data-action="order:draft:resume" data-code="<%= order.idpausada %>">
@@ -85,5 +92,50 @@
             </button>
         </div>
     </div>
-    <% }) %>
+    <% }); %>
+    <% } %>
+
+    <% if(refunds.length > 0) { %>
+    <div class="mb-2 mt-4 px-2 py-1 text-sm font-semibold uppercase text-slate-500 border-b border-slate-200">
+        {{ trans('pos-refund-drafts') }}
+    </div>
+    <% refunds.forEach(function(draft){ %>
+    <div class="mb-4 p-2 flex cursor-pointer flex-col rounded-lg md:flex-row bg-yellow-100 hover:bg-yellow-200">
+        <div class="flex flex-1 flex-col items-center md:flex-row"
+             data-action="returns:draft:resume:action" data-id="<%= draft.iddevolucion %>">
+                <div class="flex-1 pointer-events-none">
+                    <span class="font-semibold capitalize italic md:hidden">{{ trans('code') }}: </span>
+                    <span class="inline-flex items-center gap-1">
+                        <i class="fa-solid fa-rotate-left text-xs"></i>
+                        <%= draft.codigo_original %>
+                        <% if (draft.codigo) { %>
+                        <span class="text-[10px] text-slate-400 font-normal">#<%= draft.codigo %></span>
+                        <% } %>
+                    </span>
+                </div>
+                <div class="flex-1 pointer-events-none">
+                    <span class="font-semibold capitalize italic md:hidden">{{ trans('customer') }}:</span>
+                    <%= draft.nombrecliente %>
+                </div>
+                <div class="flex-1 pointer-events-none text-right">
+                    <span class="font-semibold capitalize italic md:hidden">{{ trans('total') }}: </span>
+                    <span class="text-red-500">-<%= Number.parseFloat(draft.total).toFixed(2) %></span>
+                </div>
+                <div class="flex-1 text-right pointer-events-none">
+                    <span class="font-semibold capitalize italic md:hidden">{{ trans('date') }}: </span>
+                    <%= draft.fecha %> <%= draft.hora %>
+                </div>
+            <span class="text-sm italic pointer-events-none">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-yellow-100 text-yellow-700">Devoluci&oacute;n</span>
+            </span>
+        </div>
+        <div class="mt-4 flex items-center justify-between md:mt-0">
+            <button type="button" class="btn btn-icon bg-red-50 text-red-700 hover:bg-red-100 active:bg-red-200"
+                    data-action="order:refund:draft:delete" data-id="<%= draft.iddevolucion %>">
+                <i class="fas fa-trash fa-sm"></i>
+            </button>
+        </div>
+    </div>
+    <% }); %>
+    <% } %>
 </script>

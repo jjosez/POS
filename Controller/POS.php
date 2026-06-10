@@ -15,6 +15,7 @@ use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\POS\Lib\Core\BaseController;
+use FacturaScripts\Plugins\POS\Model\DevolucionPuntoVenta;
 use FacturaScripts\Plugins\POS\Lib\Core\SessionManager;
 use FacturaScripts\Plugins\POS\Lib\Services\Refunds;
 use FacturaScripts\Plugins\POS\Lib\Services\TransactionRequest;
@@ -26,8 +27,8 @@ use RuntimeException;
  */
 class POS extends BaseController
 {
-    const string DEFAULT_POS_DOCUMENT = 'FacturaCliente';
-    const string DRAFT_POS_DOCUMENT = 'BorradorPuntoVenta';
+    const DEFAULT_POS_DOCUMENT = 'FacturaCliente';
+    const DRAFT_POS_DOCUMENT = 'BorradorPuntoVenta';
 
     /**
      * @param Response $response
@@ -111,6 +112,18 @@ class POS extends BaseController
                 }
                 return false;
 
+            case 'order:refund:draft:save':
+                $this->saveRefundDraft();
+                return false;
+
+            case 'order:refund:draft:resume':
+                $this->resumeRefundDraft();
+                return false;
+
+            case 'order:refund:draft:delete':
+                $this->deleteRefundDraft();
+                return false;
+
             case 'order:refund:search':
                 $this->searchOrderForRefund();
                 return false;
@@ -128,7 +141,10 @@ class POS extends BaseController
                 return false;
 
             case 'order:draft:list':
-                $this->setResponse($this->context->storage()->getDrafts());
+                $this->setResponse([
+                    'drafts' => $this->context->storage()->getDrafts(),
+                    'refunds' => $this->context->storage()->getRefundDrafts(),
+                ]);
                 return false;
 
             case 'family:filter:set':
@@ -293,6 +309,7 @@ class POS extends BaseController
             $this->setNewToken();
             $this->buildResponse([
                 'success' => true,
+                'already_refunded' => $data['already_refunded'] ?? false,
                 'doc' => $data['document'],
                 'lines' => $data['lines'],
                 'token' => $this->multiRequestProtection->newToken()
@@ -303,6 +320,38 @@ class POS extends BaseController
                 'message' => $e->getMessage(),
             ]);
         }
+    }
+
+    protected function validateRefundLines(OrdenPuntoVenta $order, array $requestedLines): bool|string
+    {
+        $refundData = $this->context->storage()->getRefundData($order);
+        $refundableMap = [];
+
+        foreach ($refundData['lines'] as $line) {
+            $refundableMap[(int)$line['idlinea']] = (float)$line['refundable'];
+        }
+
+        foreach ($requestedLines as $sel) {
+            $idlinea = (int)($sel['idlinea'] ?? 0);
+            $cantidad = abs((float)($sel['cantidad'] ?? 0));
+
+            if ($cantidad <= 0) {
+                continue;
+            }
+
+            $refundable = $refundableMap[$idlinea] ?? 0;
+
+            if ($cantidad > $refundable) {
+                Tools::log('POS')->warning('refund-line-exceeds-refundable', [
+                    '%idlinea%' => $idlinea,
+                    '%requested%' => $cantidad,
+                    '%available%' => $refundable,
+                ]);
+                return 'La línea ' . $idlinea . ' excede la cantidad disponible para devolución (' . $refundable . ').';
+            }
+        }
+
+        return true;
     }
 
     protected function saveRefund(): bool
@@ -319,6 +368,12 @@ class POS extends BaseController
         $paymentsRaw = $this->request->input('payments', '[]');
         $payments = is_string($paymentsRaw) ? json_decode($paymentsRaw, true) : $paymentsRaw;
 
+        foreach ($payments as &$payment) {
+            $payment['amount'] = -abs((float)($payment['amount'] ?? 0));
+            $payment['change'] = -abs((float)($payment['change'] ?? 0));
+        }
+        unset($payment);
+
         if (empty($originalCode) || empty($refundLines) || !is_array($refundLines)) {
             $this->buildResponse(['success' => false]);
             return false;
@@ -333,12 +388,30 @@ class POS extends BaseController
             return false;
         }
 
+        $validation = $this->validateRefundLines($originalOrder, $refundLines);
+        if ($validation !== true) {
+            $this->buildResponse([
+                'success' => false,
+                'message' => $validation,
+            ]);
+            return false;
+        }
+
+        $devolucionId = $this->request->input('devolucion_id', '');
+
         $refunds = new Refunds($this->session->getSession(), $this->session->getTerminal());
 
         try {
             $this->dataBase->beginTransaction();
 
             $result = $refunds->processRefund($originalOrder, $refundLines, $payments);
+
+            if (!empty($devolucionId)) {
+                $draft = new DevolucionPuntoVenta();
+                if ($draft->load($devolucionId)) {
+                    $draft->delete();
+                }
+            }
 
             $this->dataBase->commit();
 
@@ -351,18 +424,7 @@ class POS extends BaseController
             ]);
 
             return true;
-        } catch (\RuntimeException $e) {
-            $this->dataBase->rollback();
-            Tools::log('POS')->error('refund-save-error', [
-                '%code%' => $originalCode,
-                '%error%' => $e->getMessage(),
-            ]);
-            $this->buildResponse([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ]);
-            return false;
-        } catch (Exception $e) {
+        } catch (RuntimeException | Exception $e) {
             $this->dataBase->rollback();
             Tools::log('POS')->error('refund-save-error', [
                 '%code%' => $originalCode,
@@ -374,6 +436,159 @@ class POS extends BaseController
             ]);
             return false;
         }
+    }
+
+    protected function saveRefundDraft(): void
+    {
+        if (!$this->validateRequest()) {
+            return;
+        }
+
+        $originalCode = $this->request->input('original_code', '');
+        $devolucionId = $this->request->input('devolucion_id', '');
+        $linesRaw = $this->request->input('lines', '[]');
+        $lines = is_string($linesRaw) ? json_decode($linesRaw, true) : $linesRaw;
+
+        if (empty($originalCode) || empty($lines) || !is_array($lines)) {
+            $this->buildResponse(['success' => false]);
+            return;
+        }
+
+        $originalOrder = $this->context->storage()->getOrder($originalCode);
+        if (null === $originalOrder) {
+            $this->buildResponse(['success' => false, 'message' => 'order-not-found']);
+            return;
+        }
+
+        $validation = $this->validateRefundLines($originalOrder, $lines);
+        if ($validation !== true) {
+            $this->buildResponse([
+                'success' => false,
+                'message' => $validation,
+            ]);
+            return;
+        }
+
+        $refundData = $this->context->storage()->getRefundData($originalOrder);
+        $total = 0.0;
+        foreach ($refundData['lines'] as $line) {
+            foreach ($lines as $sel) {
+                if ((int)$sel['idlinea'] === (int)$line['idlinea']) {
+                    $qty = min(abs((float)$sel['cantidad']), (float)$line['refundable']);
+                    $net = (float)$line['pvpunitario'] * $qty
+                        * (1 - ((float)($line['dtopor'] ?? 0)) / 100)
+                        * (1 - ((float)($line['dtopor2'] ?? 0)) / 100);
+                    $iva = $net * ((float)($line['iva'] ?? 0)) / 100;
+                    $recargo = $net * ((float)($line['recargo'] ?? 0)) / 100;
+                    $total += $net + $iva + $recargo;
+                    break;
+                }
+            }
+        }
+
+        $draft = new DevolucionPuntoVenta();
+        $draft->idoperacion_original = $originalOrder->idoperacion;
+        $draft->idsesion = $this->session->getSession()->idsesion;
+        $draft->nickusuario = $this->session->getSession()->nickusuario;
+        $draft->lineas = json_encode($lines);
+        $draft->total = $total;
+        $draft->codcliente = $originalOrder->codcliente;
+        $draft->nombrecliente = $originalOrder->nombrecliente;
+        $draft->codigo = (string)$draft->newCode('codigo');
+        $draft->codigo_original = $originalOrder->codigo;
+
+        if ($draft->save()) {
+            if (!empty($devolucionId)) {
+                $oldDraft = new DevolucionPuntoVenta();
+                if ($oldDraft->load($devolucionId)) {
+                    $oldDraft->delete();
+                }
+            }
+            $this->addMessage('order-refund-saved');
+            $this->setSuccessResponse(['iddevolucion' => $draft->iddevolucion, 'total' => $total]);
+        } else {
+            $this->addMessage('order-refund-failed', 'warning');
+            $this->setSuccessResponse(['success' => false]);
+        }
+
+        $this->buildResponse();
+    }
+
+    protected function resumeRefundDraft(): void
+    {
+        if (!$this->validator->validatePermissions()) {
+            $this->buildResponse();
+            return;
+        }
+
+        $id = $this->request->input('id', '');
+
+        if (empty($id)) {
+            $this->buildResponse(['success' => false]);
+            return;
+        }
+
+        $draft = new DevolucionPuntoVenta();
+        if (!$draft->load($id)) {
+            $this->buildResponse(['success' => false, 'message' => 'draft-not-found']);
+            return;
+        }
+
+        $originalOrder = $this->context->storage()->getOrder((string)$draft->idoperacion_original);
+        if (null === $originalOrder) {
+            $this->buildResponse(['success' => false, 'message' => 'order-not-found']);
+            return;
+        }
+
+        $refundData = $this->context->storage()->getRefundData($originalOrder);
+        $savedLines = json_decode($draft->lineas, true) ?? [];
+
+        foreach ($refundData['lines'] as &$line) {
+            foreach ($savedLines as $sel) {
+                if ((int)$sel['idlinea'] === (int)$line['idlinea']) {
+                    $line['_preselected'] = true;
+                    $line['_preselected_qty'] = min(
+                        abs((float)$sel['cantidad']),
+                        (float)$line['refundable']
+                    );
+                    break;
+                }
+            }
+        }
+        unset($line);
+
+        $this->setNewToken();
+        $this->buildResponse([
+            'success' => true,
+            'doc' => $refundData['document'],
+            'lines' => $refundData['lines'],
+            'idoperacion' => $originalOrder->idoperacion,
+            'devolucion_id' => $draft->iddevolucion,
+        ]);
+    }
+
+    protected function deleteRefundDraft(): void
+    {
+        if (!$this->validator->validatePermissions()) {
+            $this->buildResponse();
+            return;
+        }
+
+        $id = $this->request->input('id', '');
+
+        if (empty($id)) {
+            $this->buildResponse(['success' => false]);
+            return;
+        }
+
+        $draft = new DevolucionPuntoVenta();
+        if ($draft->load($id)) {
+            $draft->delete();
+        }
+
+        $this->addMessage('record-deleted-correctly');
+        $this->setNewToken();
+        $this->buildResponse(['success' => true]);
     }
 
     protected function searchOrderForRefund(): void
@@ -397,6 +612,7 @@ class POS extends BaseController
                 $this->setNewToken();
                 $this->buildResponse([
                     'success' => true,
+                    'already_refunded' => $data['already_refunded'] ?? false,
                     'doc' => $data['document'],
                     'lines' => $data['lines'],
                     'idoperacion' => $order->idoperacion,
@@ -424,18 +640,25 @@ class POS extends BaseController
         Tools::log('POS')->warning('Buscando Query : ' . $query);
         // 1. Buscar por codigo
         if ($order->loadWhereEq('codigo', $query)) {
-            Tools::log('POS')->warning('Encontrada por codigo: ' . $query);
-            return $order;
+            if (!$order->esdevolucion) {
+                Tools::log('POS')->warning('Encontrada por codigo: ' . $query);
+                return $order;
+            }
+            Tools::log('POS')->warning('Orden de devolucion omitida por codigo: ' . $query);
         }
 
         // 2. Buscar por iddocumento
         if ($order->loadWhereEq('iddocumento', $query)) {
-            return $order;
+            if (!$order->esdevolucion) {
+                return $order;
+            }
         }
 
         // 3. Buscar por idoperacion
         if ($order->load($query)) {
-            return $order;
+            if (!$order->esdevolucion) {
+                return $order;
+            }
         }
 
         // 4. Buscar documentos por codigo y luego la orden vinculada
@@ -445,7 +668,7 @@ class POS extends BaseController
             $doc = new $className();
             if ($doc->loadFromCode($query, [Where::eq('codigo', $query)])) {
                 $order->loadFromDocument($modelClass, $doc->primaryColumnValue());
-                if ($order->idoperacion) {
+                if ($order->idoperacion && !$order->esdevolucion) {
                     return $order;
                 }
             }
@@ -656,7 +879,7 @@ class POS extends BaseController
         $result = $this->context->products()->searchBarcode($barcode);
 
         if (!$result) {
-            $this->addMessage('barcode-not-found', 'info');
+            $this->addMessage('barcode-not-found');
         }
 
         $this->buildResponse($result);
@@ -755,10 +978,6 @@ class POS extends BaseController
         $this->setupContext();
     }
 
-    // ========================================================================
-    // Page Data
-    // ========================================================================
-
     public function getDraftDocumentModel(): string
     {
         return self::DRAFT_POS_DOCUMENT;
@@ -809,6 +1028,7 @@ class POS extends BaseController
                 'codpago' => $config->getCashPaymentMethod()
             ],
             'terminal' => $terminal->idterminal,
+            'aceptapagos' => $terminal->aceptapagos,
             'cart' => [
                 'freeLines' => $terminal->free_cart_lines,
                 'groupLines' => $terminal->group_cart_lines,

@@ -27,6 +27,14 @@ class BorradorPuntoVenta extends SalesDocument
     public $idpausada;
 
     /**
+     * ID of the session that created this document.
+     *
+     * @var int
+     */
+    public $idsesion;
+
+
+    /**
      * @var string
      */
     public $fecharegistro;

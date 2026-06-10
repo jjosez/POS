@@ -8,12 +8,14 @@ namespace FacturaScripts\Plugins\POS\Lib\Services;
 
 use Exception;
 use FacturaScripts\Core\Model\Base\SalesDocument;
-use FacturaScripts\Core\Model\LineaFacturaCliente;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\BorradorPuntoVenta;
+use FacturaScripts\Dinamic\Model\DocTransformation;
 use FacturaScripts\Dinamic\Model\MovimientoPuntoVenta;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
+use FacturaScripts\Plugins\POS\Model\DevolucionPuntoVenta;
 
 /**
  * Unified storage service for POS session data.
@@ -28,10 +30,6 @@ class SessionStorage
         $this->session = $session;
     }
 
-    // ========================================================================
-    // DRAFT OPERATIONS
-    // ========================================================================
-
     public function getDraft(string $code): ?BorradorPuntoVenta
     {
         $draft = new BorradorPuntoVenta();
@@ -43,12 +41,13 @@ class SessionStorage
         return null;
     }
 
-    /**
-     * @throws Exception
-     */
     public function getDrafts(): array
     {
-        return BorradorPuntoVenta::allOpened();
+        try {
+            return BorradorPuntoVenta::allOpened();
+        } catch (Exception $e) {
+            return [];
+        }
     }
 
     public function saveDraft(BorradorPuntoVenta $draft): bool
@@ -98,10 +97,6 @@ class SessionStorage
         return $draft->setAsCompleted();
     }
 
-    // ========================================================================
-    // ORDER OPERATIONS
-    // ========================================================================
-
     public function getOrder(string $code): ?OrdenPuntoVenta
     {
         $order = new OrdenPuntoVenta();
@@ -117,6 +112,11 @@ class SessionStorage
     {
         $order = new OrdenPuntoVenta();
         return $order->loadFromDocument($modelClass, $code) ? $order : null;
+    }
+
+    public function getRefundDrafts(): array
+    {
+        return DevolucionPuntoVenta::allFromSession($this->session->idsesion);
     }
 
     public function getOrderForRefund(string $code): array
@@ -137,23 +137,49 @@ class SessionStorage
         foreach ($document->getLines() as $line) {
             $data = $line->toArray(true);
 
-            if ($line instanceof LineaFacturaCliente) {
-                $refunded = $line->refundedQuantity();
-                $data['refunded'] = $refunded;
-                $data['refundable'] = max(0, ($data['cantidad'] ?? 0) - $refunded);
-            } else {
-                $data['refunded'] = 0;
-                $data['refundable'] = $data['cantidad'] ?? 0;
-            }
+            $refunded = $this->getRefundedQuantity($line, $document);
+            $data['refunded'] = $refunded;
+            $data['refundable'] = max(0, ($data['cantidad'] ?? 0) - $refunded);
 
             $lines[] = $data;
+        }
+
+        $alreadyRefunded = true;
+        foreach ($lines as $line) {
+            if ((float)($line['refundable'] ?? 0) > 0) {
+                $alreadyRefunded = false;
+                break;
+            }
         }
 
         return [
             'document' => $document->toArray(true),
             'lines' => $lines,
             'idoperacion' => $order->idoperacion,
+            'already_refunded' => $alreadyRefunded,
         ];
+    }
+
+    private function getRefundedQuantity($line, SalesDocument $document): float
+    {
+        $idlinea = $line->idlinea ?? 0;
+
+        if (empty($idlinea)) {
+            return 0.0;
+        }
+
+        $where = [
+            Where::eq('idlinea1', $idlinea),
+            Where::eq('model1', $document->modelClassName()),
+            Where::eq('iddoc1', $document->id()),
+        ];
+
+        $docTrans = new DocTransformation();
+        $refunds = $docTrans->all($where, [], 0, 0);
+
+        return array_sum(array_map(function ($t) {
+            return (float)($t->cantidad ?? 0);
+        }, $refunds));
     }
 
     public function saveOrder(OrdenPuntoVenta $order, SalesDocument $document): bool
@@ -177,10 +203,6 @@ class SessionStorage
         Tools::log('POS')->error('order-save-failed');
         return false;
     }
-
-    // ========================================================================
-    // CASH OPERATIONS
-    // ========================================================================
 
     public function recordCashMovement(float $amount, string $description): bool
     {
