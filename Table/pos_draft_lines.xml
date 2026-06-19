@@ -1,12 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-*    This file is part of POS plugin for FacturaScripts
-*    Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
-*
-*    Document   : lineaspausadaspos.xml
-*    Description:
-*         Estructura de la tabla lineaspausadaspos.
--->
 <table>
     <column>
         <name>actualizastock</name>
@@ -117,19 +109,19 @@
         <default>false</default>
     </column>
     <constraint>
-        <name>lineaspausadaspos_pkey</name>
+        <name>pos_draft_lines_pkey</name>
         <type>PRIMARY KEY (idlinea)</type>
     </constraint>
     <constraint>
-        <name>ca_lineaspausadaspos_albaranescli</name>
-        <type>FOREIGN KEY (idpausada) REFERENCES pausadaspos (idpausada) ON DELETE CASCADE ON UPDATE CASCADE</type>
+        <name>ca_pos_draft_lines_drafts</name>
+        <type>FOREIGN KEY (idpausada) REFERENCES pos_drafts (idpausada) ON DELETE CASCADE ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_lineaspausadaspos_impuestos</name>
+        <name>ca_pos_draft_lines_impuestos</name>
         <type>FOREIGN KEY (codimpuesto) REFERENCES impuestos (codimpuesto) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_lineaspausadaspos_productos</name>
+        <name>ca_pos_draft_lines_productos</name>
         <type>FOREIGN KEY (idproducto) REFERENCES productos (idproducto) ON DELETE SET NULL ON UPDATE CASCADE</type>
     </constraint>
 </table>

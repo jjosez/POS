@@ -74,7 +74,7 @@ class TerminalPuntoVenta extends ModelClass
 
     public static function tableName(): string
     {
-        return 'terminalespos';
+        return 'pos_terminals';
     }
 
     /**

@@ -214,7 +214,10 @@ class Refunds
         $movement = new MovimientoPuntoVenta();
         $movement->idsesion = $this->session->idsesion;
         $movement->nickusuario = $this->session->nickusuario;
-        $movement->descripcion = 'refund: ' . $newDoc->codigo;
+        $movement->descripcion = Tools::trans(
+            'refund-document',
+            ["%document%" => $newDoc->codigo, "%amount%" => $newDoc->total]
+        );
         $movement->total = $newDoc->total;
 
         $movement->save();

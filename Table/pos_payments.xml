@@ -1,12 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-*    This file is part of POS plugin for FacturaScripts
-*    Copyright (C) 2024 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
-*
-*    Document   : pagospos.xml
-*    Description:
-*         Estructura de la tabla pagospos.
--->
 <table>
     <column>
         <name>cantidad</name>
@@ -56,27 +48,27 @@
         <type>timestamp</type>
     </column>
     <constraint>
-        <name>pagospos_pkey</name>
+        <name>pos_payments_pkey</name>
         <type>PRIMARY KEY (idpago)</type>
     </constraint>
     <constraint>
-        <name>ca_pagospos_formaspago</name>
+        <name>ca_pos_payments_formaspago</name>
         <type>FOREIGN KEY (codpago) REFERENCES formaspago (codpago) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_prepagos_usuarios_nick</name>
+        <name>ca_pos_payments_users_nick</name>
         <type>FOREIGN KEY (nick) REFERENCES users (nick) ON DELETE SET NULL ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_prepagos_usuarios_nickupdate</name>
+        <name>ca_pos_payments_users_nickupdate</name>
         <type>FOREIGN KEY (nickupdate) REFERENCES users (nick) ON DELETE SET NULL ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_pagospos_operacionespos</name>
-        <type>FOREIGN KEY (idoperacion) REFERENCES operacionespos (idoperacion) ON DELETE CASCADE ON UPDATE CASCADE</type>
+        <name>ca_pos_payments_operations</name>
+        <type>FOREIGN KEY (idoperacion) REFERENCES pos_operations (idoperacion) ON DELETE CASCADE ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_pagospos_sesionpos</name>
-        <type>FOREIGN KEY (idsesion) REFERENCES sesionespos (idsesion) ON DELETE CASCADE ON UPDATE CASCADE</type>
+        <name>ca_pos_payments_session</name>
+        <type>FOREIGN KEY (idsesion) REFERENCES pos_sessions (idsesion) ON DELETE CASCADE ON UPDATE CASCADE</type>
     </constraint>
 </table>

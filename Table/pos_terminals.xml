@@ -1,12 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-*    This file is part of POS plugin for FacturaScripts
-*    Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
-*
-*    Document   : terminalespos.xml
-*    Description:
-*         Estructura de la tabla terminalespos.
--->
 <table>
     <column>
         <name>anchopapel</name>
@@ -65,7 +57,7 @@
         <name>idterminal</name>
         <type>serial</type>
         <null>NO</null>
-        <default>nextval('terminalespos_idterminal_seq'::regclass)</default>
+        <default>nextval('pos_terminals_idterminal_seq'::regclass)</default>
     </column>
     <column>
         <name>idempresa</name>
@@ -104,19 +96,19 @@
         <null>YES</null>
     </column>
     <constraint>
-        <name>terminalespos_pkey</name>
+        <name>pos_terminals_pkey</name>
         <type>PRIMARY KEY (idterminal)</type>
     </constraint>
     <constraint>
-        <name>ca_terminalespos_almacen</name>
+        <name>ca_pos_terminals_almacen</name>
         <type>FOREIGN KEY (codalmacen) REFERENCES almacenes (codalmacen) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_terminalespos_cliente</name>
+        <name>ca_pos_terminals_cliente</name>
         <type>FOREIGN KEY (codcliente) REFERENCES clientes (codcliente) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_terminalespos_empresa</name>
+        <name>ca_pos_terminals_empresa</name>
         <type>FOREIGN KEY (idempresa) REFERENCES empresas (idempresa) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
 </table>

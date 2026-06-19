@@ -38,6 +38,6 @@ class OpcionesTerminalPuntoVenta extends ModelClass
 
     public static function tableName(): string
     {
-        return 'terminalespos_options';
+        return 'pos_terminal_options';
     }
 }

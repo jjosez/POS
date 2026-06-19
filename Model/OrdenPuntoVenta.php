@@ -85,7 +85,7 @@ class OrdenPuntoVenta extends ModelClass
 
     public static function tableName(): string
     {
-        return 'operacionespos';
+        return 'pos_operations';
     }
 
     /**

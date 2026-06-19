@@ -1,12 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-*    This file is part of POS plugin for FacturaScripts
-*    Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
-*
-*    Document   : pausadaspos.xml
-*    Description:
-*         Estructura de la tabla pausadaspos.
--->
 <table>
     <column>
         <name>apartado</name>
@@ -209,39 +201,39 @@
         <default>0</default>
     </column>
     <constraint>
-        <name>pausadaspos_pkey</name>
+        <name>pos_drafts_pkey</name>
         <type>PRIMARY KEY (idpausada)</type>
     </constraint>
     <constraint>
-        <name>ca_pausadaspos_almacenes</name>
+        <name>ca_pos_drafts_almacenes</name>
         <type>FOREIGN KEY (codalmacen) REFERENCES almacenes (codalmacen) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_pausadaspos_clientes</name>
+        <name>ca_pos_drafts_clientes</name>
         <type>FOREIGN KEY (codcliente) REFERENCES clientes (codcliente) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_pausadaspos_divisas</name>
+        <name>ca_pos_drafts_divisas</name>
         <type>FOREIGN KEY (coddivisa) REFERENCES divisas (coddivisa) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_pausadaspos_ejercicios</name>
+        <name>ca_pos_drafts_ejercicios</name>
         <type>FOREIGN KEY (codejercicio) REFERENCES ejercicios (codejercicio) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_pausadaspos_empresas</name>
+        <name>ca_pos_drafts_empresas</name>
         <type>FOREIGN KEY (idempresa) REFERENCES empresas (idempresa) ON DELETE CASCADE ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_pausadaspos_series</name>
+        <name>ca_pos_drafts_series</name>
         <type>FOREIGN KEY (codserie) REFERENCES series (codserie) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_pausadaspos_users</name>
+        <name>ca_pos_drafts_users</name>
         <type>FOREIGN KEY (nick) REFERENCES users (nick) ON DELETE SET NULL ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>uniq_codigo_pausadaspos</name>
+        <name>uniq_codigo_pos_drafts</name>
         <type>UNIQUE (codigo,idempresa)</type>
     </constraint>
 </table>

@@ -32,7 +32,7 @@ class FormaPagoPuntoVenta extends ModelClass
 
     public static function tableName(): string
     {
-        return 'formaspagopos';
+        return 'pos_payment_methods';
     }
 
     public function descripcion(): string

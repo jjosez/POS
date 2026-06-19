@@ -1,12 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-*    This file is part of POS plugin for FacturaScripts
-*    Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
-*
-*    Document   : pagospos.xml
-*    Description:
-*         Estructura de la tabla pagospos.
--->
 <table>
     <column>
         <name>codserie</name>
@@ -22,7 +14,7 @@
         <name>id</name>
         <type>serial</type>
         <null>NO</null>
-        <default>nextval('tiposdocpos_id_seq'::regclass)</default>
+        <default>nextval('pos_document_types_id_seq'::regclass)</default>
     </column>
     <column>
         <name>idterminal</name>
@@ -40,7 +32,7 @@
         <default>false</default>
     </column>
     <constraint>
-        <name>tiposdocpos_pkey</name>
+        <name>pos_document_types_pkey</name>
         <type>PRIMARY KEY (id)</type>
     </constraint>
     <constraint>
@@ -48,11 +40,11 @@
         <type>UNIQUE (codserie, tipodoc, idterminal)</type>
     </constraint>
     <constraint>
-        <name>ca_tiposdocpos_terminales</name>
-        <type>FOREIGN KEY (idterminal) REFERENCES terminalespos (idterminal) ON DELETE CASCADE ON UPDATE CASCADE</type>
+        <name>ca_pos_document_types_terminal</name>
+        <type>FOREIGN KEY (idterminal) REFERENCES pos_terminals (idterminal) ON DELETE CASCADE ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_tiposdocpos_series</name>
+        <name>ca_pos_document_types_series</name>
         <type>FOREIGN KEY (codserie) REFERENCES series (codserie) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
 </table>

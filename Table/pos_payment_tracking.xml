@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-    Document   : pagospos_tracking.xml
-    Author     : Juan José Prieto Dzul
-    Description:
-        Structure for the pagospos_tracking table.
--->
 <table>
     <column>
         <name>cantidad</name>
@@ -41,7 +35,7 @@
         <null>YES</null>
     </column>
     <constraint>
-        <name>pagospos_tracking_pkey</name>
+        <name>pos_payment_tracking_pkey</name>
         <type>PRIMARY KEY (id)</type>
     </constraint>
 </table>

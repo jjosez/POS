@@ -178,7 +178,7 @@ class BorradorPuntoVenta extends SalesDocument
      */
     public static function tableName(): string
     {
-        return 'pausadaspos';
+        return 'pos_drafts';
     }
 
     protected function setListRowColor(): void

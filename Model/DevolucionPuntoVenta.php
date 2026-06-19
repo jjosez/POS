@@ -38,7 +38,7 @@ class DevolucionPuntoVenta extends ModelClass
 
     public static function tableName(): string
     {
-        return 'pos_refunds_drafts';
+        return 'pos_refund_drafts';
     }
 
     public static function allFromSession(string $sessionID): array

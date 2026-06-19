@@ -41,7 +41,7 @@ class MovimientoPuntoVenta extends ModelClass
 
     public static function tableName(): string
     {
-        return 'movimientospos';
+        return 'pos_cash_movements';
     }
 
     /**

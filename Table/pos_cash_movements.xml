@@ -1,18 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-*    This file is part of POS plugin for FacturaScripts
-*    Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
-*
-*    Document   : operaciones.xml
-*    Description:
-*         Estructura de la tabla operacionespos.
--->
 <table>
     <column>
         <name>id</name>
         <type>serial</type>
         <null>NO</null>
-        <default>nextval('movimientospos_id_seq'::regclass)</default>
+        <default>nextval('pos_cash_movements_id_seq'::regclass)</default>
     </column>
     <column>
         <name>idsesion</name>
@@ -49,21 +41,21 @@
         <name>total</name>
         <type>double precision</type>
         <null>NO</null>
-    </column>    
+    </column>
     <constraint>
-        <name>movimientospos_pkey</name>
+        <name>pos_cash_movements_pkey</name>
         <type>PRIMARY KEY (id)</type>
     </constraint>
     <constraint>
-        <name>ca_movimientospos_sesionespos</name>
-        <type>FOREIGN KEY (idsesion) REFERENCES sesionespos (idsesion) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+        <name>ca_pos_cash_movements_session</name>
+        <type>FOREIGN KEY (idsesion) REFERENCES pos_sessions (idsesion) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_movimientospos_users</name>
+        <name>ca_pos_cash_movements_users</name>
         <type>FOREIGN KEY (nickusuario) REFERENCES users (nick) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_movimientospos_nickautoriza</name>
+        <name>ca_pos_cash_movements_authorizer</name>
         <type>FOREIGN KEY (nickusuario) REFERENCES users (nick) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
 </table>

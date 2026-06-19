@@ -1,12 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-*    This file is part of POS plugin for FacturaScripts
-*    Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
-*
-*    Document   : terminalespos.xml
-*    Description:
-*         Estructura de la tabla terminalespos.
--->
 <table>
     <column>
         <name>columns</name>
@@ -27,19 +19,19 @@
         <type>character varying(50)</type>
     </column>
     <constraint>
-        <name>terminalespos_options_pkey</name>
+        <name>pos_terminal_options_pkey</name>
         <type>PRIMARY KEY (id)</type>
     </constraint>
     <constraint>
-        <name>uniq_terminalespos_options</name>
+        <name>uniq_pos_terminal_options</name>
         <type>UNIQUE (idterminal, nick)</type>
     </constraint>
     <constraint>
-        <name>ca_terminalespos_options_terminales</name>
-        <type>FOREIGN KEY (idterminal) REFERENCES terminalespos (idterminal) ON DELETE CASCADE ON UPDATE CASCADE</type>
+        <name>ca_pos_terminal_options_terminal</name>
+        <type>FOREIGN KEY (idterminal) REFERENCES pos_terminals (idterminal) ON DELETE CASCADE ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_terminalespos_options_users</name>
+        <name>ca_pos_terminal_options_users</name>
         <type>FOREIGN KEY (nick) REFERENCES users (nick) ON DELETE CASCADE ON UPDATE CASCADE</type>
     </constraint>
 </table>

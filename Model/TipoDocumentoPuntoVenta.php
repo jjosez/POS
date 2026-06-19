@@ -61,7 +61,7 @@ class TipoDocumentoPuntoVenta extends ModelClass
 
     public static function tableName(): string
     {
-        return 'tiposdocpos';
+        return 'pos_document_types';
     }
 
     public function primaryDescription(): string

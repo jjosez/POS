@@ -104,7 +104,7 @@ class PagoPuntoVenta extends ModelClass
 
     public static function tableName(): string
     {
-        return 'pagospos';
+        return 'pos_payments';
     }
 
     public function pagoNeto(): float

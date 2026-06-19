@@ -1,18 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-*    This file is part of POS plugin for FacturaScripts
-*    Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
-*
-*    Document   : pagospos.xml
-*    Description:
-*         Estructura de la tabla pagospos.
--->
 <table>
     <column>
         <name>id</name>
         <type>serial</type>
         <null>NO</null>
-        <default>nextval('formaspagospos_id_seq'::regclass)</default>
+        <default>nextval('pos_payment_methods_id_seq'::regclass)</default>
     </column>
     <column>
         <name>idterminal</name>
@@ -30,7 +22,7 @@
         <default>false</default>
     </column>
     <constraint>
-        <name>formaspagopos_pkey</name>
+        <name>pos_payment_methods_pkey</name>
         <type>PRIMARY KEY (id)</type>
     </constraint>
     <constraint>
@@ -38,11 +30,11 @@
         <type>UNIQUE (codpago, idterminal)</type>
     </constraint>
     <constraint>
-        <name>ca_formaspagopos_terminales</name>
-        <type>FOREIGN KEY (idterminal) REFERENCES terminalespos (idterminal) ON DELETE CASCADE ON UPDATE CASCADE</type>
+        <name>ca_pos_payment_methods_terminal</name>
+        <type>FOREIGN KEY (idterminal) REFERENCES pos_terminals (idterminal) ON DELETE CASCADE ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_formaspagopos_formaspago</name>
+        <name>ca_pos_payment_methods_formaspago</name>
         <type>FOREIGN KEY (codpago) REFERENCES formaspago (codpago) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
 </table>

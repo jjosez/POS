@@ -62,15 +62,15 @@
         <null>YES</null>
     </column>
     <constraint>
-        <name>devolucionespos_pkey</name>
+        <name>pos_refund_drafts_pkey</name>
         <type>PRIMARY KEY (iddevolucion)</type>
     </constraint>
     <constraint>
-        <name>ca_devolucionespos_sesion</name>
-        <type>FOREIGN KEY (idsesion) REFERENCES sesionespos (idsesion) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+        <name>ca_pos_refund_drafts_session</name>
+        <type>FOREIGN KEY (idsesion) REFERENCES pos_sessions (idsesion) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_devolucionespos_operacion</name>
-        <type>FOREIGN KEY (idoperacion_original) REFERENCES operacionespos (idoperacion) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+        <name>ca_pos_refund_drafts_operation</name>
+        <type>FOREIGN KEY (idoperacion_original) REFERENCES pos_operations (idoperacion) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
 </table>

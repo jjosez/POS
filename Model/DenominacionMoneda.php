@@ -28,6 +28,6 @@ class DenominacionMoneda extends ModelClass
 
     public static function tableName(): string
     {
-        return 'denominacionesmoneda';
+        return 'pos_currency_denominations';
     }
 }

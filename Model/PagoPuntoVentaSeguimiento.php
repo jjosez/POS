@@ -89,6 +89,6 @@ class PagoPuntoVentaSeguimiento extends ModelClass
 
     public static function tableName(): string
     {
-        return 'pagospos_tracking';
+        return 'pos_payment_tracking';
     }
 }

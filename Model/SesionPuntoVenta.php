@@ -108,7 +108,7 @@ class SesionPuntoVenta extends ModelClass
 
     public static function tableName(): string
     {
-        return 'sesionespos';
+        return 'pos_sessions';
     }
 
     /**

@@ -1,12 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-*    This file is part of POS plugin for FacturaScripts
-*    Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
-*
-*    Document   : operaciones.xml
-*    Description:
-*         Estructura de la tabla operacionespos.
--->
 <table>
     <column>
         <name>codcliente</name>
@@ -65,15 +57,15 @@
         <null>NO</null>
     </column>
     <constraint>
-        <name>operacionespos_pkey</name>
+        <name>pos_operations_pkey</name>
         <type>PRIMARY KEY (idoperacion)</type>
     </constraint>
     <constraint>
-        <name>ca_operacionespos_sesionpos</name>
-        <type>FOREIGN KEY (idsesion) REFERENCES sesionespos (idsesion) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+        <name>ca_pos_operations_session</name>
+        <type>FOREIGN KEY (idsesion) REFERENCES pos_sessions (idsesion) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
     <constraint>
-        <name>ca_operacionespos_cliente</name>
+        <name>ca_pos_operations_cliente</name>
         <type>FOREIGN KEY (codcliente) REFERENCES clientes (codcliente) ON DELETE RESTRICT ON UPDATE CASCADE</type>
     </constraint>
 </table>

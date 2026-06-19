@@ -5,6 +5,7 @@ namespace FacturaScripts\Plugins\POS;
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Migrations;
 use FacturaScripts\Core\Template\InitClass;
+use FacturaScripts\Plugins\POS\Migration\RenameTables;
 
 class Init extends InitClass
 {
@@ -18,6 +19,7 @@ class Init extends InitClass
 
     public function update(): void
     {
+        Migrations::runPluginMigration(new RenameTables());
         Migrations::runPluginMigration(new Migration\CreateDefaultDraftStatuses());
         Migrations::runPluginMigration(new Migration\CreateSearchIndexes());
 
@@ -30,11 +32,11 @@ class Init extends InitClass
         $database->connect();
 
         $columns = [
-            'operacionespos' => [
+            'pos_operations' => [
                 'idoperacion_original' => 'INTEGER',
                 'esdevolucion' => 'BOOLEAN NOT NULL DEFAULT false',
             ],
-            'terminalespos' => [
+            'pos_terminals' => [
                 'codserierect' => 'VARCHAR(6)',
             ],
         ];

@@ -64,6 +64,6 @@ class LineaBorradorPuntoVenta extends SalesDocumentLine
      */
     public static function tableName(): string
     {
-        return 'lineaspausadaspos';
+        return 'pos_draft_lines';
     }
 }
