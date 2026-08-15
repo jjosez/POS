@@ -163,17 +163,6 @@ class ProductoVariante extends JoinModel implements JsonSerializable
         $this->priceWithFormat = Tools::number($this->priceWithTax);
     }
 
-    protected function loadFromData($data): void
-    {
-        parent::loadFromData($data);
-
-        $this->recalculateCustomPriceFields();
-
-        $this->isOutOfStock = (int)$this->stock === 0 && (int)$this->allow_no_stock !== 1;
-
-        $this->setThumbnail();
-    }
-
     protected function setThumbnail(): void
     {
         $this->thumbnail = '';
@@ -188,6 +177,16 @@ class ProductoVariante extends JoinModel implements JsonSerializable
                 $this->thumbnail = FS_ROUTE . $imageFile->url('download-permanent');
             }
         }*/
+    }
+
+    public function loadFromData(array $data = [], array $exclude = []): void
+    {
+        parent::loadFromData($data);
+
+        $this->recalculateCustomPriceFields();
+        $this->isOutOfStock = (int)$this->stock === 0 && (int)$this->allow_no_stock !== 1;
+
+        $this->setThumbnail();
     }
 
     /**

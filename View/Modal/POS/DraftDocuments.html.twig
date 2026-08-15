@@ -53,9 +53,9 @@
     <% } %>
 
     <% if(drafts.length > 0) { %>
-    <div class="mb-2 px-2 py-1 text-sm font-semibold uppercase text-slate-500 border-b border-slate-200">
+    {#<div class="mb-2 px-2 py-1 text-sm font-semibold uppercase text-slate-500 border-b border-slate-200">
         {{ trans('pos-orders-on-hold') }}
-    </div>
+    </div>#}
     <% drafts.forEach(function(order){ %>
     <div class="mb-4 p-2 flex cursor-pointer flex-col rounded-lg md:flex-row bg-<%= order.rowcolor %>-100 hover:bg-<%= order.rowcolor %>-200">
         <div class="flex flex-1 flex-col items-center md:flex-row"

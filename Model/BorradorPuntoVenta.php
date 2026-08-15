@@ -89,6 +89,13 @@ class BorradorPuntoVenta extends SalesDocument
         $this->horaregistro = Tools::hour();
     }
 
+    public function install(): string
+    {
+        new LineaBorradorPuntoVenta();
+
+        return parent::install();
+    }
+
     public function loadFromData(array $data = [], array $exclude = [], bool $sync = true): void
     {
         parent::loadFromData($data, $exclude, $sync);
