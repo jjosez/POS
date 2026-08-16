@@ -23,10 +23,10 @@ class Init extends InitClass
         Migrations::runPluginMigration(new Migration\CreateDefaultDraftStatuses());
         Migrations::runPluginMigration(new Migration\CreateSearchIndexes());
 
-        $this->updateRefundColumns();
+        $this->updateSchemaColumns();
     }
 
-    private function updateRefundColumns(): void
+    private function updateSchemaColumns(): void
     {
         $database = new DataBase();
         $database->connect();
@@ -38,6 +38,9 @@ class Init extends InitClass
             ],
             'pos_terminals' => [
                 'codserierect' => 'VARCHAR(6)',
+            ],
+            'pos_payment_methods' => [
+                'icon' => 'VARCHAR(25)',
             ],
         ];
 

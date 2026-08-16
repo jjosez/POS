@@ -12,6 +12,12 @@
         <null>NO</null>
     </column>
     <column>
+        <name>icon</name>
+        <type>character varying(25)</type>
+        <null>YES</null>
+        <default>NULL</default>
+    </column>
+    <column>
         <name>codpago</name>
         <type>character varying(10)</type>
         <null>NO</null>

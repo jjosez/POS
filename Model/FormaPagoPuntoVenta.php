@@ -22,8 +22,17 @@ class FormaPagoPuntoVenta extends ModelClass
 
     public $codpago;
     public $cantidad;
+    public $icon;
     public $idterminal;
     public $recibecambio;
+
+    private const ALLOWED_ICONS = [
+        'fa-credit-card',
+        'fa-money-bill-1',
+        'fa-money-check-dollar',
+        'fa-tag',
+        'fa-user-circle',
+    ];
 
     public static function primaryColumn(): string
     {
@@ -43,5 +52,14 @@ class FormaPagoPuntoVenta extends ModelClass
     public function formaPago(): FormaPago
     {
         return FormasPago::get($this->codpago);
+    }
+
+    public function iconClass(): string
+    {
+        if (in_array($this->icon, self::ALLOWED_ICONS, true)) {
+            return $this->icon;
+        }
+
+        return $this->recibecambio ? 'fa-money-bill-1' : 'fa-credit-card';
     }
 }

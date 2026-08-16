@@ -2,66 +2,45 @@ import * as CheckoutView from '../views/CheckoutView.js';
 import CheckoutModel from '../models/CheckoutModel.js';
 import dispatcher from '../core/EventDispatcher.js';
 import EventManager from '../core/EventManager.js';
-import CartController from './CartController.js';
-
-let isCheckoutVisible = false;
 
 const CheckoutController = {
+    inputHandler: null,
+
     deletePayment(el) {
-        const {index} = el.dataset;
-        CheckoutModel.deletePayment(index);
+        CheckoutModel.deletePayment(Number(el.dataset.index));
     },
 
     recalculatePayment(el) {
-        const {value} = el.dataset;
-        if (value === 'balance') {
-            CheckoutView.setPaymentInputValue(CheckoutModel.getOutstandingBalance());
-        } else {
-            const current = CheckoutView.getPaymentInputValue();
-            CheckoutView.setPaymentInputValue(current + parseFloat(value) || 0);
-        }
+        if (el.dataset.value !== 'balance') return;
+
+        CheckoutView.setPaymentInputValue(CheckoutModel.getOutstandingBalance());
+        CheckoutView.render(CheckoutModel, CheckoutView.getPaymentInputValue());
+        CheckoutView.focusPaymentInput();
     },
 
     setPayment(el) {
-        const code = el.dataset.code;
-        const description = el.dataset.description;
-
         let amount = CheckoutView.getPaymentInputValue();
-
-        if (!amount || amount === 0) {
-            amount = CheckoutModel.getOutstandingBalance();
+        if (amount === 0) {
+            amount = Math.max(0, CheckoutModel.getOutstandingBalance());
         }
 
-        const paymentData = {
-            amount: amount,
-            method: code,
-            description: description
-        };
-        CheckoutModel.setPayment(paymentData);
-
         CheckoutView.setPaymentInputValue(0);
-    },
-
-    handleConfirmOrder(el) {
-        console.log('💵 Confirmar orden');
+        CheckoutModel.setPayment({
+            amount,
+            method: el.dataset.code,
+            description: el.dataset.description,
+        });
+        CheckoutView.focusPaymentInput();
     },
 
     showCheckoutModal() {
-        isCheckoutVisible = true;
-                
-        CheckoutView.togglePaymentModal();
+        CheckoutView.showPaymentModal();
         CheckoutView.render(CheckoutModel);
-
-        // Renderizar el resumen del carrito
-        //CheckoutView.toggleCheckoutBlock();
-        //const cartState = CartController.getState();
-        //CheckoutView.renderCartSummary(cartState);
+        CheckoutView.focusPaymentInput();
     },
 
     hideCheckoutModal() {
-        isCheckoutVisible = false;
-        CheckoutView.togglePaymentModal();
-        //CheckoutView.toggleCheckoutBlock();
+        CheckoutView.hidePaymentModal();
     },
 
     getState() {
@@ -72,13 +51,22 @@ const CheckoutController = {
         dispatcher.register('checkout:payment:delete', this.deletePayment);
         dispatcher.register('checkout:payment:recalc', this.recalculatePayment);
         dispatcher.register('checkout:payment:add', this.setPayment);
+        dispatcher.register('checkout:payment:more', CheckoutView.toggleMoreMethods);
         dispatcher.register('checkout:show', this.showCheckoutModal);
-        dispatcher.register('order:save', this.hideCheckoutModal);
+        dispatcher.register('checkout:hide', this.hideCheckoutModal);
 
         EventManager.on('keyboard:checkout:show', this.showCheckoutModal);
+        EventManager.on('checkout:processing', processing => {
+            CheckoutView.setProcessing(processing);
+            if (CheckoutView.isPaymentModalVisible()) {
+                CheckoutView.render(CheckoutModel, CheckoutView.getPaymentInputValue());
+            }
+        });
 
         EventManager.on('checkout:update', () => {
-            if (isCheckoutVisible) CheckoutView.render(CheckoutModel);
+            if (CheckoutView.isPaymentModalVisible()) {
+                CheckoutView.render(CheckoutModel, CheckoutView.getPaymentInputValue());
+            }
         });
 
         EventManager.on('event:cart:updated', ({doc}) => {
@@ -86,10 +74,19 @@ const CheckoutController = {
         });
 
         EventManager.on('event:order:completed', () => {
+            if (CheckoutView.isPaymentModalVisible()) {
+                CheckoutView.hidePaymentModal();
+            }
+            CheckoutView.setPaymentInputValue(0);
             CheckoutModel.clear();
-            CheckoutView.render(CheckoutModel);
         });
-    }
-}
+
+        const input = CheckoutView.getPaymentInput();
+        if (input && !this.inputHandler) {
+            this.inputHandler = () => CheckoutView.render(CheckoutModel, CheckoutView.getPaymentInputValue());
+            input.addEventListener('input', this.inputHandler);
+        }
+    },
+};
 
 export default CheckoutController;

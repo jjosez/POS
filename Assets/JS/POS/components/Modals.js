@@ -99,6 +99,8 @@ class Modals {
 
     _escapeKeyEventHandler = (event) => {
         if (event.key === "Escape" || event.key === "Esc") {
+            if (this.modalCache.loadingModal.isVisible) return;
+
             for (const modal of Object.values(this.modalCache)) {
                 if (modal.isVisible) {
                     modal.hide();
@@ -132,6 +134,31 @@ class Modals {
         // Mostramos el nuevo modal
         modal.show();
         this.currentModal = modal;
+    }
+
+    showModal(modalId) {
+        let modal = this.modalCache[modalId];
+        if (!modal) {
+            modal = new ModalElement(modalId);
+            this.modalCache[modalId] = modal;
+        }
+
+        if (this.currentModal && this.currentModal !== modal) {
+            this.currentModal.hide();
+        }
+
+        modal.show();
+        this.currentModal = modal;
+    }
+
+    hideModal(modalId) {
+        const modal = this.modalCache[modalId];
+        if (!modal) return;
+
+        modal.hide();
+        if (this.currentModal === modal) {
+            this.currentModal = null;
+        }
     }
 
     // Métodos de acceso directo a cada modal

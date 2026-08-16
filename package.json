@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npx @tailwindcss/cli -i ./_src/pos.css -o ./Assets/CSS/pos.app.css",
-    "build": "set NODE_ENV=production&&npx @tailwindcss/cli -i ./_src/pos.css -o ./Assets/CSS/pos.app.min.css --minify"
+    "dev": "tailwindcss -i ./_src/pos.css -o ./Assets/CSS/pos.app.css",
+    "build": "set NODE_ENV=production&&tailwindcss -i ./_src/pos.css -o ./Assets/CSS/pos.app.min.css --minify"
   },
   "repository": {
     "type": "git",
@@ -15,6 +15,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@tailwindcss/cli": "4.1.6",
     "tailwindcss": "^4.1.6"
   },
   "dependencies": {

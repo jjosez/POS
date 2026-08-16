@@ -1,79 +1,154 @@
-<div id="checkout:modal" class="modal hidden">
-    <div class="modal-content md:modal-content-sm">
-        <div class="modal-header">
-            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ trans('charge') }}</h2>
-            <button class="btn btn-icon btn-naked ml-2" data-toggle="modal" data-target="checkout:modal">
-                <i class="fa fw fa-times"></i>
+{% set paymentMethods = context.config().getPaymentMethods() %}
+{% set cashMethod = context.config().getCashPaymentMethod() %}
+<div id="checkout:modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+    <div class="modal-content md:max-w-2xl">
+        <div class="modal-header items-center p-4">
+            <div class="flex min-w-0 items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <i class="fa-solid fa-credit-card" aria-hidden="true"></i>
+                </div>
+                <div class="min-w-0">
+                    <h2 id="checkoutTitle" class="text-xl font-semibold text-slate-900">{{ trans('charge') }}</h2>
+                    <p class="truncate text-sm text-slate-500">{{ trans('payments-summary') }}</p>
+                </div>
+            </div>
+            <button type="button" class="btn btn-icon btn-naked ml-2"
+                    data-action="checkout:hide" data-toggle="modal" data-target="checkout:modal" aria-label="{{ trans('close') }}">
+                <i class="fa-solid fa-times" aria-hidden="true"></i>
             </button>
         </div>
-        <div class="modal-body">
-            <div class="flex">
-                <label class="flex-1 input-icon text-slate-gray-800">
-                    <span><i class="fa fa-sm fa-dollar-sign"></i></span>
-                    <input type="number" id="paymentApplyInput" placeholder="0">
+
+        <div class="modal-body space-y-5">
+            <div class="flex items-center justify-between rounded-lg border border-blue-100 bg-blue-50 p-4">
+                <span class="font-semibold text-slate-700">{{ trans('payable-amount') }}</span>
+                <span class="text-3xl font-bold tracking-tight text-slate-900">
+                    <span class="mr-1 text-lg text-slate-500">{{ context.currency().getCurrency().simbolo }}</span><span id="checkoutTotal">0.00</span>
+                </span>
+            </div>
+
+            <div>
+                <label for="paymentApplyInput" class="mb-2 block text-sm font-semibold text-slate-700">
+                    {{ trans('tendered-amount') }}
                 </label>
-                <button class="ml-4 btn btn-secondary payment-add-btn"
-                        data-action="checkout:payment:recalc"
-                        data-value="balance">
-                    <span class="w-full text-center">{{ trans('balance') }}</span>
-                </button>
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <label class="input-icon min-w-0 flex-1 text-slate-500">
+                        <span aria-hidden="true">{{ context.currency().getCurrency().simbolo }}</span>
+                        <input type="number" id="paymentApplyInput" class="h-14 text-right text-2xl font-bold text-slate-900"
+                               placeholder="0" inputmode="decimal" min="0"
+                               step="any"
+                               autocomplete="off">
+                    </label>
+                    <button type="button" class="btn btn-light h-14 justify-center px-5 sm:w-auto"
+                            data-action="checkout:payment:recalc" data-value="balance">
+                        <i class="fa-solid fa-scale-balanced mr-2" aria-hidden="true"></i>
+                        <span>{{ trans('balance') }}</span>
+                    </button>
+                </div>
             </div>
-            <div class="py-4">
-                <div class="flex flex-wrap justify-center gap-4">
-                    {% for element in context.config().getPaymentMethods() %}
-                        <button class="btn btn-primary payment-modal-btn" data-action="checkout:payment:add"
-                                data-code="{{ element.codpago }}" data-description="{{ element.descripcion }}"
-                                data-paid="{{ element.formaPago().pagado ?? 0}}">
-                            <i class="fas fa-plus-circle mr-2"></i>
-                            <span class="w-full text-center">{{ element.descripcion }}</span>
-                        </button>
+
+            <section aria-labelledby="checkoutPaymentMethodsTitle">
+                <h3 id="checkoutPaymentMethodsTitle" class="mb-3 text-sm font-semibold text-slate-700">
+                    {{ trans('available-payment-methods') }}
+                </h3>
+                <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {% for element in paymentMethods %}
+                        {% if loop.index <= 3 %}
+                            {% set paymentIcon = element.iconClass() %}
+                            <button type="button"
+                                    class="btn btn-light relative min-h-20 flex-col justify-center gap-1 border-2 px-2 py-2 text-center"
+                                    data-action="checkout:payment:add"
+                                    data-payment-method
+                                    data-code="{{ element.codpago }}"
+                                    data-description="{{ element.descripcion }}"
+                                    data-cash="{{ element.codpago == cashMethod ? 'true' : 'false' }}"
+                                    aria-pressed="false">
+                                <i class="fa-solid fa-fw {{ paymentIcon }} text-lg" aria-hidden="true"></i>
+                                <span class="w-full whitespace-normal text-center text-sm leading-tight">{{ element.descripcion }}</span>
+                                <i data-payment-check hidden class="fa-solid fa-circle-check absolute right-1.5 top-1.5 text-sm text-blue-600" aria-hidden="true"></i>
+                            </button>
+                        {% endif %}
                     {% endfor %}
+                    {% if paymentMethods|length > 3 %}
+                        <button type="button" class="btn btn-light min-h-20 flex-col justify-center gap-1 border-2 px-2 py-2"
+                                data-action="checkout:payment:more" aria-expanded="false" aria-controls="checkoutMoreMethods">
+                            <i class="fa-solid fa-fw fa-ellipsis text-lg" aria-hidden="true"></i>
+                            <span class="text-sm leading-tight">{{ trans('more') }}</span>
+                        </button>
+                    {% endif %}
                 </div>
-            </div>
-            <div id="payment:list:view" class="flex-1">
-            </div>
-            <div class="flex flex-col place-content-between text-lg font-medium">
-                <div class="p-3 flex justify-between border-t-2 border-dashed">
-                    <span class="text-green-800">{{ trans('payable-amount') }}</span>
-                    <span id="checkoutTotal" class="text-right">0.000</span>
+
+                {% if paymentMethods|length > 3 %}
+                    <div id="checkoutMoreMethods" class="mt-2 hidden grid-cols-2 gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2 sm:grid-cols-3">
+                        {% for element in paymentMethods %}
+                            {% if loop.index > 3 %}
+                                {% set paymentIcon = element.iconClass() %}
+                                <button type="button"
+                                        class="btn btn-light relative min-h-20 flex-col justify-center gap-1 border-2 px-2 py-2 text-center"
+                                        data-action="checkout:payment:add"
+                                        data-payment-method
+                                        data-code="{{ element.codpago }}"
+                                        data-description="{{ element.descripcion }}"
+                                        data-cash="{{ element.codpago == cashMethod ? 'true' : 'false' }}"
+                                        aria-pressed="false">
+                                    <i class="fa-solid fa-fw {{ paymentIcon }} text-lg" aria-hidden="true"></i>
+                                    <span class="w-full whitespace-normal text-center text-sm leading-tight">{{ element.descripcion }}</span>
+                                    <i data-payment-check hidden class="fa-solid fa-circle-check absolute right-1.5 top-1.5 text-sm text-blue-600" aria-hidden="true"></i>
+                                </button>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </section>
+
+            <section id="checkoutAppliedPayments" class="hidden" aria-labelledby="checkoutAppliedPaymentsTitle">
+                <h3 id="checkoutAppliedPaymentsTitle" class="mb-2 text-xs font-semibold uppercase text-slate-500">
+                    {{ trans('payments-summary') }}
+                </h3>
+                <div id="payment:list:view"></div>
+            </section>
+
+            <div class="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-slate-600">{{ trans('tendered-amount') }}</span>
+                    <strong class="text-lg text-blue-600">
+                        {{ context.currency().getCurrency().simbolo }} <span id="checkoutTenderedAmount">0.00</span>
+                    </strong>
                 </div>
-                <div class="p-3 flex justify-between border-t-2 border-dashed">
-                    <span class="text-green-800">{{ trans('tendered-amount') }}</span>
-                    <span id="checkoutTenderedAmount" class="text-right">0.000</span>
-                </div>
-                <div class="p-3 flex justify-between border-t-2 border-dashed">
-                    <span class="text-yellow-800">{{ trans('change-amount') }}</span>
-                    <span id="checkoutChangeAmount" class="text-right">0.000</span>
+                <div class="flex items-center gap-2 sm:border-l sm:border-slate-200 sm:pl-4">
+                    <span id="checkoutChangeLabel" class="text-sm text-slate-600">{{ trans('change-amount') }}</span>
+                    <span id="checkoutBalanceLabel" class="hidden text-sm text-slate-600">{{ trans('balance') }}</span>
+                    <strong class="text-lg text-emerald-600">
+                        {{ context.currency().getCurrency().simbolo }} <span id="checkoutChangeAmount">0.00</span>
+                    </strong>
                 </div>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-naked" data-toggle="modal" data-target="checkout:modal">
-                <i class="fa fa-arrow-alt-circle-left"></i>
-                <span class="mx-2 text-center">{{ trans('cancel') }}</span>
+
+        <div class="modal-footer gap-3 p-4">
+            <button type="button" class="btn btn-naked" data-action="checkout:hide"
+                    data-toggle="modal" data-target="checkout:modal">
+                {{ trans('cancel') }}
             </button>
-            <button id="orderSaveButton" class="btn btn-success ml-auto" data-action="order:save" disabled>
-                <span class="mx-2 text-center">{{ trans('confirm') }}</span>
-                <i class="fa fa-arrow-alt-circle-right"></i>
+            <button type="button" id="orderSaveButton" class="btn btn-success ml-auto"
+                    data-action="order:save" disabled>
+                <span>{{ trans('charge') }}</span>
+                <i class="fa-solid fa-arrow-right ml-2" aria-hidden="true"></i>
             </button>
         </div>
     </div>
 </div>
+
 <script id="payment:list:template" type="text/template">
     <% payments.forEach(function(value, index) { %>
-    <div class="my-4 flex rounded-lg bg-slate-100 p-4 shadow-sm">
-        <div class="mr-4 flex items-center">
-            <span class="bg-slate-gray-200"><i class="fas fa-1x fa-plus-circle"></i></span>
-        </div>
-        <div class="flex-1">
-            <p class="text-sm font-bold uppercase text-gray-600"><%= value.description %></p>
-            <p class="text-lg font-bold text-blue-500"><%= value.amount %></p>
-        </div>
-        <div class="flex items-center">
-            <button class="btn btn-icon btn-danger" data-action="checkout:payment:delete" data-index="<%= index %>">
-                <i class="fas fa-trash-alt"></i>
-            </button>
-        </div>
+    <div class="flex items-center gap-3 border-t border-slate-200 py-2 first:border-t-0">
+        <i class="fa-solid fa-circle-check text-blue-600" aria-hidden="true"></i>
+        <span class="min-w-0 flex-1 truncate text-sm font-medium text-slate-700"><%= value.description %></span>
+        <strong class="text-slate-900"><%= value.formattedAmount %></strong>
+        <button type="button" class="btn btn-icon btn-naked h-9 w-9 text-red-600"
+                data-action="checkout:payment:delete" data-index="<%= index %>"
+                aria-label="{{ trans('delete') }}">
+            <i class="fa-solid fa-times" aria-hidden="true"></i>
+        </button>
     </div>
     <% }) %>
 </script>

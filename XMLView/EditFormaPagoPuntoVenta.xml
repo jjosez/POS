@@ -10,7 +10,7 @@
             <column name="code" numcolumns="3" display="none" order="100">
                 <widget type="text" fieldname="id" icon="fas fa-hashtag" readonly="true"/>
             </column>
-            <column name="cash-register" numcolumns="4" order="110">
+            <column name="cash-register" numcolumns="3" display="none" order="110">
                 <widget type="text" fieldname="idterminal" icon="fas fa-cash-register" readonly="true"/>
             </column>
             <column name="payment-method" numcolumns="4" order="120">
@@ -18,7 +18,16 @@
                     <values source="formaspago" fieldcode="codpago" fieldtitle="descripcion"/>
                 </widget>
             </column>
-            <column name="is-cash-payment" numcolumns="4" order='140'>
+            <column name="payment-icon" numcolumns="3" order="130">
+                <widget type="select" fieldname="icon" translate="true" icon="fas fa-icons">
+                    <values title="cash">fa-money-bill-1</values>
+                    <values title="card">fa-credit-card</values>
+                    <values title="customer">fa-user-circle</values>
+                    <values title="tag">fa-tag</values>
+                    <values title="money-check-bill">fa-money-check-dollar</values>
+                </widget>
+            </column>
+            <column name="is-cash-payment" numcolumns="2" order='140'>
                 <widget type="checkbox" fieldname="recibecambio"/>
             </column>
         </group>

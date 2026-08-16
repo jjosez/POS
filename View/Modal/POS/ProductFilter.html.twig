@@ -1,13 +1,17 @@
 <div id="product:filter:modal" class="hidden modal">
     <div class="modal-content md:modal-content-md">
-        <div class="modal-header">
-            <div class="block">
-                <h2 class="text-2xl font-semibold text-slate-gray-700">{{ trans('filters') }}</h2>
-                <p class="text-xs italic">Configura las familias que quieras que se muestren como filtro en el listado
-                    de familias.</p>
+        <div class="modal-header items-center p-4">
+            <div class="flex min-w-0 items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <i class="fa-solid fa-filter" aria-hidden="true"></i>
+                </div>
+                <div class="min-w-0">
+                    <h2 class="text-xl font-semibold text-slate-900">{{ trans('filters') }}</h2>
+                    <p class="truncate text-sm text-slate-500">{{ trans('product-source') }}</p>
+                </div>
             </div>
-            <button class="ml-2 btn btn-icon btn-naked" data-toggle="modal" data-target="product:filter:modal">
-                <i class="fa fw fa-times"></i>
+            <button type="button" class="ml-2 btn btn-icon btn-naked" data-toggle="modal" data-target="product:filter:modal" aria-label="{{ trans('close') }}">
+                <i class="fa-solid fa-times" aria-hidden="true"></i>
             </button>
         </div>
         <div class="modal-body">

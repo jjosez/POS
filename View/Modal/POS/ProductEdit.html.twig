@@ -8,10 +8,18 @@
     <!--content-->
     <div class="modal-content">
         <!--header-->
-        <div class="modal-header">
-            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ trans('edit') }}</h2>
-            <button class="btn btn-icon btn-naked ml-2" data-toggle="modal" data-target="product:edit:modal">
-                <i class="fa fw fa-times"></i>
+        <div class="modal-header items-center p-4">
+            <div class="flex min-w-0 items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                </div>
+                <div class="min-w-0">
+                    <h2 class="text-xl font-semibold text-slate-900">{{ trans('edit') }}</h2>
+                    <p class="truncate text-sm text-slate-500">{{ trans('product') }}</p>
+                </div>
+            </div>
+            <button type="button" class="btn btn-icon btn-naked ml-2" data-toggle="modal" data-target="product:edit:modal" aria-label="{{ trans('close') }}">
+                <i class="fa-solid fa-times" aria-hidden="true"></i>
             </button>
         </div>
         <!--body-->

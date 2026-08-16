@@ -6,15 +6,21 @@
 #}
 <div id="return:sale:modal" class="hidden modal">
     <div class="h-full modal-content md:modal-content-xl">
-        <div class="modal-header">
-            <h2 class="text-2xl font-semibold text-slate-gray-700">
-                {{ trans('new-refund') }}
-            </h2>
+        <div class="modal-header items-center p-4">
+            <div class="flex min-w-0 items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                </div>
+                <div class="min-w-0">
+                    <h2 class="text-xl font-semibold text-slate-900">{{ trans('new-refund') }}</h2>
+                    <p class="truncate text-sm text-slate-500">{{ trans('selected-lines-will-be-sent-as-negative-sale') }}</p>
+                </div>
+            </div>
             <button class="ml-auto btn btn-icon btn-light" data-action="returns:sale-clear:action">
                 <i class="fa fw fa-eraser"></i>
             </button>
-            <button class="ml-2 btn btn-icon btn-naked" data-toggle="modal" data-target="return:sale:modal">
-                <i class="fa fw fa-times"></i>
+            <button type="button" class="ml-2 btn btn-icon btn-naked" data-toggle="modal" data-target="return:sale:modal" aria-label="{{ trans('close') }}">
+                <i class="fa-solid fa-times" aria-hidden="true"></i>
             </button>
         </div>
         <div class="border-b border-slate-200 bg-slate-50 p-4">

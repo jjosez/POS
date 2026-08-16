@@ -4,6 +4,7 @@ import MainView from '../views/MainView.js';
 import ReturnSaleView from '../views/ReturnSaleView.js';
 import CheckoutController from './CheckoutController.js';
 import CheckoutModel from '../models/CheckoutModel.js';
+import CartController from './CartController.js';
 import * as Core from '../Core.js';
 
 const CHECKOUT_BTN_ID = 'orderSaveButton';
@@ -17,6 +18,7 @@ const OrderRefundController = {
     token: '',
     pendingRefund: null,
     devolucion_id: null,
+    isProcessing: false,
 
     init() {
         dispatcher.register('returns:sale-open-from-list:action', this.openFromList.bind(this));
@@ -66,13 +68,13 @@ const OrderRefundController = {
 
         document.addEventListener('click', (e) => {
             const cancelBtn = e.target.closest('[data-toggle="modal"][data-target="checkout:modal"]');
-            if (cancelBtn && this.pendingRefund) {
+            if (cancelBtn && this.pendingRefund && !this.isProcessing) {
                 this.cancelPendingRefund();
             }
         });
 
         document.addEventListener('keydown', (e) => {
-            if ((e.key === 'Escape' || e.key === 'Esc') && this.pendingRefund) {
+            if ((e.key === 'Escape' || e.key === 'Esc') && this.pendingRefund && !this.isProcessing) {
                 this.cancelPendingRefund();
             }
         });
@@ -312,9 +314,19 @@ const OrderRefundController = {
     },
 
     cancelPendingRefund() {
+        const hadPendingRefund = this.pendingRefund !== null;
         this.pendingRefund = null;
         const btn = document.getElementById(CHECKOUT_BTN_ID);
         if (btn) btn.dataset.action = 'order:save';
+
+        if (!hadPendingRefund) return;
+
+        const cartTotal = parseFloat(CartController.getState()?.doc?.total) || 0;
+        if (CheckoutModel.getState().total === cartTotal) {
+            CheckoutModel.clear();
+        } else {
+            CheckoutModel.updateTotal(cartTotal);
+        }
     },
 
     async confirm() {
@@ -355,7 +367,7 @@ const OrderRefundController = {
     },
 
     async processRefundFromCheckout() {
-        if (!this.pendingRefund || !this.currentOrder) return;
+        if (this.isProcessing || !this.pendingRefund || !this.currentOrder) return;
 
         const checkoutState = CheckoutController.getState();
 
@@ -366,7 +378,7 @@ const OrderRefundController = {
         const payments = checkoutState.payments.map(p => ({
             method: p.method,
             amount: -Math.abs(p.amount),
-            change: 0,
+            change: -Math.abs(p.change || 0),
             is_cash: p.is_cash || p.method === AppSettings.cash,
         }));
 
@@ -380,26 +392,33 @@ const OrderRefundController = {
             formData.set('devolucion_id', this.devolucion_id);
         }
 
-        const result = await Core.postRequest(formData);
+        this.isProcessing = true;
+        EventManager.emit('checkout:processing', true);
+        MainView.showLoading();
 
-        if (result?.token) {
-            this.token = result.token;
-        }
+        try {
+            const result = await Core.postRequest(formData);
 
-        this.cancelPendingRefund();
+            if (result?.token) {
+                this.token = result.token;
+            }
 
-        if (result?.status === 'success') {
-            CheckoutController.hideCheckoutModal();
+            if (result?.status === 'success') {
+                this.cancelPendingRefund();
+                this.currentOrder = null;
+                this.currentLines = [];
+                this.cartLines = [];
+                this.docTotal = 0;
+                this.devolucion_id = null;
 
-            this.currentOrder = null;
-            this.currentLines = [];
-            this.cartLines = [];
-            this.docTotal = 0;
-            this.devolucion_id = null;
-
-            ReturnSaleView.reset();
-            ReturnSaleView.hide();
-            EventManager.emit('event:order:completed', result);
+                ReturnSaleView.reset();
+                ReturnSaleView.hide();
+                EventManager.emit('event:order:completed', result);
+            }
+        } finally {
+            MainView.hideLoading();
+            EventManager.emit('checkout:processing', false);
+            this.isProcessing = false;
         }
     },
 

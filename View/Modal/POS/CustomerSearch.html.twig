@@ -8,21 +8,32 @@
     <!--content-->
     <div class="modal-content md:modal-content-sm min-h-4/5">
         <!--header-->
-        <div class="modal-header">
-            <label class="flex-1 input-icon text-gray-400">
-                <span><i class="fa fa-sm fa-search"></i></span>
+        <div class="modal-header flex-col items-stretch gap-3 p-4">
+            <div class="flex items-center">
+                <div class="flex min-w-0 items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h2 class="text-xl font-semibold text-slate-900">{{ trans('customer') }}</h2>
+                        <p class="truncate text-sm text-slate-500">{{ trans('search') }}</p>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-icon btn-success ml-auto"
+                        data-toggle="collapse" data-target="newCustomerForm"
+                        aria-label="{{ trans('new') }}">
+                    <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn-icon btn-naked ml-2"
+                        data-toggle="modal" data-target="customer:search:modal"
+                        aria-label="{{ trans('close') }}">
+                    <i class="fa-solid fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <label class="input-icon text-gray-400">
+                <span><i class="fa-solid fa-search fa-sm" aria-hidden="true"></i></span>
                 <input type="search" id="customerSearchBox" placeholder="{{ trans('search') }}" data-view="CartView">
             </label>
-            <button class="btn btn-icon btn-success ml-2"
-                    data-toggle="collapse"
-                    data-target="newCustomerForm">
-                <i class="fa fw fa-user-plus fa-fw"></i>
-            </button>
-            <button class="btn btn-icon btn-naked ml-2"
-                    data-toggle="modal"
-                    data-target="customer:search:modal">
-                <i class="fa fw fa-times"></i>
-            </button>
         </div>
         <!--body-->
         <div class="modal-body p-0">

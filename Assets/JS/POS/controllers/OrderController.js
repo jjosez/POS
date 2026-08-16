@@ -11,6 +11,8 @@ import CheckoutController from './CheckoutController.js';
 import MainView from '../views/MainView.js';
 
 const OrderController = {
+    isSaving: false,
+
     /**
      * Eliminar un pedido en pausa / borrador
      * @param {string} code
@@ -185,19 +187,32 @@ const OrderController = {
      * data-action="order:save"
      */
     async handleOrderSaveAction() {
-        if (!CartController.hasLines()) return;
+        if (this.isSaving || !CartController.hasLines()) return;
 
-        const result = await this.saveRequest(
-            CartController.getState(),
-            CheckoutController.getState().payments
-        );
+        const checkoutState = CheckoutController.getState();
+        if (checkoutState.total === 0 || checkoutState.paymentsTotal < checkoutState.total) return;
 
-        if (result?.status === 'success') {
-            CartController.update(result);
-            MainView.showPrintOrderContextModal(result.data);
-            EventManager.emit('event:order:completed', result);
-        } else if (result?.token) {
-            CartController.Cart.token = result.token;
+        this.isSaving = true;
+        EventManager.emit('checkout:processing', true);
+        MainView.showLoading();
+
+        try {
+            const result = await this.saveRequest(
+                CartController.getState(),
+                checkoutState.payments
+            );
+
+            if (result?.status === 'success') {
+                CartController.update(result);
+                MainView.showPrintOrderContextModal(result.data);
+                EventManager.emit('event:order:completed', result);
+            } else if (result?.token) {
+                CartController.Cart.token = result.token;
+            }
+        } finally {
+            MainView.hideLoading();
+            EventManager.emit('checkout:processing', false);
+            this.isSaving = false;
         }
     },
 
