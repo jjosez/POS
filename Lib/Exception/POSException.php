@@ -14,6 +14,9 @@ use Exception;
  */
 class POSException extends Exception
 {
+    private array $context;
+    private string $translationKey;
+
     /**
      * Creates a new POS exception with optional context data.
      *
@@ -23,6 +26,8 @@ class POSException extends Exception
      */
     public function __construct(string $message = "", array $context = [], int $code = 0)
     {
+        $this->translationKey = $message;
+        $this->context = $context;
         $fullMessage = $message;
 
         if (!empty($context)) {
@@ -30,5 +35,15 @@ class POSException extends Exception
         }
 
         parent::__construct($fullMessage, $code);
+    }
+
+    public function getContext(): array
+    {
+        return $this->context;
+    }
+
+    public function getTranslationKey(): string
+    {
+        return $this->translationKey;
     }
 }

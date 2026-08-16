@@ -3,6 +3,7 @@
 namespace FacturaScripts\Plugins\POS\Lib\Services;
 
 use FacturaScripts\Core\Request;
+use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
 use RuntimeException;
 
 /**
@@ -25,8 +26,16 @@ class TransactionRequest
         }
 
         // Asignar secciones específicas
-        $this->documentLinesData = $data['lines'] ?? [];
-        $this->paymentData = $data['payments'] ?? [];
+        $lines = $data['lines'] ?? [];
+        $payments = $data['payments'] ?? [];
+        if (!is_array($lines)) {
+            throw InvalidTransactionException::emptyLines();
+        }
+        if (!is_array($payments)) {
+            throw InvalidTransactionException::paymentError('payment-invalid-format');
+        }
+        $this->documentLinesData = $lines;
+        $this->paymentData = $payments;
 
         $this->documentType = $data['tipo-documento'] ?? 'FacturaCliente';
 

@@ -60,6 +60,12 @@ class ResponseBuilder
         $this->responseData['data'] = $data;
     }
 
+    public function setErrorResponse(array $data = []): void
+    {
+        $this->responseData['status'] = 'error';
+        $this->responseData['data'] = $data;
+    }
+
     /**
      * Adds a message directly to the response without saving to database.
      *

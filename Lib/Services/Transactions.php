@@ -38,6 +38,10 @@ class Transactions
      */
     protected array $products = [];
 
+    protected bool $prepared = false;
+
+    protected array $rawPayments = [];
+
 
     /**
      * Transaction constructor.
@@ -45,10 +49,13 @@ class Transactions
      */
     public function __construct(TransactionRequest $request)
     {
-        $this->setDocument($request->getDocumentData(), $request->getDocumentType());
-        $this->setPayments($request->getPaymentData());
-
+        $this->setDocument(
+            $request->getDocumentData(),
+            $request->getDocumentType(),
+            $request->isDraft()
+        );
         $this->products = $request->getDocumentLinesData();
+        $this->rawPayments = $request->getPaymentData();
     }
 
     /**
@@ -67,13 +74,28 @@ class Transactions
         return $this->payments;
     }
 
+    public function getRawPayments(): array
+    {
+        return $this->rawPayments;
+    }
+
+    public function getPaymentData(): array
+    {
+        return array_map(static function (PagoPuntoVenta $payment): array {
+            return [
+                'method' => $payment->codpago,
+                'amount' => $payment->cantidad,
+                'change' => $payment->cambio,
+            ];
+        }, $this->payments);
+    }
+
     /**
      * @return array
      */
     public function recalculate(): array
     {
-        $this->setDocumentLines();
-        Calculator::calculate($this->document, $this->documentLines, false);
+        $this->prepareDocument();
 
         return [
             'doc' => $this->document->toArray(true),
@@ -95,12 +117,39 @@ class Transactions
             return false;
         }
 
-        $this->setDocumentLines();
+        if ($this->prepared) {
+            if (!$this->deleteDocumentLines()) {
+                return false;
+            }
+        } else {
+            $this->setDocumentLines(true);
+        }
 
         return Calculator::calculate($this->document, $this->documentLines, true);
     }
 
-    protected function setDocument(array $data, string $modelName): void
+    public function prepareDocument(): bool
+    {
+        $this->setDocumentLines();
+        $this->prepared = Calculator::calculate($this->document, $this->documentLines, false);
+        return $this->prepared;
+    }
+
+    public function setValidatedPayments(array $list): void
+    {
+        $this->payments = [];
+
+        foreach ($list as $element) {
+            $payment = new PagoPuntoVenta();
+            $payment->cantidad = $element['amount'];
+            $payment->cambio = $element['change'];
+            $payment->codpago = $element['method'];
+            $payment->isCashMethod = $element['is_cash'];
+            $this->payments[] = $payment;
+        }
+    }
+
+    protected function setDocument(array $data, string $modelName, bool $allowPrimaryKey = false): void
     {
         $className = self::MODEL_NAMESPACE . $modelName;
 
@@ -117,15 +166,18 @@ class Transactions
         //$exclude = ['neto', 'total', 'totalirpf', 'totaliva', 'totalrecargo', 'totalsuplidos'];
 
         //$this->document->loadFromData($data, $exclude);
-        $this->document->loadFromData($data);
+        $exclude = $allowPrimaryKey ? [] : $this->document::dontCopyFields();
+        $this->document->loadFromData($data, $exclude);
         //$this->document->updateSubject();
         $this->setDocumentSubject();
     }
 
-    protected function setDocumentLines(): void
+    protected function setDocumentLines(bool $deleteExisting = false): void
     {
-        foreach ($this->document->getLines() as $line) {
-            $line->delete();
+        $this->documentLines = [];
+
+        if ($deleteExisting && !$this->deleteDocumentLines()) {
+            throw new RuntimeException('fail-delete-document-lines');
         }
 
         foreach ($this->products as $product) {
@@ -148,24 +200,21 @@ class Transactions
         }
     }
 
+    protected function deleteDocumentLines(): bool
+    {
+        foreach ($this->document->getLines() as $line) {
+            if (false === $line->delete()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     protected function setDocumentSubject(): void
     {
         if (empty($this->document->nombrecliente) || empty($this->document->cifnif)) {
             $this->document->updateSubject();
-        }
-    }
-
-    protected function setPayments(array $list): void
-    {
-        foreach ($list as $element) {
-            $payment = new PagoPuntoVenta();
-
-            $payment->cantidad = $element['amount'];
-            $payment->cambio = $element['change'];
-            $payment->codpago = $element['method'];
-            $payment->isCashMethod = $element['is_cash'] ?? false;
-
-            $this->payments[] = $payment;
         }
     }
 
@@ -181,7 +230,7 @@ class Transactions
         foreach ($this->payments as $payment) {
             if (abs($payment->pagoNeto()) > $amount) {
                 $method = $payment->codpago;
-                $amount = $payment->pagoNeto();
+                $amount = abs($payment->pagoNeto());
             }
         }
 

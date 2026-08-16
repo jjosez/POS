@@ -43,8 +43,8 @@ class DevolucionPuntoVenta extends ModelClass
 
     public static function allFromSession(string $sessionID): array
     {
-        return self::all([/*
-            Where::eq('idsesion', $sessionID)*/
+        return self::all([
+            Where::eq('idsesion', $sessionID)
         ], ['fecha' => 'DESC', 'hora' => 'DESC']);
     }
 }

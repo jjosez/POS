@@ -16,11 +16,17 @@ class Refunds
 {
     private SesionPuntoVenta $session;
     private TerminalPuntoVenta $terminal;
+    private PaymentValidator $paymentValidator;
 
-    public function __construct(SesionPuntoVenta $session, TerminalPuntoVenta $terminal)
+    public function __construct(
+        SesionPuntoVenta $session,
+        TerminalPuntoVenta $terminal,
+        PaymentValidator $paymentValidator
+    )
     {
         $this->session = $session;
         $this->terminal = $terminal;
+        $this->paymentValidator = $paymentValidator;
     }
 
     public function processRefund(
@@ -34,6 +40,20 @@ class Refunds
         $newDoc = $this->createRefundDocument($originalDoc, $modelClass);
         $lineRefs = $this->createRefundLines($newDoc, $originalDoc, $refundLines);
 
+        if (false === Calculator::calculate($newDoc, $lineRefs['lines'], false)) {
+            throw new \RuntimeException('refund-calculate-error');
+        }
+
+        $payments = $this->paymentValidator->validate(
+            $payments,
+            (float)$newDoc->total,
+            PaymentValidator::REFUND
+        );
+
+        $newDoc->codpago = $this->getPrimaryPaymentMethod($payments);
+        if (false === $newDoc->save()) {
+            throw new \RuntimeException('refund-document-save-error');
+        }
         if (false === Calculator::calculate($newDoc, $lineRefs['lines'], true)) {
             throw new \RuntimeException('refund-calculate-error');
         }
@@ -42,7 +62,7 @@ class Refunds
 
         $refundOrder = $this->createRefundOrder($originalOrder, $newDoc);
 
-        $this->processRefundPayments($refundOrder, $payments);
+        $this->processRefundPayments($newDoc, $refundOrder, $payments);
 
         $this->recordRefundMovement($newDoc, $refundOrder);
 
@@ -68,10 +88,6 @@ class Refunds
         if ('FacturaCliente' === $modelClass) {
             $newDoc->idfacturarect = $originalDoc->idfactura;
             $newDoc->codigorect = $originalDoc->codigo;
-        }
-
-        if (false === $newDoc->save()) {
-            throw new \RuntimeException('refund-document-save-error');
         }
 
         return $newDoc;
@@ -149,7 +165,9 @@ class Refunds
             $trans->iddoc2 = $newDoc->id();
             $trans->idlinea2 = $newLines[$i]->idlinea ?? null;
             $trans->cantidad = $map['cantidad'];
-            $trans->save();
+            if (false === $trans->save()) {
+                throw new \RuntimeException('refund-transformation-save-error');
+            }
         }
     }
 
@@ -177,9 +195,16 @@ class Refunds
         return $refundOrder;
     }
 
-    private function processRefundPayments(OrdenPuntoVenta $refundOrder, array $payments): void
+    private function processRefundPayments(
+        SalesDocument $document,
+        OrdenPuntoVenta $refundOrder,
+        array $payments
+    ): void
     {
         $cashAmount = 0.0;
+        $counter = 1;
+        $paymentService = new Payments();
+        $paymentService->cleanInvoiceReceipts($document);
 
         foreach ($payments as $paymentData) {
             $payment = new PagoPuntoVenta();
@@ -187,13 +212,15 @@ class Refunds
             $payment->cantidad = $paymentData['amount'];
             $payment->cambio = $paymentData['change'] ?? 0.0;
             $payment->codpago = $paymentData['method'];
-            $payment->isCashMethod = $paymentData['is_cash'] ?? false;
+            $payment->isCashMethod = $paymentData['is_cash'];
             $payment->idoperacion = $refundOrder->idoperacion;
             $payment->idsesion = $refundOrder->idsesion;
 
             if (false === $payment->save()) {
                 throw new \RuntimeException('refund-payment-save-error');
             }
+
+            $paymentService->saveInvoiceReceipt($document, $payment, $counter++);
 
             if ($payment->isCashMethod) {
                 $cashAmount += $payment->pagoNeto();
@@ -209,6 +236,21 @@ class Refunds
         }
     }
 
+    private function getPrimaryPaymentMethod(array $payments): string
+    {
+        $method = '';
+        $net = 0.0;
+
+        foreach ($payments as $payment) {
+            if (abs($payment['net']) > $net) {
+                $method = $payment['method'];
+                $net = abs($payment['net']);
+            }
+        }
+
+        return $method;
+    }
+
     private function recordRefundMovement(SalesDocument $newDoc, OrdenPuntoVenta $refundOrder): void
     {
         $movement = new MovimientoPuntoVenta();
@@ -220,7 +262,9 @@ class Refunds
         );
         $movement->total = $newDoc->total;
 
-        $movement->save();
+        if (false === $movement->save()) {
+            throw new \RuntimeException('refund-movement-save-error');
+        }
     }
 
     private function resolveRefundSerie(SalesDocument $originalDoc): string

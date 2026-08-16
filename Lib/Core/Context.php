@@ -14,6 +14,7 @@ use FacturaScripts\Plugins\POS\Lib\Services\Currencies;
 use FacturaScripts\Plugins\POS\Lib\Services\Customers;
 use FacturaScripts\Plugins\POS\Lib\Services\Families;
 use FacturaScripts\Plugins\POS\Lib\Services\Payments;
+use FacturaScripts\Plugins\POS\Lib\Services\PaymentValidator;
 use FacturaScripts\Plugins\POS\Lib\Services\Products;
 use FacturaScripts\Plugins\POS\Lib\Services\SessionStorage;
 use FacturaScripts\Plugins\POS\Lib\Services\Transactions;
@@ -105,6 +106,14 @@ class Context
     public function payments(): Payments
     {
         return $this->services['payments'] ??= new Payments($this->session);
+    }
+
+    public function paymentValidator(): PaymentValidator
+    {
+        return $this->services['paymentValidator'] ??= new PaymentValidator(
+            $this->config()->getPaymentMethods(),
+            $this->currency()->getDecimals()
+        );
     }
 
     /**

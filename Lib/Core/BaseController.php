@@ -85,6 +85,11 @@ abstract class BaseController extends Controller
         $this->responseBuilder->setSuccessResponse($data);
     }
 
+    protected function setErrorResponse(array $data = []): void
+    {
+        $this->responseBuilder->setErrorResponse($data);
+    }
+
     protected function addResponseData(array $data = []): void
     {
         $this->responseBuilder->addResponseData($data);
@@ -101,9 +106,9 @@ abstract class BaseController extends Controller
      * @param string $message The message text or translation key
      * @param string $type Message type: 'info', 'success', 'warning', 'error'
      */
-    protected function addMessage(string $message, string $type = 'info'): void
+    protected function addMessage(string $message, string $type = 'info', array $params = []): void
     {
-        $message = Tools::lang()->trans($message);
+        $message = Tools::lang()->trans($message, $params);
         $this->responseBuilder->addMessage($message, $type);
     }
 

@@ -13,14 +13,19 @@ use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
+use FacturaScripts\Dinamic\Model\BorradorPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\POS\Lib\Core\BaseController;
+use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
+use FacturaScripts\Plugins\POS\Lib\Exception\POSException;
 use FacturaScripts\Plugins\POS\Model\DevolucionPuntoVenta;
 use FacturaScripts\Plugins\POS\Lib\Core\SessionManager;
 use FacturaScripts\Plugins\POS\Lib\Services\Refunds;
+use FacturaScripts\Plugins\POS\Lib\Services\PaymentValidator;
 use FacturaScripts\Plugins\POS\Lib\Services\TransactionRequest;
 use FacturaScripts\Plugins\POS\Lib\Services\Transactions;
 use RuntimeException;
+use Throwable;
 
 /**
  * POS controller.
@@ -271,18 +276,48 @@ class POS extends BaseController
             return;
         }
 
-        $request = new TransactionRequest($this->request);
-        $transaction = new Transactions($request);
+        try {
+            $request = new TransactionRequest($this->request);
+            $this->validateDocumentType($request);
+            $draftId = (int)($request->getDocumentData()['idpausada'] ?? 0);
+            if ($draftId > 0) {
+                $existingDraft = new BorradorPuntoVenta();
+                if (!$existingDraft->load($draftId)
+                    || false === (bool)$existingDraft->editable) {
+                    throw InvalidTransactionException::saveError('draft-session-mismatch');
+                }
+            }
+            $transaction = new Transactions($request);
 
-        $this->dataBase->beginTransaction();
-
-        if (!$transaction->saveDocument()) {
-            Tools::log()->warning('pos-order-on-hold-error');
-            $this->dataBase->rollback();
+            if (!$this->dataBase->beginTransaction()) {
+                throw InvalidTransactionException::saveError('database-transaction-start-error');
+            }
+            if (!$transaction->saveDocument()) {
+                throw InvalidTransactionException::saveError('pos-order-on-hold-error');
+            }
+            if (!$this->dataBase->commit()) {
+                throw InvalidTransactionException::saveError('database-transaction-commit-error');
+            }
+        } catch (POSException $exception) {
+            if ($this->dataBase->inTransaction()) {
+                $this->dataBase->rollback();
+            }
+            Tools::log('POS-debug')->warning($exception->getMessage());
+            $this->setErrorResponse(['error' => $exception->getTranslationKey()]);
+            $this->addMessage($exception->getTranslationKey(), 'warning', $exception->getContext());
+            $this->buildResponse();
+            return;
+        } catch (Throwable $exception) {
+            if ($this->dataBase->inTransaction()) {
+                $this->dataBase->rollback();
+            }
+            Tools::log('POS-debug')->error($exception->getMessage());
+            $this->setErrorResponse(['error' => 'transaction-save-error']);
+            $this->addMessage('transaction-save-error', 'warning');
+            $this->buildResponse();
             return;
         }
 
-        $this->dataBase->commit();
         $this->addMessage('pos-order-on-hold');
 
         $document = $transaction->getDocument();
@@ -322,10 +357,11 @@ class POS extends BaseController
         }
     }
 
-    protected function validateRefundLines(OrdenPuntoVenta $order, array $requestedLines): bool|string
+    protected function validateRefundLines(OrdenPuntoVenta $order, array $requestedLines): void
     {
         $refundData = $this->context->storage()->getRefundData($order);
         $refundableMap = [];
+        $requestedMap = [];
 
         foreach ($refundData['lines'] as $line) {
             $refundableMap[(int)$line['idlinea']] = (float)$line['refundable'];
@@ -335,9 +371,18 @@ class POS extends BaseController
             $idlinea = (int)($sel['idlinea'] ?? 0);
             $cantidad = abs((float)($sel['cantidad'] ?? 0));
 
-            if ($cantidad <= 0) {
+            if ($idlinea <= 0 || $cantidad <= 0) {
                 continue;
             }
+
+            $requestedMap[$idlinea] = ($requestedMap[$idlinea] ?? 0.0) + $cantidad;
+        }
+
+        if (empty($requestedMap)) {
+            throw InvalidTransactionException::emptyLines();
+        }
+
+        foreach ($requestedMap as $idlinea => $cantidad) {
 
             $refundable = $refundableMap[$idlinea] ?? 0;
 
@@ -347,11 +392,25 @@ class POS extends BaseController
                     '%requested%' => $cantidad,
                     '%available%' => $refundable,
                 ]);
-                return 'La línea ' . $idlinea . ' excede la cantidad disponible para devolución (' . $refundable . ').';
+                throw InvalidTransactionException::paymentError('refund-line-exceeds-refundable', [
+                    '%idlinea%' => (string)$idlinea,
+                    '%available%' => (string)$refundable,
+                ]);
             }
         }
+    }
 
-        return true;
+    protected function lockOrderForRefund(OrdenPuntoVenta $order): void
+    {
+        $id = (int)$order->idoperacion;
+        $table = OrdenPuntoVenta::tableName();
+        $rows = $this->dataBase->select(
+            'SELECT idoperacion FROM ' . $table . ' WHERE idoperacion = ' . $id . ' FOR UPDATE'
+        );
+
+        if (empty($rows)) {
+            throw InvalidTransactionException::paymentError('order-not-found');
+        }
     }
 
     protected function saveRefund(): bool
@@ -368,11 +427,12 @@ class POS extends BaseController
         $paymentsRaw = $this->request->input('payments', '[]');
         $payments = is_string($paymentsRaw) ? json_decode($paymentsRaw, true) : $paymentsRaw;
 
-        foreach ($payments as &$payment) {
-            $payment['amount'] = -abs((float)($payment['amount'] ?? 0));
-            $payment['change'] = -abs((float)($payment['change'] ?? 0));
+        if (!is_array($payments)) {
+            $this->setErrorResponse(['error' => 'payment-invalid-format']);
+            $this->addMessage('payment-invalid-format', 'warning');
+            $this->buildResponse();
+            return false;
         }
-        unset($payment);
 
         if (empty($originalCode) || empty($refundLines) || !is_array($refundLines)) {
             $this->buildResponse(['success' => false]);
@@ -388,54 +448,77 @@ class POS extends BaseController
             return false;
         }
 
-        $validation = $this->validateRefundLines($originalOrder, $refundLines);
-        if ($validation !== true) {
-            $this->buildResponse([
-                'success' => false,
-                'message' => $validation,
-            ]);
-            return false;
-        }
-
         $devolucionId = $this->request->input('devolucion_id', '');
 
-        $refunds = new Refunds($this->session->getSession(), $this->session->getTerminal());
-
         try {
-            $this->dataBase->beginTransaction();
+            $refunds = new Refunds(
+                $this->session->getSession(),
+                $this->session->getTerminal(),
+                $this->context->paymentValidator()
+            );
+
+            if (!$this->dataBase->beginTransaction()) {
+                throw InvalidTransactionException::saveError('database-transaction-start-error');
+            }
+
+            $this->lockOrderForRefund($originalOrder);
+            $this->validateRefundLines($originalOrder, $refundLines);
 
             $result = $refunds->processRefund($originalOrder, $refundLines, $payments);
 
             if (!empty($devolucionId)) {
                 $draft = new DevolucionPuntoVenta();
                 if ($draft->load($devolucionId)) {
-                    $draft->delete();
+                    if ((int)$draft->idsesion !== (int)$this->session->getSession()->idsesion
+                        || (int)$draft->idoperacion_original !== (int)$originalOrder->idoperacion) {
+                        throw InvalidTransactionException::saveError('refund-draft-mismatch');
+                    }
+                    if (!$draft->delete()) {
+                        throw InvalidTransactionException::saveError('refund-draft-delete-error');
+                    }
                 }
             }
 
-            $this->dataBase->commit();
+            if (!$this->dataBase->commit()) {
+                throw InvalidTransactionException::saveError('database-transaction-commit-error');
+            }
 
-            $this->pipe('refund', $result);
-
-            $this->setSuccessResponse([
-                'code' => $result['document']['idfactura'] ?? $result['document']['idalbaran'] ?? null,
-                'model' => $originalOrder->tipodoc,
-                'order' => $result['order']['idoperacion'] ?? null,
-            ]);
-
-            return true;
-        } catch (RuntimeException | Exception $e) {
-            $this->dataBase->rollback();
-            Tools::log('POS')->error('refund-save-error', [
+        } catch (POSException $e) {
+            if ($this->dataBase->inTransaction()) {
+                $this->dataBase->rollback();
+            }
+            Tools::log('POS-debug')->warning($e->getMessage());
+            $this->setErrorResponse(['error' => $e->getTranslationKey()]);
+            $this->addMessage($e->getTranslationKey(), 'warning', $e->getContext());
+            $this->buildResponse();
+            return false;
+        } catch (Throwable $e) {
+            if ($this->dataBase->inTransaction()) {
+                $this->dataBase->rollback();
+            }
+            Tools::log('POS-debug')->error('refund-save-error', [
                 '%code%' => $originalCode,
                 '%error%' => $e->getMessage(),
             ]);
-            $this->buildResponse([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ]);
+            $this->setErrorResponse(['error' => 'order-refund-failed']);
+            $this->addMessage('order-refund-failed', 'warning');
+            $this->buildResponse();
             return false;
         }
+
+        try {
+            $this->pipe('refund', $result);
+        } catch (Throwable $e) {
+            Tools::log('POS-debug')->error('refund-hook-error', ['%error%' => $e->getMessage()]);
+        }
+
+        $this->setSuccessResponse([
+            'code' => $result['document']['idfactura'] ?? $result['document']['idalbaran'] ?? null,
+            'model' => $originalOrder->tipodoc,
+            'order' => $result['order']['idoperacion'] ?? null,
+        ]);
+
+        return true;
     }
 
     protected function saveRefundDraft(): void
@@ -460,12 +543,12 @@ class POS extends BaseController
             return;
         }
 
-        $validation = $this->validateRefundLines($originalOrder, $lines);
-        if ($validation !== true) {
-            $this->buildResponse([
-                'success' => false,
-                'message' => $validation,
-            ]);
+        try {
+            $this->validateRefundLines($originalOrder, $lines);
+        } catch (POSException $exception) {
+            $this->setErrorResponse(['error' => $exception->getTranslationKey()]);
+            $this->addMessage($exception->getTranslationKey(), 'warning', $exception->getContext());
+            $this->buildResponse();
             return;
         }
 
@@ -501,7 +584,21 @@ class POS extends BaseController
             if (!empty($devolucionId)) {
                 $oldDraft = new DevolucionPuntoVenta();
                 if ($oldDraft->load($devolucionId)) {
-                    $oldDraft->delete();
+                    if ((int)$oldDraft->idsesion !== (int)$this->session->getSession()->idsesion
+                        || (int)$oldDraft->idoperacion_original !== (int)$originalOrder->idoperacion) {
+                        $draft->delete();
+                        $this->setErrorResponse(['error' => 'refund-draft-mismatch']);
+                        $this->addMessage('transaction-save-error', 'warning');
+                        $this->buildResponse();
+                        return;
+                    }
+                    if (!$oldDraft->delete()) {
+                        $draft->delete();
+                        $this->setErrorResponse(['error' => 'refund-draft-delete-error']);
+                        $this->addMessage('transaction-save-error', 'warning');
+                        $this->buildResponse();
+                        return;
+                    }
                 }
             }
             $this->addMessage('order-refund-saved');
@@ -529,7 +626,8 @@ class POS extends BaseController
         }
 
         $draft = new DevolucionPuntoVenta();
-        if (!$draft->load($id)) {
+        if (!$draft->load($id)
+            || (int)$draft->idsesion !== (int)$this->session->getSession()->idsesion) {
             $this->buildResponse(['success' => false, 'message' => 'draft-not-found']);
             return;
         }
@@ -582,8 +680,18 @@ class POS extends BaseController
         }
 
         $draft = new DevolucionPuntoVenta();
-        if ($draft->load($id)) {
-            $draft->delete();
+        if ($draft->load($id)
+            && (int)$draft->idsesion === (int)$this->session->getSession()->idsesion) {
+            if (!$draft->delete()) {
+                $this->setErrorResponse(['error' => 'refund-draft-delete-error']);
+                $this->addMessage('transaction-save-error', 'warning');
+                $this->buildResponse();
+                return;
+            }
+        } else {
+            $this->setErrorResponse(['error' => 'draft-not-found']);
+            $this->buildResponse();
+            return;
         }
 
         $this->addMessage('record-deleted-correctly');
@@ -679,10 +787,31 @@ class POS extends BaseController
 
     protected function recalculateOrder(): void
     {
-        $request = new TransactionRequest($this->request);
-        $transaction = new Transactions($request);
+        try {
+            $request = new TransactionRequest($this->request);
+            $this->validateDocumentType($request);
+            $transaction = new Transactions($request);
+            $this->setResponse($transaction->recalculate());
+        } catch (POSException $exception) {
+            $this->setErrorResponse(['error' => $exception->getTranslationKey()]);
+            $this->addMessage($exception->getTranslationKey(), 'warning', $exception->getContext());
+            $this->buildResponse();
+        }
+    }
 
-        $this->setResponse($transaction->recalculate());
+    protected function validateDocumentType(TransactionRequest $request): void
+    {
+        $type = $request->isDraft()
+            ? (string)($request->getDocumentData()['generadocumento'] ?? '')
+            : $request->getDocumentType();
+        $supported = array_map(
+            static fn($document): string => (string)$document->tipodoc,
+            $this->context->config()->getSupportedDocuments()
+        );
+
+        if (!in_array($type, $supported, true)) {
+            throw InvalidTransactionException::invalidDocumentType($type);
+        }
     }
 
     protected function saveOrder(): void
@@ -691,51 +820,93 @@ class POS extends BaseController
             return;
         }
 
-        $request = new TransactionRequest($this->request);
-        $transaction = new Transactions($request);
+        try {
+            $request = new TransactionRequest($this->request);
+            $this->validateDocumentType($request);
+            $transaction = new Transactions($request);
 
-        if ($this->pipeFalse('saveBefore', $request, $transaction) === false) {
-            $this->buildResponse();
+            if (!$transaction->prepareDocument()) {
+                throw InvalidTransactionException::saveError('fail-calculate-document');
+            }
+
+            $validatedPayments = $this->context->paymentValidator()->validate(
+                $transaction->getRawPayments(),
+                (float)$transaction->getDocument()->total,
+                PaymentValidator::SALE
+            );
+            $transaction->setValidatedPayments($validatedPayments);
+
+            if ($this->pipeFalse('saveBefore', $request, $transaction) === false) {
+                return;
+            }
+
+            if (!$transaction->prepareDocument()) {
+                throw InvalidTransactionException::saveError('fail-calculate-document');
+            }
+            $validatedPayments = $this->context->paymentValidator()->validate(
+                $transaction->getPaymentData(),
+                (float)$transaction->getDocument()->total,
+                PaymentValidator::SALE
+            );
+            $transaction->setValidatedPayments($validatedPayments);
+
+            if (!$this->dataBase->beginTransaction()) {
+                throw InvalidTransactionException::saveError('database-transaction-start-error');
+            }
+
+            if (!$transaction->saveDocument()) {
+                throw InvalidTransactionException::saveError('fail-update');
+            }
+
+            $document = $transaction->getDocument();
+            $payments = $transaction->getPayments();
+
+            // Ensure persistence did not alter the total used during validation.
+            $this->context->paymentValidator()->validate(
+                $transaction->getPaymentData(),
+                (float)$document->total,
+                PaymentValidator::SALE
+            );
+
+            $order = new OrdenPuntoVenta();
+            if (!$this->context->storage()->saveOrder($order, $document)) {
+                throw InvalidTransactionException::saveError('fail-save-order');
+            }
+
+            if (!$this->context->storage()->completeDraft($document)) {
+                throw InvalidTransactionException::saveError('fail-update-paused-document');
+            }
+
+            if (!$this->context->payments()->savePayments($document, $order, $payments)) {
+                throw InvalidTransactionException::saveError('fail-save-payments');
+            }
+
+            if (!$this->dataBase->commit()) {
+                throw InvalidTransactionException::saveError('database-transaction-commit-error');
+            }
+        } catch (POSException $exception) {
+            if ($this->dataBase->inTransaction()) {
+                $this->dataBase->rollback();
+            }
+            Tools::log('POS-debug')->warning($exception->getMessage());
+            $this->setErrorResponse(['error' => $exception->getTranslationKey()]);
+            $this->addMessage($exception->getTranslationKey(), 'warning', $exception->getContext());
+            return;
+        } catch (Throwable $exception) {
+            if ($this->dataBase->inTransaction()) {
+                $this->dataBase->rollback();
+            }
+            Tools::log('POS-debug')->error($exception->getMessage());
+            $this->setErrorResponse(['error' => 'transaction-save-error']);
+            $this->addMessage('transaction-save-error', 'warning');
             return;
         }
 
-        $this->dataBase->beginTransaction();
-
-        if (!$transaction->saveDocument()) {
-            $this->dataBase->rollback();
-            $this->buildResponse();
-            return;
+        try {
+            $this->pipe('save', $document, $payments);
+        } catch (Throwable $exception) {
+            Tools::log('POS-debug')->error('transaction-hook-error', ['%error%' => $exception->getMessage()]);
         }
-
-        $document = $transaction->getDocument();
-        $payments = $transaction->getPayments();
-
-        $order = new OrdenPuntoVenta();
-        if (!$this->context->storage()->saveOrder($order, $document)) {
-            Tools::log('POS')->warning('fail-save-order');
-            $this->dataBase->rollback();
-            $this->buildResponse();
-            return;
-        }
-
-        if (!$this->context->storage()->completeDraft($document)) {
-            Tools::log('POS')->warning('fail-update-paused-document');
-            $this->dataBase->rollback();
-            $this->buildResponse();
-            return;
-        }
-
-        // Save payments and receipts
-        if (!$this->context->payments()->savePayments($document, $order, $payments)) {
-            Tools::log('POS')->warning('fail-save-payments');
-            $this->dataBase->rollback();
-            $this->buildResponse();
-            return;
-        }
-
-        $this->dataBase->commit();
-
-        $this->pipe('save', $document, $payments);
         Tools::log('POS')->notice('record-updated-correctly');
 
         $this->setSuccessResponse([
@@ -748,7 +919,20 @@ class POS extends BaseController
     protected function executeTransaction(Transactions $transaction): bool
     {
         try {
-            $this->dataBase->beginTransaction();
+            if (!$transaction->prepareDocument()) {
+                throw InvalidTransactionException::saveError('fail-calculate-document');
+            }
+
+            $validatedPayments = $this->context->paymentValidator()->validate(
+                $transaction->getRawPayments(),
+                (float)$transaction->getDocument()->total,
+                PaymentValidator::SALE
+            );
+            $transaction->setValidatedPayments($validatedPayments);
+
+            if (!$this->dataBase->beginTransaction()) {
+                throw InvalidTransactionException::saveError('database-transaction-start-error');
+            }
 
             if (!$transaction->saveDocument()) {
                 throw new RuntimeException('fail-update');
@@ -770,24 +954,32 @@ class POS extends BaseController
                 throw new RuntimeException('fail-save-payments');
             }
 
-            $this->dataBase->commit();
-
-            $this->pipe('save', $document, $payments);
-            Tools::log('POS')->notice('record-updated-correctly');
-
-            $this->setSuccessResponse([
-                'code' => $document->id(),
-                'model' => $document->modelClassName(),
-                'order' => $order->id(),
-                'token' => $order->id(),
-            ]);
-
-            return true;
-        } catch (Exception $exception) {
-            $this->dataBase->rollback();
-            Tools::log('POS')->warning($exception->getMessage());
+            if (!$this->dataBase->commit()) {
+                throw InvalidTransactionException::saveError('database-transaction-commit-error');
+            }
+        } catch (Throwable $exception) {
+            if ($this->dataBase->inTransaction()) {
+                $this->dataBase->rollback();
+            }
+            Tools::log('POS-debug')->warning($exception->getMessage());
             return false;
         }
+
+        try {
+            $this->pipe('save', $document, $payments);
+        } catch (Throwable $exception) {
+            Tools::log('POS-debug')->error('transaction-hook-error', ['%error%' => $exception->getMessage()]);
+        }
+        Tools::log('POS')->notice('record-updated-correctly');
+
+        $this->setSuccessResponse([
+            'code' => $document->id(),
+            'model' => $document->modelClassName(),
+            'order' => $order->id(),
+            'token' => $order->id(),
+        ]);
+
+        return true;
     }
 
     // ========================================================================

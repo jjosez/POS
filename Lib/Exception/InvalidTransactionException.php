@@ -32,6 +32,11 @@ class InvalidTransactionException extends POSException
         );
     }
 
+    public static function paymentError(string $key, array $context = []): self
+    {
+        return new self($key, $context);
+    }
+
     public static function saveError(string $reason = ''): self
     {
         return new self(

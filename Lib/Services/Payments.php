@@ -12,6 +12,7 @@ use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use FacturaScripts\Dinamic\Model\ReciboCliente;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
+use RuntimeException;
 
 /**
  * Service for managing POS payments.
@@ -37,7 +38,9 @@ class Payments
 
         /** @var FacturaCliente $invoice */
         foreach ($invoice->getReceipts() as $receipt) {
-            $receipt->delete();
+            if (false === $receipt->delete()) {
+                throw new RuntimeException('payment-receipt-delete-error');
+            }
         }
     }
 
@@ -64,7 +67,9 @@ class Payments
         $receipt->numero = $number;
         $receipt->fecha = $invoice->fecha;
         $receipt->setPaymentMethod($payment->codpago);
-        $receipt->save();
+        if (false === $receipt->save()) {
+            throw new RuntimeException('payment-receipt-save-error');
+        }
     }
 
     /**
