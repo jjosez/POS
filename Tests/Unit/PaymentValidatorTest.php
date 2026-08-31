@@ -8,6 +8,14 @@ use PHPUnit\Framework\TestCase;
 
 final class PaymentValidatorTest extends TestCase
 {
+    public function testExceptionKeepsContextOutOfPublicMessage(): void
+    {
+        $exception = InvalidTransactionException::saveError('fail-update');
+
+        self::assertSame('transaction-save-error', $exception->getMessage());
+        self::assertSame(['reason' => 'fail-update'], $exception->getContext());
+    }
+
     public function testExactCashPaymentIgnoresClientCashFlag(): void
     {
         $result = $this->validator()->validate([

@@ -117,13 +117,12 @@ class Transactions
             return false;
         }
 
-        if ($this->prepared) {
-            if (!$this->deleteDocumentLines()) {
-                return false;
-            }
-        } else {
-            $this->setDocumentLines(true);
+        if (!$this->deleteDocumentLines()) {
+            return false;
         }
+
+        // Prepared lines were created before the document had its primary key.
+        $this->setDocumentLines();
 
         return Calculator::calculate($this->document, $this->documentLines, true);
     }
@@ -172,13 +171,9 @@ class Transactions
         $this->setDocumentSubject();
     }
 
-    protected function setDocumentLines(bool $deleteExisting = false): void
+    protected function setDocumentLines(): void
     {
         $this->documentLines = [];
-
-        if ($deleteExisting && !$this->deleteDocumentLines()) {
-            throw new RuntimeException('fail-delete-document-lines');
-        }
 
         foreach ($this->products as $product) {
             if (true === empty($product)) {

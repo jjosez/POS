@@ -28,13 +28,7 @@ class POSException extends Exception
     {
         $this->translationKey = $message;
         $this->context = $context;
-        $fullMessage = $message;
-
-        if (!empty($context)) {
-            $fullMessage .= ' | Context: ' . json_encode($context);
-        }
-
-        parent::__construct($fullMessage, $code);
+        parent::__construct($message, $code);
     }
 
     public function getContext(): array

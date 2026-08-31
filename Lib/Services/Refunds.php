@@ -54,6 +54,9 @@ class Refunds
         if (false === $newDoc->save()) {
             throw new \RuntimeException('refund-document-save-error');
         }
+
+        // Recreate lines now that the refund document has its primary key.
+        $lineRefs = $this->createRefundLines($newDoc, $originalDoc, $refundLines);
         if (false === Calculator::calculate($newDoc, $lineRefs['lines'], true)) {
             throw new \RuntimeException('refund-calculate-error');
         }
