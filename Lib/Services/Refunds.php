@@ -34,15 +34,9 @@ class Refunds
         array $refundLines,
         array $payments
     ): array {
-        $originalDoc = $originalOrder->getDocument();
-        $modelClass = $originalDoc->modelClassName();
-
-        $newDoc = $this->createRefundDocument($originalDoc, $modelClass);
-        $lineRefs = $this->createRefundLines($newDoc, $originalDoc, $refundLines);
-
-        if (false === Calculator::calculate($newDoc, $lineRefs['lines'], false)) {
-            throw new \RuntimeException('refund-calculate-error');
-        }
+        $prepared = $this->prepareRefund($originalOrder, $refundLines);
+        $originalDoc = $prepared['original'];
+        $newDoc = $prepared['document'];
 
         $payments = $this->paymentValidator->validate(
             $payments,
@@ -61,6 +55,13 @@ class Refunds
             throw new \RuntimeException('refund-calculate-error');
         }
 
+        // Persistence can affect document totals, so validate against the final calculation too.
+        $payments = $this->paymentValidator->validate(
+            $payments,
+            (float)$newDoc->total,
+            PaymentValidator::REFUND
+        );
+
         $this->createDocTransformations($originalDoc, $newDoc, $lineRefs['mapping']);
 
         $refundOrder = $this->createRefundOrder($originalOrder, $newDoc);
@@ -72,6 +73,28 @@ class Refunds
         return [
             'document' => $newDoc->toArray(true),
             'order' => $refundOrder->toArray(true),
+        ];
+    }
+
+    public function quoteRefund(OrdenPuntoVenta $originalOrder, array $refundLines): float
+    {
+        $prepared = $this->prepareRefund($originalOrder, $refundLines);
+        return abs((float)$prepared['document']->total);
+    }
+
+    private function prepareRefund(OrdenPuntoVenta $originalOrder, array $refundLines): array
+    {
+        $originalDoc = $originalOrder->getDocument();
+        $newDoc = $this->createRefundDocument($originalDoc, $originalDoc->modelClassName());
+        $lineRefs = $this->createRefundLines($newDoc, $originalDoc, $refundLines);
+
+        if (false === Calculator::calculate($newDoc, $lineRefs['lines'], false)) {
+            throw new \RuntimeException('refund-calculate-error');
+        }
+
+        return [
+            'original' => $originalDoc,
+            'document' => $newDoc,
         ];
     }
 
@@ -111,10 +134,10 @@ class Refunds
         $lines = [];
         $mapping = [];
         foreach ($refundLines as $refundLine) {
-            $idlinea = $refundLine['idlinea'];
+            $idlinea = (int)($refundLine['idlinea'] ?? 0);
             $quantity = -abs((float)($refundLine['cantidad'] ?? 0));
 
-            if (0 === $quantity || !isset($originalIndex[$idlinea])) {
+            if (0.0 === $quantity || !isset($originalIndex[$idlinea])) {
                 continue;
             }
 

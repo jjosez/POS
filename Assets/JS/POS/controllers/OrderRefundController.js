@@ -1,332 +1,452 @@
 import dispatcher from '../core/EventDispatcher.js';
 import EventManager from '../core/EventManager.js';
 import MainView from '../views/MainView.js';
-import ReturnSaleView from '../views/ReturnSaleView.js';
+import RefundUI from '../views/RefundUIManager.js';
 import CheckoutController from './CheckoutController.js';
 import CheckoutModel from '../models/CheckoutModel.js';
 import CartController from './CartController.js';
 import * as Core from '../Core.js';
 
 const CHECKOUT_BTN_ID = 'orderSaveButton';
+const EXPERIMENTAL_MODAL_ID = 'return:sale:experimental:modal';
 
 const OrderRefundController = {
     currentOrder: null,
+    currentData: null,
     currentLines: [],
     cartLines: [],
     docTotal: 0,
+    quotedTotal: null,
     searchTimer: null,
+    requestSequence: 0,
+    quoteSequence: 0,
     token: '',
     pendingRefund: null,
     devolucion_id: null,
     isProcessing: false,
+    quoteInFlight: false,
+    isLoading: false,
+    error: '',
 
     init() {
         dispatcher.register('returns:sale-open-from-list:action', this.openFromList.bind(this));
+        dispatcher.register('returns:experimental:open-from-list:action', this.openExperimentalFromList.bind(this));
         dispatcher.register('returns:sale-search:action', this.searchOrder.bind(this));
         dispatcher.register('returns:sale-last:action', this.loadLastOrder.bind(this));
         dispatcher.register('returns:sale-clear:action', this.clear.bind(this));
+        dispatcher.register('returns:experimental:close:action', this.clear.bind(this));
+        dispatcher.register('returns:experimental:change-sale:action', this.changeSale.bind(this));
+        dispatcher.register('returns:experimental:scan-focus:action', () => RefundUI.focusSearch());
         dispatcher.register('returns:sale-confirm:action', this.confirm.bind(this));
         dispatcher.register('returns:cart:clear:action', this.clearCart.bind(this));
         dispatcher.register('returns:draft:resume:action', this.resumeFromDraft.bind(this));
+        dispatcher.register('returns:experimental:draft:resume:action', this.resumeExperimentalFromDraft.bind(this));
 
-        document.addEventListener('change', (e) => {
-            if (e.target.matches('.return-product-check')) {
-                this.handleCheckboxChange(e.target);
+        document.addEventListener('change', (event) => {
+            if (event.target.matches('.return-product-check')) {
+                this.handleCheckboxChange(event.target);
+            }
+            if (event.target.matches('.return-experimental-qty-input')) {
+                this.handleExperimentalInput(event.target);
             }
         });
 
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.return-qty-minus')) {
-                const btn = e.target.closest('.return-qty-minus');
-                this.adjustCartQty(btn.dataset.line, -1);
-            }
-            if (e.target.closest('.return-qty-plus')) {
-                const btn = e.target.closest('.return-qty-plus');
-                this.adjustCartQty(btn.dataset.line, 1);
-            }
-            if (e.target.closest('.return-cart-remove')) {
-                const btn = e.target.closest('.return-cart-remove');
-                this.removeFromCart(btn.dataset.line);
-            }
-        });
+        document.addEventListener('click', (event) => {
+            const minus = event.target.closest('.return-qty-minus, .return-experimental-qty-minus');
+            const plus = event.target.closest('.return-qty-plus, .return-experimental-qty-plus');
+            const remove = event.target.closest('.return-cart-remove');
 
-        document.addEventListener('input', (e) => {
-            if (e.target.matches('.return-qty-input')) {
-                this.handleCartInput(e.target);
-            }
-        });
+            if (minus) this.adjustCartQty(minus.dataset.line, -1);
+            if (plus) this.adjustCartQty(plus.dataset.line, 1);
+            if (remove) this.setLineQuantity(remove.dataset.line, 0);
 
-        document.addEventListener('keyup', (e) => {
-            if (e.target.matches('#returnSearchInput')) {
-                this.handleSearchInput(e.target);
-            }
-        });
-
-        document.addEventListener('scan', (e) => {
-            this.searchByBarcode(e.detail.scanCode);
-        });
-
-        document.addEventListener('click', (e) => {
-            const cancelBtn = e.target.closest('[data-toggle="modal"][data-target="checkout:modal"]');
+            const cancelBtn = event.target.closest('[data-toggle="modal"][data-target="checkout:modal"]');
             if (cancelBtn && this.pendingRefund && !this.isProcessing) {
-                this.cancelPendingRefund();
+                this.cancelPendingRefund(true);
             }
         });
 
-        document.addEventListener('keydown', (e) => {
-            if ((e.key === 'Escape' || e.key === 'Esc') && this.pendingRefund && !this.isProcessing) {
-                this.cancelPendingRefund();
+        document.addEventListener('input', (event) => {
+            if (event.target.matches('.return-qty-input')) {
+                this.handleCartInput(event.target);
             }
         });
+
+        document.addEventListener('keyup', (event) => {
+            if (event.target.matches('#returnSearchInput, #returnExperimentalSearchInput')) {
+                if (event.key === 'Enter') {
+                    this.searchOrder();
+                } else {
+                    this.handleSearchInput(event.target);
+                }
+            }
+        });
+
+        document.addEventListener('scan', (event) => {
+            if (RefundUI.isVisible() && !this.pendingRefund && !this.isProcessing) {
+                this.searchByBarcode(event.detail.scanCode);
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape' && event.key !== 'Esc') return;
+
+            if (this.pendingRefund && !this.isProcessing) {
+                this.cancelPendingRefund(true);
+                return;
+            }
+
+            if (RefundUI.isExperimental()) {
+                this.resetState();
+                RefundUI.endSession();
+            }
+        });
+
+        document.getElementById(EXPERIMENTAL_MODAL_ID)?.addEventListener('pos:modal:hidden', () => {
+            if (this.pendingRefund) return;
+            setTimeout(() => {
+                if (RefundUI.isExperimental() && !this.pendingRefund && !RefundUI.isVisible()) {
+                    this.resetState();
+                    RefundUI.endSession();
+                }
+            }, 0);
+        });
+    },
+
+    createCartItem(line, quantity) {
+        return {
+            idlinea: line.idlinea,
+            referencia: line.referencia,
+            descripcion: line.descripcion,
+            pvpunitario: Number.parseFloat(line.pvpunitario) || 0,
+            dtopor: Number.parseFloat(line.dtopor) || 0,
+            dtopor2: Number.parseFloat(line.dtopor2) || 0,
+            iva: Number.parseFloat(line.iva) || 0,
+            recargo: Number.parseFloat(line.recargo) || 0,
+            cantidad: quantity,
+            maxQty: Number.parseFloat(line.refundable) || 0,
+        };
+    },
+
+    setLineQuantity(lineId, quantity, render = true) {
+        const line = this.currentLines.find(item => String(item.idlinea) === String(lineId));
+        if (!line) return;
+
+        const maxQty = Math.max(0, Number.parseFloat(line.refundable) || 0);
+        const nextQuantity = Math.max(0, Math.min(maxQty, Number.parseFloat(quantity) || 0));
+        const index = this.cartLines.findIndex(item => String(item.idlinea) === String(lineId));
+
+        if (nextQuantity <= 0) {
+            if (index >= 0) this.cartLines.splice(index, 1);
+        } else if (index >= 0) {
+            this.cartLines[index].cantidad = nextQuantity;
+            this.cartLines[index].maxQty = maxQty;
+        } else {
+            this.cartLines.push(this.createCartItem(line, nextQuantity));
+        }
+
+        this.quotedTotal = null;
+        this.error = '';
+        if (render) this.render();
     },
 
     handleCheckboxChange(checkbox) {
-        const lineId = checkbox.value;
-        const refundable = parseFloat(checkbox.dataset.refundable) || 0;
-
-        if (checkbox.checked) {
-            const line = this.currentLines.find(l => String(l.idlinea) === lineId);
-            if (line) {
-                this.addToCart({
-                    idlinea: line.idlinea,
-                    referencia: line.referencia,
-                    descripcion: line.descripcion,
-                    pvpunitario: parseFloat(line.pvpunitario) || 0,
-                    dtopor: parseFloat(line.dtopor) || 0,
-                    dtopor2: parseFloat(line.dtopor2) || 0,
-                    iva: parseFloat(line.iva) || 0,
-                    recargo: parseFloat(line.recargo) || 0,
-                    cantidad: Math.min(1, refundable),
-                    maxQty: refundable,
-                });
-            }
-        } else {
-            this.removeFromCart(lineId);
-        }
-    },
-
-    addToCart(item) {
-        const exists = this.cartLines.find(l => String(l.idlinea) === String(item.idlinea));
-        if (exists) return;
-
-        this.cartLines.push(item);
-        ReturnSaleView.renderCart(this.cartLines);
-        this.updateSummary();
-    },
-
-    removeFromCart(lineId) {
-        this.cartLines = this.cartLines.filter(l => String(l.idlinea) !== String(lineId));
-
-        const checkbox = document.querySelector(`.return-product-check[value="${lineId}"]`);
-        if (checkbox) checkbox.checked = false;
-
-        ReturnSaleView.renderCart(this.cartLines);
-        this.updateSummary();
+        this.setLineQuantity(checkbox.value, checkbox.checked ? Math.min(1, Number.parseFloat(checkbox.dataset.refundable) || 0) : 0);
     },
 
     adjustCartQty(lineId, delta) {
-        const item = this.cartLines.find(l => String(l.idlinea) === String(lineId));
-        if (!item) return;
-
-        const newQty = Math.max(0, Math.min(item.maxQty, item.cantidad + delta));
-        item.cantidad = newQty;
-
-        if (newQty === 0) {
-            this.removeFromCart(lineId);
-        } else {
-            ReturnSaleView.renderCart(this.cartLines);
-            this.updateSummary();
-        }
+        const item = this.cartLines.find(line => String(line.idlinea) === String(lineId));
+        this.setLineQuantity(lineId, (Number.parseFloat(item?.cantidad) || 0) + delta);
     },
 
     handleCartInput(input) {
-        const lineId = input.dataset.line;
-        const item = this.cartLines.find(l => String(l.idlinea) === String(lineId));
-        if (!item) return;
-
-        let qty = parseFloat(input.value) || 0;
-        const max = item.maxQty;
-
-        if (qty > max) qty = max;
-        if (qty < 0) qty = 0;
-
-        input.value = qty;
-        item.cantidad = qty;
-
-        if (qty === 0) {
-            this.removeFromCart(lineId);
-        } else {
-            this.updateSummary();
+        this.setLineQuantity(input.dataset.line, input.value, false);
+        const normalized = this.cartLines.find(line => String(line.idlinea) === String(input.dataset.line));
+        if (!normalized) {
+            this.render();
+            return;
         }
+        input.value = normalized.cantidad;
+
+        const total = this.getDisplayTotal();
+        const state = this.getViewState();
+        state.total = total;
+
+        if (RefundUI.isExperimental()) {
+            RefundUI.render(state);
+        } else {
+            const totalView = document.getElementById('returnSaleTotalView');
+            const subtotal = document.getElementById('returnSaleSubtotal');
+            const totalAmount = document.getElementById('returnSaleTotalAmount');
+            const confirm = document.getElementById('returnSaleConfirmBtn');
+            const formatted = total.toFixed(2);
+            if (totalView) totalView.textContent = formatted;
+            if (subtotal) subtotal.textContent = formatted;
+            if (totalAmount) totalAmount.textContent = formatted;
+            if (confirm) confirm.disabled = total <= 0;
+        }
+    },
+
+    handleExperimentalInput(input) {
+        this.setLineQuantity(input.dataset.line, input.value);
     },
 
     clearCart() {
-        this.cartLines.forEach(item => {
-            const checkbox = document.querySelector(`.return-product-check[value="${item.idlinea}"]`);
-            if (checkbox) checkbox.checked = false;
-        });
         this.cartLines = [];
-        ReturnSaleView.renderCart(this.cartLines);
-        this.updateSummary();
+        this.quotedTotal = null;
+        this.error = '';
+        this.render();
     },
 
     lineTotalWithTax(item) {
-        const qty = parseFloat(item.cantidad) || 0;
-        const net = (parseFloat(item.pvpunitario) || 0) * qty
-            * (1 - (parseFloat(item.dtopor) || 0) / 100)
-            * (1 - (parseFloat(item.dtopor2) || 0) / 100);
-        const iva = net * (parseFloat(item.iva) || 0) / 100;
-        const recargo = net * (parseFloat(item.recargo) || 0) / 100;
+        const quantity = Number.parseFloat(item.cantidad) || 0;
+        const net = (Number.parseFloat(item.pvpunitario) || 0) * quantity
+            * (1 - (Number.parseFloat(item.dtopor) || 0) / 100)
+            * (1 - (Number.parseFloat(item.dtopor2) || 0) / 100);
+        const iva = net * (Number.parseFloat(item.iva) || 0) / 100;
+        const recargo = net * (Number.parseFloat(item.recargo) || 0) / 100;
         return net + iva + recargo;
     },
 
-    updateSummary() {
-        const refundTotal = this.cartLines.reduce((sum, item) => {
-            return sum + this.lineTotalWithTax(item);
-        }, 0);
-        ReturnSaleView.updateSummary(refundTotal, this.docTotal);
+    getEstimatedTotal() {
+        return this.cartLines.reduce((sum, item) => sum + this.lineTotalWithTax(item), 0);
+    },
+
+    getDisplayTotal() {
+        return this.quotedTotal === null ? this.getEstimatedTotal() : this.quotedTotal;
+    },
+
+    getViewState() {
+        return {
+            data: this.currentData,
+            lines: this.currentLines,
+            cartLines: this.cartLines,
+            alreadyRefunded: Boolean(this.currentData?.already_refunded),
+            docTotal: this.docTotal,
+            total: this.getDisplayTotal(),
+            selectedUnits: this.cartLines.reduce((sum, item) => sum + (Number.parseFloat(item.cantidad) || 0), 0),
+            loading: this.isLoading,
+            quoting: this.quoteInFlight,
+            error: this.error,
+        };
+    },
+
+    render() {
+        RefundUI.render(this.getViewState());
+    },
+
+    setLoading(loading) {
+        this.isLoading = loading;
+        this.render();
+    },
+
+    normalizeError(data) {
+        const message = data?.message || data?.error || data?.data?.error;
+        return typeof message === 'string' && message ? message : 'No se pudo cargar la venta.';
+    },
+
+    applyOrderData(data, fallbackOrder = {}, draftId = null) {
+        if (!data?.doc || !Array.isArray(data?.lines)) {
+            this.currentData = null;
+            this.currentOrder = null;
+            this.currentLines = [];
+            this.cartLines = [];
+            this.docTotal = 0;
+            this.error = this.normalizeError(data);
+            this.render();
+            return false;
+        }
+
+        this.token = data.token || this.token;
+        this.currentData = data;
+        this.currentOrder = {
+            code: fallbackOrder.code || data.doc.codigo,
+            model: fallbackOrder.model || data.doc.modelClassName,
+            order: fallbackOrder.order || data.idoperacion || null,
+        };
+        this.docTotal = Number.parseFloat(data.doc.total) || 0;
+        this.currentLines = data.lines;
+        this.cartLines = data.lines
+            .filter(line => line._preselected && (Number.parseFloat(line._preselected_qty) || 0) > 0)
+            .map(line => this.createCartItem(line, Math.min(
+                Number.parseFloat(line._preselected_qty) || 0,
+                Number.parseFloat(line.refundable) || 0
+            )));
+        this.devolucion_id = draftId;
+        this.quotedTotal = null;
+        this.error = '';
+        this.render();
+        return true;
+    },
+
+    async loadOrder(fetchOrder, fallbackOrder = {}, draftId = null) {
+        if (this.pendingRefund || this.isProcessing) return false;
+        const sequence = ++this.requestSequence;
+        this.error = '';
+        this.setLoading(true);
+
+        try {
+            const data = await fetchOrder();
+            if (sequence !== this.requestSequence) return false;
+            return this.applyOrderData(data, fallbackOrder, draftId ?? data?.devolucion_id ?? null);
+        } catch (error) {
+            if (sequence !== this.requestSequence) return false;
+            this.error = error?.message || 'No se pudo cargar la venta.';
+            this.currentData = null;
+            this.currentOrder = null;
+            this.currentLines = [];
+            this.cartLines = [];
+            return false;
+        } finally {
+            if (sequence === this.requestSequence) {
+                this.isLoading = false;
+                this.render();
+            }
+        }
     },
 
     handleSearchInput(input) {
-        if (this.searchTimer) {
-            clearTimeout(this.searchTimer);
-        }
-
-        this.searchTimer = setTimeout(async () => {
-            const term = input.value.trim();
-            if (!term) return;
-
-        const data = await Core.searchOrderForReturn({term});
-        this.token = data?.token || '';
-        this.currentOrder = data?.doc ? {code: data.doc.codigo, model: data.doc.modelClassName, order: data?.idoperacion || null} : null;
-            this.docTotal = parseFloat(data?.doc?.total) || 0;
-            this.currentLines = Array.isArray(data?.lines) ? data.lines : [];
-            this.cartLines = [];
-
-            ReturnSaleView.renderSearchResult(data);
-            ReturnSaleView.renderProducts(this.currentLines, data?.already_refunded);
-            ReturnSaleView.renderCart([]);
-            this.updateSummary();
-        }, 200);
+        if (this.searchTimer) clearTimeout(this.searchTimer);
+        this.searchTimer = setTimeout(() => {
+            if (input.value.trim()) this.searchOrder();
+        }, 250);
     },
 
     async searchByBarcode(code) {
         if (!code) return;
-
-        const data = await Core.searchOrderForReturn({term: code});
-        this.token = data?.token || '';
-        this.currentOrder = data?.doc ? {code: data.doc.codigo, model: data.doc.modelClassName, order: data?.idoperacion || null} : null;
-        this.docTotal = parseFloat(data?.doc?.total) || 0;
-        this.currentLines = Array.isArray(data?.lines) ? data.lines : [];
-        this.cartLines = [];
-
-        ReturnSaleView.renderSearchResult(data);
-        ReturnSaleView.renderProducts(this.currentLines, data?.already_refunded);
-        ReturnSaleView.renderCart([]);
-        this.updateSummary();
+        await this.loadOrder(() => Core.searchOrderForReturn({term: code}));
     },
 
-    async openFromList(el) {
-        const code = el.dataset.code;
-        const model = el.dataset.model;
-        const order = el.dataset.order;
+    async openFromList(element) {
+        RefundUI.activate('fullscreen');
+        await this.openFromListWithActiveUI(element);
+    },
+
+    async openExperimentalFromList(element) {
+        RefundUI.activate('experimental');
+        await this.openFromListWithActiveUI(element);
+    },
+
+    async openFromListWithActiveUI(element) {
+        const fallback = {
+            code: element.dataset.code,
+            model: element.dataset.model,
+            order: element.dataset.order,
+        };
 
         MainView.toggleLastOrdersModal();
-
-        const data = await Core.getOrderForReturn({code, model, order});
-        this.token = data?.token || '';
-        this.currentOrder = {code, model, order};
-        this.docTotal = parseFloat(data?.doc?.total) || 0;
-        this.currentLines = Array.isArray(data?.lines) ? data.lines : [];
-        this.cartLines = [];
-
-        ReturnSaleView.show();
-        ReturnSaleView.renderSearchResult(data);
-        ReturnSaleView.renderProducts(this.currentLines, data?.already_refunded);
-        ReturnSaleView.renderCart([]);
-        this.updateSummary();
-        ReturnSaleView.focusSearch();
+        RefundUI.show();
+        this.resetState(false);
+        this.render();
+        await this.loadOrder(() => Core.getOrderForReturn(fallback), fallback);
+        RefundUI.focusSearch();
     },
 
-    async searchOrder(el) {
-        const input = document.getElementById('returnSearchInput');
-        const term = input?.value?.trim();
-        if (!term) return;
+    async searchOrder() {
+        const term = RefundUI.getSearchTerm();
+        if (!term || this.pendingRefund || this.isProcessing) return;
 
-        const data = await Core.searchOrderForReturn({term});
-        this.token = data?.token || '';
-        this.currentOrder = data?.doc ? {code: data.doc.codigo, model: data.doc.modelClassName, order: data?.idoperacion || null} : null;
-        this.docTotal = parseFloat(data?.doc?.total) || 0;
-        this.currentLines = Array.isArray(data?.lines) ? data.lines : [];
-        this.cartLines = [];
-
-        ReturnSaleView.show();
-        ReturnSaleView.renderSearchResult(data);
-        ReturnSaleView.renderProducts(this.currentLines, data?.already_refunded);
-        ReturnSaleView.renderCart([]);
-        this.updateSummary();
-        ReturnSaleView.focusSearch();
+        RefundUI.show();
+        await this.loadOrder(() => Core.searchOrderForReturn({term}));
+        RefundUI.focusSearch();
     },
 
     async loadLastOrder() {
-        const orders = await Core.getLastOrderForReturn();
+        RefundUI.activate('fullscreen');
+        RefundUI.show();
+        this.resetState(false);
+        this.render();
 
-        if (!orders || !orders.length) {
-            ReturnSaleView.show();
-            ReturnSaleView.renderSearchResult({doc: null});
-            ReturnSaleView.renderProducts([]);
-            ReturnSaleView.renderCart([]);
-            this.updateSummary();
+        const orders = await Core.getLastOrderForReturn();
+        if (!Array.isArray(orders) || !orders.length) {
+            this.error = 'No se encontraron ventas.';
+            this.render();
             return;
         }
 
-        const lastOrder = orders[0];
-        const data = await Core.getOrderForReturn({
-            code: lastOrder.iddocumento,
-            model: lastOrder.tipodoc,
-            order: lastOrder.idoperacion
-        });
-        this.token = data?.token || '';
-
-        this.currentOrder = {code: lastOrder.iddocumento, model: lastOrder.tipodoc, order: lastOrder.idoperacion};
-        this.docTotal = parseFloat(data?.doc?.total) || 0;
-        this.currentLines = Array.isArray(data?.lines) ? data.lines : [];
-        this.cartLines = [];
-
-        ReturnSaleView.show();
-        ReturnSaleView.renderSearchResult(data);
-        ReturnSaleView.renderProducts(this.currentLines, data?.already_refunded);
-        ReturnSaleView.renderCart([]);
-        this.updateSummary();
-        ReturnSaleView.focusSearch();
+        const order = orders[0];
+        const fallback = {code: order.iddocumento, model: order.tipodoc, order: order.idoperacion};
+        await this.loadOrder(() => Core.getOrderForReturn(fallback), fallback);
+        RefundUI.focusSearch();
     },
 
-    clear() {
-        this.cancelPendingRefund();
+    changeSale() {
+        if (!RefundUI.isExperimental() || this.pendingRefund || this.isProcessing) return;
+        const searchInput = document.getElementById('returnExperimentalSearchInput');
+        this.resetState(false);
+        if (searchInput) searchInput.value = '';
+        this.render();
+        RefundUI.focusSearch();
+    },
+
+    resetState(invalidateRequests = true) {
+        if (invalidateRequests) this.requestSequence++;
+        this.quoteSequence++;
+        if (this.searchTimer) clearTimeout(this.searchTimer);
+        this.searchTimer = null;
         this.currentOrder = null;
+        this.currentData = null;
         this.currentLines = [];
         this.cartLines = [];
         this.docTotal = 0;
+        this.quotedTotal = null;
+        this.token = '';
         this.devolucion_id = null;
-
-        ReturnSaleView.reset();
-        ReturnSaleView.hide();
+        this.isLoading = false;
+        this.error = '';
     },
 
-    cancelPendingRefund() {
+    clear() {
+        this.cancelPendingRefund(false);
+        this.resetState();
+        RefundUI.reset();
+        RefundUI.hide();
+        RefundUI.endSession();
+    },
+
+    cancelPendingRefund(reopen = false) {
         const hadPendingRefund = this.pendingRefund !== null;
+        this.quoteSequence++;
         this.pendingRefund = null;
-        const btn = document.getElementById(CHECKOUT_BTN_ID);
-        if (btn) btn.dataset.action = 'order:save';
+        const button = document.getElementById(CHECKOUT_BTN_ID);
+        if (button) button.dataset.action = 'order:save';
 
-        if (!hadPendingRefund) return;
-
-        const cartTotal = parseFloat(CartController.getState()?.doc?.total) || 0;
-        if (CheckoutModel.getState().total === cartTotal) {
-            CheckoutModel.clear();
-        } else {
+        if (hadPendingRefund) {
+            const cartTotal = Number.parseFloat(CartController.getState()?.doc?.total) || 0;
             CheckoutModel.updateTotal(cartTotal);
+            CheckoutModel.clear();
         }
+
+        if (reopen && hadPendingRefund && RefundUI.isExperimental() && this.currentOrder) {
+            RefundUI.show();
+            this.render();
+        }
+    },
+
+    getSelectedLines() {
+        return this.cartLines
+            .filter(line => (Number.parseFloat(line.cantidad) || 0) > 0)
+            .map(line => ({idlinea: line.idlinea, cantidad: line.cantidad}));
+    },
+
+    async quoteRefund(selectedLines, expectedToken, orderId) {
+        const formData = new FormData();
+        formData.set('action', 'order:refund:quote');
+        formData.set('original_code', orderId);
+        formData.set('lines', JSON.stringify(selectedLines));
+        formData.set('token', expectedToken);
+
+        const result = await Core.postRequest(formData);
+        if (result?.token
+            && this.token === expectedToken
+            && String(this.currentOrder?.order) === String(orderId)) {
+            this.token = result.token;
+        }
+        if (result?.status !== 'success') throw new Error(this.normalizeError(result));
+
+        const total = Number.parseFloat(result?.data?.total ?? result?.total);
+        if (!Number.isFinite(total) || total <= 0) throw new Error('El total de la devolución no es válido.');
+        return total;
     },
 
     async confirm() {
@@ -335,51 +455,64 @@ const OrderRefundController = {
             return;
         }
 
-        if (!this.currentOrder || this.cartLines.length === 0) return;
+        if (!this.currentOrder || this.isProcessing || this.isLoading || this.quoteInFlight) return;
+        const selectedLines = this.getSelectedLines();
+        if (!selectedLines.length) return;
 
-        const validLines = this.cartLines.filter(l => l.cantidad > 0);
+        if (!AppSettings.aceptapagos) {
+            await this.saveRefundDraft();
+            return;
+        }
 
-        if (validLines.length === 0) return;
+        const quoteSequence = ++this.quoteSequence;
+        const orderId = this.currentOrder.order;
+        const expectedToken = this.token;
+        const pendingQuote = {quoting: true, selectedLines, refundTotal: 0, quoteSequence};
+        this.pendingRefund = pendingQuote;
+        this.quoteInFlight = true;
+        this.error = '';
+        this.render();
+        MainView.showLoading();
 
-        const refundTotal = validLines.reduce((sum, l) =>
-            sum + this.lineTotalWithTax(l), 0
-        );
-
-        if (AppSettings.aceptapagos) {
-            this.pendingRefund = {
-                refundTotal: refundTotal,
-                selectedLines: validLines.map(l => ({
-                    idlinea: l.idlinea,
-                    cantidad: l.cantidad,
-                })),
-            };
+        try {
+            const refundTotal = await this.quoteRefund(selectedLines, expectedToken, orderId);
+            if (quoteSequence !== this.quoteSequence
+                || this.pendingRefund !== pendingQuote
+                || String(this.currentOrder?.order) !== String(orderId)) {
+                return;
+            }
+            this.quotedTotal = refundTotal;
+            this.pendingRefund = {quoting: false, selectedLines, refundTotal};
+            this.render();
 
             CheckoutModel.updateTotal(refundTotal);
             CheckoutModel.clear();
 
-            const btn = document.getElementById(CHECKOUT_BTN_ID);
-            if (btn) btn.dataset.action = 'returns:sale-confirm:action';
-
+            const button = document.getElementById(CHECKOUT_BTN_ID);
+            if (button) button.dataset.action = 'returns:sale-confirm:action';
             CheckoutController.showCheckoutModal();
-        } else {
-            await this.saveRefundDraft();
+        } catch (error) {
+            if (quoteSequence !== this.quoteSequence || this.pendingRefund !== pendingQuote) return;
+            this.pendingRefund = null;
+            this.error = error?.message || 'No se pudo calcular la devolución.';
+            this.render();
+        } finally {
+            this.quoteInFlight = false;
+            MainView.hideLoading();
+            if (this.currentOrder) this.render();
         }
     },
 
     async processRefundFromCheckout() {
-        if (this.isProcessing || !this.pendingRefund || !this.currentOrder) return;
-
+        if (this.isProcessing || !this.pendingRefund || this.pendingRefund.quoting || !this.currentOrder) return;
         const checkoutState = CheckoutController.getState();
+        if (!checkoutState.payments.length) return;
 
-        if (!checkoutState.payments.length) {
-            return;
-        }
-
-        const payments = checkoutState.payments.map(p => ({
-            method: p.method,
-            amount: -Math.abs(p.amount),
-            change: -Math.abs(p.change || 0),
-            is_cash: p.is_cash || p.method === AppSettings.cash,
+        const payments = checkoutState.payments.map(payment => ({
+            method: payment.method,
+            amount: -Math.abs(payment.amount),
+            change: -Math.abs(payment.change || 0),
+            is_cash: payment.is_cash || payment.method === AppSettings.cash,
         }));
 
         const formData = new FormData();
@@ -388,9 +521,7 @@ const OrderRefundController = {
         formData.set('lines', JSON.stringify(this.pendingRefund.selectedLines));
         formData.set('payments', JSON.stringify(payments));
         formData.set('token', this.token);
-        if (this.devolucion_id) {
-            formData.set('devolucion_id', this.devolucion_id);
-        }
+        if (this.devolucion_id) formData.set('devolucion_id', this.devolucion_id);
 
         this.isProcessing = true;
         EventManager.emit('checkout:processing', true);
@@ -398,21 +529,14 @@ const OrderRefundController = {
 
         try {
             const result = await Core.postRequest(formData);
-
-            if (result?.token) {
-                this.token = result.token;
-            }
+            if (result?.token) this.token = result.token;
 
             if (result?.status === 'success') {
-                this.cancelPendingRefund();
-                this.currentOrder = null;
-                this.currentLines = [];
-                this.cartLines = [];
-                this.docTotal = 0;
-                this.devolucion_id = null;
-
-                ReturnSaleView.reset();
-                ReturnSaleView.hide();
+                this.cancelPendingRefund(false);
+                this.resetState();
+                RefundUI.reset();
+                RefundUI.hide();
+                RefundUI.endSession();
                 EventManager.emit('event:order:completed', result);
             }
         } finally {
@@ -423,68 +547,58 @@ const OrderRefundController = {
     },
 
     async saveRefundDraft() {
-        if (!this.currentOrder || !this.cartLines.length) return;
-
-        const validLines = this.cartLines.filter(l => l.cantidad > 0);
-        if (validLines.length === 0) return;
-
-        const selectedLines = validLines.map(l => ({
-            idlinea: l.idlinea,
-            cantidad: l.cantidad,
-        }));
+        if (!this.currentOrder || this.isProcessing) return;
+        const selectedLines = this.getSelectedLines();
+        if (!selectedLines.length) return;
 
         const formData = new FormData();
         formData.set('action', 'order:refund:draft:save');
         formData.set('original_code', this.currentOrder.order);
         formData.set('lines', JSON.stringify(selectedLines));
         formData.set('token', this.token);
-        if (this.devolucion_id) {
-            formData.set('devolucion_id', this.devolucion_id);
-        }
+        if (this.devolucion_id) formData.set('devolucion_id', this.devolucion_id);
 
-        const result = await Core.postRequest(formData);
-
-        if (result?.token) {
-            this.token = result.token;
-        }
-
-        if (result?.status === 'success') {
-            this.currentOrder = null;
-            this.currentLines = [];
-            this.cartLines = [];
-            this.docTotal = 0;
-            this.devolucion_id = null;
-
-            ReturnSaleView.reset();
-            ReturnSaleView.hide();
-            EventManager.emit('event:order:completed', result);
+        this.isProcessing = true;
+        MainView.showLoading();
+        try {
+            const result = await Core.postRequest(formData);
+            if (result?.token) this.token = result.token;
+            if (result?.status === 'success') {
+                this.resetState();
+                RefundUI.reset();
+                RefundUI.hide();
+                RefundUI.endSession();
+                EventManager.emit('event:order:completed', result);
+            }
+        } finally {
+            MainView.hideLoading();
+            this.isProcessing = false;
         }
     },
 
-    async resumeFromDraft(el) {
-        const id = el.dataset.id;
+    async resumeFromDraft(element) {
+        RefundUI.activate('fullscreen');
+        await this.resumeFromDraftWithActiveUI(element);
+    },
+
+    async resumeExperimentalFromDraft(element) {
+        RefundUI.activate('experimental');
+        await this.resumeFromDraftWithActiveUI(element);
+    },
+
+    async resumeFromDraftWithActiveUI(element) {
+        const id = element.dataset.id;
+        MainView.toggleDraftOrdersModal();
+        RefundUI.show();
+        this.resetState(false);
+        this.render();
 
         const formData = new FormData();
         formData.set('action', 'order:refund:draft:resume');
         formData.set('id', id);
-
-        const data = await Core.postRequest(formData);
-
-        this.token = data?.token || '';
-        this.devolucion_id = data?.devolucion_id || null;
-        this.currentOrder = data?.doc ? {code: data.doc.codigo, model: data.doc.modelClassName, order: data?.idoperacion || null} : null;
-        this.docTotal = parseFloat(data?.doc?.total) || 0;
-        this.currentLines = Array.isArray(data?.lines) ? data.lines : [];
-        this.cartLines = [];
-
-        MainView.toggleDraftOrdersModal();
-        ReturnSaleView.show();
-        ReturnSaleView.renderSearchResult(data);
-        ReturnSaleView.renderProductsWithPreselect(this.currentLines);
-        ReturnSaleView.renderCart(this.cartLines);
-        this.updateSummary();
-        ReturnSaleView.focusSearch();
-    }
+        await this.loadOrder(() => Core.postRequest(formData), {}, id);
+        RefundUI.focusSearch();
+    },
 };
 
 export default OrderRefundController;

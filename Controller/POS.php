@@ -106,6 +106,10 @@ class POS extends BaseController
                 $this->getOrderToRefund();
                 return false;
 
+            case 'order:refund:quote':
+                $this->quoteRefund();
+                return false;
+
             case 'order:token:new':
                 $this->setNewToken();
                 $this->buildResponse();
@@ -398,6 +402,55 @@ class POS extends BaseController
                 ]);
             }
         }
+    }
+
+    protected function quoteRefund(): void
+    {
+        if (!$this->validateRequest()) {
+            return;
+        }
+
+        $originalCode = $this->request->input('original_code', '');
+        $linesRaw = $this->request->input('lines', '[]');
+        $refundLines = is_string($linesRaw) ? json_decode($linesRaw, true) : $linesRaw;
+
+        try {
+            if (empty($originalCode)) {
+                throw InvalidTransactionException::paymentError('order-not-found');
+            }
+            if (!is_array($refundLines) || empty($refundLines)) {
+                throw InvalidTransactionException::emptyLines();
+            }
+
+            $originalOrder = $this->context->storage()->getOrder($originalCode);
+            if (null === $originalOrder) {
+                throw InvalidTransactionException::paymentError('order-not-found');
+            }
+
+            $this->validateRefundLines($originalOrder, $refundLines);
+
+            $refunds = new Refunds(
+                $this->session->getSession(),
+                $this->session->getTerminal(),
+                $this->context->paymentValidator()
+            );
+            $total = $refunds->quoteRefund($originalOrder, $refundLines);
+
+            $this->setSuccessResponse(['total' => $total]);
+        } catch (POSException $exception) {
+            Tools::log('POS-debug')->warning($exception->getMessage());
+            $this->setErrorResponse(['error' => $exception->getTranslationKey()]);
+            $this->addMessage($exception->getTranslationKey(), 'warning', $exception->getContext());
+        } catch (Throwable $exception) {
+            Tools::log('POS-debug')->error('refund-quote-error', [
+                '%code%' => $originalCode,
+                '%error%' => $exception->getMessage(),
+            ]);
+            $this->setErrorResponse(['error' => 'order-refund-failed']);
+            $this->addMessage('order-refund-failed', 'warning');
+        }
+
+        $this->buildResponse();
     }
 
     protected function lockOrderForRefund(OrdenPuntoVenta $order): void

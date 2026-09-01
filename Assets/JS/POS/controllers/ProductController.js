@@ -1,5 +1,6 @@
 import * as Core from '../Core.js';
 import MainView from '../views/MainView.js';
+import RefundUI from '../views/RefundUIManager.js';
 import dispatcher from '../core/EventDispatcher.js';
 import {searchFilter} from '../models/FilterModel.js';
 import eventManager from '../core/EventManager.js';
@@ -147,6 +148,7 @@ const ProductController = {
 
         // Escáner de código de barras
         document.addEventListener('scan', (event) => {
+            if (RefundUI.blocksProductScan()) return;
             this.searchByBarcode(event.detail.scanCode);
         });
 

@@ -25,6 +25,7 @@ BackDropElement.prototype.hide = function () {
 function ModalElement(id) {
     this.element = getElement(id);
     this.isVisible = false;
+    this.previousFocus = null;
 }
 
 ModalElement.prototype.show = function () {
@@ -32,9 +33,16 @@ ModalElement.prototype.show = function () {
 
     this.element.classList.remove("hidden");
     this.element.classList.add("flex");
+    this.previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
     backdrop.show();
     this.isVisible = true;
+    this.element.dispatchEvent(new CustomEvent('pos:modal:shown', {bubbles: true}));
+
+    const initialFocus = this.element.querySelector(
+        '[autofocus], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+    );
+    initialFocus?.focus();
 }
 
 ModalElement.prototype.hide = function () {
@@ -45,6 +53,12 @@ ModalElement.prototype.hide = function () {
 
     backdrop.hide();
     this.isVisible = false;
+    this.element.dispatchEvent(new CustomEvent('pos:modal:hidden', {bubbles: true}));
+
+    if (this.previousFocus?.isConnected) {
+        this.previousFocus.focus();
+    }
+    this.previousFocus = null;
 }
 
 const backdrop = new BackDropElement();
@@ -98,6 +112,27 @@ class Modals {
     }
 
     _escapeKeyEventHandler = (event) => {
+        if (event.key === 'Tab' && this.currentModal?.isVisible) {
+            const focusable = Array.from(this.currentModal.element.querySelectorAll(
+                'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+            )).filter(element => !element.hidden && element.offsetParent !== null);
+            if (!focusable.length) return;
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (!this.currentModal.element.contains(document.activeElement)) {
+                event.preventDefault();
+                first.focus();
+            } else if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+            return;
+        }
+
         if (event.key === "Escape" || event.key === "Esc") {
             if (this.modalCache.loadingModal.isVisible) return;
 
