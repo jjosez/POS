@@ -83,6 +83,8 @@ const ReturnSaleExperimentalView = {
                 refundable: Number.parseFloat(line.refundable) || 0,
                 selected: Boolean(selected),
                 selectedQty: Number.parseFloat(selected?.cantidad) || 0,
+                disableDecrease: (Number.parseFloat(selected?.cantidad) || 0) <= 0,
+                disableIncrease: (Number.parseFloat(selected?.cantidad) || 0) >= (Number.parseFloat(line.refundable) || 0),
             };
         });
 

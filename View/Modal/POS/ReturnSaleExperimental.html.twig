@@ -25,7 +25,7 @@
         <div class="border-b border-slate-200 bg-slate-50 p-3 sm:p-4">
             <div class="flex flex-col gap-2 sm:flex-row">
                 <label class="input-icon min-w-0 flex-1 text-slate-400">
-                    <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+                    <span><i class="fa-solid fa-receipt" aria-hidden="true"></i></span>
                     <input id="returnExperimentalSearchInput" type="search" autocomplete="off" autofocus
                            aria-label="{{ trans('search-sale-to-return') }}"
                            placeholder="{{ trans('search-sale-to-return') }}">
@@ -64,7 +64,7 @@
                 </button>
             </div>
             <label id="returnExperimentalFilterWrap" class="input-icon mt-3 hidden text-slate-400">
-                <i class="fa-solid fa-filter" aria-hidden="true"></i>
+                <span><i class="fa-solid fa-filter" aria-hidden="true"></i></span>
                 <input id="returnExperimentalLocalFilter" type="search" autocomplete="off"
                        aria-label="{{ trans('search') }}"
                        placeholder="{{ trans('search') }}">
@@ -145,15 +145,15 @@
                     <div class="flex items-center gap-1">
                         <button type="button" class="return-experimental-qty-minus btn btn-icon btn-light h-11 w-11"
                                 data-line="<%= line.idlinea %>" aria-label="{{ trans('subtract') }}"
-                                <%= line.selectedQty <= 0 ? 'disabled' : '' %>>
+                                <%= line.disableDecrease ? 'disabled' : '' %>>
                             <i class="fa-solid fa-minus" aria-hidden="true"></i>
                         </button>
-                        <input type="number" class="return-experimental-qty-input h-9 w-16 rounded-lg border border-slate-300 bg-white px-1 text-center font-bold text-slate-900"
+                        <input type="number" class="return-experimental-qty-input h-11 w-16 rounded-lg border border-slate-300 bg-white px-1 text-center font-bold text-slate-900"
                                min="0" max="<%= line.refundable %>" step="any" value="<%= line.selectedQty %>"
                                data-line="<%= line.idlinea %>" aria-label="{{ trans('to-refund') }}">
                         <button type="button" class="return-experimental-qty-plus btn btn-icon btn-light h-11 w-11"
                                 data-line="<%= line.idlinea %>" aria-label="{{ trans('add') }}"
-                                <%= line.selectedQty >= line.refundable ? 'disabled' : '' %>>
+                                <%= line.disableIncrease ? 'disabled' : '' %>>
                             <i class="fa-solid fa-plus" aria-hidden="true"></i>
                         </button>
                     </div>
