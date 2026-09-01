@@ -15,10 +15,10 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@tailwindcss/cli": "4.1.6",
-    "tailwindcss": "^4.1.6"
+    "@tailwindcss/cli": "^4.3.3",
+    "tailwindcss": "^4.3.3"
   },
   "dependencies": {
-    "eta": "^3.5.0"
+    "eta": "^4.6.0"
   }
 }

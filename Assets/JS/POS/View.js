@@ -10,8 +10,11 @@
  * Función para alternar la visibilidad de un elemento.
  * @param {HTMLElement} target - El elemento que se debe alternar.
  */
-function toggleVisibility(target) {
-    if (!target) return;
+function toggleVisibility(target)
+{
+    if (!target) {
+        return;
+    }
     target.classList.toggle('hidden');
 }
 
@@ -19,24 +22,30 @@ function toggleVisibility(target) {
  * Función para manejar la lógica de un "collapse".
  * @param {HTMLElement} element - El elemento que activa el colapso.
  */
-export function toggleCollapse(element) {
+export function toggleCollapse(element)
+{
     const target = document.getElementById(element.dataset.target);
     const elementOntoggle = document.getElementById(element.dataset.ontoggle);
 
     toggleVisibility(target);
-    if (elementOntoggle) toggleVisibility(elementOntoggle);
+    if (elementOntoggle) {
+        toggleVisibility(elementOntoggle);
+    }
 }
 
 /**
  * Función para manejar la lógica de un "block".
  * @param {HTMLElement} element - El elemento que activa el cambio de bloque.
  */
-export function toggleBlock(element) {
+export function toggleBlock(element)
+{
     const target = document.getElementById(element.dataset.target);
     const elementOntoggle = document.getElementById(element.dataset.ontoggle);
 
     toggleVisibility(target);
-    if (elementOntoggle) toggleVisibility(elementOntoggle);
+    if (elementOntoggle) {
+        toggleVisibility(elementOntoggle);
+    }
 }
 
 /**
@@ -48,7 +57,9 @@ const toggleTab = element => {
     const tabList = element.closest('.tablist');
     const tabsContainer = document.getElementById(tabList.dataset.target);
 
-    if (!target || !tabsContainer) return;
+    if (!target || !tabsContainer) {
+        return;
+    }
 
     // Ocultar todas las pestañas
     tabsContainer.querySelectorAll('.tabcontent').forEach(tabContent => {
@@ -87,10 +98,14 @@ const eventHandler = element => {
 
 document.addEventListener('click', event => {
     const element = event.target.closest('[data-toggle]');
-    if (!element) return;
+    if (!element) {
+        return;
+    }
 
     const toggleType = element.dataset.toggle;
-    if (toggleType === 'modal') return;
+    if (toggleType === 'modal') {
+        return;
+    }
 
     eventHandler(element);
 }, false);

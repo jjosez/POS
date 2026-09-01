@@ -1,16 +1,18 @@
-///import {Eta} from "../../vendor/eta/browser.module.js?v=3.5.0";
-import {Eta} from "../../vendor/eta/dist/core.js";
+import {Eta} from "../../vendor/eta/dist/core.js?v4.6";
 
 const eta =  new Eta({ useWith: true });
 let instance;
 
 class TemplateManager {
-    constructor(templateMap = {}) {
-        if (instance) throw new Error("TemplateManager instance error.");
+    constructor(templateMap = {})
+    {
+        if (instance) {
+            throw new Error("TemplateManager instance error.");
+        }
         instance = this;
 
-        this.templates = templateMap; 
-        this.viewCache = {};          
+        this.templates = templateMap;
+        this.viewCache = {};
 
         this.preloadTemplatesFromDOM();
     }
@@ -18,14 +20,16 @@ class TemplateManager {
     /**
      * Asignar plantilla manualmente
      */
-    registerTemplate(name, htmlString) {
+    registerTemplate(name, htmlString)
+    {
         this.templates[name] = htmlString;
     }
 
     /**
      * Carga plantillas al inicializar
      */
-    preloadTemplatesFromDOM(prefix = '') {
+    preloadTemplatesFromDOM(prefix = '')
+    {
         const scriptTemplates = document.querySelectorAll('script[type="text/template"]');
 
         scriptTemplates.forEach((tpl) => {
@@ -38,9 +42,10 @@ class TemplateManager {
      * Recarga un template específico del DOM
      * @param {string} templateId
      */
-    loadTemplate(templateId) {
+    loadTemplate(templateId)
+    {
         const templateElement = document.getElementById(templateId);
-        
+
         if (templateElement && templateElement.type === 'text/template') {
             this.templates[templateId] = templateElement.innerHTML;
             return true;
@@ -54,9 +59,10 @@ class TemplateManager {
      * @param {object} data - datos para renderizar
      * @param {HTMLElement|string} container - contenedor DOM o id
      */
-    render(templateName, data = {}, container) {
+    render(templateName, data = {}, container)
+    {
         let template = this.templates[templateName];
-        
+
         if (!template) {
             const loaded = this.loadTemplate(templateName);
             if (loaded) {
@@ -70,7 +76,9 @@ class TemplateManager {
         let target = container;
         if (typeof container === 'string') {
             target = this.viewCache[container] || document.getElementById(container);
-            if (target) this.viewCache[container] = target;
+            if (target) {
+                this.viewCache[container] = target;
+            }
         }
 
         if (!target) {
@@ -84,7 +92,8 @@ class TemplateManager {
     /**
      * Renderiza y devuelve el HTML
      */
-    renderToString(templateName, data = {}) {
+    renderToString(templateName, data = {})
+    {
         const template = this.templates[templateName];
         if (!template) {
             console.error(`❌ Template "${templateName}" no not found.`);
