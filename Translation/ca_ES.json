@@ -1,5 +1,7 @@
 {
   "process-return": "Processar devolució",
+  "products-available-for-return": "Productes disponibles per retornar",
+  "select-products-and-quantities-to-return": "Selecciona els productes i les quantitats que vols retornar",
   "available": "Disponible",
   "available-cash-registers": "Terminals disponibles",
   "cash-register-not-found": "No es va trobar la terminal",

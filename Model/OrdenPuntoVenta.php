@@ -33,6 +33,7 @@ class OrdenPuntoVenta extends ModelClass
     public $idoperacion_original;
 
     public $hora;
+
     public $iddocumento;
 
     public $idoperacion;

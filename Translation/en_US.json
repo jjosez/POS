@@ -4,6 +4,8 @@
   "amount-counted": "Amount counted",
   "apply": "Apply",
   "process-return": "Process return",
+  "products-available-for-return": "Products available for return",
+  "select-products-and-quantities-to-return": "Select the products and quantities you want to return",
   "available": "Available",
   "available-cash-registers": "Available terminals",
   "available-custumer-doctypes": "Available document types",

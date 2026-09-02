@@ -29,12 +29,12 @@ const OrderRefundController = {
     error: '',
 
     init() {
-        dispatcher.register('returns:sale-open-from-list:action', this.openFromList.bind(this));
-        dispatcher.register('returns:sale-search:action', this.searchOrder.bind(this));
-        dispatcher.register('returns:sale-close:action', this.clear.bind(this));
-        dispatcher.register('returns:sale-change:action', this.changeSale.bind(this));
-        dispatcher.register('returns:sale-scan-focus:action', () => ReturnSaleView.focusSearch());
-        dispatcher.register('returns:sale-confirm:action', this.confirm.bind(this));
+        dispatcher.register('returns:sale:open:from-list:action', this.openFromList.bind(this));
+        dispatcher.register('returns:sale:search:action', this.searchOrder.bind(this));
+        dispatcher.register('returns:sale:close:action', this.clear.bind(this));
+        dispatcher.register('returns:sale:change:action', this.changeSale.bind(this));
+        dispatcher.register('returns:sale:scan:focus:action', () => ReturnSaleView.focusSearch());
+        dispatcher.register('returns:sale:confirm:action', this.confirm.bind(this));
         dispatcher.register('returns:cart:clear:action', this.clearCart.bind(this));
         dispatcher.register('returns:draft:resume:action', this.resumeFromDraft.bind(this));
 
@@ -417,7 +417,7 @@ const OrderRefundController = {
             CheckoutModel.clear();
 
             const button = document.getElementById(CHECKOUT_BTN_ID);
-            if (button) button.dataset.action = 'returns:sale-confirm:action';
+            if (button) button.dataset.action = 'returns:sale:confirm:action';
             CheckoutController.showCheckoutModal();
         } catch (error) {
             if (quoteSequence !== this.quoteSequence || this.pendingRefund !== pendingQuote) return;

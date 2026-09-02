@@ -5,6 +5,8 @@
   "amount-tendered": "Cantidad entregada",
   "apply": "Aplicar",
   "process-return": "Procesar devolución",
+  "products-available-for-return": "Productos disponibles para devolución",
+  "select-products-and-quantities-to-return": "Selecciona los productos y las cantidades que deseas devolver",
   "articles-count": "Total de articulos: %count%",
   "available": "Disponible",
   "available-cash-registers": "Terminales disponibles",

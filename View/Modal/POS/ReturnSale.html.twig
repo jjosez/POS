@@ -16,7 +16,7 @@
                 </div>
             </div>
             <button type="button" class="ml-2 btn btn-icon btn-naked"
-                    data-action="returns:sale-close:action" aria-label="{{ trans('close') }}">
+                    data-action="returns:sale:close:action" aria-label="{{ trans('close') }}">
                 <i class="fa-solid fa-times" aria-hidden="true"></i>
             </button>
         </div>
@@ -31,12 +31,12 @@
                 </label>
                 <div class="grid grid-cols-2 gap-2 sm:flex">
                     <button type="button" class="btn btn-light justify-center"
-                            data-action="returns:sale-scan-focus:action">
+                            data-action="returns:sale:scan:focus:action">
                         <i class="fa-solid fa-barcode mr-2" aria-hidden="true"></i>
                         {{ trans('search') }}
                     </button>
                     <button type="button" class="btn btn-primary justify-center"
-                            data-action="returns:sale-search:action">
+                            data-action="returns:sale:search:action">
                         <i class="fa-solid fa-magnifying-glass mr-2" aria-hidden="true"></i>
                         {{ trans('search') }}
                     </button>
@@ -57,24 +57,32 @@
                     <strong id="returnSaleDocumentTotal" class="text-slate-900">0.00</strong>
                 </div>
                 <button type="button" class="btn btn-icon btn-naked shrink-0"
-                        data-action="returns:sale-change:action" title="{{ trans('search-sale-to-return') }}"
+                        data-action="returns:sale:change:action" title="{{ trans('search-sale-to-return') }}"
                         aria-label="{{ trans('search-sale-to-return') }}">
                     <i class="fa-solid fa-arrow-right-arrow-left" aria-hidden="true"></i>
                 </button>
             </div>
-            <label id="returnSaleFilterWrap" class="input-icon mt-3 hidden text-slate-400">
-                <span><i class="fa-solid fa-filter" aria-hidden="true"></i></span>
-                <input id="returnSaleLocalFilter" type="search" autocomplete="off"
-                       aria-label="{{ trans('search-product') }}"
-                       placeholder="{{ trans('search-product') }}">
-            </label>
+            <div id="returnSaleFilterWrap" class="mt-3 hidden">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div class="min-w-0">
+                        <h3 class="font-bold text-slate-900">{{ trans('products-available-for-return') }}</h3>
+                        <p class="text-sm text-slate-500">{{ trans('select-products-and-quantities-to-return') }}</p>
+                    </div>
+                    <label class="input-icon w-full shrink-0 text-slate-400 sm:w-80">
+                        <span><i class="fa-solid fa-filter" aria-hidden="true"></i></span>
+                        <input id="returnSaleLocalFilter" type="search" autocomplete="off"
+                               aria-label="{{ trans('search-product') }}"
+                               placeholder="{{ trans('search-product') }}">
+                    </label>
+                </div>
+            </div>
         </div>
 
-        <div id="returnSaleLinesView" class="modal-body min-h-0 flex-1 bg-slate-50 p-3 sm:p-4"></div>
+        <div id="returnSaleLinesView" class="modal-body min-h-0 flex-1 p-3 sm:p-4"></div>
 
         <div class="modal-footer flex-col gap-3 p-3 sm:flex-row sm:items-center sm:p-4">
-            <div class="flex w-full items-center justify-between gap-4 sm:w-auto sm:justify-start">
-                <button type="button" id="returnSaleClearSelection" class="btn btn-naked px-0 text-slate-500"
+            <div class="flex w-full items-center justify-between gap-4 divide-x divide-gray-300 sm:w-auto sm:justify-start">
+                <button type="button" id="returnSaleClearSelection" class="btn btn-naked text-slate-500"
                         data-action="returns:cart:clear:action" disabled>
                     <i class="fa-solid fa-eraser mr-2" aria-hidden="true"></i>
                     {{ trans('clear') }}
@@ -90,7 +98,7 @@
                     <strong class="text-xl text-blue-700"><span id="returnSaleTotal">0.00</span></strong>
                 </div>
                 <button type="button" id="returnSaleConfirm" class="btn btn-success flex-1 justify-center sm:flex-none"
-                        data-action="returns:sale-confirm:action" disabled>
+                        data-action="returns:sale:confirm:action" disabled>
                     <i class="fa-solid fa-credit-card mr-2" aria-hidden="true"></i>
                     <span data-payment-label="{{ trans('process-return') }}" data-draft-label="{{ trans('save') }}">
                         {{ trans('process-return') }}
@@ -127,7 +135,7 @@
     <% } else { %>
     <div class="space-y-2">
         <% lines.forEach(function(line) { %>
-        <article class="rounded-xl border p-3 transition-colors <%= line.selected ? 'border-blue-300 bg-blue-50 shadow-sm' : 'border-slate-200 bg-white' %>">
+        <article class="rounded-xl border p-3 transition-colors <%= line.selected ? 'border-blue-300 bg-blue-50' : 'border-slate-200 bg-white' %>">
             <div class="flex items-center gap-3">
                 <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl <%= line.selected ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400' %>">
                     <i class="fa-solid fa-box text-lg" aria-hidden="true"></i>
