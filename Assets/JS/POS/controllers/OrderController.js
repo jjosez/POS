@@ -267,16 +267,6 @@ const OrderController = {
         }
     },
 
-    /**
-     * data-action="order:return:show"
-     */
-    async handleShowReturnSaleAction(el) {
-        const {code, model, order} = el.dataset;
-
-        const result = await this.getOrder({order});
-        MainView.showReturnSaleModal(result);
-    },
-
     init() {
         dispatcher.register('order:draft:delete', this.handleDraftOrderDeleteAction.bind(this));
         dispatcher.register('order:draft:resume', this.handleDraftOrderResumeAction.bind(this));
@@ -284,7 +274,6 @@ const OrderController = {
         dispatcher.register('order:draft:save', this.handleDraftOrderSaveAction.bind(this));
         dispatcher.register('order:draft:list', this.handleShowDraftOrdersAction.bind(this));
         dispatcher.register('order:last:list', this.handleShowLastOrdersAction.bind(this));
-        dispatcher.register('order:return:show', this.handleShowReturnSaleAction.bind(this));
         dispatcher.register('order:refund:draft:delete', this.handleRefundDraftDeleteAction.bind(this));
 
         EventManager.on('cart:changed', this.handleOrderRecalculate.bind(this));

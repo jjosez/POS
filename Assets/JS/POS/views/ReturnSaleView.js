@@ -1,146 +1,144 @@
+import Modals from '../components/Modals.js';
 import templates from './TemplateManger.js';
 
+const MODAL_ID = 'return:sale:modal';
+
 const elements = {
-    fullScreen: document.getElementById('returnFullScreenView'),
-    mainLayout: document.getElementById('posMainLayout'),
-    summaryCard: document.getElementById('returnSaleSummaryCard'),
-    productsView: document.getElementById('returnSaleProductsView'),
-    cartView: document.getElementById('returnSaleCartView'),
-    searchInput: document.getElementById('returnSearchInput'),
-    productsBadge: document.getElementById('returnSaleProductsBadge'),
-    cartBadge: document.getElementById('returnSaleCartBadge'),
-    confirmBtn: document.getElementById('returnSaleConfirmBtn'),
-    totalView: document.getElementById('returnSaleTotalView'),
-    subtotal: document.getElementById('returnSaleSubtotal'),
-    discount: document.getElementById('returnSaleDiscount'),
-    totalAmount: document.getElementById('returnSaleTotalAmount'),
+    root: document.getElementById(MODAL_ID),
+    searchInput: document.getElementById('returnSaleSearchInput'),
+    localFilter: document.getElementById('returnSaleLocalFilter'),
+    filterWrap: document.getElementById('returnSaleFilterWrap'),
+    orderSummary: document.getElementById('returnSaleOrderSummary'),
+    customerInitial: document.getElementById('returnSaleCustomerInitial'),
+    orderCode: document.getElementById('returnSaleOrderCode'),
+    orderDate: document.getElementById('returnSaleOrderDate'),
+    customerName: document.getElementById('returnSaleCustomerName'),
+    documentTotal: document.getElementById('returnSaleDocumentTotal'),
+    selectedCount: document.getElementById('returnSaleSelectedCount'),
+    selectedUnits: document.getElementById('returnSaleSelectedUnits'),
+    total: document.getElementById('returnSaleTotal'),
+    confirm: document.getElementById('returnSaleConfirm'),
+    clearSelection: document.getElementById('returnSaleClearSelection'),
 };
 
+const configuredDecimals = Number.parseInt(AppSettings.currency?.decimals, 10);
+const decimals = Number.isInteger(configuredDecimals) ? configuredDecimals : 2;
+
 const ReturnSaleView = {
+    state: null,
+    sessionActive: false,
+
+    init() {
+        elements.localFilter?.addEventListener('input', () => this.render(this.state));
+    },
+
     isVisible() {
-        return elements.fullScreen && !elements.fullScreen.classList.contains('hidden');
+        return Boolean(elements.root && !elements.root.classList.contains('hidden'));
     },
 
     show() {
-        if (!elements.mainLayout || !elements.fullScreen) return;
-
-        elements.mainLayout.classList.add('hidden');
-        elements.mainLayout.classList.remove('flex');
-        elements.fullScreen.classList.remove('hidden');
-        elements.fullScreen.classList.add('flex');
-
+        this.sessionActive = true;
+        Modals.showModal(MODAL_ID);
         this.updateConfirmButtonLabel();
     },
 
-    updateConfirmButtonLabel() {
-        const btn = elements.confirmBtn;
-        if (!btn) return;
-
-        if (AppSettings.aceptapagos) {
-            btn.innerHTML = '<i class="fa-solid fa-credit-card mr-1"></i> Cobrar devoluci\u00f3n';
-        } else {
-            btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i> Guardar borrador';
-        }
-    },
-
     hide() {
-        if (!elements.mainLayout || !elements.fullScreen) return;
-
-        elements.fullScreen.classList.add('hidden');
-        elements.fullScreen.classList.remove('flex');
-        elements.mainLayout.classList.remove('hidden');
-        elements.mainLayout.classList.add('flex');
+        Modals.hideModal(MODAL_ID);
     },
 
-    renderSearchResult(data) {
-        const doc = data?.doc && typeof data.doc === 'object' && !Array.isArray(data.doc) && Object.keys(data.doc).length > 0 ? data.doc : null;
-        templates.render('returnSaleSearchResultTemplate', {order: doc}, 'returnSaleSummaryCard');
+    endSession() {
+        this.sessionActive = false;
     },
 
-    renderProducts(lines, alreadyRefunded) {
-        const items = Array.isArray(lines) && lines.length > 0 ? lines : [];
-
-        if (alreadyRefunded) {
-            templates.render('returnSaleAlreadyRefundedTemplate', {}, 'returnSaleProductsView');
-            if (elements.productsBadge) {
-                elements.productsBadge.textContent = '0';
-            }
-            return;
-        }
-
-        templates.render('returnSaleProductsTemplate', {lines: items}, 'returnSaleProductsView');
-        if (elements.productsBadge) {
-            elements.productsBadge.textContent = items.length;
-        }
+    isSessionActive() {
+        return this.sessionActive;
     },
 
-    renderProductsWithPreselect(lines) {
-        const items = Array.isArray(lines) && lines.length > 0 ? lines : [];
-        templates.render('returnSaleProductsTemplate', {lines: items}, 'returnSaleProductsView');
-        if (elements.productsBadge) {
-            elements.productsBadge.textContent = items.length;
-        }
-
-        items.forEach(line => {
-            if (line._preselected) {
-                const checkbox = document.querySelector(`.return-product-check[value="${line.idlinea}"]`);
-                if (checkbox) {
-                    checkbox.checked = true;
-                    checkbox.dispatchEvent(new Event('change', {bubbles: true}));
-                }
-
-                const input = document.querySelector(`.return-qty-input[data-line="${line.idlinea}"]`);
-                if (input && line._preselected_qty) {
-                    input.value = line._preselected_qty;
-                    input.dispatchEvent(new Event('input', {bubbles: true}));
-                }
-            }
-        });
-    },
-
-    renderCart(cartLines) {
-        const items = Array.isArray(cartLines) && cartLines.length > 0 ? cartLines : [];
-        templates.render('returnSaleCartTemplate', {items: items}, 'returnSaleCartView');
-        if (elements.cartBadge) {
-            elements.cartBadge.textContent = items.length;
-        }
-    },
-
-    updateSummary(refundTotal, docTotal) {
-        const totalView = elements.totalView;
-        const subtotal = elements.subtotal;
-        const discount = elements.discount;
-        const totalAmount = elements.totalAmount;
-        const confirmBtn = elements.confirmBtn;
-
-        const fmt = (v) => (v || 0).toFixed(2);
-
-        if (totalView) totalView.textContent = fmt(refundTotal);
-        if (subtotal) subtotal.textContent = fmt(refundTotal);
-        if (discount) discount.textContent = '0.00';
-        if (totalAmount) totalAmount.textContent = fmt(refundTotal);
-
-        if (confirmBtn) {
-            confirmBtn.disabled = !refundTotal || refundTotal <= 0;
-        }
-    },
-
-    reset() {
-        this.renderSearchResult({doc: null});
-        this.renderProducts([]);
-        this.renderCart([]);
-        this.updateSummary(0, 0);
-
-        if (elements.searchInput) {
-            elements.searchInput.value = '';
-        }
+    getSearchTerm() {
+        return elements.searchInput?.value?.trim() || '';
     },
 
     focusSearch() {
-        if (elements.searchInput) {
-            setTimeout(() => elements.searchInput.focus(), 100);
+        setTimeout(() => elements.searchInput?.focus(), 100);
+    },
+
+    clearLocalFilter() {
+        if (elements.localFilter) elements.localFilter.value = '';
+    },
+
+    updateConfirmButtonLabel() {
+        const label = elements.confirm?.querySelector('span');
+        const icon = elements.confirm?.querySelector('i');
+        if (!label || !icon) return;
+
+        if (AppSettings.aceptapagos) {
+            icon.className = 'fa-solid fa-credit-card mr-2';
+            label.textContent = label.dataset.paymentLabel;
+        } else {
+            icon.className = 'fa-solid fa-floppy-disk mr-2';
+            label.textContent = label.dataset.draftLabel;
         }
-    }
+    },
+
+    render(state) {
+        if (!state) return;
+        this.state = state;
+
+        const doc = state.data?.doc || null;
+        const filter = elements.localFilter?.value?.trim().toLocaleLowerCase() || '';
+        const visibleLines = (state.lines || []).filter(line => {
+            if ((Number.parseFloat(line.refundable) || 0) <= 0) return false;
+            if (!filter) return true;
+            return `${line.referencia || ''} ${line.descripcion || ''}`.toLocaleLowerCase().includes(filter);
+        }).map(line => {
+            const selected = state.cartLines.find(item => String(item.idlinea) === String(line.idlinea));
+            return {
+                ...line,
+                cantidad: Number.parseFloat(line.cantidad) || 0,
+                refunded: Number.parseFloat(line.refunded) || 0,
+                refundable: Number.parseFloat(line.refundable) || 0,
+                selected: Boolean(selected),
+                selectedQty: Number.parseFloat(selected?.cantidad) || 0,
+                disableDecrease: (Number.parseFloat(selected?.cantidad) || 0) <= 0,
+                disableIncrease: (Number.parseFloat(selected?.cantidad) || 0) >= (Number.parseFloat(line.refundable) || 0),
+            };
+        });
+
+        templates.render('returnSaleLinesTemplate', {
+            loading: Boolean(state.loading),
+            error: state.error || '',
+            hasOrder: Boolean(doc),
+            lines: visibleLines,
+        }, 'returnSaleLinesView');
+
+        elements.orderSummary?.classList.toggle('hidden', !doc);
+        elements.orderSummary?.classList.toggle('flex', Boolean(doc));
+        elements.filterWrap?.classList.toggle('hidden', !doc);
+
+        if (doc) {
+            const customer = doc.nombrecliente || doc.codcliente || '-';
+            if (elements.customerInitial) elements.customerInitial.textContent = customer.charAt(0).toUpperCase();
+            if (elements.orderCode) elements.orderCode.textContent = doc.codigo || '-';
+            if (elements.orderDate) elements.orderDate.textContent = `${doc.fecha || ''} ${doc.hora || ''}`.trim();
+            if (elements.customerName) elements.customerName.textContent = customer;
+            if (elements.documentTotal) elements.documentTotal.textContent = (Number.parseFloat(doc.total) || 0).toFixed(decimals);
+        }
+
+        if (elements.selectedCount) elements.selectedCount.textContent = String(state.cartLines.length);
+        if (elements.selectedUnits) elements.selectedUnits.textContent = String(state.selectedUnits || 0);
+        if (elements.total) elements.total.textContent = (Number.parseFloat(state.total) || 0).toFixed(decimals);
+        if (elements.confirm) elements.confirm.disabled = !state.cartLines.length || state.total <= 0 || state.loading || state.quoting;
+        if (elements.clearSelection) elements.clearSelection.disabled = !state.cartLines.length;
+    },
+
+    reset() {
+        this.state = null;
+        if (elements.searchInput) elements.searchInput.value = '';
+        if (elements.localFilter) elements.localFilter.value = '';
+        this.render({data: null, lines: [], cartLines: [], selectedUnits: 0, total: 0});
+    },
 };
+
+ReturnSaleView.init();
 
 export default ReturnSaleView;

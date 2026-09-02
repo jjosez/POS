@@ -100,15 +100,6 @@
                     data-order="<%= order.idoperacion %>">
                 <i class="fa-solid fa-hand-holding-dollar fa-fw"></i>
             </button>
-            <button type="button"
-                    class="mr-2 btn btn-icon bg-violet-100 text-violet-700 hover:bg-violet-200"
-                    title="{{ trans('new-refund') }} Beta"
-                    data-action="returns:experimental:open-from-list:action"
-                    data-code="<%= order.iddocumento %>"
-                    data-model="<%= order.tipodoc %>"
-                    data-order="<%= order.idoperacion %>">
-                <i class="fa-solid fa-flask fa-fw"></i>
-            </button>
             <a href="<%= order.url %>" type="button" target="_blank" class="btn btn-icon btn-primary">
                 <i class="fas fa-file-invoice fa-sm"></i>
             </a>

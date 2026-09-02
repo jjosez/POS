@@ -1,14 +1,14 @@
 import dispatcher from '../core/EventDispatcher.js';
 import EventManager from '../core/EventManager.js';
 import MainView from '../views/MainView.js';
-import RefundUI from '../views/RefundUIManager.js';
+import ReturnSaleView from '../views/ReturnSaleView.js';
 import CheckoutController from './CheckoutController.js';
 import CheckoutModel from '../models/CheckoutModel.js';
 import CartController from './CartController.js';
 import * as Core from '../Core.js';
 
 const CHECKOUT_BTN_ID = 'orderSaveButton';
-const EXPERIMENTAL_MODAL_ID = 'return:sale:experimental:modal';
+const RETURN_MODAL_ID = 'return:sale:modal';
 
 const OrderRefundController = {
     currentOrder: null,
@@ -30,35 +30,26 @@ const OrderRefundController = {
 
     init() {
         dispatcher.register('returns:sale-open-from-list:action', this.openFromList.bind(this));
-        dispatcher.register('returns:experimental:open-from-list:action', this.openExperimentalFromList.bind(this));
         dispatcher.register('returns:sale-search:action', this.searchOrder.bind(this));
-        dispatcher.register('returns:sale-last:action', this.loadLastOrder.bind(this));
-        dispatcher.register('returns:sale-clear:action', this.clear.bind(this));
-        dispatcher.register('returns:experimental:close:action', this.clear.bind(this));
-        dispatcher.register('returns:experimental:change-sale:action', this.changeSale.bind(this));
-        dispatcher.register('returns:experimental:scan-focus:action', () => RefundUI.focusSearch());
+        dispatcher.register('returns:sale-close:action', this.clear.bind(this));
+        dispatcher.register('returns:sale-change:action', this.changeSale.bind(this));
+        dispatcher.register('returns:sale-scan-focus:action', () => ReturnSaleView.focusSearch());
         dispatcher.register('returns:sale-confirm:action', this.confirm.bind(this));
         dispatcher.register('returns:cart:clear:action', this.clearCart.bind(this));
         dispatcher.register('returns:draft:resume:action', this.resumeFromDraft.bind(this));
-        dispatcher.register('returns:experimental:draft:resume:action', this.resumeExperimentalFromDraft.bind(this));
 
         document.addEventListener('change', (event) => {
-            if (event.target.matches('.return-product-check')) {
-                this.handleCheckboxChange(event.target);
-            }
-            if (event.target.matches('.return-experimental-qty-input')) {
-                this.handleExperimentalInput(event.target);
+            if (event.target.matches('.return-sale-qty-input')) {
+                this.handleQuantityInput(event.target);
             }
         });
 
         document.addEventListener('click', (event) => {
-            const minus = event.target.closest('.return-qty-minus, .return-experimental-qty-minus');
-            const plus = event.target.closest('.return-qty-plus, .return-experimental-qty-plus');
-            const remove = event.target.closest('.return-cart-remove');
+            const minus = event.target.closest('.return-sale-qty-minus');
+            const plus = event.target.closest('.return-sale-qty-plus');
 
             if (minus) this.adjustCartQty(minus.dataset.line, -1);
             if (plus) this.adjustCartQty(plus.dataset.line, 1);
-            if (remove) this.setLineQuantity(remove.dataset.line, 0);
 
             const cancelBtn = event.target.closest('[data-toggle="modal"][data-target="checkout:modal"]');
             if (cancelBtn && this.pendingRefund && !this.isProcessing) {
@@ -66,14 +57,8 @@ const OrderRefundController = {
             }
         });
 
-        document.addEventListener('input', (event) => {
-            if (event.target.matches('.return-qty-input')) {
-                this.handleCartInput(event.target);
-            }
-        });
-
         document.addEventListener('keyup', (event) => {
-            if (event.target.matches('#returnSearchInput, #returnExperimentalSearchInput')) {
+            if (event.target.matches('#returnSaleSearchInput')) {
                 if (event.key === 'Enter') {
                     this.searchOrder();
                 } else {
@@ -83,7 +68,7 @@ const OrderRefundController = {
         });
 
         document.addEventListener('scan', (event) => {
-            if (RefundUI.isVisible() && !this.pendingRefund && !this.isProcessing) {
+            if (ReturnSaleView.isVisible() && !this.pendingRefund && !this.isProcessing) {
                 this.searchByBarcode(event.detail.scanCode);
             }
         });
@@ -96,18 +81,17 @@ const OrderRefundController = {
                 return;
             }
 
-            if (RefundUI.isExperimental()) {
-                this.resetState();
-                RefundUI.endSession();
-            }
+            this.resetState();
+            ReturnSaleView.endSession();
         });
 
-        document.getElementById(EXPERIMENTAL_MODAL_ID)?.addEventListener('pos:modal:hidden', () => {
+        document.getElementById(RETURN_MODAL_ID)?.addEventListener('pos:modal:hidden', () => {
             if (this.pendingRefund) return;
             setTimeout(() => {
-                if (RefundUI.isExperimental() && !this.pendingRefund && !RefundUI.isVisible()) {
+                if (!this.pendingRefund && !ReturnSaleView.isVisible()) {
                     this.resetState();
-                    RefundUI.endSession();
+                    ReturnSaleView.reset();
+                    ReturnSaleView.endSession();
                 }
             }, 0);
         });
@@ -150,44 +134,12 @@ const OrderRefundController = {
         if (render) this.render();
     },
 
-    handleCheckboxChange(checkbox) {
-        this.setLineQuantity(checkbox.value, checkbox.checked ? Math.min(1, Number.parseFloat(checkbox.dataset.refundable) || 0) : 0);
-    },
-
     adjustCartQty(lineId, delta) {
         const item = this.cartLines.find(line => String(line.idlinea) === String(lineId));
         this.setLineQuantity(lineId, (Number.parseFloat(item?.cantidad) || 0) + delta);
     },
 
-    handleCartInput(input) {
-        this.setLineQuantity(input.dataset.line, input.value, false);
-        const normalized = this.cartLines.find(line => String(line.idlinea) === String(input.dataset.line));
-        if (!normalized) {
-            this.render();
-            return;
-        }
-        input.value = normalized.cantidad;
-
-        const total = this.getDisplayTotal();
-        const state = this.getViewState();
-        state.total = total;
-
-        if (RefundUI.isExperimental()) {
-            RefundUI.render(state);
-        } else {
-            const totalView = document.getElementById('returnSaleTotalView');
-            const subtotal = document.getElementById('returnSaleSubtotal');
-            const totalAmount = document.getElementById('returnSaleTotalAmount');
-            const confirm = document.getElementById('returnSaleConfirmBtn');
-            const formatted = total.toFixed(2);
-            if (totalView) totalView.textContent = formatted;
-            if (subtotal) subtotal.textContent = formatted;
-            if (totalAmount) totalAmount.textContent = formatted;
-            if (confirm) confirm.disabled = total <= 0;
-        }
-    },
-
-    handleExperimentalInput(input) {
+    handleQuantityInput(input) {
         this.setLineQuantity(input.dataset.line, input.value);
     },
 
@@ -232,7 +184,7 @@ const OrderRefundController = {
     },
 
     render() {
-        RefundUI.render(this.getViewState());
+        ReturnSaleView.render(this.getViewState());
     },
 
     setLoading(loading) {
@@ -314,20 +266,11 @@ const OrderRefundController = {
 
     async searchByBarcode(code) {
         if (!code) return;
+        ReturnSaleView.clearLocalFilter();
         await this.loadOrder(() => Core.searchOrderForReturn({term: code}));
     },
 
     async openFromList(element) {
-        RefundUI.activate('fullscreen');
-        await this.openFromListWithActiveUI(element);
-    },
-
-    async openExperimentalFromList(element) {
-        RefundUI.activate('experimental');
-        await this.openFromListWithActiveUI(element);
-    },
-
-    async openFromListWithActiveUI(element) {
         const fallback = {
             code: element.dataset.code,
             model: element.dataset.model,
@@ -335,48 +278,32 @@ const OrderRefundController = {
         };
 
         MainView.toggleLastOrdersModal();
-        RefundUI.show();
+        ReturnSaleView.reset();
+        ReturnSaleView.show();
         this.resetState(false);
         this.render();
         await this.loadOrder(() => Core.getOrderForReturn(fallback), fallback);
-        RefundUI.focusSearch();
+        ReturnSaleView.focusSearch();
     },
 
     async searchOrder() {
-        const term = RefundUI.getSearchTerm();
+        const term = ReturnSaleView.getSearchTerm();
         if (!term || this.pendingRefund || this.isProcessing) return;
 
-        RefundUI.show();
+        ReturnSaleView.clearLocalFilter();
+        ReturnSaleView.show();
         await this.loadOrder(() => Core.searchOrderForReturn({term}));
-        RefundUI.focusSearch();
-    },
-
-    async loadLastOrder() {
-        RefundUI.activate('fullscreen');
-        RefundUI.show();
-        this.resetState(false);
-        this.render();
-
-        const orders = await Core.getLastOrderForReturn();
-        if (!Array.isArray(orders) || !orders.length) {
-            this.error = 'No se encontraron ventas.';
-            this.render();
-            return;
-        }
-
-        const order = orders[0];
-        const fallback = {code: order.iddocumento, model: order.tipodoc, order: order.idoperacion};
-        await this.loadOrder(() => Core.getOrderForReturn(fallback), fallback);
-        RefundUI.focusSearch();
+        ReturnSaleView.focusSearch();
     },
 
     changeSale() {
-        if (!RefundUI.isExperimental() || this.pendingRefund || this.isProcessing) return;
-        const searchInput = document.getElementById('returnExperimentalSearchInput');
+        if (this.pendingRefund || this.isProcessing) return;
+        const searchInput = document.getElementById('returnSaleSearchInput');
         this.resetState(false);
+        ReturnSaleView.clearLocalFilter();
         if (searchInput) searchInput.value = '';
         this.render();
-        RefundUI.focusSearch();
+        ReturnSaleView.focusSearch();
     },
 
     resetState(invalidateRequests = true) {
@@ -399,9 +326,9 @@ const OrderRefundController = {
     clear() {
         this.cancelPendingRefund(false);
         this.resetState();
-        RefundUI.reset();
-        RefundUI.hide();
-        RefundUI.endSession();
+        ReturnSaleView.reset();
+        ReturnSaleView.hide();
+        ReturnSaleView.endSession();
     },
 
     cancelPendingRefund(reopen = false) {
@@ -417,9 +344,10 @@ const OrderRefundController = {
             CheckoutModel.clear();
         }
 
-        if (reopen && hadPendingRefund && RefundUI.isExperimental() && this.currentOrder) {
-            RefundUI.show();
+        if (reopen && hadPendingRefund && this.currentOrder) {
+            ReturnSaleView.show();
             this.render();
+            ReturnSaleView.focusSearch();
         }
     },
 
@@ -534,9 +462,9 @@ const OrderRefundController = {
             if (result?.status === 'success') {
                 this.cancelPendingRefund(false);
                 this.resetState();
-                RefundUI.reset();
-                RefundUI.hide();
-                RefundUI.endSession();
+                ReturnSaleView.reset();
+                ReturnSaleView.hide();
+                ReturnSaleView.endSession();
                 EventManager.emit('event:order:completed', result);
             }
         } finally {
@@ -565,9 +493,9 @@ const OrderRefundController = {
             if (result?.token) this.token = result.token;
             if (result?.status === 'success') {
                 this.resetState();
-                RefundUI.reset();
-                RefundUI.hide();
-                RefundUI.endSession();
+                ReturnSaleView.reset();
+                ReturnSaleView.hide();
+                ReturnSaleView.endSession();
                 EventManager.emit('event:order:completed', result);
             }
         } finally {
@@ -577,19 +505,10 @@ const OrderRefundController = {
     },
 
     async resumeFromDraft(element) {
-        RefundUI.activate('fullscreen');
-        await this.resumeFromDraftWithActiveUI(element);
-    },
-
-    async resumeExperimentalFromDraft(element) {
-        RefundUI.activate('experimental');
-        await this.resumeFromDraftWithActiveUI(element);
-    },
-
-    async resumeFromDraftWithActiveUI(element) {
         const id = element.dataset.id;
         MainView.toggleDraftOrdersModal();
-        RefundUI.show();
+        ReturnSaleView.reset();
+        ReturnSaleView.show();
         this.resetState(false);
         this.render();
 
@@ -597,7 +516,7 @@ const OrderRefundController = {
         formData.set('action', 'order:refund:draft:resume');
         formData.set('id', id);
         await this.loadOrder(() => Core.postRequest(formData), {}, id);
-        RefundUI.focusSearch();
+        ReturnSaleView.focusSearch();
     },
 };
 

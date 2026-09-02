@@ -137,11 +137,6 @@
             </span>
         </div>
         <div class="mt-4 flex items-center justify-between md:mt-0">
-            <button type="button" class="mr-2 btn btn-icon bg-violet-100 text-violet-700 hover:bg-violet-200"
-                    title="{{ trans('new-refund') }} Beta"
-                    data-action="returns:experimental:draft:resume:action" data-id="<%= draft.iddevolucion %>">
-                <i class="fa-solid fa-flask fa-sm"></i>
-            </button>
             <button type="button" class="btn btn-icon bg-red-50 text-red-700 hover:bg-red-100 active:bg-red-200"
                     data-action="order:refund:draft:delete" data-id="<%= draft.iddevolucion %>">
                 <i class="fas fa-trash fa-sm"></i>

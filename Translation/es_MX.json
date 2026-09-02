@@ -4,7 +4,7 @@
   "amount-counted": "Cantidad contada",
   "amount-tendered": "Cantidad entregada",
   "apply": "Aplicar",
-  "apply-return": "Aplicar devolución",
+  "process-return": "Procesar devolución",
   "articles-count": "Total de articulos: %count%",
   "available": "Disponible",
   "available-cash-registers": "Terminales disponibles",

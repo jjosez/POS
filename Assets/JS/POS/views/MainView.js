@@ -7,7 +7,6 @@ import EventManager from "../core/EventManager.js";
 import EventDispatcher from "../core/EventDispatcher.js";
 import Modals from "../components/Modals.js";
 import templates from "./TemplateManger.js";
-import ReturnSaleView from "./ReturnSaleView.js";
 import * as Core from "../Core.js";
 import * as Money from "../Money.js";
 
@@ -180,8 +179,6 @@ function cleanMessages() {
 }
 
 function handleViewPaneChange(el) {
-    if (ReturnSaleView.isVisible()) return;
-
     const cart = document.getElementById('cartPane');
     const products = document.getElementById('productsPane');
     const showCart = el.dataset.action === 'view:cart:pane';
@@ -192,14 +189,6 @@ function handleViewPaneChange(el) {
     products.classList.toggle('flex', !showCart);
 }
 
-function toggleReturnFullScreen() {
-    if (ReturnSaleView.isVisible()) {
-        ReturnSaleView.hide();
-    } else {
-        ReturnSaleView.show();
-    }
-}
-
 const mainViewInstance = () => Object.freeze(new MainView());
 
 EventManager.on('event:cart:updated', mainViewInstance().updateView);
@@ -207,7 +196,5 @@ EventManager.on('responseMessages', showMessages);
 
 EventDispatcher.register('view:cart:pane', handleViewPaneChange.bind(this));
 EventDispatcher.register('view:products:pane', handleViewPaneChange.bind(this));
-EventDispatcher.register('returns:fullscreen:show', toggleReturnFullScreen.bind(this));
-EventDispatcher.register('returns:fullscreen:hide', toggleReturnFullScreen.bind(this));
 
 export default mainViewInstance();

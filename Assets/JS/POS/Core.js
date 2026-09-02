@@ -223,12 +223,6 @@ export async function searchOrderForReturn({term}) {
     return postRequest(data);
 }
 
-export async function getLastOrderForReturn() {
-    const data = new FormData();
-    data.set('action', 'order:last:list');
-    return postRequest(data);
-}
-
 export function openLinkAction(controllerUrl, actionParams, target = '_blank') {
     const urlBase = controllerUrl;
 

@@ -3,7 +3,7 @@
   "allow-change": "Can return change",
   "amount-counted": "Amount counted",
   "apply": "Apply",
-  "apply-return": "Apply return",
+  "process-return": "Process return",
   "available": "Available",
   "available-cash-registers": "Available terminals",
   "available-custumer-doctypes": "Available document types",
