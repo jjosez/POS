@@ -20,23 +20,6 @@
                 <i class="fa-solid fa-times" aria-hidden="true"></i>
             </button>
         </div>
-        <div class="m-4 hidden items-center rounded-lg bg-blue-500 p-4 text-white md:flex">
-            <div class="flex-1 text-center">
-                <span class="font-semibold capitalize italic">{{ trans('code') }}</span>
-            </div>
-            <div class="flex-1 text-center">
-                <span class="font-semibold capitalize italic">{{ trans('customer') }}</span>
-            </div>
-            <div class="flex-1 text-center">
-                <span class="font-semibold capitalize italic">{{ trans('total') }}</span>
-            </div>
-            <div class="flex-1 text-center">
-                <span class="font-semibold capitalize italic">{{ trans('date') }}</span>
-            </div>
-            <div class="flex w-24 justify-center">
-                <span class="font-semibold capitalize italic"><i class="fas fa-tools"></i></span>
-            </div>
-        </div>
         <div class="modal-body">
             <div id="draft:order:list:view" class="p-0">
                 <div class="flex justify-center py-8">
@@ -60,89 +43,123 @@
     <% } %>
 
     <% if(drafts.length > 0) { %>
-    {#<div class="mb-2 px-2 py-1 text-sm font-semibold uppercase text-slate-500 border-b border-slate-200">
-        {{ trans('pos-orders-on-hold') }}
-    </div>#}
+    <div class="space-y-2">
     <% drafts.forEach(function(order){ %>
-    <div class="mb-4 p-2 flex cursor-pointer flex-col rounded-lg md:flex-row bg-<%= order.rowcolor %>-100 hover:bg-<%= order.rowcolor %>-200">
-        <div class="flex flex-1 flex-col items-center md:flex-row"
-             data-action="order:draft:resume" data-code="<%= order.idpausada %>">
-                <div class="flex-1 pointer-events-none">
-                    <span class="font-semibold capitalize italic md:hidden">{{ trans('code') }}: </span>
-                    <%= order.codigo %>
-                </div>
-                <div class="flex-1 pointer-events-none">
-                    <span class="font-semibold capitalize italic md:hidden">{{ trans('customer') }}:</span>
-                    <%= order.nombrecliente %>
-                </div>
-                <div class="flex-1 pointer-events-none text-right">
-                    <span class="font-semibold capitalize italic md:hidden">{{ trans('total') }}: </span>
-                    <span class="<% if (order.total <= 0) { %>text-red-500<% } %>">
-                    <%= order.total %></span>
-                </div>
-                <div class="flex-1 text-right pointer-events-none">
-                    <span class="font-semibold capitalize italic md:hidden">{{ trans('date') }}: </span>
-                    <%= order.fecha %> <%= order.hora %>
-                </div>
-            <span class="text-sm italic pointer-events-none">
-                <%= order.observaciones || '' %>
-            </span>
-        </div>
-        <div class="mt-4 flex items-center justify-between md:mt-0">
-            <button type="button" class="mx-2 btn btn-icon btn-light"
-                    data-action="print:draft:context" data-code="<%= order.idpausada %>" data-model="BorradorPuntoVenta" data-order="">
-                <i class="fas fa-print fa-sm"></i>
+    <% const rowColor = order.rowcolor || 'slate'; %>
+    <div class="rounded-xl bg-<%= rowColor %>-50 px-4 py-3 transition-colors hover:bg-<%= rowColor %>-100">
+        <div class="grid grid-cols-2 gap-x-4 gap-y-2 md:grid-cols-[minmax(0,1fr)_minmax(8rem,0.38fr)_auto] md:items-center md:gap-4">
+            <button type="button" class="col-span-2 min-w-0 text-left md:col-span-1"
+                    data-action="order:draft:resume" data-code="<%= order.idpausada %>">
+                <span class="block truncate text-sm font-semibold leading-tight text-slate-800"><%= order.codigo %></span>
+                <span class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                    <% if (order.nombrecliente) { %>
+                    <span class="inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-tag text-slate-400" aria-hidden="true"></i>
+                        <%= order.nombrecliente %>
+                    </span>
+                    <% } %>
+                    <span class="inline-flex items-center gap-1.5">
+                        <i class="fa-regular fa-calendar text-slate-400" aria-hidden="true"></i>
+                        <%= order.fecha %>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <i class="fa-regular fa-clock text-slate-400" aria-hidden="true"></i>
+                        <%= order.hora %>
+                    </span>
+                </span>
+                <% if (order.observaciones) { %>
+                <span class="mt-1 block truncate text-xs italic text-slate-400"><%= order.observaciones %></span>
+                <% } %>
             </button>
-            <button type="button" class="btn btn-icon bg-red-50 text-red-700 hover:bg-red-100 active:bg-red-200"
-                    data-action="order:draft:delete" data-code="<%= order.idpausada %>">
-                <i class="fas fa-trash fa-sm"></i>
-            </button>
+
+            <div class="text-right md:text-left">
+                <div class="text-xs font-medium uppercase tracking-wide text-slate-400">{{ trans('total') }}</div>
+                <div class="text-lg font-bold leading-5 tabular-nums <%= Number.parseFloat(order.total) < 0 ? 'text-red-600' : 'text-slate-900' %>">
+                    <% if (Number.parseFloat(order.total) < 0) { %>-<% } %>{{ context.currency().getCurrency().simbolo }}<%= Math.abs(Number.parseFloat(order.total) || 0).toFixed(2) %>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-1.5">
+                <button type="button" class="btn btn-icon btn-naked h-10 w-10 text-slate-500 hover:text-blue-700"
+                        title="{{ trans('continue') }}" aria-label="{{ trans('continue') }}"
+                        data-action="order:draft:resume" data-code="<%= order.idpausada %>">
+                    <i class="fa-solid fa-cart-arrow-down" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn-icon btn-naked h-10 w-10 text-slate-500 hover:text-blue-700"
+                        title="{{ trans('print') }}" aria-label="{{ trans('print') }}"
+                        data-action="print:draft:context" data-code="<%= order.idpausada %>"
+                        data-model="BorradorPuntoVenta" data-order="">
+                    <i class="fa-solid fa-print" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn-icon btn-naked h-10 w-10 text-slate-500 hover:text-red-700"
+                        title="{{ trans('delete') }}" aria-label="{{ trans('delete') }}"
+                        data-action="order:draft:delete" data-code="<%= order.idpausada %>">
+                    <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                </button>
+            </div>
         </div>
     </div>
     <% }); %>
+    </div>
     <% } %>
 
     <% if(refunds.length > 0) { %>
-    <div class="mb-2 mt-4 px-2 py-1 text-sm font-semibold uppercase text-slate-500 border-b border-slate-200">
+    <div class="mb-2 mt-5 px-1 text-xs font-medium uppercase tracking-wide text-slate-500">
         {{ trans('pos-refund-drafts') }}
     </div>
+    <div class="space-y-2">
     <% refunds.forEach(function(draft){ %>
-    <div class="mb-4 p-2 flex cursor-pointer flex-col rounded-lg md:flex-row bg-yellow-100 hover:bg-yellow-200">
-        <div class="flex flex-1 flex-col items-center md:flex-row"
-             data-action="returns:draft:resume:action" data-id="<%= draft.iddevolucion %>">
-                <div class="flex-1 pointer-events-none">
-                    <span class="font-semibold capitalize italic md:hidden">{{ trans('code') }}: </span>
-                    <span class="inline-flex items-center gap-1">
-                        <i class="fa-solid fa-rotate-left text-xs"></i>
-                        <%= draft.codigo_original %>
-                        <% if (draft.codigo) { %>
-                        <span class="text-[10px] text-slate-400 font-normal">#<%= draft.codigo %></span>
-                        <% } %>
+    <div class="rounded-xl bg-red-50/50 px-4 py-3 transition-colors hover:bg-red-100/50">
+        <div class="grid grid-cols-2 gap-x-4 gap-y-2 md:grid-cols-[minmax(0,1fr)_minmax(8rem,0.38fr)_auto] md:items-center md:gap-4">
+            <button type="button" class="col-span-2 min-w-0 text-left md:col-span-1"
+                    data-action="returns:draft:resume:action" data-id="<%= draft.iddevolucion %>">
+                <span class="flex min-w-0 items-center gap-2 leading-tight">
+                    <span class="truncate text-sm font-semibold text-slate-800"><%= draft.codigo_original %></span>
+                    <% if (draft.codigo) { %>
+                    <span class="h-4 w-px shrink-0 bg-slate-300" aria-hidden="true"></span>
+                    <span class="shrink-0 text-xs font-medium uppercase tracking-wide text-slate-500"><%= draft.codigo %></span>
+                    <% } %>
+                </span>
+                <span class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                    <% if (draft.nombrecliente) { %>
+                    <span class="inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-tag text-slate-400" aria-hidden="true"></i>
+                        <%= draft.nombrecliente %>
                     </span>
-                </div>
-                <div class="flex-1 pointer-events-none">
-                    <span class="font-semibold capitalize italic md:hidden">{{ trans('customer') }}:</span>
-                    <%= draft.nombrecliente %>
-                </div>
-                <div class="flex-1 pointer-events-none text-right">
-                    <span class="font-semibold capitalize italic md:hidden">{{ trans('total') }}: </span>
-                    <span class="text-red-500">-<%= Number.parseFloat(draft.total).toFixed(2) %></span>
-                </div>
-                <div class="flex-1 text-right pointer-events-none">
-                    <span class="font-semibold capitalize italic md:hidden">{{ trans('date') }}: </span>
-                    <%= draft.fecha %> <%= draft.hora %>
-                </div>
-            <span class="text-sm italic pointer-events-none">
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-yellow-100 text-yellow-700">Devoluci&oacute;n</span>
-            </span>
-        </div>
-        <div class="mt-4 flex items-center justify-between md:mt-0">
-            <button type="button" class="btn btn-icon bg-red-50 text-red-700 hover:bg-red-100 active:bg-red-200"
-                    data-action="order:refund:draft:delete" data-id="<%= draft.iddevolucion %>">
-                <i class="fas fa-trash fa-sm"></i>
+                    <% } %>
+                    <span class="inline-flex items-center gap-1.5">
+                        <i class="fa-regular fa-calendar text-slate-400" aria-hidden="true"></i>
+                        <%= draft.fecha %>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <i class="fa-regular fa-clock text-slate-400" aria-hidden="true"></i>
+                        <%= draft.hora %>
+                    </span>
+                </span>
             </button>
+
+            <div class="text-right md:text-left">
+                <div class="text-xs font-medium uppercase tracking-wide text-slate-400">{{ trans('total') }}</div>
+                <div class="text-lg font-bold leading-5 tabular-nums text-red-600">
+                    -{{ context.currency().getCurrency().simbolo }}<%= Math.abs(Number.parseFloat(draft.total) || 0).toFixed(2) %>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-1.5">
+                <button type="button" class="btn btn-icon btn-light h-10 w-10 text-blue-700"
+                        title="{{ trans('continue') }}" aria-label="{{ trans('continue') }}"
+                        data-action="returns:draft:resume:action" data-id="<%= draft.iddevolucion %>">
+                    <i class="fa-solid fa-play" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn-icon btn-naked h-10 w-10 text-slate-500 hover:text-red-700"
+                        title="{{ trans('delete') }}" aria-label="{{ trans('delete') }}"
+                        data-action="order:refund:draft:delete" data-id="<%= draft.iddevolucion %>">
+                    <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                </button>
+            </div>
         </div>
     </div>
     <% }); %>
+    </div>
     <% } %>
 </script>
