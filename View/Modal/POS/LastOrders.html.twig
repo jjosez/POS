@@ -38,8 +38,12 @@
 </div>
 <script id="last:order:list:template" type="text/template">
     <% if(orders.length === 0) { %>
-    <div class="flex flex-1 rounded-lg bg-blue-100 p-2 shadow-xs md:flex-row">
-        <span>{{ trans('no-data') }}</span>
+    <div class="flex min-h-48 flex-col items-center justify-center rounded-xl bg-slate-50 p-6 text-center">
+        <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-white text-slate-400">
+            <i class="fa-solid fa-clock-rotate-left text-2xl" aria-hidden="true"></i>
+        </div>
+        <div class="font-semibold text-slate-700">{{ trans('no-completed-operations') }}</div>
+        <p class="mt-1 max-w-sm text-sm text-slate-500">{{ trans('no-completed-operations-description') }}</p>
     </div>
     <% } %>
     <% if (orders.length > 0) { %>
