@@ -57,6 +57,12 @@ class OrdenPuntoVenta extends ModelClass
      */
     public $nombrecliente;
 
+    public $nickusuario;
+
+    public $paymentMethod;
+
+    public $absoluteTotalFormatted;
+
     /**
      * @var bool
      */
@@ -108,9 +114,20 @@ class OrdenPuntoVenta extends ModelClass
     {
         parent::loadFromData($data, $exclude, $sync);
 
-        $this->descuadre = $this->testDescuadre();
+        $payments = $this->getPayments();
+        $paymentMethods = [];
+        $this->nickusuario = null;
+        $this->paymentMethod = '';
+        foreach ($payments as $payment) {
+            $paymentMethods[$payment->codpago] = $payment->descripcion();
+            $this->nickusuario ??= $payment->nick;
+        }
+
+        $this->descuadre = $this->testDescuadre($payments);
         $this->tipodocumento = Tools::trans($this->tipodoc);
         $this->nombrecliente = $this->getSubject()->nombre;
+        $this->paymentMethod = implode(' + ', $paymentMethods);
+        $this->absoluteTotalFormatted = Tools::number(abs((float)$this->total));
         $this->totalFormatted = Tools::number($this->total);
         $this->url = $this->url('edit');
     }
@@ -157,11 +174,11 @@ class OrdenPuntoVenta extends ModelClass
         ], ['fecha' => 'DESC', 'hora' => 'DESC']);
     }
 
-    protected function testDescuadre(): bool
+    protected function testDescuadre(array $payments): bool
     {
         $pagos = 0;
 
-        foreach ($this->getPayments() as $payment) {
+        foreach ($payments as $payment) {
             $pagos += $payment->pagoNeto();
         }
 

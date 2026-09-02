@@ -4,7 +4,8 @@
  *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
-<div id="order:last:list:modal" class="hidden modal">
+<div id="order:last:list:modal" class="hidden modal" role="dialog" aria-modal="true"
+     aria-labelledby="lastOrdersTitle">
     <div class="h-full modal-content md:w-4/5 md:max-w-4xl">
         <div class="modal-header items-center p-4">
             <div class="flex min-w-0 items-center gap-3">
@@ -12,7 +13,7 @@
                     <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
                 </div>
                 <div class="min-w-0">
-                    <h2 class="text-xl font-semibold text-slate-900">{{ trans('last-orders') }}</h2>
+                    <h2 id="lastOrdersTitle" class="text-xl font-semibold text-slate-900">{{ trans('last-orders') }}</h2>
                     <p class="truncate text-sm text-slate-500">{{ trans('till-session-operations') }}</p>
                 </div>
             </div>
@@ -23,23 +24,6 @@
                     data-target="order:last:list:modal" aria-label="{{ trans('close') }}">
                 <i class="fa-solid fa-times" aria-hidden="true"></i>
             </button>
-        </div>
-        <div class="m-4 hidden items-center rounded-lg bg-blue-500 p-4 text-white md:flex shadow-sm ">
-            <div class="flex-1">
-                <span class="font-semibold capitalize italic">{{ trans('code') }}</span>
-            </div>
-            <div class="flex-1">
-                <span class="font-semibold capitalize italic">{{ trans('customer') }}</span>
-            </div>
-            <div class="flex-1 text-center">
-                <span class="font-semibold capitalize italic">{{ trans('total') }}</span>
-            </div>
-            <div class="flex-1 text-center">
-                <span class="font-semibold capitalize italic">{{ trans('date') }}</span>
-            </div>
-            <div class="flex justify-center w-24">
-                <span class="font-semibold capitalize italic"><i class="fas fa-tools"></i></span>
-            </div>
         </div>
         <div class="modal-body">
             <div id="last:order:list:view">
@@ -57,50 +41,80 @@
         <span>{{ trans('no-data') }}</span>
     </div>
     <% } %>
+    <% if (orders.length > 0) { %>
+    <div class="space-y-2">
     <% orders.forEach(function(order){ %>
-    <div class="mb-4 p-2 flex cursor-pointer flex-col rounded-lg bg-slate-100 md:flex-row
-    <% if (order.dtomecanico) { %>table-row-red<% } else { %>hover:bg-yellow-100<% } %>">
-        <div class="flex flex-1 flex-col items-center md:flex-row">
-            <div class="flex-1">
-                <span class="font-semibold capitalize italic md:hidden">{{ trans('code') }}: </span>
-                <%= order.codigo %>
+    <% const isRefund = order.esdevolucion === true || order.esdevolucion === 1 || order.esdevolucion === '1'; %>
+    <div class="rounded-xl border border-l-3 border-slate-200 bg-white px-4 py-3 transition-colors hover:border-slate-300 hover:bg-slate-50/50
+        <%= isRefund ? 'border-l-orange-500' : 'border-l-blue-500' %>">
+        <div class="grid grid-cols-2 gap-x-4 gap-y-2 md:grid-cols-[minmax(0,1fr)_minmax(7rem,0.42fr)_minmax(8rem,0.38fr)_auto] md:items-center md:gap-4">
+            <div class="col-span-2 min-w-0 md:col-span-1">
+                <div class="text-base font-semibold leading-tight text-slate-800">
+                    <%= isRefund ? '{{ trans('refund') }}' : '{{ trans('sale-operation') }}' %>
+                </div>
+                <div class="mt-0.5 truncate text-sm font-semibold leading-tight text-slate-700"><%= order.codigo %></div>
+                <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                    <% if (order.nombrecliente) { %>
+                    <span class="inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-tag text-slate-400" aria-hidden="true"></i>
+                        <%= order.nombrecliente %>
+                    </span>
+                    <% } %>
+                    <span class="inline-flex items-center gap-1.5">
+                        <i class="fa-regular fa-calendar text-slate-400" aria-hidden="true"></i>
+                        <%= order.fecha %>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <i class="fa-regular fa-clock text-slate-400" aria-hidden="true"></i>
+                        <%= order.hora %>
+                    </span>
+                </div>
             </div>
-            <div class="flex-1">
-                <span class="font-semibold capitalize italic md:hidden">{{ trans('customer') }}: </span>
-                <%= order.nombrecliente %>
+
+            <div class="min-w-0">
+                <div class="text-xs font-medium uppercase tracking-wide text-slate-400">{{ trans('method') }}</div>
+                <div class="truncate text-sm font-semibold leading-5 text-slate-700">
+                    <% if (order.paymentMethod) { %><%= order.paymentMethod %><% } else { %>&mdash;<% } %>
+                </div>
             </div>
-            <div class="flex-1 text-right">
-                <span class="font-semibold capitalize italic md:hidden">{{ trans('total') }}: </span>
-                <span class="font-bold text-slate-900"><%= order.totalFormatted %></span>
+
+            <div class="text-right md:text-left">
+                <div class="text-xs font-medium uppercase tracking-wide text-slate-400">{{ trans('total') }}</div>
+                <div class="text-lg font-bold leading-5 tabular-nums <%= isRefund || Number.parseFloat(order.total) < 0 ? 'text-red-600' : 'text-slate-900' %>">
+                    <% if (Number.parseFloat(order.total) < 0) { %>-<% } %>{{ context.currency().getCurrency().simbolo }}<%= order.absoluteTotalFormatted %>
+                </div>
             </div>
-            <div class="flex-1 text-right">
-                <span class="font-semibold capitalize italic md:hidden">{{ trans('date') }}: </span>
-                <%= order.fecha %> <%= order.hora %>
+
+            <div class="col-span-2 flex items-center justify-end gap-1.5 md:col-span-1">
+                <a href="<%= order.url %>" target="_blank"
+                   class="btn btn-icon btn-naked h-10 w-10 text-slate-500 hover:text-blue-700"
+                   title="{{ trans('open') }}" aria-label="{{ trans('open') }}">
+                    <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                </a>
+                <button type="button" class="btn btn-icon btn-naked h-10 w-10 text-slate-500 hover:text-blue-700"
+                        title="{{ trans('print') }}" aria-label="{{ trans('print') }}"
+                        data-action="print:order:context"
+                        data-code="<%= order.iddocumento %>"
+                        data-model="<%= order.tipodoc %>"
+                        data-order="<%= order.idoperacion %>">
+                    <i class="fa-solid fa-print" aria-hidden="true"></i>
+                </button>
+                <% if (!isRefund) { %>
+                <button type="button" class="btn btn-icon btn-naked h-10 w-10 text-slate-500 hover:text-orange-700"
+                        title="{{ trans('refund') }}" aria-label="{{ trans('refund') }}"
+                        data-action="returns:sale:open:from-list:action"
+                        data-code="<%= order.iddocumento %>"
+                        data-model="<%= order.tipodoc %>"
+                        data-order="<%= order.idoperacion %>">
+                    <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                </button>
+                <% } else { %>
+                <span class="invisible h-10 w-10" aria-hidden="true"></span>
+                <% } %>
             </div>
-            <p><%= order.observaciones || '' %></p>
-        </div>
-        <div class="mt-4 flex items-center justify-between md:mt-0">
-            <button type="button"
-                    class="mx-2 btn btn-icon btn-light"
-                    data-action="print:order:context"
-                    data-code="<%= order.iddocumento %>"
-                    data-model="<%= order.tipodoc %>"
-                    data-order="<%= order.idoperacion %>">
-                <i class="fas fa-print fa-sm"></i>
-            </button>
-            <button type="button"
-                    class="mr-2 btn btn-icon btn-warning"
-                    title="{{ trans('refund') }}"
-                    data-action="returns:sale:open:from-list:action"
-                    data-code="<%= order.iddocumento %>"
-                    data-model="<%= order.tipodoc %>"
-                    data-order="<%= order.idoperacion %>">
-                <i class="fa-solid fa-rotate-left fa-fw"></i>
-            </button>
-            <a href="<%= order.url %>" type="button" target="_blank" class="btn btn-icon btn-primary">
-                <i class="fas fa-file-invoice fa-sm"></i>
-            </a>
         </div>
     </div>
     <% }) %>
+    </div>
+    <% } %>
 </script>

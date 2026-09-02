@@ -1,5 +1,7 @@
 {
   "process-return": "Processar devolució",
+  "sale-operation": "Venda",
+  "method": "Mètode",
   "products-available-for-return": "Productes disponibles per retornar",
   "select-products-and-quantities-to-return": "Selecciona els productes i les quantitats que vols retornar",
   "available": "Disponible",
