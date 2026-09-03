@@ -18,7 +18,8 @@ const ProductController = {
             eventManager.emit('event:product:scanned', {
                 code: result.code,
                 description: result.description,
-                thumbnail: result.thumbnail || ''
+                thumbnail: result.thumbnail || '',
+                bloqueado: result.bloqueado
             })
         }
     },

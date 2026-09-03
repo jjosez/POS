@@ -58,10 +58,15 @@ const CartController = {
      * @property {string | null} code - The unique identifier for the product.
      * @property {string} description - The name or description of the product to be added.
      * @property {string} thumbnail - The URL or path to the product's thumbnail image.
+     * @property {boolean|number|string} bloqueado - Whether sales are blocked for the product.
      * @param data
      */
     addLine(data) {
-        const {code, description, thumbnail} = data;
+        const {code, description, thumbnail, bloqueado} = data;
+
+        if ([true, 1, '1', 'true'].includes(bloqueado)) {
+            return;
+        }
 
         const freeLinesEnabled = !!AppSettings.cart.freeLines;
         const groupLinesEnabled = !!AppSettings.cart.groupLines;
@@ -356,11 +361,12 @@ const CartController = {
      * @property {string | null} el.dataset.code - The unique identifier for the product.
      * @property {string} el.dataset.description - The name or description of the product to be added.
      * @property {string} el.dataset.thumbnail - The URL or path to the product's thumbnail image.
+     * @property {string} el.dataset.bloqueado - Whether sales are blocked for the product.
      */
     handleLineAdd(el) {
-        const {code, description, thumbnail} = el.dataset;
+        const {code, description, thumbnail, bloqueado} = el.dataset;
 
-        this.addLine({code, description, thumbnail});
+        this.addLine({code, description, thumbnail, bloqueado});
     },
 
     /**

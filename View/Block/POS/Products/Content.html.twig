@@ -3,10 +3,15 @@
 <div class="mb-4 flex-1 overflow-y-auto px-4">
     <div id="product:search:list:view" class="my-1" role="list">
         {% set mode = terminal.product_display_mode | default('grid') %}
-        {{ _self.productView(fsc, terminal, mode) }}
+        {% set products = fsc.getHomeProducts() %}
+        {{ _self.productView(products, mode) }}
     </div>
 </div>
 <script id="product:search:template" type="text/template">
+    <div class="hidden">
+    <div class="mb-2 flex items-baseline gap-2">
+        <span class="text-sm font-semibold text-slate-700">{{ trans('option') }} A</span>
+    </div>
     <div class="<%= mode === 'grid' ? 'grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4' : 'flex flex-col gap-3' %>">
         <% products.forEach(function(product){ %>
         <div role="listitem"
@@ -64,14 +69,14 @@
                                     <i class="fa-solid fa-ban mr-1"></i> {{ trans('out-of-stock') }}
                                 </span>
                                 <% } %>
-                                <span class="pointer-events-auto inline-flex items-center rounded-lg bg-slate-100 px-2 py-1 text-slate-600 hover:bg-slate-300"
+                                <span class="pointer-events-auto inline-flex items-center rounded-lg bg-slate-100 px-2 py-1 font-semibold text-slate-600 hover:bg-slate-300"
                                       data-action="product:stock:show"
                                       data-code="<%= product.code %>">
                                         Stock: <%= (product.stock ?? 0) %>
                                     </span>
 
                                 <% if (product.family) { %>
-                                <span class="inline-flex items-center rounded-lg bg-slate-100 px-2 py-1 text-slate-600">
+                                <span class="inline-flex items-center rounded-lg bg-slate-100 px-2 py-1 font-semibold text-slate-600">
                                         <%= product.family %>
                                     </span>
                                 <% } %>
@@ -106,11 +111,84 @@
         </div>
         <% }) %>
     </div>
+    </div>
+
+    <div class="<%= mode === 'grid' ? 'grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4' : 'flex flex-col gap-3' %>">
+        <% products.forEach(function(product){ %>
+        <% const unavailable = product.isOutOfStock || Number(product.bloqueado) === 1 %>
+        <article role="listitem"
+                 class="group flex h-full min-w-0 flex-col overflow-hidden rounded-xl border bg-white p-2.5 transition-all duration-150 product-add-btn
+                        <%= unavailable
+                            ? 'border-red-200 cursor-default'
+                            : 'border-slate-200 hover:border-blue-400 hover:shadow-sm active:scale-[0.99] cursor-pointer' %>"
+                 data-action="<%= unavailable ? '' : 'ui:cart:line:add' %>"
+                 data-code="<%= product.code %>" data-description="<%= product.description %>"
+                 data-thumbnail="<%= product.thumbnail %>" data-bloqueado="<%= product.bloqueado ?? 0 %>">
+            <div class="relative aspect-[16/9] overflow-hidden rounded-lg bg-slate-100">
+                <% if (product.thumbnail) { %>
+                <img src="<%= product.thumbnail %>" alt="<%= product.description %>"
+                     class="h-full w-full object-contain p-3" loading="lazy" decoding="async">
+                <button type="button"
+                        class="pointer-events-auto absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-blue-600 shadow-sm transition hover:bg-blue-50"
+                        data-action="product:image:show" data-id="<%= product.id %>" data-code="<%= product.code %>"
+                        title="{{ trans('view-image') }}" aria-label="{{ trans('view-image') }}">
+                    <i class="fa-solid fa-expand text-xs" aria-hidden="true"></i>
+                </button>
+                <% } else { %>
+                <div class="flex h-full items-center justify-center text-slate-300">
+                    <i class="fa-regular fa-image text-3xl" aria-hidden="true"></i>
+                </div>
+                <% } %>
+            </div>
+
+            <div class="flex flex-1 flex-col px-1 pb-1 pt-3">
+                <div class="mb-1 truncate text-xs font-medium text-slate-400"><%= product.code %></div>
+                <h3 class="h-10 overflow-hidden line-clamp-2 text-sm font-semibold leading-5 text-slate-900"
+                    title="<%= product.description %>"><%= product.description %></h3>
+                <% if (product.detail) { %>
+                <div class="mt-1 truncate text-xs italic text-slate-400"><%= product.detail %></div>
+                <% } %>
+
+                <div class="mt-3 flex flex-wrap items-center gap-2">
+                    <button type="button"
+                            class="pointer-events-auto inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium
+                                   <%= product.isOutOfStock ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' %>"
+                            data-action="product:stock:show" data-code="<%= product.code %>">
+                        {{ trans('stock') }}: <%= product.stock ?? 0 %>
+                    </button>
+                    <% if (product.brandname) { %>
+                    <span class="inline-flex max-w-full items-center truncate rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600">
+                        <%= product.brandname %>
+                    </span>
+                    <% } %>
+                </div>
+
+                <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+                    <div class="truncate text-lg font-bold tabular-nums <%= unavailable ? 'text-slate-500' : 'text-slate-950' %>"><%= product.priceWithFormat %></div>
+                    <button type="button"
+                             class="pointer-events-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm transition
+                                   <%= unavailable ? 'bg-slate-200 text-slate-400' : 'bg-slate-950 text-white hover:bg-blue-600 active:scale-95' %>"
+                            data-action="<%= unavailable ? '' : 'ui:cart:line:add' %>" data-code="<%= product.code %>"
+                            data-description="<%= product.description %>" data-thumbnail="<%= product.thumbnail %>" data-bloqueado="<%= product.bloqueado ?? 0 %>"
+                            title="{{ trans('add') }}" aria-label="{{ trans('add') }}: <%= product.description %>"
+                            <%= unavailable ? 'disabled' : '' %>>
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+        </article>
+        <% }) %>
+    </div>
+
 </script>
 
-{% macro productView(fsc, terminal, mode) %}
+{% macro productView(products, mode) %}
+    <div class="hidden">
+    <div class="mb-2 flex items-baseline gap-2">
+        <span class="text-sm font-semibold text-slate-700">{{ trans('option') }} A</span>
+    </div>
     <div class="{{ mode == 'grid' ? 'grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4' : 'flex flex-col gap-3' }}">
-        {% for product in fsc.getHomeProducts() %}
+        {% for product in products %}
             {% set cardState = product.isOutOfStock
                 ? 'ring-red-200 opacity-70 cursor-default'
                 : 'ring-slate-200 hover:ring-slate-300 hover:shadow-sm active:scale-[0.99] cursor-pointer' %}
@@ -161,13 +239,13 @@
                                     </p>
                                 {% endif %}
                                 {# Badges / meta #}
-                                <div class="mt-2 flex flex-wrap {{ mode == 'grid' ? 'justify-center' : '' }} items-center gap-2 text-[10px]">
+                                <div class="mt-2 flex flex-wrap {{ mode == 'grid' ? 'justify-center' : '' }} items-center gap-2 text-xs">
                                     {% if product.isOutOfStock %}
                                         <span class="inline-flex items-center rounded-lg bg-red-50 px-2 py-1 font-semibold text-red-700">
                                             <i class="fa-solid fa-ban mr-1"></i> {{ trans('out-of-stock') }}
                                         </span>
                                     {% endif %}
-                                    <span class="pointer-events-auto inline-flex items-center rounded-lg bg-slate-100 
+                                    <span class="pointer-events-auto inline-flex items-center rounded-lg bg-slate-100
                                     px-2 py-1 font-semibold text-slate-600 hover:bg-slate-300"
                                           data-action="product:stock:show"
                                           data-code="{{ product.code }}">
@@ -189,7 +267,7 @@
 
                             {# Price #}
                             <div class="{{ mode == 'grid' ? 'mt-auto pt-2 flex items-center justify-center' : 'flex-shrink-0 text-right' }}">
-                                <div class="text-lg font-extrabold text-slate-900">
+                                <div class="{{ mode == 'grid' ? 'text-lg' : 'text-base' }} font-extrabold text-slate-900">
                                     {{ product.priceWithFormat }}
                                 </div>
                                 {% if not product.isOutOfStock and mode == 'list' %}
@@ -210,4 +288,74 @@
             </div>
         {% endfor %}
     </div>
+    </div>
+
+    <div class="{{ mode == 'grid' ? 'grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4' : 'flex flex-col gap-3' }}">
+        {% for product in products %}
+            {% set unavailable = product.isOutOfStock or product.bloqueado %}
+            {% set templateState = unavailable
+                ? 'border-red-200 cursor-default'
+                : 'border-slate-200 hover:border-blue-400 hover:shadow-sm active:scale-[0.99] cursor-pointer' %}
+            {% set templateAction = unavailable ? '' : 'ui:cart:line:add' %}
+
+            <article role="listitem"
+                     class="group flex h-full min-w-0 flex-col overflow-hidden rounded-xl border bg-white p-2.5 transition-all duration-150 product-add-btn {{ templateState }}"
+                     data-action="{{ templateAction }}" data-code="{{ product.code }}"
+                     data-description="{{ product.description }}" data-thumbnail="{{ product.thumbnail }}"
+                     data-bloqueado="{{ product.bloqueado ?? 0 }}">
+                <div class="relative aspect-[16/9] overflow-hidden rounded-lg bg-slate-100">
+                    {% if product.thumbnail %}
+                        <img src="{{ product.thumbnail }}" alt="{{ product.description }}"
+                             class="h-full w-full object-contain p-3" loading="lazy" decoding="async">
+                        <button type="button"
+                                class="pointer-events-auto absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-blue-600 shadow-sm transition hover:bg-blue-50"
+                                data-action="product:image:show" data-id="{{ product.id }}" data-code="{{ product.code }}"
+                                title="{{ trans('view-image') }}" aria-label="{{ trans('view-image') }}">
+                            <i class="fa-solid fa-expand text-xs" aria-hidden="true"></i>
+                        </button>
+                    {% else %}
+                        <div class="flex h-full items-center justify-center text-slate-300">
+                            <i class="fa-regular fa-image text-3xl" aria-hidden="true"></i>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="flex flex-1 flex-col px-1 pb-1 pt-3">
+                    <div class="mb-1 truncate text-xs font-medium text-slate-400">{{ product.code }}</div>
+                    <h3 class="h-10 overflow-hidden line-clamp-2 text-sm font-semibold leading-5 text-slate-900"
+                        title="{{ product.description }}">{{ product.description }}</h3>
+                    {% if product.detail %}
+                        <div class="mt-1 truncate text-xs italic text-slate-400">{{ product.detail }}</div>
+                    {% endif %}
+
+                    <div class="mt-3 flex flex-wrap items-center gap-2">
+                        <button type="button"
+                                class="pointer-events-auto inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium {{ product.isOutOfStock ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}"
+                                data-action="product:stock:show" data-code="{{ product.code }}">
+                            {{ trans('stock') }}: {{ product.stock ?? 0 }}
+                        </button>
+                        {% if product.brandname %}
+                            <span class="inline-flex max-w-full items-center truncate rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600">
+                                {{ product.brandname }}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+                        <div class="truncate text-lg font-bold tabular-nums {{ unavailable ? 'text-slate-500' : 'text-slate-950' }}">{{ product.priceWithFormat }}</div>
+                        <button type="button"
+                                class="pointer-events-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm transition {{ unavailable ? 'bg-slate-200 text-slate-400' : 'bg-slate-950 text-white hover:bg-blue-600 active:scale-95' }}"
+                                data-action="{{ unavailable ? '' : 'ui:cart:line:add' }}" data-code="{{ product.code }}"
+                                data-description="{{ product.description }}" data-thumbnail="{{ product.thumbnail }}"
+                                data-bloqueado="{{ product.bloqueado ?? 0 }}"
+                                title="{{ trans('add') }}" aria-label="{{ trans('add') }}: {{ product.description }}"
+                                {{ unavailable ? 'disabled' : '' }}>
+                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+
 {% endmacro %}

@@ -66,6 +66,7 @@ class ProductoVariante extends JoinModel implements JsonSerializable
             'image_path' => 'MIN(AF.path)',
             'image_filename' => 'MIN(AF.filename)',
             'allow_no_stock' => 'P.ventasinstock',
+            'bloqueado' => 'P.bloqueado',
             'codfamilia' => 'P.codfamilia',
             'family' => 'F.descripcion',
             'brandname' => 'B.nombre'

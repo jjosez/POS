@@ -1,4 +1,5 @@
 {
+  "select-agent": "Select agent",
   "add-payment": "Add payment",
   "allow-change": "Can return change",
   "amount-counted": "Amount counted",
