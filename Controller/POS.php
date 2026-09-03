@@ -12,18 +12,18 @@ use FacturaScripts\Core\KernelException;
 use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
-use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\BorradorPuntoVenta;
+use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\POS\Lib\Core\BaseController;
+use FacturaScripts\Plugins\POS\Lib\Core\SessionManager;
 use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
 use FacturaScripts\Plugins\POS\Lib\Exception\POSException;
-use FacturaScripts\Plugins\POS\Model\DevolucionPuntoVenta;
-use FacturaScripts\Plugins\POS\Lib\Core\SessionManager;
-use FacturaScripts\Plugins\POS\Lib\Services\Refunds;
 use FacturaScripts\Plugins\POS\Lib\Services\PaymentValidator;
+use FacturaScripts\Plugins\POS\Lib\Services\Refunds;
 use FacturaScripts\Plugins\POS\Lib\Services\TransactionRequest;
 use FacturaScripts\Plugins\POS\Lib\Services\Transactions;
+use FacturaScripts\Plugins\POS\Model\DevolucionPuntoVenta;
 use RuntimeException;
 use Throwable;
 
@@ -95,6 +95,15 @@ class POS extends BaseController
                 $id = $this->request->request->get('id', '');
                 $code = $this->request->request->get('code', '');
                 $this->setResponse($this->context->products()->getImagesUrl($id, $code));
+                return false;
+
+            case 'product:detail:get':
+                $code = $this->request->request->get('code', '');
+                $customer = $this->request->request->get('customer', '');
+                $terminal = $this->context->config()->getTerminal();
+                $company = $terminal->productsource === $terminal::PRODUCTS_FROM_COMPANY ? $terminal->idempresa : '';
+                $warehouse = $terminal->productsource === $terminal::PRODUCTS_FROM_WAREHOUSE ? $terminal->codalmacen : '';
+                $this->setResponse($this->context->products()->getDetail($code, $customer, $warehouse, $company));
                 return false;
 
             case 'order:save':
@@ -798,11 +807,10 @@ class POS extends BaseController
     {
         $order = new OrdenPuntoVenta();
 
-        Tools::log('POS')->warning('Buscando Query : ' . $query);
         // 1. Buscar por codigo
         if ($order->loadWhereEq('codigo', $query)) {
             if (!$order->esdevolucion) {
-                Tools::log('POS')->warning('Encontrada por codigo: ' . $query);
+                Tools::log('POS')->info('Encontrada por codigo: ' . $query);
                 return $order;
             }
             Tools::log('POS')->warning('Orden de devolucion omitida por codigo: ' . $query);

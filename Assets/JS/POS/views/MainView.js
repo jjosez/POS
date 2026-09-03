@@ -104,6 +104,13 @@ class MainView {
         templates.render('product:stock:list:template', {stocks: data}, 'product:stock:list:view');
     };
 
+    showProductDetailModal = data => {
+        if (!data?.product) return;
+
+        templates.render('product:detail:template', data, 'product:detail:view');
+        Modals.showModal('product:detail:modal');
+    };
+
     showLoading = () => Modals.loadingModal().show();
     hideLoading = () => Modals.loadingModal().hide();
     toggleLoadingModal = () => Modals.toggleModal('loadingModal');

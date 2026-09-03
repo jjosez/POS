@@ -59,6 +59,30 @@ const ProductController = {
         MainView.showProductStockDetailModal(stock);
     },
 
+    async showDetail(el) {
+        const data = new FormData();
+
+        data.set('action', 'product:detail:get');
+        data.set('code', el.dataset.code || '');
+        data.set('customer', searchFilter.codcliente || '');
+
+        const detail = await Core.postRequest(data);
+        MainView.showProductDetailModal(detail);
+    },
+
+    selectDetailImage(el) {
+        const image = document.getElementById('product:detail:main:image');
+        if (!image || !el.dataset.image) return;
+
+        image.src = el.dataset.image;
+        document.querySelectorAll('[data-action="product:detail:image:select"]').forEach(button => {
+            const selected = button === el;
+            button.classList.toggle('ring-blue-500', selected);
+            button.classList.toggle('ring-slate-200', !selected);
+            button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        });
+    },
+
     /**
      * data-action="product:filter:family:toggle"
      */
@@ -137,6 +161,8 @@ const ProductController = {
 
     init() {
         searchFilter.setCustomer(AppSettings.customer.codcliente);
+        dispatcher.register('product:detail:show', this.showDetail.bind(this));
+        dispatcher.register('product:detail:image:select', this.selectDetailImage.bind(this));
         dispatcher.register('product:image:show', this.showImages.bind(this));
         dispatcher.register('product:stock:show', this.showStockDetail.bind(this));
         dispatcher.register('product:filter:family:toggle', this.setFamilyFilter.bind(this));

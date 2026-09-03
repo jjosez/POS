@@ -1,5 +1,13 @@
 {
   "select-agent": "Selecciona un agent",
+  "brand": "Marca",
+  "product-detail": "Detall del producte",
+  "product-information": "Informació del producte",
+  "no-product-images": "No hi ha imatges disponibles",
+  "blocked-product": "Producte bloquejat",
+  "blocked-product-description": "Aquest producte està bloquejat i no es pot afegir a la venda.",
+  "no-stock-available": "No hi ha estoc disponible.",
+  "stock-by-warehouse": "Estoc per magatzem",
   "process-return": "Processar devolució",
   "sale-operation": "Venda",
   "method": "Mètode",

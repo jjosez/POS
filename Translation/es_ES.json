@@ -1,5 +1,13 @@
 {
   "select-agent": "Seleccionar agente",
+  "brand": "Marca",
+  "product-detail": "Detalle del producto",
+  "product-information": "Información del producto",
+  "no-product-images": "No hay imágenes disponibles",
+  "blocked-product": "Producto bloqueado",
+  "blocked-product-description": "Este producto está bloqueado y no puede añadirse a la venta.",
+  "no-stock-available": "No hay stock disponible.",
+  "stock-by-warehouse": "Stock por almacén",
   "add-payment": "Agregar pago",
   "allow-change": "Puede devolver cambio",
   "amount-counted": "Cantidad contada",

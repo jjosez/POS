@@ -125,11 +125,17 @@
                  data-code="<%= product.code %>" data-description="<%= product.description %>"
                  data-thumbnail="<%= product.thumbnail %>" data-bloqueado="<%= product.bloqueado ?? 0 %>">
             <div class="relative aspect-[16/9] overflow-hidden rounded-lg bg-slate-100">
+                <button type="button"
+                        class="pointer-events-auto absolute left-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/40 text-slate-400 transition hover:bg-white/80 hover:text-blue-600"
+                        data-action="product:detail:show" data-code="<%= product.code %>"
+                        title="{{ trans('product-detail') }}" aria-label="{{ trans('product-detail') }}">
+                    <i class="fa-solid fa-circle-info text-xs" aria-hidden="true"></i>
+                </button>
                 <% if (product.thumbnail) { %>
                 <img src="<%= product.thumbnail %>" alt="<%= product.description %>"
                      class="h-full w-full object-contain p-3" loading="lazy" decoding="async">
                 <button type="button"
-                        class="pointer-events-auto absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-blue-600 shadow-sm transition hover:bg-blue-50"
+                        class="pointer-events-auto absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/40 text-slate-400 transition hover:bg-white/80 hover:text-blue-600"
                         data-action="product:image:show" data-id="<%= product.id %>" data-code="<%= product.code %>"
                         title="{{ trans('view-image') }}" aria-label="{{ trans('view-image') }}">
                     <i class="fa-solid fa-expand text-xs" aria-hidden="true"></i>
@@ -304,11 +310,17 @@
                      data-description="{{ product.description }}" data-thumbnail="{{ product.thumbnail }}"
                      data-bloqueado="{{ product.bloqueado ?? 0 }}">
                 <div class="relative aspect-[16/9] overflow-hidden rounded-lg bg-slate-100">
+                    <button type="button"
+                            class="pointer-events-auto absolute left-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/40 text-slate-400 transition hover:bg-white/80 hover:text-blue-600"
+                            data-action="product:detail:show" data-code="{{ product.code }}"
+                            title="{{ trans('product-detail') }}" aria-label="{{ trans('product-detail') }}">
+                        <i class="fa-solid fa-circle-info text-xs" aria-hidden="true"></i>
+                    </button>
                     {% if product.thumbnail %}
                         <img src="{{ product.thumbnail }}" alt="{{ product.description }}"
                              class="h-full w-full object-contain p-3" loading="lazy" decoding="async">
                         <button type="button"
-                                class="pointer-events-auto absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-blue-600 shadow-sm transition hover:bg-blue-50"
+                                class="pointer-events-auto absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/40 text-slate-400 transition hover:bg-white/80 hover:text-blue-600"
                                 data-action="product:image:show" data-id="{{ product.id }}" data-code="{{ product.code }}"
                                 title="{{ trans('view-image') }}" aria-label="{{ trans('view-image') }}">
                             <i class="fa-solid fa-expand text-xs" aria-hidden="true"></i>

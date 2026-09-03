@@ -1,5 +1,13 @@
 {
   "select-agent": "Select agent",
+  "brand": "Brand",
+  "product-detail": "Product details",
+  "product-information": "Product information",
+  "no-product-images": "No images available",
+  "blocked-product": "Blocked product",
+  "blocked-product-description": "This product is blocked and cannot be added to the sale.",
+  "no-stock-available": "No stock available.",
+  "stock-by-warehouse": "Stock by warehouse",
   "add-payment": "Add payment",
   "allow-change": "Can return change",
   "amount-counted": "Amount counted",

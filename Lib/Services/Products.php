@@ -80,13 +80,56 @@ class Products
      * @param string $code Product reference code
      * @return ProductoStock[]
      */
-    public function getStock(string $code): array
+    public function getStock(string $code, string $warehouse = '', string $company = ''): array
     {
         $where = [
             Where::eq('LOWER(S.referencia)', mb_strtolower($code, 'UTF8'))
         ];
 
+        if ($company) {
+            $where[] = $this->getCompanyDatabaseWhere($company);
+        } elseif ($warehouse) {
+            $where[] = Where::eq('S.codalmacen', $warehouse);
+        }
+
         return ProductoStock::all($where);
+    }
+
+    /**
+     * Gets the complete product information required by the POS detail modal.
+     */
+    public function getDetail(
+        string $code,
+        string $customerCode = '',
+        string $warehouse = '',
+        string $company = ''
+    ): array
+    {
+        $where = [
+            Where::eq('V.referencia', $code),
+        ];
+
+        if ($company) {
+            $where[] = $this->getCompanyDatabaseWhere($company);
+        } elseif ($warehouse) {
+            $where[] = Where::eq('S.codalmacen', $warehouse);
+            $where[] = Where::orIsNull('S.codalmacen');
+        }
+
+        $products = $this->product->all($where, [], 0, 1);
+
+        if (empty($products)) {
+            return [];
+        }
+
+        $this->applyProductRates($products, ['codcliente' => $customerCode]);
+        $product = current($products);
+
+        return [
+            'product' => $product->toArray(),
+            'images' => $this->getImagesUrl((string)$product->id, $product->code),
+            'stocks' => $this->getStock($product->code, $warehouse, $company),
+        ];
     }
 
     /**
@@ -155,6 +198,7 @@ class Products
             'code' => $model->code,
             'description' => $model->description,
             'thumbnail' => $model->thumbnail ?? '',
+            'bloqueado' => $model->bloqueado ?? false,
         ];
     }
 
