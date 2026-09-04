@@ -35,6 +35,7 @@ const OrderRefundController = {
         dispatcher.register('returns:sale:change:action', this.changeSale.bind(this));
         dispatcher.register('returns:sale:scan:focus:action', () => ReturnSaleView.focusSearch());
         dispatcher.register('returns:sale:confirm:action', this.confirm.bind(this));
+        dispatcher.register('returns:sale:draft:save:action', this.saveRefundDraft.bind(this));
         dispatcher.register('returns:cart:clear:action', this.clearCart.bind(this));
         dispatcher.register('returns:draft:resume:action', this.resumeFromDraft.bind(this));
 

@@ -92,12 +92,20 @@
                     <div class="text-xs text-slate-400"><span id="returnSaleSelectedUnits">0</span> {{ trans('units') }}</div>
                 </div>
             </div>
-            <div class="flex w-full items-center gap-3 sm:ml-auto sm:w-auto">
-                <div class="min-w-24 text-right">
+            <div class="grid w-full grid-cols-2 items-center gap-2 sm:ml-auto sm:flex sm:w-auto sm:gap-3">
+                <div class="col-span-2 min-w-24 text-right sm:col-span-1">
                     <div class="text-xs uppercase tracking-wide text-slate-500">{{ trans('return-total') }}</div>
                     <strong class="text-xl text-blue-700"><span id="returnSaleTotal">0.00</span></strong>
                 </div>
-                <button type="button" id="returnSaleConfirm" class="btn btn-success flex-1 justify-center sm:flex-none"
+                {% if terminal.aceptapagos %}
+                <button type="button" id="returnSalePause" class="btn btn-light justify-center"
+                        data-action="returns:sale:draft:save:action" disabled>
+                    <i class="fa-solid fa-floppy-disk mr-2" aria-hidden="true"></i>
+                    {{ trans('save') }}
+                </button>
+                {% endif %}
+                <button type="button" id="returnSaleConfirm"
+                        class="btn btn-success {{ terminal.aceptapagos ? '' : 'col-span-2' }} justify-center sm:flex-none"
                         data-action="returns:sale:confirm:action" disabled>
                     <i class="fa-solid fa-credit-card mr-2" aria-hidden="true"></i>
                     <span data-payment-label="{{ trans('process-return') }}" data-draft-label="{{ trans('save') }}">

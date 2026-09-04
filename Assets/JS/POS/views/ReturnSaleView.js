@@ -17,6 +17,7 @@ const elements = {
     selectedCount: document.getElementById('returnSaleSelectedCount'),
     selectedUnits: document.getElementById('returnSaleSelectedUnits'),
     total: document.getElementById('returnSaleTotal'),
+    pause: document.getElementById('returnSalePause'),
     confirm: document.getElementById('returnSaleConfirm'),
     clearSelection: document.getElementById('returnSaleClearSelection'),
 };
@@ -127,7 +128,9 @@ const ReturnSaleView = {
         if (elements.selectedCount) elements.selectedCount.textContent = String(state.cartLines.length);
         if (elements.selectedUnits) elements.selectedUnits.textContent = String(state.selectedUnits || 0);
         if (elements.total) elements.total.textContent = (Number.parseFloat(state.total) || 0).toFixed(decimals);
-        if (elements.confirm) elements.confirm.disabled = !state.cartLines.length || state.total <= 0 || state.loading || state.quoting;
+        const disableSubmit = !state.cartLines.length || state.total <= 0 || state.loading || state.quoting;
+        if (elements.pause) elements.pause.disabled = disableSubmit;
+        if (elements.confirm) elements.confirm.disabled = disableSubmit;
         if (elements.clearSelection) elements.clearSelection.disabled = !state.cartLines.length;
     },
 
