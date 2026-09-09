@@ -3,8 +3,8 @@ import EventManager from "../core/EventManager.js";
 
 class CartModel {
     constructor({doc, token} = {}) {
-        this.init = doc;
-        this.doc = doc;
+        this.init = {...doc};
+        this.doc = {...doc};
         this.lines = [];
         this.count = 0;
         this.token = token
@@ -43,6 +43,11 @@ class CartModel {
         this.doc.nombrecliente = '';
         this.doc.codcliente = codcliente;
         this.cartChangeEvent();
+    }
+
+    resetCustomer(codcliente) {
+        this.doc.nombrecliente = '';
+        this.doc.codcliente = codcliente;
     }
 
     setCustomField(field, value) {
@@ -102,7 +107,7 @@ class CartModel {
     update({doc = this.init, lines = [], token = ''}) {
         const tipoDocumento = this.doc['tipo-documento'];
 
-        this.doc = doc;
+        this.doc = {...doc};
         if (!this.doc['tipo-documento'] && tipoDocumento) {
             this.doc['tipo-documento'] = tipoDocumento;
         }

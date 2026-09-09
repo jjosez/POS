@@ -74,7 +74,7 @@
             <div class="text-right md:text-left">
                 <div class="text-xs font-medium uppercase tracking-wide text-slate-400">{{ trans('total') }}</div>
                 <div class="text-lg font-bold leading-5 tabular-nums <%= Number.parseFloat(order.total) < 0 ? 'text-red-600' : 'text-slate-900' %>">
-                    <% if (Number.parseFloat(order.total) < 0) { %>-<% } %>{{ context.currency().getCurrency().simbolo }}<%= Math.abs(Number.parseFloat(order.total) || 0).toFixed(2) %>
+                    <% if (Number.parseFloat(order.total) < 0) { %>-<% } %><%= Math.abs(Number.parseFloat(order.total) || 0).toFixed(2) %>
                 </div>
             </div>
 

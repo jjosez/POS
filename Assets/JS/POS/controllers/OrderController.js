@@ -168,6 +168,7 @@ const OrderController = {
         const {code} = el.dataset;
 
         const updatedCart = await this.resumeOrder(code);
+        if (updatedCart?.status === 'error' || !updatedCart?.doc) return;
 
         CartController.update(updatedCart);
 

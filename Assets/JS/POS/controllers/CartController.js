@@ -220,6 +220,12 @@ const CartController = {
         CartView.updateDocumentClassLabel(AppSettings.document.description);
     },
 
+    resetOrder() {
+        this.resetDocument();
+        Cart.resetCustomer(AppSettings.customer.codcliente);
+        CartView.updateCustomerNameLabel(AppSettings.customer.nombre);
+    },
+
 
     /**
      * Adds a product to the cart based on product data.
@@ -445,7 +451,7 @@ const CartController = {
         EventManager.on('event:cart:rendered', () => this.applySelection());
         EventManager.on('event:cart:updated', this.cartUpdateTotals.bind(this));
         EventManager.on('event:customer:changed', this.setCustomer.bind(this));
-        EventManager.on('event:order:completed', this.resetDocument.bind(this));
+        EventManager.on('event:order:completed', this.resetOrder.bind(this));
         EventManager.on('event:order:resumed', (doc) => this.handleOrderResume(doc));
         EventManager.on('event:order:recalculated', (result) => this.update(result));
         EventManager.on('event:product:scanned', this.addLine.bind(this));

@@ -278,6 +278,18 @@ class POS extends BaseController
             return;
         }
 
+        try {
+            $this->validateSupportedDocument(
+                (string)$draft->generadocumento,
+                (string)$draft->codserie
+            );
+        } catch (POSException $exception) {
+            $this->setErrorResponse(['error' => $exception->getTranslationKey()]);
+            $this->addMessage($exception->getTranslationKey(), 'warning', $exception->getContext());
+            $this->buildResponse();
+            return;
+        }
+
         $result = ['doc' => $draft, 'lines' => $draft->getLines()];
         $this->setNewToken();
         $this->buildResponse($result);
@@ -862,17 +874,22 @@ class POS extends BaseController
 
     protected function validateDocumentType(TransactionRequest $request): void
     {
+        $documentData = $request->getDocumentData();
         $type = $request->isDraft()
-            ? (string)($request->getDocumentData()['generadocumento'] ?? '')
+            ? (string)($documentData['generadocumento'] ?? '')
             : $request->getDocumentType();
-        $supported = array_map(
-            static fn($document): string => (string)$document->tipodoc,
-            $this->context->config()->getSupportedDocuments()
-        );
+        $this->validateSupportedDocument($type, (string)($documentData['codserie'] ?? ''));
+    }
 
-        if (!in_array($type, $supported, true)) {
-            throw InvalidTransactionException::invalidDocumentType($type);
+    protected function validateSupportedDocument(string $type, string $serie): void
+    {
+        foreach ($this->context->config()->getSupportedDocuments() as $document) {
+            if ($type === (string)$document->tipodoc && $serie === (string)$document->codserie) {
+                return;
+            }
         }
+
+        throw InvalidTransactionException::invalidDocumentType($type);
     }
 
     protected function saveOrder(): void

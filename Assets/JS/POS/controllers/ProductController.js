@@ -170,6 +170,9 @@ const ProductController = {
         dispatcher.register('product:family:back', this.navigateBack.bind(this));
 
         eventManager.on('event:customer:changed', this.handleCustomerChanged.bind(this));
+        eventManager.on('event:order:completed', () => this.handleCustomerChanged({
+            code: AppSettings.customer.codcliente
+        }));
         eventManager.on('product:filter:changed', this.handleFilterChanged.bind(this));
         eventManager.on('product:search:completed', this.handleSearchCompleted.bind(this));
 
