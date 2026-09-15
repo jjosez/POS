@@ -187,6 +187,10 @@ class Transactions
 
             $newLine = $this->document->getNewProductLine($product['referencia']);
 
+            if (true === empty($product['referencia'])) {
+                $newLine->descripcion = $product['descripcion'];
+            }
+
             if (isset($product['thumbnail'])) {
                 $newLine->thumbnail = $product['thumbnail'];
             }

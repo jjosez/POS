@@ -50,6 +50,8 @@ class TerminalPuntoVenta extends ModelClass
 
     public $free_cart_lines;
 
+    public $free_cart_line_text;
+
     public $group_cart_lines;
 
     public $terminal_type;
@@ -62,6 +64,7 @@ class TerminalPuntoVenta extends ModelClass
         $this->anchopapel = 45;
         $this->restringealmacen = false;
         $this->defaultdocument = 'FacturaCliente';
+        $this->free_cart_line_text = '';
         $this->disponible = true;
         $this->numerotickets = 1;
         $this->terminal_type = self::MODE_CASHIER;

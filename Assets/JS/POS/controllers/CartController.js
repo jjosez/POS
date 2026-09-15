@@ -10,6 +10,7 @@ const Cart = new CartModel({
         'codcliente': AppSettings.customer.codcliente,
         'idpausada': null,
         'tipo-documento': AppSettings.document.code,
+        'title': AppSettings.document.description,
         'codpago': AppSettings.payment.codpago
     }, 'token': AppSettings.token
 });
@@ -35,6 +36,26 @@ const CartController = {
     },
 
     update(data) {
+        if (data?.doc) {
+            const documentType = data.doc['tipo-documento']
+                ?? data.doc.generadocumento
+                ?? Cart.doc['tipo-documento'];
+            const documentSerie = data.doc.codserie ?? Cart.doc.codserie;
+            const documentClass = AppSettings['supported-documents']?.find(item =>
+                String(item.codserie) === String(documentSerie)
+                && String(item.tipodoc) === String(documentType)
+            );
+
+            data = {
+                ...data,
+                doc: {
+                    ...data.doc,
+                    'tipo-documento': documentType,
+                    title: documentClass?.descripcion ?? data.doc.title ?? Cart.doc.title,
+                },
+            };
+        }
+
         Cart.update(data);
     },
 
@@ -74,7 +95,6 @@ const CartController = {
 
         const forceNewLine = (isFreeLine && freeLinesEnabled) || !groupLinesEnabled;
 
-        /* forceNewLine = true; // Always add a new line */
         if (forceNewLine) {
             Cart.addProduct(code, description, thumbnail);
         } else {
@@ -216,7 +236,11 @@ const CartController = {
      * Resets the cart document type to the default configured in AppSettings.
      */
     resetDocument() {
-        Cart.setDocumentClass(AppSettings.document.code, AppSettings.document.serie);
+        Cart.setDocumentClass(
+            AppSettings.document.code,
+            AppSettings.document.serie,
+            AppSettings.document.description
+        );
         CartView.updateDocumentClassLabel(AppSettings.document.description);
     },
 
@@ -256,8 +280,6 @@ const CartController = {
                 CartView.updateAgentLabel(agent.nombre);
             }
         }
-
-        Cart.updateDocumentClass();
     },
 
     editDocumentField(el) {
@@ -276,7 +298,8 @@ const CartController = {
         if (!audio) return;
 
         audio.currentTime = 0;
-        audio.play().catch(() => {});
+        audio.play().catch(() => {
+        });
     },
 
     async cartChange() {
@@ -410,7 +433,7 @@ const CartController = {
             return;
         }
 
-        Cart.updateDocumentType(code, serie);
+        Cart.updateDocumentType(code, serie, description);
         CartView.updateDocumentClassLabel(description);
         CartView.toggleDocumentClassSearchModal();
     },

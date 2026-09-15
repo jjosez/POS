@@ -16,11 +16,12 @@
                 <i class="fa-solid fa-filter text-slate-500"></i> {{ trans('filters') }}
             </button>
             {% if context.terminal().free_cart_lines %}
+                {% set free_line_text =  context.terminal().free_cart_line_text | default(trans('generic')) %}
                 <button class="btn gap-2 rounded-lg bg-slate-900 text-sm font-extrabold text-white
                      hover:bg-slate-800 active:bg-slate-950"
                         data-action="ui:cart:line:add"
                         data-code=""
-                        data-description="{{ trans('generic') }}">
+                        data-description="{{ free_line_text }}">
                     <i class="fa-solid fa-plus-circle"></i> {{ trans('free-product-line') }}
                 </button>
             {% endif %}

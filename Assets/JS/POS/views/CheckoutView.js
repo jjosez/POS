@@ -14,10 +14,16 @@ const elements = {
     paymentInput: document.getElementById('paymentApplyInput'),
     paymentMethods: document.querySelectorAll('[data-payment-method]'),
     tenderedAmount: document.getElementById('checkoutTenderedAmount'),
+    title: document.getElementById('checkoutTitle'),
 };
 
 let isProcessing = false;
+const checkoutBaseTitle = elements.title?.textContent.trim() ?? '';
 
+/**
+ * @param {CheckoutModel} model
+ * @param previewAmount
+ */
 export function render(model, previewAmount = 0) {
     const state = model.getState();
     const preview = Math.max(0, Number(previewAmount) || 0);
@@ -79,7 +85,9 @@ export function focusPaymentInput() {
 }
 
 export function toggleMoreMethods() {
-    if (!elements.moreMethods || !elements.moreButton) return;
+    if (!elements.moreMethods || !elements.moreButton) {
+        return;
+    }
 
     const isHidden = elements.moreMethods.classList.toggle('hidden');
     elements.moreMethods.classList.toggle('grid', !isHidden);
@@ -92,8 +100,20 @@ export function setProcessing(processing) {
     elements.confirmButton.disabled = processing || elements.confirmButton.disabled;
 }
 
+export function updateTitle(title = '') {
+    if (!elements.title) {
+        return;
+    }
+
+    elements.title.textContent = title
+        ? `${checkoutBaseTitle} - ${title}`
+        : checkoutBaseTitle;
+}
+
 function hideMoreMethods() {
-    if (!elements.moreMethods || !elements.moreButton) return;
+    if (!elements.moreMethods || !elements.moreButton) {
+        return;
+    }
 
     elements.moreMethods.classList.add('hidden');
     elements.moreMethods.classList.remove('grid');
@@ -110,7 +130,10 @@ function renderPaymentMethods(payments) {
         button.classList.toggle('bg-blue-50', isSelected);
         button.classList.toggle('text-blue-700', isSelected);
         const check = button.querySelector('[data-payment-check]');
-        if (check) check.hidden = !isSelected;
+
+        if (check) {
+            check.hidden = !isSelected;
+        }
     });
 }
 

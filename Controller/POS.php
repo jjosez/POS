@@ -279,10 +279,7 @@ class POS extends BaseController
         }
 
         try {
-            $this->validateSupportedDocument(
-                (string)$draft->generadocumento,
-                (string)$draft->codserie
-            );
+            $this->validateSupportedDocument((string)$draft->generadocumento, (string)$draft->codserie);
         } catch (POSException $exception) {
             $this->setErrorResponse(['error' => $exception->getTranslationKey()]);
             $this->addMessage($exception->getTranslationKey(), 'warning', $exception->getContext());
@@ -307,8 +304,10 @@ class POS extends BaseController
             $draftId = (int)($request->getDocumentData()['idpausada'] ?? 0);
             if ($draftId > 0) {
                 $existingDraft = new BorradorPuntoVenta();
-                if (!$existingDraft->load($draftId)
-                    || false === (bool)$existingDraft->editable) {
+                if (
+                    !$existingDraft->load($draftId)
+                    || false === (bool)$existingDraft->editable
+                ) {
                     throw InvalidTransactionException::saveError('draft-session-mismatch');
                 }
             }
@@ -408,7 +407,6 @@ class POS extends BaseController
         }
 
         foreach ($requestedMap as $idlinea => $cantidad) {
-
             $refundable = $refundableMap[$idlinea] ?? 0;
 
             if ($cantidad > $refundable) {
@@ -543,8 +541,10 @@ class POS extends BaseController
             if (!empty($devolucionId)) {
                 $draft = new DevolucionPuntoVenta();
                 if ($draft->load($devolucionId)) {
-                    if ((int)$draft->idsesion !== (int)$this->session->getSession()->idsesion
-                        || (int)$draft->idoperacion_original !== (int)$originalOrder->idoperacion) {
+                    if (
+                        (int)$draft->idsesion !== (int)$this->session->getSession()->idsesion
+                        || (int)$draft->idoperacion_original !== (int)$originalOrder->idoperacion
+                    ) {
                         throw InvalidTransactionException::saveError('refund-draft-mismatch');
                     }
                     if (!$draft->delete()) {
@@ -556,7 +556,6 @@ class POS extends BaseController
             if (!$this->dataBase->commit()) {
                 throw InvalidTransactionException::saveError('database-transaction-commit-error');
             }
-
         } catch (POSException $e) {
             if ($this->dataBase->inTransaction()) {
                 $this->dataBase->rollback();
@@ -658,8 +657,10 @@ class POS extends BaseController
             if (!empty($devolucionId)) {
                 $oldDraft = new DevolucionPuntoVenta();
                 if ($oldDraft->load($devolucionId)) {
-                    if ((int)$oldDraft->idsesion !== (int)$this->session->getSession()->idsesion
-                        || (int)$oldDraft->idoperacion_original !== (int)$originalOrder->idoperacion) {
+                    if (
+                        (int)$oldDraft->idsesion !== (int)$this->session->getSession()->idsesion
+                        || (int)$oldDraft->idoperacion_original !== (int)$originalOrder->idoperacion
+                    ) {
                         $draft->delete();
                         $this->setErrorResponse(['error' => 'refund-draft-mismatch']);
                         $this->addMessage('transaction-save-error', 'warning');
@@ -700,8 +701,10 @@ class POS extends BaseController
         }
 
         $draft = new DevolucionPuntoVenta();
-        if (!$draft->load($id)
-            || (int)$draft->idsesion !== (int)$this->session->getSession()->idsesion) {
+        if (
+            !$draft->load($id)
+            || (int)$draft->idsesion !== (int)$this->session->getSession()->idsesion
+        ) {
             $this->buildResponse(['success' => false, 'message' => 'draft-not-found']);
             return;
         }
@@ -754,8 +757,10 @@ class POS extends BaseController
         }
 
         $draft = new DevolucionPuntoVenta();
-        if ($draft->load($id)
-            && (int)$draft->idsesion === (int)$this->session->getSession()->idsesion) {
+        if (
+            $draft->load($id)
+            && (int)$draft->idsesion === (int)$this->session->getSession()->idsesion
+        ) {
             if (!$draft->delete()) {
                 $this->setErrorResponse(['error' => 'refund-draft-delete-error']);
                 $this->addMessage('transaction-save-error', 'warning');
@@ -891,7 +896,6 @@ class POS extends BaseController
 
         throw InvalidTransactionException::invalidDocumentType($type);
     }
-
     protected function saveOrder(): void
     {
         if (!$this->validateRequest()) {
@@ -1300,6 +1304,7 @@ class POS extends BaseController
             'terminal' => $terminal->idterminal,
             'aceptapagos' => $terminal->aceptapagos,
             'cart' => [
+                'freeLineText' => $terminal->free_cart_line_text,
                 'freeLines' => $terminal->free_cart_lines,
                 'groupLines' => $terminal->group_cart_lines,
             ],

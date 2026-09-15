@@ -71,7 +71,6 @@ class CheckoutModel {
 
         if (amount <= 0) return;
 
-        // Intentar sumar al método existente
         const existing = this.payments.find(p => p.method === method);
         if (existing) {
             existing.amount = parseFloat((existing.amount + amount).toFixed(CURRENCY_DECIMALS));

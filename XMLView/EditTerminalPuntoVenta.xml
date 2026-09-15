@@ -33,31 +33,34 @@
                     <values title="warehouse">2</values>
                 </widget>
             </column>
-             <column name="product-display-mode" numcolumns="2" order="160">
+             <column name="product-display-mode" numcolumns="4" order="160">
                 <widget type="select" fieldname="product_display_mode" translate="true" icon="fas fa-list">
                     <values title="grid">grid</values>
                     <values title="row">list</values>
                 </widget>
             </column>
-            <column name="ticket-copies" numcolumns="2" order="170">
-                <widget type="number" fieldname="numerotickets"/>
-            </column>
         </group>
         <group name="extra" title="settings" numcolumns="12" valign="bottom">
-            <column name="pos-checkout-available" numcolumns="2" order='120'>
+            <column name="pos-checkout-available" numcolumns="3" order='100'>
                 <widget type="checkbox" fieldname="aceptapagos"/>
             </column>
-            <column name="free-product-line" numcolumns="2" order='120'>
-                <widget type="checkbox" fieldname="free_cart_lines"/>
-            </column>
-            <column name="group-by-product" numcolumns="2" order='120'>
+            <column name="group-by-product" numcolumns="3" order='110'>
                 <widget type="checkbox" fieldname="group_cart_lines"/>
             </column>
-            <column name="can-change-agent" numcolumns="2" order='120'>
+            <column name="can-change-agent" numcolumns="3" order='120'>
                 <widget type="checkbox" fieldname="can_change_agent"/>
             </column>
-            <column name="available" title="available" numcolumns="2" order="130">
+            <column name="available" title="available" display="none" numcolumns="3" order="140">
                 <widget type="checkbox" fieldname="disponible" readonly="true"/>
+            </column>
+            <column name="free-product-line" numcolumns="3" order='140'>
+                <widget type="checkbox" fieldname="free_cart_lines"/>
+            </column>
+            <column name="free-product-line-text" numcolumns="8" order="150">
+                <widget type="text" fieldname="free_cart_line_text" icon="fas fa-tag"/>
+            </column>
+            <column name="ticket-copies" numcolumns="4" order="160">
+                <widget type="number" fieldname="numerotickets"/>
             </column>
         </group>
     </columns>

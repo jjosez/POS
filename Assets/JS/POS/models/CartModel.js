@@ -55,8 +55,9 @@ class CartModel {
         this.cartChangeEvent();
     }
 
-    setDocumentClass(code, serie) {
+    setDocumentClass(code, serie, title) {
         this.doc['tipo-documento'] = code;
+        this.doc['title'] = title;
         this.doc['codserie'] = serie;
     }
 
@@ -124,12 +125,8 @@ class CartModel {
         this.cartUpdateEvent();
     }
 
-    updateDocumentClass() {
-        this.doc['tipo-documento'] = this.doc['generadocumento'];
-    }
-
-    updateDocumentType(code, serie) {
-        this.setDocumentClass(code, serie)
+    updateDocumentType(code, serie, title) {
+        this.setDocumentClass(code, serie, title)
         this.cartChangeEvent();
     }
 

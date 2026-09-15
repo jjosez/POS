@@ -71,6 +71,7 @@ const CheckoutController = {
 
         EventManager.on('event:cart:updated', ({doc}) => {
             CheckoutModel.updateTotal(doc.total);
+            CheckoutView.updateTitle(doc.title);
         });
 
         EventManager.on('event:order:completed', () => {
