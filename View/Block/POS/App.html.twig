@@ -109,7 +109,7 @@
     </script>
     {{ parent() }}
     <audio id="beepAudio" src="{{ asset('Dinamic/Assets/Sounds/beep.mp3') }}" preload="auto"></audio>
-    <script src="{{ asset('Dinamic/Assets/JS/vendor/onscan.min.js?v=1') }}"></script>
+    <script src="{{ asset('Dinamic/Assets/JS/vendor/onscan/onscan.min.js?v=1.5') }}"></script>
     <script type="module" src="{{ asset('Dinamic/Assets/JS/POS/App.js') }}?v={{ 'now' | date('ymd') }}"></script>
     <script type="application/javascript">
         const AppSettings = {{ fsc.getAppSettings()|json_encode|raw }};
