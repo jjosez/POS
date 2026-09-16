@@ -304,10 +304,7 @@ class POS extends BaseController
             $draftId = (int)($request->getDocumentData()['idpausada'] ?? 0);
             if ($draftId > 0) {
                 $existingDraft = new BorradorPuntoVenta();
-                if (
-                    !$existingDraft->load($draftId)
-                    || false === (bool)$existingDraft->editable
-                ) {
+                if (!$existingDraft->load($draftId) || false === $existingDraft->editable) {
                     throw InvalidTransactionException::saveError('draft-session-mismatch');
                 }
             }
@@ -317,7 +314,7 @@ class POS extends BaseController
                 throw InvalidTransactionException::saveError('database-transaction-start-error');
             }
             if (!$transaction->saveDocument()) {
-                throw InvalidTransactionException::saveError('pos-order-on-hold-error');
+                throw InvalidTransactionException::saveError('pos-draft-save-error');
             }
             if (!$this->dataBase->commit()) {
                 throw InvalidTransactionException::saveError('database-transaction-commit-error');
@@ -342,7 +339,7 @@ class POS extends BaseController
             return;
         }
 
-        $this->addMessage('pos-order-on-hold');
+        $this->addMessage('pos-draft-save-ok');
 
         $document = $transaction->getDocument();
         $this->setSuccessResponse([
