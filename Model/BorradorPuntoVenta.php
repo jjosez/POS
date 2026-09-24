@@ -91,8 +91,6 @@ class BorradorPuntoVenta extends SalesDocument
 
     public function install(): string
     {
-        new LineaBorradorPuntoVenta();
-
         return parent::install();
     }
 
