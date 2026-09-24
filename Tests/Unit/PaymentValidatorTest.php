@@ -152,4 +152,36 @@ final class PaymentValidatorTest extends TestCase
     {
         return new PaymentValidator($this->methods(), 2);
     }
+
+    public function testOptionalAllowsUnpaidAndPartialDocuments(): void
+    {
+        self::assertSame([], $this->validator()->validateSettlement([], 1000, 0, PaymentPolicy::OPTIONAL));
+        $payments = $this->validator()->validateSettlement([
+            ['method' => 'CASH', 'amount' => 200],
+        ], 1000, 0, PaymentPolicy::OPTIONAL);
+        self::assertSame(200.0, $payments[0]['net']);
+        $payments = $this->validator()->validateSettlement([
+            ['method' => 'CASH', 'amount' => 1200, 'change' => 200],
+        ], 1000, 0, PaymentPolicy::OPTIONAL);
+        self::assertSame(1000.0, $payments[0]['net']);
+    }
+
+    public function testOptionalRejectsMalformedPaymentsAndAccountCharges(): void
+    {
+        $cases = [
+            [[['method' => 'OTHER', 'amount' => 0]], 0],
+            [[['method' => 'CASH', 'amount' => 200], ['method' => 'CARD', 'amount' => -200]], 0],
+            [[['method' => 'CARD', 'amount' => 1100]], 0],
+            [[['method' => 'CARD', 'amount' => 200, 'change' => 10]], 0],
+            [[['method' => 'CASH', 'amount' => 200]], 800],
+        ];
+        foreach ($cases as [$payments, $account]) {
+            try {
+                $this->validator()->validateSettlement($payments, 1000, $account, PaymentPolicy::OPTIONAL);
+                self::fail('Expected optional settlement rejection');
+            } catch (InvalidTransactionException $exception) {
+                self::assertNotEmpty($exception->getTranslationKey());
+            }
+        }
+    }
 }

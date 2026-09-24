@@ -109,6 +109,23 @@
                 <div id="payment:list:view"></div>
             </section>
 
+            <div id="checkoutAccountSummary" class="hidden space-y-2 rounded-lg border border-slate-200 p-3 text-sm" aria-live="polite">
+                <div class="flex items-center justify-between gap-2">
+                    <span id="checkoutAccountLabel" data-account="{{ trans('customer-account') }}" data-optional="{{ trans('checkout-remaining') }}"></span>
+                    <strong>{{ context.currency().getCurrency().simbolo }} <span id="checkoutAccountAmount">0.00</span></strong>
+                </div>
+                <p id="checkoutAccountMessage"
+                   data-optional="{{ trans('customer-account-optional-pending') }}"
+                   data-customer="{{ trans('customer-account-not-available') }}"
+                   data-checking="{{ trans('customer-account-checking') }}"
+                   data-approved="{{ trans('customer-account-approved') }}"
+                   data-not_enabled="{{ trans('customer-account-not-enabled') }}"
+                   data-insufficient_credit="{{ trans('customer-account-insufficient-credit') }}"
+                   data-not_available="{{ trans('customer-account-not-available') }}"
+                   data-error="{{ trans('customer-account-error') }}"></p>
+                <p class="hidden">{{ trans('customer-account-available-credit') }}: {{ context.currency().getCurrency().simbolo }} <span id="checkoutAvailableCredit">0.00</span></p>
+            </div>
+
             <div class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
                 <div class="flex items-center gap-2">
                     <span class="text-sm text-slate-600">{{ trans('collected-amount') }}</span>
@@ -125,14 +142,6 @@
                 </div>
             </div>
 
-            <div id="checkoutAccountSummary" class="hidden space-y-2 rounded-lg border border-slate-200 p-3 text-sm">
-                <div class="flex items-center justify-between gap-2">
-                    <span class="text-sm text-slate-600">{{ trans('customer-account') }}</span>
-                    <strong class="text-slate-900">
-                        {{ context.currency().getCurrency().simbolo }} <span id="checkoutAccountAmount">0.00</span>
-                    </strong>
-                </div>
-            </div>
         </div>
 
         <div class="modal-footer gap-3 p-4">

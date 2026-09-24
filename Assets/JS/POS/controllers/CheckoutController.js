@@ -2,6 +2,31 @@ import * as CheckoutView from '../views/CheckoutView.js';
 import CheckoutModel from '../models/CheckoutModel.js';
 import dispatcher from '../core/EventDispatcher.js';
 import EventManager from '../core/EventManager.js';
+import CartController from './CartController.js';
+import {checkCustomerAccount} from '../Core.js';
+
+let accountTimer;
+
+function refreshAccount() {
+    clearTimeout(accountTimer);
+    const state = CheckoutModel.getState();
+    if (!CheckoutView.isPaymentModalVisible() || state.customerAccountAmount <= 0 || state.requiresCustomer) return;
+    const revision = CheckoutModel.accountRevision;
+    accountTimer = setTimeout(async () => {
+        let result = {customer_account: false, status: 'error', available_credit: 0};
+        try {
+            const response = await checkCustomerAccount(CartController.getState(), state.payments);
+            if (response.status === 'success'
+                && response.data.policy === state.paymentPolicy
+                && Number(response.data.requested_amount) === state.customerAccountAmount) {
+                result = response.data.customer_account;
+            }
+        } catch (_) {
+            // Keep failure inside the account section; payment controls remain usable.
+        }
+        CheckoutModel.setAccountResult(result, revision);
+    }, 250);
+}
 
 const CheckoutController = {
     inputHandler: null,
@@ -35,6 +60,7 @@ const CheckoutController = {
 
     showCheckoutModal() {
         CheckoutView.showPaymentModal();
+        CheckoutModel.updateCheckoutEvent();
         CheckoutView.render(CheckoutModel);
         CheckoutView.focusPaymentInput();
     },
@@ -64,9 +90,14 @@ const CheckoutController = {
         });
 
         EventManager.on('checkout:update', () => {
+            refreshAccount();
             if (CheckoutView.isPaymentModalVisible()) {
                 CheckoutView.render(CheckoutModel, CheckoutView.getPaymentInputValue());
             }
+        });
+
+        EventManager.on('checkout:account:updated', () => {
+            if (CheckoutView.isPaymentModalVisible()) CheckoutView.render(CheckoutModel);
         });
 
         EventManager.on('event:cart:updated', ({doc}) => {

@@ -30,6 +30,7 @@ const checkoutBaseTitle = elements.title?.textContent.trim() ?? '';
 export function render(model) {
     const state = model.getState();
     const onAccount = state.paymentPolicy === 'customer-account';
+    const optional = state.paymentPolicy === 'optional';
     const payments = state.payments.map(payment => ({
         ...payment,
         formattedAmount: roundFixed(payment.amount),
@@ -40,17 +41,25 @@ export function render(model) {
     elements.changeAmount.textContent = roundFixed(state.change > 0 ? state.change : remaining);
 
     const hasChange = state.change > 0;
-    elements.balanceRow.classList.toggle('hidden', !hasChange && (onAccount || remaining === 0));
+    elements.balanceRow.classList.toggle('hidden', !hasChange && (onAccount || optional || remaining === 0));
     elements.changeLabel.classList.toggle('hidden', !hasChange);
     elements.balanceLabel.classList.toggle('hidden', hasChange);
     elements.changeAmount.parentElement.classList.toggle('text-emerald-600', hasChange);
     elements.changeAmount.parentElement.classList.toggle('text-amber-600', !hasChange);
 
     elements.appliedPayments.classList.toggle('hidden', payments.length === 0);
-    elements.accountSummary.classList.toggle('hidden', !onAccount);
-    elements.accountAmount.textContent = roundFixed(state.customerAccountAmount);
+    elements.accountSummary.classList.toggle('hidden', !(onAccount || optional) || remaining <= 0);
+    elements.accountAmount.textContent = roundFixed(remaining);
+    const label = document.getElementById('checkoutAccountLabel');
+    label.textContent = optional ? label.dataset.optional : label.dataset.account;
+    const message = document.getElementById('checkoutAccountMessage');
+    const status = optional ? 'optional' : state.requiresCustomer ? 'customer' : state.accountResult?.status ?? 'checking';
+    message.textContent = state.accountResult?.message || message.dataset[status] || message.dataset.error;
+    const credit = document.getElementById('checkoutAvailableCredit');
+    credit.parentElement.classList.toggle('hidden', !onAccount || !state.accountResult);
+    credit.textContent = roundFixed(state.accountResult?.available_credit ?? 0);
     elements.collectedAmount.textContent = roundFixed(state.collectedAmount);
-    elements.confirmLabel.textContent = onAccount
+    elements.confirmLabel.textContent = onAccount || optional
         ? elements.confirmLabel.dataset.finalize
         : elements.confirmLabel.dataset.charge;
     templates.render('payment:list:template', {payments}, 'payment:list:view');

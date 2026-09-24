@@ -9,6 +9,7 @@ namespace FacturaScripts\Plugins\POS\Controller;
 use Exception;
 use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\KernelException;
+use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
@@ -21,6 +22,7 @@ use FacturaScripts\Plugins\POS\Lib\Core\SessionManager;
 use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
 use FacturaScripts\Plugins\POS\Lib\Exception\POSException;
 use FacturaScripts\Plugins\POS\Lib\Services\PaymentPolicy;
+use FacturaScripts\Plugins\POS\Lib\Services\CustomerAccountResult;
 use FacturaScripts\Plugins\POS\Lib\Services\Refunds;
 use FacturaScripts\Plugins\POS\Lib\Services\TransactionRequest;
 use FacturaScripts\Plugins\POS\Lib\Services\Transactions;
@@ -219,7 +221,10 @@ class POS extends BaseController
             case 'customer:create':
                 $this->saveNewCustomer();
                 return true;
+            case 'customer:account:check':
+                $this->checkCustomerAccount();
 
+                return true;
             case 'customer:search':
                 $query = $this->request->request->get('query');
                 $this->setResponse($this->context->customers()->search($query));
@@ -894,23 +899,30 @@ class POS extends BaseController
 
         throw InvalidTransactionException::invalidDocumentType($type);
     }
-    protected function validateSettlement(Transactions $transaction, array $payments): array
+    protected function resolvePaymentPolicy(SalesDocument $document): PaymentPolicy
     {
-        $document = $transaction->getDocument();
         $this->validateSupportedDocument($document->modelClassName(), (string)$document->codserie);
         foreach ($this->context->config()->getSupportedDocuments() as $config) {
-            if ((string)$config->tipodoc !== $document->modelClassName()
-                || (string)$config->codserie !== (string)$document->codserie) {
+            if (
+                (string)$config->tipodoc !== $document->modelClassName()
+                || (string)$config->codserie !== (string)$document->codserie
+            ) {
                 continue;
             }
             $policy = PaymentPolicy::tryFrom((string)($config->payment_policy ?? 'required'));
             if ($policy === null) {
                 throw InvalidTransactionException::paymentError('payment-policy-invalid');
             }
-            $transaction->setPaymentPolicy($policy);
-            break;
+            return $policy;
         }
 
+        throw InvalidTransactionException::invalidDocumentType($document->modelClassName());
+    }
+
+    protected function validateSettlement(Transactions $transaction, array $payments): array
+    {
+        $document = $transaction->getDocument();
+        $transaction->setPaymentPolicy($this->resolvePaymentPolicy($document));
         $validated = $this->context->paymentValidator()->validateSettlement(
             $payments,
             (float)$document->total,
@@ -919,16 +931,77 @@ class POS extends BaseController
         );
         if ((float)$transaction->getCustomerAccountAmount() > 0) {
             $customer = new Cliente();
-            if (empty($document->codcliente)
+            if (
+                empty($document->codcliente)
                 || !$customer->load($document->codcliente)
-                || (string)$customer->codcliente === (string)$this->context->config()->getTerminal()->codcliente) {
-                throw InvalidTransactionException::paymentError('payment-customer-account-customer-required');
+                || (string)$customer->codcliente === (string)$this->context->config()->getTerminal()->codcliente
+            ) {
+                throw InvalidTransactionException::paymentError('customer-account-not-available');
             }
         }
 
         return $validated;
     }
 
+    protected function checkCustomerAccount(): void
+    {
+        try {
+            $request = new TransactionRequest($this->request);
+            $this->validateDocumentType($request);
+            $transaction = new Transactions($request);
+            if (!$transaction->prepareDocument()) {
+                throw InvalidTransactionException::saveError('fail-calculate-document');
+            }
+            $document = $transaction->getDocument();
+            $policy = $this->resolvePaymentPolicy($document);
+// Validate actual payments before calculating the proposed charge.
+            $payments = $this->context->paymentValidator()->validateSettlement($transaction->getRawPayments(), (float)$document->total, 0, PaymentPolicy::OPTIONAL);
+            $collected = array_sum(array_column($payments, 'net'));
+            $requested = $policy === PaymentPolicy::CUSTOMER_ACCOUNT
+                ? round(max(0, (float)$document->total - $collected), $this->context->currency()->getDecimals())
+                : 0.0;
+            $result = $this->checkAccountForDocument($document, $requested);
+            $this->setSuccessResponse([
+                'policy' => $policy->value,
+                'requested_amount' => $requested,
+                'customer_account' => $result->toArray(),
+            ]);
+        } catch (POSException $exception) {
+            $this->setErrorResponse(['error' => $exception->getTranslationKey()]);
+        } catch (Throwable $exception) {
+            Tools::log('POS-debug')->error($exception->getMessage());
+            $this->setErrorResponse(['error' => 'customer-account-error']);
+        }
+        $this->buildResponse();
+    }
+
+    protected function checkAccountForDocument(SalesDocument $document, float $amount): CustomerAccountResult
+    {
+        if ($amount <= 0) {
+            return CustomerAccountResult::approved();
+        }
+        $customer = new Cliente();
+        if (
+            empty($document->codcliente) || !$customer->load($document->codcliente)
+            || (string)$document->codcliente === (string)$this->context->config()->getTerminal()->codcliente
+        ) {
+            return CustomerAccountResult::notAvailable();
+        }
+        return $this->context->customerAccount()->check($document, (string)$document->codcliente, $amount);
+    }
+
+    protected function authorizeCustomerAccount(Transactions $transaction): void
+    {
+        $amount = (float)$transaction->getCustomerAccountAmount();
+        if ($amount <= 0) {
+            return;
+        }
+        $document = $transaction->getDocument();
+        $result = $this->context->customerAccount()->confirm($document, (string)$document->codcliente, $amount);
+        if (!$result->isApproved()) {
+            throw InvalidTransactionException::paymentError('customer-account-' . str_replace('_', '-', $result->status));
+        }
+    }
     protected function saveOrder(): void
     {
         if (!$this->validateRequest()) {
@@ -970,7 +1043,6 @@ class POS extends BaseController
 
             // Ensure persistence did not alter the total used during validation.
             $this->validateSettlement($transaction, $transaction->getPaymentData());
-
             $order = new OrdenPuntoVenta();
             $order->customer_account_amount = (float)$transaction->getCustomerAccountAmount();
             $order->payment_policy = $transaction->getPaymentPolicy()->value;
@@ -986,6 +1058,7 @@ class POS extends BaseController
                 throw InvalidTransactionException::saveError('fail-save-payments');
             }
 
+            $this->authorizeCustomerAccount($transaction);
             if (!$this->dataBase->commit()) {
                 throw InvalidTransactionException::saveError('database-transaction-commit-error');
             }
@@ -1003,8 +1076,8 @@ class POS extends BaseController
             }
             Tools::log('POS-debug')->error($exception->getMessage());
             $this->setErrorResponse(['error' => 'transaction-save-error']);
-            $this->addMessage('transaction-save-error', 'warning');
-            return;
+                    $this->addMessage('transaction-save-error', 'warning');
+                    return;
         }
 
         try {
@@ -1012,13 +1085,13 @@ class POS extends BaseController
         } catch (Throwable $exception) {
             Tools::log('POS-debug')->error('transaction-hook-error', ['%error%' => $exception->getMessage()]);
         }
-        Tools::log('POS')->notice('record-updated-correctly');
+                Tools::log('POS')->notice('record-updated-correctly');
 
-        $this->setSuccessResponse([
-            'code' => $document->id(),
-            'model' => $document->modelClassName(),
-            'order' => $order->id()
-        ]);
+                $this->setSuccessResponse([
+                    'code' => $document->id(),
+                    'model' => $document->modelClassName(),
+                    'order' => $order->id()
+                ]);
     }
 
     protected function executeTransaction(Transactions $transaction): bool
@@ -1058,6 +1131,7 @@ class POS extends BaseController
                 throw new RuntimeException('fail-save-payments');
             }
 
+            $this->authorizeCustomerAccount($transaction);
             if (!$this->dataBase->commit()) {
                 throw InvalidTransactionException::saveError('database-transaction-commit-error');
             }
@@ -1305,8 +1379,8 @@ class POS extends BaseController
             'url' => 'POS',
             'codalmacen' => $config->getDefaultWarehouse(),
             'customer' => [
-                'codcliente' => $defaultCustomer->codcliente,
-                'nombre' => $defaultCustomer->nombre
+        'codcliente' => $defaultCustomer->codcliente,
+        'nombre' => $defaultCustomer->nombre
             ],
             'document' => [
                 'code' => $defaultDocument->tipodoc,

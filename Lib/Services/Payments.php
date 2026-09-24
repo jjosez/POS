@@ -107,13 +107,18 @@ class Payments
             $this->saveInvoiceReceipt($document, $payment, $counter++);
         }
 
-        if ((float)$orden->customer_account_amount > 0 && $document->modelClassName() === 'FacturaCliente') {
+        $unpaid = (float)$orden->customer_account_amount;
+        if ($orden->payment_policy === PaymentPolicy::OPTIONAL->value) {
+            $collected = array_sum(array_map(static fn(PagoPuntoVenta $payment): float => $payment->pagoNeto(), $payments));
+            $unpaid = round(max(0, (float)$document->total - $collected), (new Currencies())->getDecimals());
+        }
+        if ($unpaid > 0 && $document->modelClassName() === 'FacturaCliente') {
             $receipt = new ReciboCliente();
             $receipt->codcliente = $document->codcliente;
             $receipt->coddivisa = $document->coddivisa;
             $receipt->idempresa = $document->idempresa;
             $receipt->idfactura = $document->id();
-            $receipt->importe = (float)$orden->customer_account_amount;
+            $receipt->importe = $unpaid;
             $receipt->nick = $document->nick;
             $receipt->numero = $counter;
             $receipt->fecha = $document->fecha;

@@ -1,4 +1,13 @@
 {
+  "payment-policy-optional": "Cobro opcional",
+  "customer-account-optional-pending": "El saldo queda pendiente en el documento; no se carga a cuenta cliente.",
+  "customer-account-checking": "Consultando crédito…",
+  "customer-account-approved": "Crédito autorizado.",
+  "customer-account-not-enabled": "El cliente no tiene habilitadas las compras a cuenta.",
+  "customer-account-insufficient-credit": "Crédito insuficiente. Agrega otro pago o selecciona otro cliente.",
+  "customer-account-not-available": "Los pagos a cuenta no están disponibles.",
+  "customer-account-error": "No fue posible verificar el crédito.",
+  "customer-account-available-credit": "Crédito disponible",
   "add-payment": "Agregar pago",
   "allow-change": "Puede devolver cambio",
   "amount-counted": "Cantidad contada",

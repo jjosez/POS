@@ -216,6 +216,16 @@ export async function getNewToken() {
     return postRequest(data);
 }
 
+export async function checkCustomerAccount(state, payments) {
+    const response = await fetch('POS?action=customer:account:check', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({...state.doc, lines: state.lines, payments})
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+}
+
 export async function searchOrderForReturn({term}) {
     const data = new FormData();
     data.set('action', 'order:refund:search');

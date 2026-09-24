@@ -149,12 +149,45 @@ final class PaymentValidator
             throw $this->error('payment-customer-account-not-allowed');
         }
 
+        if ($policy === PaymentPolicy::OPTIONAL) {
+            return $this->validateOptional($payments, $total);
+        }
+
         $collected = $total - $account;
         if ($collected === 0 && $payments === []) {
             return [];
         }
 
         return $this->validate($payments, $this->fromMinor($collected), self::SALE);
+    }
+
+    /**
+     * OPTIONAL documents may keep an unpaid balance. Real payments must not
+     * exceed the document total and never generate a customer-account charge.
+     */
+    private function validateOptional(array $payments, int $total): array
+    {
+        if ($payments === []) {
+            return [];
+        }
+
+        $requestedMinor = 0;
+        foreach ($payments as $index => $payment) {
+            if (!is_array($payment)) {
+                throw $this->error('payment-invalid-format', $index);
+            }
+            $requestedMinor += $this->toMinor($payment['amount'] ?? 0, 'amount', $index)
+                - $this->toMinor($payment['change'] ?? 0, 'change', $index);
+        }
+
+        if ($requestedMinor <= 0 || $requestedMinor > $total) {
+            throw InvalidTransactionException::paymentError('payment-total-mismatch', [
+                '%expected%' => $this->formatMinor($total),
+                '%received%' => $this->formatMinor($requestedMinor),
+            ]);
+        }
+
+        return $this->validate($payments, $this->fromMinor($requestedMinor), self::SALE);
     }
 
     private function error(string $key, int|string|null $index = null, array $context = []): InvalidTransactionException

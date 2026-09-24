@@ -12,6 +12,8 @@ class CheckoutModel {
         this.payments = [];
         this.paymentPolicy = AppSettings.document.payment_policy ?? 'required';
         this.customerCode = AppSettings.customer.codcliente;
+        this.accountResult = null;
+        this.accountRevision = 0;
     }
 
     clear() {
@@ -32,7 +34,11 @@ class CheckoutModel {
             settledAmount: this.getSettledAmount(),
             pendingAmount: this.getPendingAmount(),
             requiresCustomer: this.requiresCustomer(),
-            canFinalize: this.total > 0 && this.getPendingAmount() === 0 && !this.requiresCustomer(),
+            accountResult: this.accountResult,
+            canFinalize: this.total > 0
+                && (this.paymentPolicy === 'optional' || this.getPendingAmount() === 0)
+                && !this.requiresCustomer()
+                && (this.getCustomerAccountAmount() === 0 || this.accountResult?.customer_account === true),
             outstandingBalance: this.getOutstandingBalance()
         };
     }
@@ -151,7 +157,15 @@ class CheckoutModel {
     }
 
     updateCheckoutEvent() {
+        this.accountResult = null;
+        this.accountRevision++;
         eventManager.emit('checkout:update');
+    }
+
+    setAccountResult(result, revision) {
+        if (revision !== this.accountRevision) return;
+        this.accountResult = result;
+        eventManager.emit('checkout:account:updated');
     }
 }
 

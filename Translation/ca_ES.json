@@ -1,4 +1,13 @@
 {
+  "payment-policy-optional": "Cobrament opcional",
+  "customer-account-optional-pending": "El saldo queda pendent al document; no es carrega al compte del client.",
+  "customer-account-checking": "Consultant el crèdit…",
+  "customer-account-approved": "Crèdit autoritzat.",
+  "customer-account-not-enabled": "El client no té habilitades les compres a compte.",
+  "customer-account-insufficient-credit": "Crèdit insuficient. Afegeix un pagament o selecciona un altre client.",
+  "customer-account-not-available": "Els pagaments a compte no estan disponibles.",
+  "customer-account-error": "No s'ha pogut verificar el crèdit.",
+  "customer-account-available-credit": "Crèdit disponible",
   "available": "Disponible",
   "available-cash-registers": "Terminals disponibles",
   "blocked-product": "Producte bloquejat",

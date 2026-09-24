@@ -1,4 +1,13 @@
 {
+  "payment-policy-optional": "Optional payment",
+  "customer-account-optional-pending": "The balance remains unpaid on the document; it is not charged to the customer account.",
+  "customer-account-checking": "Checking credit…",
+  "customer-account-approved": "Credit approved.",
+  "customer-account-not-enabled": "Account purchases are not enabled for this customer.",
+  "customer-account-insufficient-credit": "Insufficient credit. Add a payment or select another customer.",
+  "customer-account-not-available": "Customer account payments are unavailable.",
+  "customer-account-error": "Credit could not be verified.",
+  "customer-account-available-credit": "Available credit",
   "checkout-payment-amount": "Payment amount",
   "checkout-remaining": "Remaining",
   "payment-policy": "Payment policy",

@@ -6,6 +6,7 @@
 
 namespace FacturaScripts\Plugins\POS\Lib\Core;
 
+use FacturaScripts\Dinamic\Lib\Services\CustomerAccountManager;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Plugins\POS\Lib\Services\Agents;
@@ -73,7 +74,7 @@ class Context
     }
 
     /**
-     * Families service.
+     * Family service.
      * Lazy loaded - only instantiated when first accessed.
      */
     public function families(): Families
@@ -117,6 +118,15 @@ class Context
     }
 
     /**
+     * Customer account manager.
+     * Resolves the single active provider and normalizes results.
+     */
+    public function customerAccount(): CustomerAccountManager
+    {
+        return $this->services['customerAccount'] ??= new CustomerAccountManager();
+    }
+
+    /**
      * Returns the current session.
      * Direct access - no lazy loading needed.
      */
@@ -136,7 +146,7 @@ class Context
 
     /**
      * Clears all cached services.
-     * Useful for testing or when session changes.
+     * Useful for testing or when the session changes.
      */
     public function clear(): void
     {
