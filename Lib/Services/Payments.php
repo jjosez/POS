@@ -7,6 +7,7 @@
 namespace FacturaScripts\Plugins\POS\Lib\Services;
 
 use FacturaScripts\Core\Model\Base\SalesDocument;
+use FacturaScripts\Dinamic\Lib\ReceiptGenerator;
 use FacturaScripts\Dinamic\Model\FacturaCliente;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
@@ -67,6 +68,7 @@ class Payments
         $receipt->numero = $number;
         $receipt->fecha = $invoice->fecha;
         $receipt->setPaymentMethod($payment->codpago);
+        $receipt->pagado = true;
         if (false === $receipt->save()) {
             throw new RuntimeException('payment-receipt-save-error');
         }
@@ -103,6 +105,27 @@ class Payments
             }
 
             $this->saveInvoiceReceipt($document, $payment, $counter++);
+        }
+
+        if ((float)$orden->customer_account_amount > 0 && $document->modelClassName() === 'FacturaCliente') {
+            $receipt = new ReciboCliente();
+            $receipt->codcliente = $document->codcliente;
+            $receipt->coddivisa = $document->coddivisa;
+            $receipt->idempresa = $document->idempresa;
+            $receipt->idfactura = $document->id();
+            $receipt->importe = (float)$orden->customer_account_amount;
+            $receipt->nick = $document->nick;
+            $receipt->numero = $counter;
+            $receipt->fecha = $document->fecha;
+            $receipt->setPaymentMethod($document->codpago);
+            // Payment terms determine maturity, never whether deferred money was received.
+            $receipt->pagado = false;
+            $receipt->liquidado = 0.0;
+            $receipt->fechapago = null;
+            if (!$receipt->save()) {
+                throw new RuntimeException('payment-receipt-save-error');
+            }
+            (new ReceiptGenerator())->update($document);
         }
 
         // Update session cash balance if session is available

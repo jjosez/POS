@@ -42,6 +42,12 @@
         <column name="imbalance" display="none" order="100">
             <widget type="text" fieldname="descuadre"/>
         </column>
+        <column name="collected-amount" display="right" order="110">
+            <widget type="money" fieldname="collected_amount"/>
+        </column>
+        <column name="customer-account" display="right" order="120">
+            <widget type="money" fieldname="customer_account_amount"/>
+        </column>
     </columns>
     <rows>
         <row type="status">

@@ -13,8 +13,12 @@ const elements = {
     moreMethods: document.getElementById('checkoutMoreMethods'),
     paymentInput: document.getElementById('paymentApplyInput'),
     paymentMethods: document.querySelectorAll('[data-payment-method]'),
-    tenderedAmount: document.getElementById('checkoutTenderedAmount'),
+    balanceRow: document.getElementById('checkoutBalanceRow'),
     title: document.getElementById('checkoutTitle'),
+    accountSummary: document.getElementById('checkoutAccountSummary'),
+    accountAmount: document.getElementById('checkoutAccountAmount'),
+    collectedAmount: document.getElementById('checkoutCollectedAmount'),
+    confirmLabel: document.getElementById('checkoutConfirmLabel'),
 };
 
 let isProcessing = false;
@@ -22,29 +26,33 @@ const checkoutBaseTitle = elements.title?.textContent.trim() ?? '';
 
 /**
  * @param {CheckoutModel} model
- * @param previewAmount
  */
-export function render(model, previewAmount = 0) {
+export function render(model) {
     const state = model.getState();
-    const preview = Math.max(0, Number(previewAmount) || 0);
-    const previewTotal = state.paymentsTotal + preview;
-    const previewBalance = state.total - previewTotal;
+    const onAccount = state.paymentPolicy === 'customer-account';
     const payments = state.payments.map(payment => ({
         ...payment,
         formattedAmount: roundFixed(payment.amount),
     }));
 
     elements.checkoutTotal.textContent = roundFixed(state.total);
-    elements.tenderedAmount.textContent = roundFixed(previewTotal);
-    elements.changeAmount.textContent = roundFixed(Math.abs(previewBalance));
+    const remaining = Math.max(0, state.total - state.collectedAmount);
+    elements.changeAmount.textContent = roundFixed(state.change > 0 ? state.change : remaining);
 
-    const hasChange = previewBalance <= 0;
+    const hasChange = state.change > 0;
+    elements.balanceRow.classList.toggle('hidden', !hasChange && (onAccount || remaining === 0));
     elements.changeLabel.classList.toggle('hidden', !hasChange);
     elements.balanceLabel.classList.toggle('hidden', hasChange);
     elements.changeAmount.parentElement.classList.toggle('text-emerald-600', hasChange);
     elements.changeAmount.parentElement.classList.toggle('text-amber-600', !hasChange);
 
     elements.appliedPayments.classList.toggle('hidden', payments.length === 0);
+    elements.accountSummary.classList.toggle('hidden', !onAccount);
+    elements.accountAmount.textContent = roundFixed(state.customerAccountAmount);
+    elements.collectedAmount.textContent = roundFixed(state.collectedAmount);
+    elements.confirmLabel.textContent = onAccount
+        ? elements.confirmLabel.dataset.finalize
+        : elements.confirmLabel.dataset.charge;
     templates.render('payment:list:template', {payments}, 'payment:list:view');
 
     renderPaymentMethods(state.payments);
@@ -139,6 +147,5 @@ function renderPaymentMethods(payments) {
 
 function updateConfirmButton(state) {
     elements.confirmButton.disabled = isProcessing
-        || state.total === 0
-        || state.paymentsTotal < state.total;
+        || !state.canFinalize;
 }

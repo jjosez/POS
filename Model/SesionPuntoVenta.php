@@ -176,6 +176,21 @@ class SesionPuntoVenta extends ModelClass
         return $result;
     }
 
+    /** Historical settlement amounts; customer account is never a payment method. */
+    public function getSettlementSummary(): array
+    {
+        $summary = ['total' => 0.0, 'collectedAmount' => 0.0, 'customerAccountAmount' => 0.0];
+        foreach (OrdenPuntoVenta::allFromSession((string)$this->idsesion) as $order) {
+            $summary['total'] += (float)$order->total;
+            $summary['customerAccountAmount'] += (float)$order->customer_account_amount;
+        }
+        foreach ($this->getPayments() as $payment) {
+            $summary['collectedAmount'] += $payment->pagoNeto();
+        }
+
+        return $summary;
+    }
+
     /**
      * @return TerminalPuntoVenta
      */

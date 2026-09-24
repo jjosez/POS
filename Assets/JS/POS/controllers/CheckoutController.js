@@ -70,7 +70,7 @@ const CheckoutController = {
         });
 
         EventManager.on('event:cart:updated', ({doc}) => {
-            CheckoutModel.updateTotal(doc.total);
+            CheckoutModel.updateDocument(doc);
             CheckoutView.updateTitle(doc.title);
         });
 

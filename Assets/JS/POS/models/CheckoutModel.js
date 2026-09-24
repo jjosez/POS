@@ -10,6 +10,8 @@ class CheckoutModel {
         this.change = 0;
         this.total = 0;
         this.payments = [];
+        this.paymentPolicy = AppSettings.document.payment_policy ?? 'required';
+        this.customerCode = AppSettings.customer.codcliente;
     }
 
     clear() {
@@ -24,12 +26,53 @@ class CheckoutModel {
             change: this.change,
             payments: this.payments,
             paymentsTotal: this.getPaymentsTotal(),
+            paymentPolicy: this.paymentPolicy,
+            collectedAmount: this.getCollectedAmount(),
+            customerAccountAmount: this.getCustomerAccountAmount(),
+            settledAmount: this.getSettledAmount(),
+            pendingAmount: this.getPendingAmount(),
+            requiresCustomer: this.requiresCustomer(),
+            canFinalize: this.total > 0 && this.getPendingAmount() === 0 && !this.requiresCustomer(),
             outstandingBalance: this.getOutstandingBalance()
         };
     }
 
     getOutstandingBalance() {
         return normalizeAmount(this.total - this.getPaymentsTotal());
+    }
+
+    getCollectedAmount() {
+        return normalizeAmount(this.payments.reduce((sum, payment) => sum + payment.amount - payment.change, 0));
+    }
+
+    getCustomerAccountAmount() {
+        return this.paymentPolicy === 'customer-account'
+            ? normalizeAmount(Math.max(0, this.total - this.getCollectedAmount()))
+            : 0;
+    }
+
+    getSettledAmount() {
+        return normalizeAmount(this.getCollectedAmount() + this.getCustomerAccountAmount());
+    }
+
+    getPendingAmount() {
+        return normalizeAmount(this.total - this.getSettledAmount());
+    }
+
+    requiresCustomer() {
+        return this.getCustomerAccountAmount() > 0
+            && (!this.customerCode || String(this.customerCode) === String(AppSettings.customer.codcliente));
+    }
+
+    updateDocument(doc) {
+        const config = AppSettings['supported-documents']?.find(item =>
+            String(item.tipodoc) === String(doc['tipo-documento'] ?? doc.generadocumento)
+            && String(item.codserie) === String(doc.codserie)
+        );
+        this.paymentPolicy = config?.payment_policy ?? 'required';
+        this.customerCode = doc.codcliente;
+        this.updateTotal(doc.total);
+        this.updateCheckoutEvent();
     }
 
     getPaymentAmount(method) {

@@ -28,6 +28,11 @@ class SalesDocument
                 return;
             }
 
+            // Keep the original customer-account settlement as a session snapshot.
+            if ((float)$order->customer_account_amount > 0) {
+                return;
+            }
+
             $hasChange = false;
 
             if ($order->codcliente !== $this->codcliente) {
