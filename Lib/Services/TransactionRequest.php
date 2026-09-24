@@ -15,6 +15,7 @@ class TransactionRequest
     protected array $documentData = [];
     protected array $documentLinesData = [];
     protected array $paymentData = [];
+    protected mixed $customerAccountAmount = 0;
     protected string $documentType = 'FacturaCliente';
 
     public function __construct(Request $request)
@@ -36,6 +37,7 @@ class TransactionRequest
         }
         $this->documentLinesData = $lines;
         $this->paymentData = $payments;
+        $this->customerAccountAmount = array_key_exists('customerAccountAmount', $data) ? $data['customerAccountAmount'] : 0;
 
         $this->documentType = $data['tipo-documento'] ?? 'FacturaCliente';
 
@@ -45,7 +47,7 @@ class TransactionRequest
         }
 
         // El resto de los datos se consideran parte del documento
-        unset($data['lines'], $data['payments'], $data['tipo-documento']);
+        unset($data['lines'], $data['payments'], $data['tipo-documento'], $data['customerAccountAmount'], $data['payment_policy']);
         $this->documentData = $data;
     }
 
@@ -62,6 +64,11 @@ class TransactionRequest
     public function getPaymentData(): array
     {
         return $this->paymentData;
+    }
+
+    public function getCustomerAccountAmount(): mixed
+    {
+        return $this->customerAccountAmount;
     }
 
     public function getDocumentType(): string

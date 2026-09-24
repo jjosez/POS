@@ -32,6 +32,12 @@
             <column name="default" numcolumns="3" order='150'>
                 <widget type="checkbox" fieldname="preferido"/>
             </column>
+            <column name="payment-policy" numcolumns="3" order="160">
+                <widget type="select" fieldname="payment_policy" translate="true" required="true">
+                    <values title="payment-policy-required">required</values>
+                    <values title="customer-account">customer-account</values>
+                </widget>
+            </column>
         </group>
     </columns>
 </view>

@@ -11,6 +11,7 @@ use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
+use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
 
 class Refunds
 {
@@ -84,6 +85,9 @@ class Refunds
 
     private function prepareRefund(OrdenPuntoVenta $originalOrder, array $refundLines): array
     {
+        if ((float)$originalOrder->customer_account_amount > 0) {
+            throw InvalidTransactionException::paymentError('customer-account-refund-not-supported');
+        }
         $originalDoc = $originalOrder->getDocument();
         $newDoc = $this->createRefundDocument($originalDoc, $originalDoc->modelClassName());
         $lineRefs = $this->createRefundLines($newDoc, $originalDoc, $refundLines);

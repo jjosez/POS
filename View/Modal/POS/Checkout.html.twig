@@ -26,9 +26,10 @@
                 </span>
             </div>
 
+            <div id="checkoutPaymentEntry" class="space-y-5">
             <div>
                 <label for="paymentApplyInput" class="mb-2 block text-sm font-semibold text-slate-700">
-                    {{ trans('tendered-amount') }}
+                    {{ trans('checkout-payment-amount') }}
                 </label>
                 <div class="flex flex-col gap-3 sm:flex-row">
                     <label class="input-icon min-w-0 flex-1 text-slate-500">
@@ -41,7 +42,7 @@
                     <button type="button" class="btn btn-light h-14 justify-center px-5 sm:w-auto"
                             data-action="checkout:payment:recalc" data-value="balance">
                         <i class="fa-solid fa-scale-balanced mr-2" aria-hidden="true"></i>
-                        <span>{{ trans('balance') }}</span>
+                        <span>{{ trans('checkout-remaining') }}</span>
                     </button>
                 </div>
             </div>
@@ -100,6 +101,7 @@
                 {% endif %}
             </section>
 
+            </div>
             <section id="checkoutAppliedPayments" class="hidden" aria-labelledby="checkoutAppliedPaymentsTitle">
                 <h3 id="checkoutAppliedPaymentsTitle" class="mb-2 text-xs font-semibold uppercase text-slate-500">
                     {{ trans('payments-summary') }}
@@ -107,18 +109,27 @@
                 <div id="payment:list:view"></div>
             </section>
 
-            <div class="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm text-slate-600">{{ trans('tendered-amount') }}</span>
+                    <span class="text-sm text-slate-600">{{ trans('collected-amount') }}</span>
                     <strong class="text-lg text-blue-600">
-                        {{ context.currency().getCurrency().simbolo }} <span id="checkoutTenderedAmount">0.00</span>
+                        {{ context.currency().getCurrency().simbolo }} <span id="checkoutCollectedAmount">0.00</span>
                     </strong>
                 </div>
-                <div class="flex items-center gap-2 sm:border-l sm:border-slate-200 sm:pl-4">
+                <div id="checkoutBalanceRow" class="flex items-center gap-2 border-l border-slate-200 pl-4">
                     <span id="checkoutChangeLabel" class="text-sm text-slate-600">{{ trans('change-amount') }}</span>
-                    <span id="checkoutBalanceLabel" class="hidden text-sm text-slate-600">{{ trans('balance') }}</span>
+                    <span id="checkoutBalanceLabel" class="hidden text-sm text-slate-600">{{ trans('checkout-remaining') }}</span>
                     <strong class="text-lg text-emerald-600">
                         {{ context.currency().getCurrency().simbolo }} <span id="checkoutChangeAmount">0.00</span>
+                    </strong>
+                </div>
+            </div>
+
+            <div id="checkoutAccountSummary" class="hidden space-y-2 rounded-lg border border-slate-200 p-3 text-sm">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-sm text-slate-600">{{ trans('customer-account') }}</span>
+                    <strong class="text-slate-900">
+                        {{ context.currency().getCurrency().simbolo }} <span id="checkoutAccountAmount">0.00</span>
                     </strong>
                 </div>
             </div>
@@ -131,7 +142,7 @@
             </button>
             <button type="button" id="orderSaveButton" class="btn btn-success ml-auto"
                     data-action="order:save" disabled>
-                <span>{{ trans('charge') }}</span>
+                <span id="checkoutConfirmLabel" data-charge="{{ trans('charge') }}" data-finalize="{{ trans('finalize-sale') }}">{{ trans('charge') }}</span>
                 <i class="fa-solid fa-arrow-right ml-2" aria-hidden="true"></i>
             </button>
         </div>

@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <table>
     <column>
+        <name>customer_account_amount</name>
+        <type>double precision</type>
+        <null>NO</null>
+        <default>0</default>
+    </column>
+    <column>
+        <name>payment_policy</name>
+        <type>character varying(20)</type>
+        <null>NO</null>
+        <default>'required'</default>
+    </column>
+    <column>
         <name>codcliente</name>
         <type>character varying(10)</type>
         <null>NO</null>

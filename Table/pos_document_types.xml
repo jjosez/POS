@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <table>
     <column>
+        <name>payment_policy</name>
+        <type>character varying(20)</type>
+        <null>NO</null>
+        <default>'required'</default>
+    </column>
+    <column>
         <name>codserie</name>
         <type>character varying(4)</type>
         <null>NO</null>

@@ -138,6 +138,25 @@ final class PaymentValidator
         return $validated;
     }
 
+    public function validateSettlement(array $payments, float $documentTotal, mixed $accountAmount, PaymentPolicy $policy): array
+    {
+        $total = $this->toMinor($documentTotal, 'total');
+        $account = $this->toMinor($accountAmount, 'customer-account');
+        if ($total <= 0 || $account < 0 || $account > $total) {
+            throw $this->error('payment-invalid-customer-account');
+        }
+        if ($account !== 0 && $policy !== PaymentPolicy::CUSTOMER_ACCOUNT) {
+            throw $this->error('payment-customer-account-not-allowed');
+        }
+
+        $collected = $total - $account;
+        if ($collected === 0 && $payments === []) {
+            return [];
+        }
+
+        return $this->validate($payments, $this->fromMinor($collected), self::SALE);
+    }
+
     private function error(string $key, int|string|null $index = null, array $context = []): InvalidTransactionException
     {
         if (null !== $index) {

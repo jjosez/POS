@@ -42,6 +42,10 @@ class Transactions
 
     protected array $rawPayments = [];
 
+    protected mixed $customerAccountAmount = 0;
+
+    protected PaymentPolicy $paymentPolicy = PaymentPolicy::REQUIRED;
+
 
     /**
      * Transaction constructor.
@@ -56,6 +60,7 @@ class Transactions
         );
         $this->products = $request->getDocumentLinesData();
         $this->rawPayments = $request->getPaymentData();
+        $this->customerAccountAmount = $request->getCustomerAccountAmount();
     }
 
     /**
@@ -77,6 +82,36 @@ class Transactions
     public function getRawPayments(): array
     {
         return $this->rawPayments;
+    }
+
+    public function getCustomerAccountAmount(): mixed
+    {
+        return $this->customerAccountAmount;
+    }
+
+    public function getCollectedAmount(): float
+    {
+        return array_sum(array_map(static fn(PagoPuntoVenta $payment): float => $payment->pagoNeto(), $this->payments));
+    }
+
+    public function getSettledAmount(): float
+    {
+        return $this->getCollectedAmount() + (float)$this->customerAccountAmount;
+    }
+
+    public function getPendingAmount(): float
+    {
+        return (float)$this->document->total - $this->getSettledAmount();
+    }
+
+    public function setPaymentPolicy(PaymentPolicy $policy): void
+    {
+        $this->paymentPolicy = $policy;
+    }
+
+    public function getPaymentPolicy(): PaymentPolicy
+    {
+        return $this->paymentPolicy;
     }
 
     public function getPaymentData(): array
@@ -219,7 +254,9 @@ class Transactions
 
     protected function setPaymentMethod(): void
     {
-        $this->document->codpago = $this->getPaymentMethod();
+        if ($this->payments !== []) {
+            $this->document->codpago = $this->getPaymentMethod();
+        }
     }
 
     protected function getPaymentMethod(): string

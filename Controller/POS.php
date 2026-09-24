@@ -13,13 +13,14 @@ use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\BorradorPuntoVenta;
+use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\POS\Lib\Core\BaseController;
 use FacturaScripts\Plugins\POS\Lib\Core\SessionManager;
 use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
 use FacturaScripts\Plugins\POS\Lib\Exception\POSException;
-use FacturaScripts\Plugins\POS\Lib\Services\PaymentValidator;
+use FacturaScripts\Plugins\POS\Lib\Services\PaymentPolicy;
 use FacturaScripts\Plugins\POS\Lib\Services\Refunds;
 use FacturaScripts\Plugins\POS\Lib\Services\TransactionRequest;
 use FacturaScripts\Plugins\POS\Lib\Services\Transactions;
@@ -893,6 +894,41 @@ class POS extends BaseController
 
         throw InvalidTransactionException::invalidDocumentType($type);
     }
+    protected function validateSettlement(Transactions $transaction, array $payments): array
+    {
+        $document = $transaction->getDocument();
+        $this->validateSupportedDocument($document->modelClassName(), (string)$document->codserie);
+        foreach ($this->context->config()->getSupportedDocuments() as $config) {
+            if ((string)$config->tipodoc !== $document->modelClassName()
+                || (string)$config->codserie !== (string)$document->codserie) {
+                continue;
+            }
+            $policy = PaymentPolicy::tryFrom((string)($config->payment_policy ?? 'required'));
+            if ($policy === null) {
+                throw InvalidTransactionException::paymentError('payment-policy-invalid');
+            }
+            $transaction->setPaymentPolicy($policy);
+            break;
+        }
+
+        $validated = $this->context->paymentValidator()->validateSettlement(
+            $payments,
+            (float)$document->total,
+            $transaction->getCustomerAccountAmount(),
+            $transaction->getPaymentPolicy()
+        );
+        if ((float)$transaction->getCustomerAccountAmount() > 0) {
+            $customer = new Cliente();
+            if (empty($document->codcliente)
+                || !$customer->load($document->codcliente)
+                || (string)$customer->codcliente === (string)$this->context->config()->getTerminal()->codcliente) {
+                throw InvalidTransactionException::paymentError('payment-customer-account-customer-required');
+            }
+        }
+
+        return $validated;
+    }
+
     protected function saveOrder(): void
     {
         if (!$this->validateRequest()) {
@@ -908,11 +944,7 @@ class POS extends BaseController
                 throw InvalidTransactionException::saveError('fail-calculate-document');
             }
 
-            $validatedPayments = $this->context->paymentValidator()->validate(
-                $transaction->getRawPayments(),
-                (float)$transaction->getDocument()->total,
-                PaymentValidator::SALE
-            );
+            $validatedPayments = $this->validateSettlement($transaction, $transaction->getRawPayments());
             $transaction->setValidatedPayments($validatedPayments);
 
             if ($this->pipeFalse('saveBefore', $request, $transaction) === false) {
@@ -922,11 +954,7 @@ class POS extends BaseController
             if (!$transaction->prepareDocument()) {
                 throw InvalidTransactionException::saveError('fail-calculate-document');
             }
-            $validatedPayments = $this->context->paymentValidator()->validate(
-                $transaction->getPaymentData(),
-                (float)$transaction->getDocument()->total,
-                PaymentValidator::SALE
-            );
+            $validatedPayments = $this->validateSettlement($transaction, $transaction->getPaymentData());
             $transaction->setValidatedPayments($validatedPayments);
 
             if (!$this->dataBase->beginTransaction()) {
@@ -941,13 +969,11 @@ class POS extends BaseController
             $payments = $transaction->getPayments();
 
             // Ensure persistence did not alter the total used during validation.
-            $this->context->paymentValidator()->validate(
-                $transaction->getPaymentData(),
-                (float)$document->total,
-                PaymentValidator::SALE
-            );
+            $this->validateSettlement($transaction, $transaction->getPaymentData());
 
             $order = new OrdenPuntoVenta();
+            $order->customer_account_amount = (float)$transaction->getCustomerAccountAmount();
+            $order->payment_policy = $transaction->getPaymentPolicy()->value;
             if (!$this->context->storage()->saveOrder($order, $document)) {
                 throw InvalidTransactionException::saveError('fail-save-order');
             }
@@ -1002,11 +1028,7 @@ class POS extends BaseController
                 throw InvalidTransactionException::saveError('fail-calculate-document');
             }
 
-            $validatedPayments = $this->context->paymentValidator()->validate(
-                $transaction->getRawPayments(),
-                (float)$transaction->getDocument()->total,
-                PaymentValidator::SALE
-            );
+            $validatedPayments = $this->validateSettlement($transaction, $transaction->getRawPayments());
             $transaction->setValidatedPayments($validatedPayments);
 
             if (!$this->dataBase->beginTransaction()) {
@@ -1020,6 +1042,9 @@ class POS extends BaseController
             $document = $transaction->getDocument();
             $payments = $transaction->getPayments();
             $order = new OrdenPuntoVenta();
+            $this->validateSettlement($transaction, $transaction->getPaymentData());
+            $order->customer_account_amount = (float)$transaction->getCustomerAccountAmount();
+            $order->payment_policy = $transaction->getPaymentPolicy()->value;
 
             if (!$this->context->storage()->saveOrder($order, $document)) {
                 throw new RuntimeException('fail-save-order');
@@ -1287,6 +1312,7 @@ class POS extends BaseController
                 'code' => $defaultDocument->tipodoc,
                 'serie' => $defaultDocument->codserie,
                 'description' => $defaultDocument->primaryDescription(),
+                'payment_policy' => $defaultDocument->payment_policy ?? 'required',
                 'draft-document' => self::DRAFT_POS_DOCUMENT
             ],
             'currency' => [

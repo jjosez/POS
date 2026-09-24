@@ -35,6 +35,11 @@ class Init extends InitClass
             'pos_operations' => [
                 'idoperacion_original' => 'INTEGER',
                 'esdevolucion' => 'BOOLEAN NOT NULL DEFAULT false',
+                'customer_account_amount' => 'DOUBLE PRECISION NOT NULL DEFAULT 0',
+                'payment_policy' => "VARCHAR(20) NOT NULL DEFAULT 'required'",
+            ],
+            'pos_document_types' => [
+                'payment_policy' => "VARCHAR(20) NOT NULL DEFAULT 'required'",
             ],
             'pos_terminals' => [
                 'codserierect' => 'VARCHAR(6)',
