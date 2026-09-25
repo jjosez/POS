@@ -6,9 +6,9 @@
 
 namespace FacturaScripts\Plugins\POS\Lib\Core;
 
-use FacturaScripts\Dinamic\Lib\Services\CustomerAccountManager;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
+use FacturaScripts\Plugins\POS\Lib\CustomerAccount\AccountManager;
 use FacturaScripts\Plugins\POS\Lib\Services\Agents;
 use FacturaScripts\Plugins\POS\Lib\Services\Configuration;
 use FacturaScripts\Plugins\POS\Lib\Services\Currencies;
@@ -121,9 +121,9 @@ class Context
      * Customer account manager.
      * Resolves the single active provider and normalizes results.
      */
-    public function customerAccount(): CustomerAccountManager
+    public function customerAccount(): AccountManager
     {
-        return $this->services['customerAccount'] ??= new CustomerAccountManager();
+        return $this->services['customerAccount'] ??= new AccountManager();
     }
 
     /**

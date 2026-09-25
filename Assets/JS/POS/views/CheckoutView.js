@@ -19,6 +19,10 @@ const elements = {
     accountAmount: document.getElementById('checkoutAccountAmount'),
     collectedAmount: document.getElementById('checkoutCollectedAmount'),
     confirmLabel: document.getElementById('checkoutConfirmLabel'),
+    accountLabel: document.getElementById('checkoutAccountLabel'),
+    accountMessage: document.getElementById('checkoutAccountMessage'),
+    availableCredit: document.getElementById('checkoutAvailableCredit'),
+    accountLoading: document.getElementById('checkoutAccountLoading'),
 };
 
 let isProcessing = false;
@@ -29,41 +33,122 @@ const checkoutBaseTitle = elements.title?.textContent.trim() ?? '';
  */
 export function render(model) {
     const state = model.getState();
+
     const onAccount = state.paymentPolicy === 'customer-account';
     const optional = state.paymentPolicy === 'optional';
+
     const payments = state.payments.map(payment => ({
         ...payment,
         formattedAmount: roundFixed(payment.amount),
     }));
 
-    elements.checkoutTotal.textContent = roundFixed(state.total);
-    const remaining = Math.max(0, state.total - state.collectedAmount);
-    elements.changeAmount.textContent = roundFixed(state.change > 0 ? state.change : remaining);
+    // Totales
+    const remaining = Math.max(
+        0,
+        state.total - state.collectedAmount
+    );
 
     const hasChange = state.change > 0;
-    elements.balanceRow.classList.toggle('hidden', !hasChange && (onAccount || optional || remaining === 0));
+    const hasRemaining = remaining > 0.005;
+
+    elements.checkoutTotal.textContent = roundFixed(state.total);
+
+    elements.changeAmount.textContent = roundFixed(
+        hasChange ? state.change : remaining
+    );
+
+    // Saldo pendiente o cambio
+    elements.balanceRow.classList.toggle(
+        'hidden',
+        !hasChange && (onAccount || optional || !hasRemaining)
+    );
+
     elements.changeLabel.classList.toggle('hidden', !hasChange);
     elements.balanceLabel.classList.toggle('hidden', hasChange);
-    elements.changeAmount.parentElement.classList.toggle('text-emerald-600', hasChange);
-    elements.changeAmount.parentElement.classList.toggle('text-amber-600', !hasChange);
 
-    elements.appliedPayments.classList.toggle('hidden', payments.length === 0);
-    elements.accountSummary.classList.toggle('hidden', !(onAccount || optional) || remaining <= 0);
+    elements.changeAmount.parentElement.classList.toggle(
+        'text-emerald-600',
+        hasChange
+    );
+
+    elements.changeAmount.parentElement.classList.toggle(
+        'text-amber-600',
+        !hasChange
+    );
+
+    // Pagos registrados
+    elements.appliedPayments.classList.toggle(
+        'hidden',
+        payments.length === 0
+    );
+
+    templates.render(
+        'payment:list:template',
+        {payments},
+        'payment:list:view'
+    );
+
+    // Resumen inferior
+    const showAccountSummary =
+        (onAccount || optional) && hasRemaining;
+
+    elements.accountSummary.classList.toggle(
+        'hidden',
+        !showAccountSummary
+    );
+
     elements.accountAmount.textContent = roundFixed(remaining);
-    const label = document.getElementById('checkoutAccountLabel');
-    label.textContent = optional ? label.dataset.optional : label.dataset.account;
-    const message = document.getElementById('checkoutAccountMessage');
-    const status = optional ? 'optional' : state.requiresCustomer ? 'customer' : state.accountResult?.status ?? 'checking';
-    message.textContent = state.accountResult?.message || message.dataset[status] || message.dataset.error;
-    const credit = document.getElementById('checkoutAvailableCredit');
-    credit.parentElement.classList.toggle('hidden', !onAccount || !state.accountResult);
-    credit.textContent = roundFixed(state.accountResult?.available_credit ?? 0);
-    elements.collectedAmount.textContent = roundFixed(state.collectedAmount);
+
+    // Etiqueta según la política
+    elements.accountLabel.textContent = optional
+        ? elements.accountLabel.dataset.optional
+        : elements.accountLabel.dataset.account;
+
+    // Estado de consulta
+    const checking = showAccountSummary && state.accountChecking;
+
+    elements.accountLoading.classList.toggle(
+        'hidden',
+        !checking
+    );
+
+    // Mensaje traducido por el backend
+    elements.accountMessage.textContent =
+        showAccountSummary && !checking
+            ? state.accountMessage ?? ''
+            : '';
+
+    // Crédito disponible
+    const result = onAccount && showAccountSummary && !checking
+        ? state.accountResult
+        : null;
+
+    const showCredit = result !== null
+        && ['approved', 'insufficient-credit'].includes(result.status)
+        && Number.isFinite(result.available_credit);
+
+    elements.availableCredit.parentElement.classList.toggle(
+        'hidden',
+        !showCredit
+    );
+
+    if (showCredit) {
+        elements.availableCredit.textContent = roundFixed(
+            result.available_credit
+        );
+    }
+
+    // Total cobrado
+    elements.collectedAmount.textContent = roundFixed(
+        state.collectedAmount
+    );
+
+    // Botón de confirmación
     elements.confirmLabel.textContent = onAccount || optional
         ? elements.confirmLabel.dataset.finalize
         : elements.confirmLabel.dataset.charge;
-    templates.render('payment:list:template', {payments}, 'payment:list:view');
 
+    // Mantener los controles actuales
     renderPaymentMethods(state.payments);
     updateConfirmButton(state);
 }
