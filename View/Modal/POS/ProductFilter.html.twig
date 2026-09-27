@@ -1,103 +1,211 @@
 <div id="product:filter:modal" class="hidden modal">
     <div class="modal-content md:modal-content-md">
-        <div class="modal-header items-center p-4">
-            <div class="flex min-w-0 items-center gap-3">
+        <div class="modal-header items-center gap-2 p-4">
+            <button type="button"
+                    id="family:navigate:back"
+                    class="pointer-events-auto hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 ring-1 ring-slate-200 transition hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    data-action="product:family:back"
+                    aria-label="{{ trans('back') | default('Volver') }}">
+                <i class="fa-solid fa-arrow-left text-sm" aria-hidden="true"></i>
+            </button>
+            <div class="flex min-w-0 flex-1 items-center gap-3">
                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
                     <i class="fa-solid fa-filter" aria-hidden="true"></i>
                 </div>
                 <div class="min-w-0">
-                    <h2 class="text-xl font-semibold text-slate-900">{{ trans('filters') }}</h2>
-                    <p class="truncate text-sm text-slate-500">{{ trans('product-source') }}</p>
+                    <h2 class="truncate text-xl font-semibold text-slate-900">{{ trans('filters') }}</h2>
+                    <p id="family:header:label"
+                       class="truncate text-sm text-slate-500"
+                       data-default="{{ trans('all') | default('Todas las categorías') }}">
+                        {{ trans('all') | default('Todas las categorías') }}
+                    </p>
                 </div>
             </div>
-            <button type="button" class="ml-2 btn btn-icon btn-naked" data-toggle="modal" data-target="product:filter:modal" aria-label="{{ trans('close') }}">
+            <button type="button"
+                    class="ml-2 btn btn-icon btn-naked"
+                    data-toggle="modal" data-target="product:filter:modal"
+                    aria-label="{{ trans('close') }}">
                 <i class="fa-solid fa-times" aria-hidden="true"></i>
             </button>
         </div>
-        <div class="modal-body">
-            <div id="family:breadcrumb:template:view" class="mb-4 flex flex-wrap items-center gap-2 text-sm">
+        <div class="modal-body flex flex-col gap-3 p-4">
+            <div id="family:chips:bar"
+                 class="hidden flex flex-wrap items-center gap-2">
+                <div id="product:filter:template:view" class="flex flex-wrap items-center gap-2"></div>
+                <button type="button"
+                        id="family:clear:btn"
+                        class="pointer-events-auto inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full bg-slate-100 px-3 text-xs font-semibold text-slate-600 ring-1 ring-slate-200 transition hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                        data-action="product:filter:family:clear"
+                        aria-label="{{ trans('clean-filters') | default('Limpiar filtros') }}">
+                    <i class="fa-solid fa-broom text-[10px]" aria-hidden="true"></i>
+                    {{ trans('clean-filters') | default('Limpiar') }}
+                </button>
             </div>
-            <div id="product:filter:template:view" class="flex flex-wrap gap-2 mb-4">
-            </div>
-            <div id="family:list:template:view" class="grid grid-cols-2 gap-4 md:grid-cols-4">
-                {% for familia in context.families().getParentFamilies() %}
-                    {% set bgcolor =  familia.madre ? 'bg-slate-50' : 'bg-slate-100' %}
+
+            <div id="family:list:template:view"
+                 class="flex flex-col gap-2"
+                 role="list">
+                {% for familia in context.families().getShortcutFamilies() %}
                     {% set imageUrl =  familia.shorcutImage() %}
-                    {% set hasChildren = context.families().getChildFamilies(familia.codfamilia)|length > 0 %}
+                    {% set hasChildren = context.families().getChildFamilies(familia.codfamilia) | length > 0 %}
                     <div role="listitem"
-                         class="{{ bgcolor }} relative p-2 rounded-lg font-semibold cursor-pointer"
-                         data-action="product:filter:family:toggle"
-                         data-code="{{ familia.codfamilia }}"
-                         data-madre="{{ familia.madre }}"
-                         data-description="{{ familia.descripcion }}"
-                         data-thumbnail="{{ imageUrl }}"
-                         data-has-children="{{ hasChildren ? 'true' : 'false' }}">
-                        {% if imageUrl %}
-                            <img class="pointer-events-none mx-auto rounded-md mb-2 object-cover bg-white"
-                                 src="{{ imageUrl }}" alt="{{ familia.codfamilia }}">
-                        {% endif %}
-                        <p class="text-sm text-center">
-                            {% if hasChildren %}
-                                <span class="text-blue-500"><i class="fa-solid fa-folder-tree"></i></span>
+                         data-family-code="{{ familia.codfamilia }}"
+                         data-has-children="{{ hasChildren ? 'true' : 'false' }}"
+                         class="pointer-events-auto flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 min-h-14 transition hover:border-blue-300 focus-within:ring-2 focus-within:ring-blue-400">
+                        <button type="button"
+                                class="pointer-events-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-md border-2 border-slate-300 bg-white text-transparent transition hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                data-action="product:filter:family:toggle"
+                                data-code="{{ familia.codfamilia }}"
+                                data-description="{{ familia.descripcion }}"
+                                data-thumbnail="{{ imageUrl }}"
+                                role="checkbox"
+                                aria-checked="false"
+                                aria-label="{{ trans('select-as-filter') | default('Seleccionar familia como filtro') }}"
+                                title="{{ trans('select-as-filter') | default('Seleccionar como filtro') }}">
+                            <i class="fa-solid fa-check text-xs" aria-hidden="true"></i>
+                        </button>
+                        <button type="button"
+                                class="pointer-events-auto flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-md bg-slate-50 ring-1 ring-slate-200"
+                                data-action="product:family:navigate"
+                                data-code="{{ familia.codfamilia }}"
+                                aria-label="{{ trans('open-family') | default('Abrir familia') }}: {{ familia.descripcion }}">
+                            {% if imageUrl %}
+                                <span class="flex h-11 w-11 items-center justify-center overflow-hidden rounded-md bg-white">
+                                    <img class="pointer-events-none h-11 w-11 object-contain"
+                                         src="{{ imageUrl }}"
+                                         alt="{{ familia.descripcion }}">
+                                </span>
+                            {% else %}
+                                <i class="fa-regular fa-image text-slate-300" aria-hidden="true"></i>
                             {% endif %}
-                            {{ familia.descripcion }}</p>
+                        </button>
+                        <button type="button"
+                                class="pointer-events-auto flex min-w-0 flex-1 items-center text-left"
+                                data-action="product:family:navigate"
+                                data-code="{{ familia.codfamilia }}"
+                                aria-label="{{ trans('open-family') | default('Abrir familia') }}: {{ familia.descripcion }}">
+                            <div class="min-w-0 flex-1">
+                                <div class="truncate text-sm font-semibold text-slate-700"
+                                     title="{{ familia.descripcion }}">{{ familia.descripcion }}</div>
+                                {% if hasChildren %}
+                                    <div class="truncate text-xs text-slate-400">{{ trans('has-subfamilies') | default('Contiene subfamilias') }}</div>
+                                {% endif %}
+                            </div>
+                        </button>
+                        {% if hasChildren %}
+                            <button type="button"
+                                    class="pointer-events-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                    data-action="product:family:navigate"
+                                    data-code="{{ familia.codfamilia }}"
+                                    aria-label="{{ trans('open-subfamilies') | default('Abrir subfamilias') }}: {{ familia.descripcion }}">
+                                <i class="fa-solid fa-chevron-right text-sm" aria-hidden="true"></i>
+                            </button>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-400">
+                        {{ trans('no-shortcut-families') | default('No hay accesos rápidos configurados.') }}
                     </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 </div>
-<script id="family:breadcrumb:template" type="text/template">
-    <button class="btn btn-sm bg-slate-800 hover:bg-slate-500"
-            data-action="product:family:navigate" data-code="">
-        {{ trans('all') }}
-    </button>
-    <% breadcrumb.forEach(function(familia, index){ %>
-    <i class="fas fa-chevron-right text-gray-400"></i>
-    <button class="btn btn-sm bg-slate-800 hover:bg-slate-500"
-            data-action="product:family:navigate"
-            data-code="<%= familia.codfamilia %>">
-        <%= familia.descripcion %>
-    </button>
-    <% }) %>
-</script>
+
 <script id="family:list:template" type="text/template">
-    <% children.forEach(function(familia){ %>
-    <div role="listitem"
-         class="bg-slate-200 relative p-2 rounded-lg font-semibold cursor-pointer"
-         data-action="product:filter:family:toggle"
-         data-code="<%= familia.codfamilia %>"
-         data-description="<%= familia.descripcion %>"
-         data-thumbnail="<%= familia.thumbnail %>"
-         data-has-children="<%= familia.hasChildren ? 'true' : 'false' %>">
-        <% if(familia.thumbnail) { %>
-        <img class="pointer-events-none mx-auto rounded-md mb-2 object-cover bg-white"
-             src="<%= familia.thumbnail %>" alt="<%= familia.codfamilia %>">
-        <% } %>
-        <p class="text-sm text-center">
-            <% if(familia.hasChildren) { %>
-            <span class="text-blue-500"><i class="fa-solid fa-folder-tree"></i></span>
-            <% } %><%= familia.descripcion %></p>
+    <% if (!children || children.length === 0) { %>
+    <div class="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-400">
+        {{ trans('no-families-available') | default('Sin familias disponibles.') }}
     </div>
-    <% }) %>
+    <% } %>
+    <% children.forEach(function(familia){ %>
+    <% const selected = selectedCodes.indexOf(familia.codfamilia) !== -1; %>
+    <% const cardStateSelected = selected
+        ? 'border-blue-500 ring-2 ring-blue-500 bg-blue-50/60'
+        : 'border-slate-200 bg-white' %>
+    <div role="listitem"
+         data-family-code="<%~ familia.codfamilia %>"
+         data-has-children="<%= familia.hasChildren ? 'true' : 'false' %>"
+         class="pointer-events-auto flex items-center gap-3 rounded-lg border px-3 py-2 min-h-14 transition hover:border-blue-300 focus-within:ring-2 focus-within:ring-blue-400 <%= cardStateSelected %>">
+        <button type="button"
+                class="pointer-events-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-md border-2 transition focus:outline-none focus:ring-2 focus:ring-blue-400 <%= selected ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300 bg-white text-transparent hover:border-blue-400' %>"
+                data-action="product:filter:family:toggle"
+                data-code="<%~ familia.codfamilia %>"
+                data-description="<%~ familia.descripcion %>"
+                data-thumbnail="<%~ familia.thumbnail || '' %>"
+                role="checkbox"
+                aria-checked="<%= selected ? 'true' : 'false' %>"
+                aria-label="{{ trans('select-as-filter') | default('Seleccionar familia como filtro') }}"
+                title="<%= selected ? '{{ trans('remove-filter') | default('Quitar filtro') }}' : '{{ trans('select-as-filter') | default('Seleccionar como filtro') }}' %>">
+            <i class="fa-solid fa-check text-xs" aria-hidden="true"></i>
+        </button>
+        <button type="button"
+                class="pointer-events-auto flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-md bg-slate-50 ring-1 ring-slate-200"
+                data-action="product:family:navigate"
+                data-code="<%~ familia.codfamilia %>"
+                aria-label="{{ trans('open-family') | default('Abrir familia') }}: <%~ familia.descripcion %>">
+            <% if (familia.thumbnail) { %>
+            <span class="flex h-11 w-11 items-center justify-center overflow-hidden rounded-md bg-white">
+                <img class="pointer-events-none h-11 w-11 object-contain"
+                     src="<%~ familia.thumbnail %>"
+                     alt="<%~ familia.descripcion %>">
+            </span>
+            <% } else { %>
+            <i class="fa-regular fa-image text-slate-300" aria-hidden="true"></i>
+            <% } %>
+        </button>
+        <button type="button"
+                class="pointer-events-auto flex min-w-0 flex-1 items-center text-left"
+                data-action="product:family:navigate"
+                data-code="<%~ familia.codfamilia %>"
+                aria-label="{{ trans('open-family') | default('Abrir familia') }}: <%~ familia.descripcion %>">
+            <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2">
+                    <span class="truncate text-sm font-semibold text-slate-700"
+                          title="<%~ familia.descripcion %>"><%~ familia.descripcion %></span>
+                </div>
+                <% if (familia.hasChildren) { %>
+                <div class="truncate text-xs text-slate-400">{{ trans('has-subfamilies') | default('Contiene subfamilias') }}</div>
+                <% } %>
+            </div>
+        </button>
+        <% if (familia.hasChildren) { %>
+        <button type="button"
+                class="pointer-events-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                data-action="product:family:navigate"
+                data-code="<%~ familia.codfamilia %>"
+                aria-label="{{ trans('open-subfamilies') | default('Abrir subfamilias') }}: <%~ familia.descripcion %>">
+            <i class="fa-solid fa-chevron-right text-sm" aria-hidden="true"></i>
+        </button>
+        <% } %>
+    </div>
+    <% }); %>
 </script>
+
 <script id="product:filter:template" type="text/template">
     <% filters.forEach(function(filter){ %>
     <div role="listitem"
-         class="items-center bg-slate-800 flex flex-row p-2 shadow-xs rounded-lg font-semibold cursor-pointer"
-         data-action="product:filter:family:toggle"
-         data-code="<%= filter.code %>"
-         data-description="<%= filter.description %>" data-thumbnail="<%= filter.thumbnail %>">
-        <% if(filter.thumbnail) { %>
-        <img class="pointer-events-none w-12 mx-auto rounded-md object-scale-down"
-             src="<%= filter.thumbnail %>" alt="<%= filter.code %>">
+         class="inline-flex h-8 items-center gap-2 rounded-full bg-slate-800 pl-3 pr-1 text-xs font-semibold text-white shadow-sm ring-1 ring-slate-700"
+         title="{{ trans('filter-direct-products') | default('Filtra sólo productos directos a esta familia') }}"
+         data-family-code="<%~ filter.code %>">
+        <% if (filter.thumbnail) { %>
+        <img class="pointer-events-none h-5 w-5 rounded object-cover ring-1 ring-slate-600"
+             src="<%~ filter.thumbnail %>" alt="">
+        <% } else { %>
+        <span class="flex h-5 w-5 items-center justify-center rounded bg-slate-700 text-slate-300">
+            <i class="fa-regular fa-image text-[10px]" aria-hidden="true"></i>
+        </span>
         <% } %>
-        <p class="text-sm text-center p-2 text-white"><%= filter.description %></p>
-        <button class="h-8 w-8 text-xs btn btn-icon btn-danger"
-                data-action="product:filter:family:toggle"
-                data-code="<%= filter.code %>">
-            <i class="fas fa-trash-alt"></i>
+        <span class="max-w-[12rem] truncate"><%~ filter.description %></span>
+        <button type="button"
+                class="pointer-events-auto flex h-6 w-6 items-center justify-center rounded-full text-slate-200 transition hover:bg-red-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-400"
+                data-action="product:filter:family:remove"
+                data-code="<%~ filter.code %>"
+                data-description="<%~ filter.description %>"
+                data-thumbnail="<%~ filter.thumbnail || '' %>"
+                aria-label="{{ trans('remove-filter') | default('Quitar filtro') }}: <%~ filter.description %>">
+            <i class="fa-solid fa-xmark text-[10px]" aria-hidden="true"></i>
         </button>
     </div>
-    <% }) %>
+    <% }); %>
 </script>

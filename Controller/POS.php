@@ -1249,15 +1249,15 @@ class POS extends BaseController
     protected function searchProduct(): void
     {
         $query = $this->request()->request->get('query', '');
-        $filters = $this->request()->request->get('filters', '');
+        $filtersQuery = $this->request()->request->get('filters', '');
 
-        $filterRules = json_decode($filters, true) ?: [];
+        $filters = json_decode($filtersQuery, true) ?: [];
         $terminal = $this->context->config()->getTerminal();
 
         $company = $terminal->productsource === $terminal::PRODUCTS_FROM_COMPANY ? $terminal->idempresa : '';
         $warehouse = $terminal->productsource === $terminal::PRODUCTS_FROM_WAREHOUSE ? $terminal->codalmacen : '';
 
-        $this->setResponse($this->context->products()->search($query, $filterRules, $warehouse, $company));
+        $this->setResponse($this->context->products()->search($query, $filters, $warehouse, $company));
     }
 
     protected function searchBarcode(): void

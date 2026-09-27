@@ -8,44 +8,44 @@ use FacturaScripts\Dinamic\Model\Familia;
 class Families
 {
     /**
-     * Returns parent families configured as POS shortcuts.
-     * Returns only root families (without parent).
+     * Returns root families flagged as POS shortcuts.
+     * Used by the root level of the filter modal.
      */
-    public function getParentFamilies(): array
+    public function getShortcutFamilies(): array
     {
         $where = [
             Where::eq('pos_shortcut', true),
             Where::isNull('madre')
         ];
 
-        return Familia::all($where);
+        return Familia::all($where, ['descripcion' => 'ASC']);
     }
 
     /**
      * Returns child families of a parent family.
-     * Only returns children that are marked as POS shortcuts.
+     * Subfamilias siempre se muestran al navegar dentro de una familia,
+     * independientemente del flag pos_shortcut.
      *
      * @param string $codfamilia Parent family code
      * @return array Child families
      */
     public function getChildFamilies(string $codfamilia): array
     {
-        $where = [
-            Where::eq('madre', $codfamilia),
-            Where::eq('pos_shortcut', true)
-        ];
-
-        return Familia::all($where);
+        return Familia::all(
+            [Where::eq('madre', $codfamilia)],
+            ['descripcion' => 'ASC']
+        );
     }
 
     /**
      * Loads a family by its code.
-     *
-     * @param string $codfamilia Family code
-     * @return Familia|null Family object or null if not found
      */
     public function getFamilyByCode(string $codfamilia): ?Familia
     {
+        if (empty($codfamilia)) {
+            return null;
+        }
+
         $familia = new Familia();
 
         if ($familia->load($codfamilia)) {
@@ -58,18 +58,24 @@ class Families
     /**
      * Gets family hierarchy data for filter navigation.
      *
-     * @param string $code Parent family code (empty for root)
-     * @return array Array with 'madre' and 'children' keys
+     * - code == ''   returns the shortcut roots (top level).
+     * - code != ''   returns the mother + all its children regardless of
+     *                pos_shortcut so navigation is never blocked.
+     *
+     * @param string $code Parent family code ('' for root)
+     * @return array ['madre' => array|null, 'children' => array]
      */
     public function getFamilyHierarchy(string $code = ''): array
     {
         if (empty($code)) {
-            $children = $this->getParentFamilies();
+            $children = $this->getShortcutFamilies();
+
             return [
                 'madre' => null,
-                'children' => array_map(callback: function ($family) {
-                    return $this->formatFamily($family);
-                }, array: $children)
+                'children' => array_map(
+                    fn ($family) => $this->formatFamily($family, 0, true),
+                    $children
+                )
             ];
         }
 
@@ -77,20 +83,18 @@ class Families
         $children = $family ? $this->getChildFamilies($code) : [];
 
         return [
-            'madre' => $family ? $this->formatFamily($family) : null,
-            'children' => array_map(callback: function ($family) {
-                return $this->formatFamily($family);
-            }, array: $children)
+            'madre' => $family ? $this->formatFamily($family, 0, (bool) $family->pos_shortcut) : null,
+            'children' => array_map(
+                fn ($child) => $this->formatFamily($child, ($family->madre ? 1 : 0) + 1, (bool) $child->pos_shortcut),
+                $children
+            )
         ];
     }
 
     /**
      * Formats a family object for frontend consumption.
-     *
-     * @param Familia $family Family to format
-     * @return array Formatted family data
      */
-    private function formatFamily(Familia $family): array
+    private function formatFamily(Familia $family, int $level = 0, bool $isShortcut = false): array
     {
         $hasChildren = count($this->getChildFamilies($family->codfamilia)) > 0;
 
@@ -99,7 +103,9 @@ class Families
             'descripcion' => $family->descripcion,
             'madre' => $family->madre,
             'thumbnail' => $family->shorcutImage(),
-            'hasChildren' => $hasChildren
+            'hasChildren' => $hasChildren,
+            'isShortcut' => $isShortcut,
+            'level' => $level
         ];
     }
 }

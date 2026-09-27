@@ -29,12 +29,14 @@ export function isObjectEmpty(obj) {
 /**
  * Send request to controller url
  * @param {FormData} data
+ * @param {AbortSignal|null} signal
  */
-export async function postRequest(data) {
+export async function postRequest(data, signal = null) {
     try {
         const response = await fetch('POS', {
             method: 'POST',
-            body: data
+            body: data,
+            signal: signal || undefined
         });
 
         if (!response.ok) requestErrorHandler(response.status);
@@ -44,6 +46,10 @@ export async function postRequest(data) {
 
         return result;
     } catch (e) {
+        if (e.name === 'AbortError') {
+            return {aborted: true};
+        }
+
         console.log(e.message);
 
         return {
@@ -57,18 +63,24 @@ export async function postRequest(data) {
 /**
  * Send request to controller url
  * @param {FormData} data
+ * @param {AbortSignal|null} signal
  */
-export async function postRequestCore(data) {
+export async function postRequestCore(data, signal = null) {
     try {
         const response = await fetch('POS', {
             method: 'POST',
-            body: data
+            body: data,
+            signal: signal || undefined
         });
 
         if (!response.ok) requestErrorHandler(response.status);
 
         return response;
     } catch (e) {
+        if (e.name === 'AbortError') {
+            return {aborted: true};
+        }
+
         console.log("Ocurrio un error.", e.message);
 
         return {
@@ -138,16 +150,17 @@ export function isAndroidUserAgent() {
  * @param {string} action
  * @param {string} query
  * @param filters
+ * @param {{signal?: AbortSignal, id?: number|string}} options
  */
-export function searchRequest(action, query, filters = {}) {
+export function searchRequest(action, query, filters = {}, options = {}) {
     const data = new FormData();
 
     data.set('action', action);
     data.set('query', query);
     data.set('terminal', AppSettings.terminal);
-    data.set('filters', JSON.stringify(filters))
+    data.set('filters', JSON.stringify(filters));
 
-    return postRequest(data);
+    return postRequest(data, options.signal || null);
 }
 
 /**
