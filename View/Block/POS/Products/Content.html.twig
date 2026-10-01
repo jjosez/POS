@@ -1,4 +1,4 @@
-<div id="product:filter:family:view" class="mb-4 flex flex-wrap gap-2 px-4">
+<div id="product:filter:family:view" class="not-empty:mt-4 mb-4 flex flex-wrap gap-2 px-4">
 </div>
 <div class="mb-4 flex-1 overflow-y-auto px-4">
     <div id="product:search:list:view" class="my-1" role="list">
@@ -65,15 +65,18 @@
                 </div>
 
                 <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
-                    <div class="truncate text-lg font-bold tabular-nums <%= unavailable ? 'text-slate-500' : 'text-slate-950' %>"><%= product.priceWithFormat %></div>
+                    <div class="truncate text-lg font-bold tabular-nums <%= unavailable ? 'text-slate-500' : 'text-slate-950' %>">
+                        <%= product.priceWithFormat %>
+                    </div>
                     <button type="button"
-                             class="pointer-events-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm transition
+                            class="pointer-events-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm transition
                                    <%= unavailable ? 'bg-slate-200 text-slate-400' : 'bg-slate-950 text-white hover:bg-blue-600 active:scale-95' %>"
                             data-action="<%= unavailable ? '' : 'ui:cart:line:add' %>" data-code="<%= product.code %>"
-                            data-description="<%= product.description %>" data-thumbnail="<%= product.thumbnail %>" data-bloqueado="<%= product.bloqueado ?? 0 %>"
+                            data-description="<%= product.description %>" data-thumbnail="<%= product.thumbnail %>"
+                            data-bloqueado="<%= product.bloqueado ?? 0 %>"
                             title="{{ trans('add') }}" aria-label="{{ trans('add') }}: <%= product.description %>"
-                            <%= unavailable ? 'disabled' : '' %>>
-                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                    <%= unavailable ? 'disabled' : '' %>>
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
@@ -109,7 +112,8 @@
                              class="h-full w-full object-contain p-3" loading="lazy" decoding="async">
                         <button type="button"
                                 class="pointer-events-auto absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/40 text-slate-400 transition hover:bg-white/80 hover:text-blue-600"
-                                data-action="product:image:show" data-id="{{ product.id }}" data-code="{{ product.code }}"
+                                data-action="product:image:show" data-id="{{ product.id }}"
+                                data-code="{{ product.code }}"
                                 title="{{ trans('view-image') }}" aria-label="{{ trans('view-image') }}">
                             <i class="fa-solid fa-expand text-xs" aria-hidden="true"></i>
                         </button>

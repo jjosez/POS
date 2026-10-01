@@ -1,52 +1,100 @@
+/**
+ * Pure state container for the family filter + navigation.
+ * No DOM access, no async, no event emission.
+ *
+ * - filters:        families selected as filters (multi).
+ * - currentFamily:  family currently being explored (navigation only).
+ * - breadcrumb:     path of families traversed from the root.
+ * - codcliente:     selected customer code.
+ *
+ * Filtering and navigation are independent: clearing one does not reset the
+ * other, unless reset() is called.
+ */
 class FilterClass {
-    constructor({families = [], filters = [], currentFamily = null, breadcrumb = [], codcliente = ''} = {}) {
-        this.families = families;
+    constructor({
+        filters = [],
+        currentFamily = null,
+        breadcrumb = [],
+        codcliente = ''
+    } = {}) {
         this.filters = filters;
         this.currentFamily = currentFamily;
         this.breadcrumb = breadcrumb;
         this.codcliente = codcliente;
     }
 
-    deleteFamilyFilter(index) {
-        if (index < 0 || index >= this.families.length) return;
-        this.families.splice(index, 1);
-    }
-
-    getFamilyFilter(index) {
-        const family = this.families[index];
-        if (!family) return null;
-        return {...family, index};
-    }
-
-    toggleFamilyFilter(code, description, thumbnail) {
+    addFamily({code, description = '', thumbnail = ''} = {}) {
         if (!code) return;
 
-        const index = this.families.findIndex(element => element.code === code);
+        const exists = this.filters.some(f => f.code === code);
+        if (exists) return;
 
-        if (index !== -1) {
-            this.families.splice(index, 1);
-        } else {
-            this.families.unshift({code, description, thumbnail});
-        }
+        this.filters.unshift({code, description, thumbnail});
     }
 
-    navigateToFamily(familia) {
-        this.currentFamily = familia;
-        if (familia) {
-            const index = this.breadcrumb.findIndex(f => f.codfamilia === familia.codfamilia);
-            if (index === -1) {
-                this.breadcrumb.push(familia);
-            } else {
-                this.breadcrumb = this.breadcrumb.slice(0, index + 1);
-            }
-        } else {
+    removeFamily(code) {
+        if (!code) return;
+
+        const index = this.filters.findIndex(f => f.code === code);
+        if (index === -1) return;
+
+        this.filters.splice(index, 1);
+    }
+
+    hasFamily(code) {
+        if (!code) return false;
+
+        return this.filters.some(f => f.code === code);
+    }
+
+    clearFilters() {
+        this.filters = [];
+    }
+
+    clearNavigation() {
+        this.currentFamily = null;
+        this.breadcrumb = [];
+    }
+
+    getFamiliesPayload() {
+        return this.filters.map(f => ({
+            code: f.code,
+            description: f.description,
+            thumbnail: f.thumbnail
+        }));
+    }
+
+    getSelectedCodes() {
+        return this.filters.map(f => f.code);
+    }
+
+    navigateTo(family) {
+        this.currentFamily = family || null;
+
+        if (!family) {
             this.breadcrumb = [];
+            return;
+        }
+
+        const index = this.breadcrumb.findIndex(f => f.codfamilia === family.codfamilia);
+
+        if (index === -1) {
+            this.breadcrumb.push(family);
+        } else {
+            this.breadcrumb = this.breadcrumb.slice(0, index + 1);
         }
     }
 
     navigateBack() {
+        if (this.breadcrumb.length === 0) {
+            this.currentFamily = null;
+            return null;
+        }
+
         this.breadcrumb.pop();
         this.currentFamily = this.breadcrumb[this.breadcrumb.length - 1] || null;
+
+        return this.currentFamily;
     }
 
     setCustomer(codcliente) {
@@ -54,7 +102,6 @@ class FilterClass {
     }
 
     reset() {
-        this.families = [];
         this.filters = [];
         this.currentFamily = null;
         this.breadcrumb = [];
@@ -63,7 +110,6 @@ class FilterClass {
 }
 
 const searchFilter = new FilterClass({
-    families: [],
     filters: [],
     codcliente: ''
 });

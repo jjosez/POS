@@ -6,6 +6,32 @@ import {searchFilter} from '../models/FilterModel.js';
 import eventManager from '../core/EventManager.js';
 
 let searchTimer;
+let requestSeq = 0;
+let lastSeq = 0;
+let inflightController = null;
+
+function nextSeq() {
+    requestSeq += 1;
+    return requestSeq;
+}
+
+function cancelInflight() {
+    if (inflightController) {
+        try {
+            inflightController.abort();
+        } catch (e) {
+            // noop
+        }
+        inflightController = null;
+    }
+}
+
+function buildFiltersPayload() {
+    return {
+        families: searchFilter.getFamiliesPayload(),
+        codcliente: searchFilter.codcliente
+    };
+}
 
 const ProductController = {
     /**
@@ -20,7 +46,7 @@ const ProductController = {
                 description: result.description,
                 thumbnail: result.thumbnail || '',
                 bloqueado: result.bloqueado
-            })
+            });
         }
     },
 
@@ -29,15 +55,39 @@ const ProductController = {
             clearTimeout(searchTimer);
         }
 
+        const input = el;
         searchTimer = setTimeout(async () => {
-            const query = el.value.trim();
-
-            const results = await Core.searchRequest('product:search', query, searchFilter);
-            MainView.updateProductSearchResult(results);
+            await this.runProductSearch(input.value.trim());
         }, 200);
+    },
 
-        /*const results = await Core.searchProduct(el.value, searchFilter);
-        MainView.updateProductSearchResult(results);*/
+    async runProductSearch(query = '', {skipIfStale = true} = {}) {
+        cancelInflight();
+
+        const controller = new AbortController();
+        inflightController = controller;
+
+        const seq = nextSeq();
+        lastSeq = seq;
+
+        const filters = buildFiltersPayload();
+        const results = await Core.searchRequest('product:search', query, filters, {signal: controller.signal});
+
+        if (controller.signal.aborted) return;
+
+        if (results?.aborted) return;
+
+        if (skipIfStale && seq !== lastSeq) return;
+
+        MainView.updateProductFamilyList(searchFilter.filters);
+        MainView.updateProductSearchResult(results);
+
+        eventManager.emit('product:search:completed', {
+            query,
+            filters: buildFiltersPayload(),
+            results,
+            seq
+        });
     },
 
     async showImages(el) {
@@ -84,35 +134,30 @@ const ProductController = {
     },
 
     /**
-     * data-action="product:filter:family:toggle"
-     */
-    async setFamilyFilter(el) {
-        const {code, description, thumbnail, hasChildren} = el.dataset;
-
-        // Si tiene hijos, navegar en lugar de filtrar
-        if (hasChildren === 'true') {
-            await this.navigateToFamily(el);
-        } else {
-            // Si no tiene hijos, agregar a filtro
-            searchFilter.toggleFamilyFilter(code, description, thumbnail);
-            eventManager.emit('product:filter:changed', searchFilter);
-        }
-    },
-
-    /**
      * data-action="product:family:navigate"
      */
     async navigateToFamily(el) {
-        const {code} = el.dataset;
+        const code = el?.dataset?.code || '';
 
-        const result = await Core.searchRequest('family:filter:set', code || '');
+        const result = await Core.searchRequest('family:filter:set', code);
 
-        searchFilter.navigateToFamily(result.madre);
+        if (!result || result.aborted) return;
+
+        const mother = result.madre || null;
+        const children = (result.children || []).map(child => ({
+            ...child,
+            isShortcut: child.isShortcut === true,
+            hasChildren: child.hasChildren === true,
+            selected: searchFilter.hasFamily(child.codfamilia)
+        }));
+
+        searchFilter.navigateTo(mother);
 
         MainView.updateFamilyNavigator({
-            madre: result.madre,
-            children: result.children,
-            breadcrumb: searchFilter.breadcrumb
+            mother,
+            children,
+            breadcrumb: searchFilter.breadcrumb,
+            selectedCodes: searchFilter.getSelectedCodes()
         });
     },
 
@@ -125,38 +170,92 @@ const ProductController = {
 
         const result = await Core.searchRequest('family:filter:set', code);
 
+        if (!result || result.aborted) return;
+
+        const children = (result.children || []).map(child => ({
+            ...child,
+            isShortcut: child.isShortcut === true,
+            hasChildren: child.hasChildren === true,
+            selected: searchFilter.hasFamily(child.codfamilia)
+        }));
+
         MainView.updateFamilyNavigator({
-            madre: result.madre,
-            children: result.children,
-            breadcrumb: searchFilter.breadcrumb
+            mother: result.madre || null,
+            children,
+            breadcrumb: searchFilter.breadcrumb,
+            selectedCodes: searchFilter.getSelectedCodes()
         });
     },
 
     /**
+     * data-action="product:filter:family:toggle"
+     * Toggles filter membership of a family without navigating.
+     */
+    toggleFilterFamily(el) {
+        const {code, description, thumbnail} = el?.dataset || {};
+
+        if (!code) return;
+
+        if (searchFilter.hasFamily(code)) {
+            searchFilter.removeFamily(code);
+        } else {
+            searchFilter.addFamily({code, description, thumbnail});
+        }
+
+        MainView.updateProductFamilyList(searchFilter.filters);
+        MainView.updateFamilySelection(searchFilter.getSelectedCodes());
+
+        eventManager.emit('product:filter:changed', buildFiltersPayload());
+    },
+
+    /**
+     * data-action="product:filter:family:remove"
+     * Removes a family filter without affecting navigation.
+     */
+    removeFilterFamily(el) {
+        const {code} = el?.dataset || {};
+
+        if (!code) return;
+
+        searchFilter.removeFamily(code);
+
+        MainView.updateProductFamilyList(searchFilter.filters);
+        MainView.updateFamilySelection(searchFilter.getSelectedCodes());
+
+        eventManager.emit('product:filter:changed', buildFiltersPayload());
+    },
+
+    /**
+     * data-action="product:filter:family:clear"
+     */
+    clearFilterFamilies() {
+        searchFilter.clearFilters();
+
+        MainView.updateProductFamilyList(searchFilter.filters);
+        MainView.updateFamilySelection(searchFilter.getSelectedCodes());
+
+        eventManager.emit('product:filter:changed', buildFiltersPayload());
+    },
+
+/**
      * event:on="product:filter:changed"
      */
-    async handleFilterChanged(filters) {
-        const query = MainView.productSearchBox().value;
-        const results = await Core.searchRequest('product:search', query, filters);
-
-        eventManager.emit('product:search:completed', {
-            results,
-            filters
-        });
+    async handleFilterChanged() {
+        const query = MainView.productSearchBox()?.value || '';
+        await this.runProductSearch(query);
     },
 
     handleCustomerChanged({code}) {
         searchFilter.setCustomer(code);
 
-        this.handleFilterChanged(searchFilter);
+        this.handleFilterChanged();
     },
 
-    /**
-     * event:on="product:search:completed"
-     */
-    handleSearchCompleted({results, filters}) {
-        MainView.updateProductFamilyList(filters.families);
-        MainView.updateProductSearchResult(results);
+    syncFamilySelectionOnModalOpen(event) {
+        const target = event.target;
+        if (!target || target.id !== 'product:filter:modal') return;
+
+        MainView.updateFamilySelection(searchFilter.getSelectedCodes());
     },
 
     init() {
@@ -165,27 +264,31 @@ const ProductController = {
         dispatcher.register('product:detail:image:select', this.selectDetailImage.bind(this));
         dispatcher.register('product:image:show', this.showImages.bind(this));
         dispatcher.register('product:stock:show', this.showStockDetail.bind(this));
-        dispatcher.register('product:filter:family:toggle', this.setFamilyFilter.bind(this));
         dispatcher.register('product:family:navigate', this.navigateToFamily.bind(this));
         dispatcher.register('product:family:back', this.navigateBack.bind(this));
+        dispatcher.register('product:filter:family:toggle', this.toggleFilterFamily.bind(this));
+        dispatcher.register('product:filter:family:remove', this.removeFilterFamily.bind(this));
+        dispatcher.register('product:filter:family:clear', this.clearFilterFamilies.bind(this));
 
         eventManager.on('event:customer:changed', this.handleCustomerChanged.bind(this));
         eventManager.on('event:order:completed', () => this.handleCustomerChanged({
             code: AppSettings.customer.codcliente
         }));
         eventManager.on('product:filter:changed', this.handleFilterChanged.bind(this));
-        eventManager.on('product:search:completed', this.handleSearchCompleted.bind(this));
 
-        // Escáner de código de barras
         document.addEventListener('scan', (event) => {
             if (ReturnSaleView.isSessionActive()) return;
             this.searchByBarcode(event.detail.scanCode);
         });
 
-        // Búsqueda de productos por nombre
-        MainView.productSearchBox().addEventListener('keyup', (event) => {
-            this.searchByName(event.target);
-        });
+        const searchBox = MainView.productSearchBox();
+        if (searchBox) {
+            searchBox.addEventListener('keyup', (event) => {
+                this.searchByName(event.target);
+            });
+        }
+
+        document.addEventListener('pos:modal:shown', this.syncFamilySelectionOnModalOpen.bind(this));
     }
 };
 

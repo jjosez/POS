@@ -31,6 +31,7 @@ class MainView {
     closeSessionForm = () => viewElements['closeSessionForm'];
     productSearchBox = () => viewElements['productSearchBox'];
     newCustomerSaveButton = () => viewElements['newCustomerSaveButton'];
+
     updateCustomerListView = (data = []) => {
         templates.render(
             'customerListTemplate',
@@ -40,16 +41,92 @@ class MainView {
     };
 
     updateProductFamilyList = (data = []) => {
-        templates.render('product:filter:template', {filters: data}, 'product:filter:template:view');
-        templates.render('product:filter:template', {filters: data}, 'product:filter:family:view');
+        const filters = Array.isArray(data) ? data : [];
+
+        templates.render('product:filter:template', {filters}, 'product:filter:template:view');
+        templates.render('product:filter:template', {filters}, 'product:filter:family:view');
+
+        const chipsBar = document.getElementById('family:chips:bar');
+        if (chipsBar) {
+            chipsBar.classList.toggle('hidden', filters.length === 0);
+        }
+
+        const clearBtn = document.getElementById('family:clear:btn');
+        if (clearBtn) {
+            clearBtn.classList.toggle('hidden', filters.length === 0);
+        }
     };
 
-    updateFamilyNavigator = ({madre, children, breadcrumb}) => {
-        templates.render('family:breadcrumb:template', {breadcrumb}, 'family:breadcrumb:template:view');
-        templates.render('family:list:template', {children}, 'family:list:template:view');
+    updateFamilyNavigator = ({mother = null, children = [], breadcrumb = [], selectedCodes = []} = {}) => {
+        this.updateFamilyHeader({mother, breadcrumb});
+
+        templates.render(
+            'family:list:template',
+            {
+                children: children || [],
+                selectedCodes: selectedCodes || []
+            },
+            'family:list:template:view'
+        );
+
+        this.updateFamilySelection(selectedCodes);
     };
+
+    updateFamilyHeader({mother = null, breadcrumb = []} = {}) {
+        const label = document.getElementById('family:header:label');
+        const backBtn = document.getElementById('family:navigate:back');
+
+        const defaultLabel = label?.dataset?.default || 'Todas las categorías';
+
+        if (label) {
+            if (mother?.descripcion) {
+                label.textContent = mother.descripcion;
+                label.removeAttribute('data-default');
+            } else {
+                label.textContent = defaultLabel;
+                label.dataset.default = defaultLabel;
+            }
+        }
+
+        if (backBtn) {
+            const showBack = Array.isArray(breadcrumb) && breadcrumb.length > 0;
+            backBtn.classList.toggle('hidden', !showBack);
+        }
+    }
+
+    updateFamilySelection(selectedCodes = []) {
+        const container = document.getElementById('family:list:template:view');
+        if (!container) return;
+
+        const set = new Set(selectedCodes);
+        container.querySelectorAll('[data-family-code]').forEach(node => {
+            const code = node.dataset.familyCode;
+            const selected = set.has(code);
+
+            node.classList.toggle('ring-2', selected);
+            node.classList.toggle('ring-blue-500', selected);
+            node.classList.toggle('border-blue-500', selected);
+            node.classList.toggle('bg-blue-50/60', selected);
+            node.classList.toggle('border-slate-200', !selected);
+            node.classList.toggle('bg-white', !selected);
+
+            const toggle = node.querySelector('[data-action="product:filter:family:toggle"]');
+            if (toggle) {
+                toggle.setAttribute('aria-checked', selected ? 'true' : 'false');
+                toggle.classList.toggle('border-blue-600', selected);
+                toggle.classList.toggle('bg-blue-600', selected);
+                toggle.classList.toggle('text-white', selected);
+                toggle.classList.toggle('border-slate-300', !selected);
+                toggle.classList.toggle('bg-white', !selected);
+                toggle.classList.toggle('text-transparent', !selected);
+                toggle.setAttribute('title', selected ? 'Quitar filtro' : 'Seleccionar como filtro');
+            }
+        });
+    }
 
     updateProductSearchResult = (data = []) => {
+        if (data?.aborted) return;
+
         const mode = AppSettings.productsearch.templateDisplayMode === 'list' ? 'list' : 'grid';
         templates.render('product:search:template', {products: data, mode: mode}, 'product:search:list:view');
     };

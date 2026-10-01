@@ -103,8 +103,7 @@ class Products
         string $customerCode = '',
         string $warehouse = '',
         string $company = ''
-    ): array
-    {
+    ): array {
         $where = [
             Where::eq('V.referencia', $code),
         ];
@@ -143,17 +142,20 @@ class Products
      */
     public function search(string $text, array $filters = [], string $warehouse = '', string $company = ''): array
     {
-        $where = [
-            Where::like('V.codbarras', $text),
-            Where::orLike('V.referencia', $text),
-            Where::orXlike('P.descripcion', $text)
-        ];
+        $where = [];
+        if (trim($text) !== '') {
+            $search = [
+                Where::like('V.codbarras', $text),
+                Where::orLike('V.referencia', $text),
+                Where::orXlike('P.descripcion', $text)
+            ];
 
-        if (Plugins::isEnabled('SKU')) {
-            $where[] = Where::orLike('P.referencia_fabricante', $text);
+            if (Plugins::isEnabled('SKU')) {
+                $search[] = Where::orLike('P.referencia_fabricante', $text);
+            }
+
+            $where[] = Where::sub($search);
         }
-
-        $where[] = Where::eq('P.sevende', true);
 
         if ($company) {
             $where[] = $this->getCompanyDatabaseWhere($company);
@@ -162,8 +164,11 @@ class Products
             $where[] = Where::orIsNull('S.codalmacen');
         }
 
+        $where[] = Where::eq('P.sevende', true);
+
         if (!empty($filters['families'])) {
-            $families = implode(',', array_column($filters['families'], 'code'));
+            $families = array_column($filters['families'], 'code');
+
             $where[] = Where::in('P.codfamilia', $families);
         }
 
@@ -274,7 +279,7 @@ class Products
             Where::eq('codtarifa', $rate->codtarifa)
         ];
 
-        $familyRates = new TarifaFamilia()->all($where);
+        $familyRates = TarifaFamilia::all($where);
 
         foreach ($familyRates as $familyRate) {
             $cacheKey = $familyRate->codfamilia . '-' . $familyRate->codtarifa;
