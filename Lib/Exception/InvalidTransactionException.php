@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2022-2025 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
@@ -13,10 +14,7 @@ class InvalidTransactionException extends POSException
 {
     public static function invalidDocumentType(string $type): self
     {
-        return new self(
-            'invalid-document-type',
-            ['type' => $type]
-        );
+        return new self('invalid-document-type', ['type' => $type]);
     }
 
     public static function emptyLines(): self
@@ -26,22 +24,15 @@ class InvalidTransactionException extends POSException
 
     public static function invalidPaymentAmount(float $expected, float $received): self
     {
-        return new self(
-            'invalid-payment-amount',
-            ['expected' => $expected, 'received' => $received]
-        );
+        return new self('invalid-payment-amount', ['expected' => $expected, 'received' => $received]);
     }
 
     public static function paymentError(string $key, array $context = []): self
     {
         return new self($key, $context);
     }
-
     public static function saveError(string $reason = ''): self
     {
-        return new self(
-            'transaction-save-error',
-            ['reason' => $reason]
-        );
+        return new self('transaction-save-error', ['reason' => $reason]);
     }
 }

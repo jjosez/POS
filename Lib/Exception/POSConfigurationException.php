@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2022-2025 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
@@ -33,9 +34,6 @@ class POSConfigurationException extends POSException
 
     public static function invalidSettings(array $missingFields): self
     {
-        return new self(
-            'invalid-pos-settings',
-            ['missing_fields' => $missingFields]
-        );
+        return new self('invalid-pos-settings', ['missing_fields' => $missingFields]);
     }
 }

@@ -23,8 +23,7 @@ class Refunds
         SesionPuntoVenta $session,
         TerminalPuntoVenta $terminal,
         PaymentValidator $paymentValidator
-    )
-    {
+    ) {
         $this->session = $session;
         $this->terminal = $terminal;
         $this->paymentValidator = $paymentValidator;
@@ -85,10 +84,12 @@ class Refunds
 
     private function prepareRefund(OrdenPuntoVenta $originalOrder, array $refundLines): array
     {
-        $collected = array_sum(array_map(
-            static fn(PagoPuntoVenta $payment): float => $payment->pagoNeto(),
-            $originalOrder->getPayments()
-        ));
+        $collected = array_sum(
+            array: array_map(
+                static fn(PagoPuntoVenta $payment): float => $payment->pagoNeto(),
+                $originalOrder->getPayments()
+            )
+        );
         if (!Tools::floatcmp((float)$originalOrder->total, $collected)) {
             throw InvalidTransactionException::paymentError('refund-unpaid-operation-not-supported');
         }
@@ -234,8 +235,7 @@ class Refunds
         SalesDocument $document,
         OrdenPuntoVenta $refundOrder,
         array $payments
-    ): void
-    {
+    ): void {
         $cashAmount = 0.0;
         $counter = 1;
         $paymentService = new Payments();

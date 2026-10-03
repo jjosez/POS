@@ -7,7 +7,7 @@ use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Model\Base\SalesDocumentLine;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
-use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentPolicy;
+use FacturaScripts\Plugins\POS\Enum\PaymentPolicy;
 use RuntimeException;
 
 /**
@@ -16,8 +16,8 @@ use RuntimeException;
  */
 class Transactions
 {
-    const string SALES_DOCUMENT_CLASS = SalesDocument::class;
-    const string MODEL_NAMESPACE = '\\FacturaScripts\\Dinamic\\Model\\';
+    protected const string SALES_DOCUMENT_CLASS = SalesDocument::class;
+    protected const string MODEL_NAMESPACE = '\\FacturaScripts\\Dinamic\\Model\\';
 
     /**
      * @var SalesDocument
@@ -67,6 +67,12 @@ class Transactions
     public function getDocument(): SalesDocument
     {
         return $this->document;
+    }
+
+    public function replaceDocument(array $data, string $modelName): void
+    {
+        $this->setDocument($data, $modelName);
+        $this->prepared = false;
     }
 
     /**

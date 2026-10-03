@@ -9,7 +9,7 @@ namespace FacturaScripts\Plugins\POS\Model;
 use FacturaScripts\Core\Template\ModelClass;
 use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentPolicy;
+use FacturaScripts\Plugins\POS\Enum\PaymentPolicy;
 
 /**
  * Operaciones realizadas terminales POS.
@@ -62,6 +62,10 @@ class TipoDocumentoPuntoVenta extends ModelClass
     public function loadFromData(array $data = [], array $exclude = [], bool $sync = true): void
     {
         parent::loadFromData($data, $exclude, $sync);
+
+        if (empty($this->payment_policy) || $this->payment_policy === 'customer-account') {
+            $this->payment_policy = PaymentPolicy::REQUIRED->value;
+        }
 
         if (empty($this->descripcion)) {
             $this->descripcion = Tools::trans($this->tipodoc);

@@ -110,7 +110,7 @@ const CheckoutController = {
         return {
             total: state.total,
             remaining: state.pendingAmount,
-            customerCode: AppSettings.customer?.codcliente ?? null,
+            customerCode: document.customerCode || AppSettings.customer?.codcliente || null,
             currency: AppSettings.currency?.divisa ?? null,
             documentType: document.type || null,
             codserie: document.series || null,
@@ -135,22 +135,40 @@ const CheckoutController = {
             error: section?.dataset.errorText ?? '',
             retry: section?.dataset.retryText ?? '',
             empty: section?.dataset.emptyText ?? '',
+            available: section?.dataset.availableText ?? '',
         };
 
         const status = sources.length > 0 ? 'loaded' : 'empty';
+        let currencyFormatter = null;
+        try {
+            currencyFormatter = new Intl.NumberFormat(document.documentElement.lang || undefined, {
+                style: 'currency',
+                currency: AppSettings.currency?.divisa,
+            });
+        } catch (error) {
+            // Keep the source usable when the configured currency is not an ISO code.
+        }
+
+        const viewSources = sources.map(source => ({
+            ...source,
+            availableText: source.available && source.available_amount !== null
+                ? `${texts.available}: ${currencyFormatter
+                    ? currencyFormatter.format(source.available_amount)
+                    : source.available_amount}`
+                : '',
+        }));
 
         templates.render('payment-sources-list', {
-            sources,
+            sources: viewSources,
             status,
             texts,
         }, mount);
 
-        this.markSelectedSources(sources);
+        this.markSelectedSources();
     },
 
-    markSelectedSources(sources) {
-        const appliedCodes = new Set(sources
-            .filter(source => source.appliedAmount > 0)
+    markSelectedSources() {
+        const appliedCodes = new Set(CheckoutModel.getState().paymentSources
             .map(source => source.code));
 
         document.querySelectorAll('[data-payment-source-check]').forEach(icon => {

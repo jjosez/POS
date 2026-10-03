@@ -75,57 +75,46 @@
                                 </button>
                             {% endif %}
                         {% endfor %}
-                        {% if paymentMethods|length > 3 %}
-                            <button type="button"
-                                    class="btn btn-light min-h-20 flex-col justify-center gap-1 border-2 px-2 py-2"
-                                    data-action="checkout:payment:more" aria-expanded="false"
-                                    aria-controls="checkoutMoreMethods">
-                                <i class="fa-solid fa-fw fa-ellipsis text-lg" aria-hidden="true"></i>
-                                <span class="text-sm leading-tight">{{ trans('more') }}</span>
-                            </button>
-                        {% endif %}
+                        <button type="button"
+                                class="btn btn-light min-h-20 flex-col justify-center gap-1 border-2 px-2 py-2"
+                                data-action="checkout:payment:more" aria-expanded="false"
+                                aria-controls="checkoutMoreMethods">
+                            <i class="fa-solid fa-fw fa-ellipsis text-lg" aria-hidden="true"></i>
+                            <span class="text-sm leading-tight">{{ trans('more') }}</span>
+                        </button>
                     </div>
 
-                    {% if paymentMethods|length > 3 %}
-                        <div id="checkoutMoreMethods"
-                             class="mt-2 hidden grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
-                            <h4 class="text-xs font-semibold uppercase text-slate-500">
-                                {{ trans('more-native-methods') }}
-                            </h4>
-                            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                                {% for element in paymentMethods %}
-                                    {% if loop.index > 3 %}
-                                        {% set paymentIcon = element.iconClass() %}
-                                        <button type="button"
-                                                class="btn btn-light relative min-h-20 flex-col justify-center gap-1 border-2 px-2 py-2 text-center"
-                                                data-action="checkout:payment:add"
-                                                data-payment-method
-                                                data-payment-kind="native"
-                                                data-code="{{ element.codpago }}"
-                                                data-description="{{ element.descripcion }}"
-                                                data-cash="{{ element.codpago == cashMethod ? 'true' : 'false' }}"
-                                                aria-pressed="false">
-                                            <i class="fa-solid fa-fw {{ paymentIcon }} text-lg" aria-hidden="true"></i>
-                                            <span class="w-full whitespace-normal text-center text-sm leading-tight">{{ element.descripcion }}</span>
-                                            <i data-payment-check hidden
-                                               class="fa-solid fa-circle-check absolute right-1.5 top-1.5 text-sm text-blue-600"
-                                               aria-hidden="true"></i>
-                                        </button>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
+                    <div id="checkoutMoreMethods"
+                         class="mt-2 hidden grid-cols-2 gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:grid-cols-3">
+                        {% for element in paymentMethods %}
+                            {% if loop.index > 3 %}
+                                {% set paymentIcon = element.iconClass() %}
+                                <button type="button"
+                                        class="btn btn-light relative min-h-20 flex-col justify-center gap-1 border-2 px-2 py-2 text-center"
+                                        data-action="checkout:payment:add"
+                                        data-payment-method
+                                        data-payment-kind="native"
+                                        data-code="{{ element.codpago }}"
+                                        data-description="{{ element.descripcion }}"
+                                        data-cash="{{ element.codpago == cashMethod ? 'true' : 'false' }}"
+                                        aria-pressed="false">
+                                    <i class="fa-solid fa-fw {{ paymentIcon }} text-lg" aria-hidden="true"></i>
+                                    <span class="w-full whitespace-normal text-center text-sm leading-tight">{{ element.descripcion }}</span>
+                                    <i data-payment-check hidden
+                                       class="fa-solid fa-circle-check absolute right-1.5 top-1.5 text-sm text-blue-600"
+                                       aria-hidden="true"></i>
+                                </button>
+                            {% endif %}
+                        {% endfor %}
 
-                            <h4 class="text-xs font-semibold uppercase text-slate-500 mt-3">
-                                {{ trans('payment-sources') }}
-                            </h4>
-                            <div id="checkoutPaymentSourcesMount"
-                                 class="payment-sources-section"
-                                 data-loading-text="{{ trans('loading') }}"
-                                 data-error-text="{{ trans('payment-sources-load-error') }}"
-                                 data-retry-text="{{ trans('retry') }}"
-                                 data-empty-text="{{ trans('payment-sources-empty') }}"></div>
-                        </div>
-                    {% endif %}
+                        <div id="checkoutPaymentSourcesMount"
+                             class="payment-sources-section contents"
+                             data-loading-text="{{ trans('loading') }}"
+                             data-error-text="{{ trans('payment-sources-load-error') }}"
+                             data-retry-text="{{ trans('retry') }}"
+                             data-empty-text="{{ trans('payment-sources-empty') }}"
+                             data-available-text="{{ trans('available') }}"></div>
+                    </div>
                 </section>
 
             </div>
@@ -198,63 +187,56 @@
     <% }) %>
 </script>
 
-<script id="payment-source-item" type="text/template">
-    <button type="button"
-            class="btn btn-light relative min-h-20 w-full flex-col justify-center gap-1 border-2 px-2 py-2 text-center payment-source-item <%= it.available ? '' : 'opacity-60' %>"
-            data-action="checkout:payment-source:add"
-            data-payment-kind="source"
-            data-code="<%= it.code %>"
-            data-label="<%= it.label %>"
-            data-description="<%= it.description ?? '' %>"
-            data-available="<%= it.available ? 'true' : 'false' %>"
-            data-available-amount="<%= it.availableAmount ?? '' %>"
-            data-status="<%= it.status ?? 'AVAILABLE' %>"
-            data-message="<%= it.message ?? '' %>"
-            aria-pressed="false"
-        <%= it.available ? '' : 'disabled' %>>
-        <i class="fa-solid fa-fw <%= it.icon || 'fa-circle-dot' %> text-lg" aria-hidden="true"></i>
-        <span class="w-full whitespace-normal text-center text-sm leading-tight"><%= it.label %></span>
-        <% if (it.description) { %>
-            <span class="w-full whitespace-normal text-center text-xs leading-tight text-slate-500"><%= it.description %></span>
-        <% } %>
-        <% if (it.status && it.status !== 'AVAILABLE') { %>
-            <span class="payment-source-status w-full whitespace-normal text-center text-[11px] uppercase font-semibold tracking-wide text-slate-400"><%= it.status %></span>
-        <% } %>
-        <i data-payment-check hidden
-           class="fa-solid fa-circle-check absolute right-1.5 top-1.5 text-sm text-blue-600"
-           aria-hidden="true"></i>
-    </button>
-</script>
-
 <script id="payment-sources-list" type="text/template">
-    <div class="payment-sources-grid grid grid-cols-2 gap-2 sm:grid-cols-3"
-         id="checkoutPaymentSourcesGrid"
-         data-status="<%= it.status %>">
-        <% it.sources.forEach(function(source) { %>
-            <%~ include('payment-source-item', source) %>
-        <% }) %>
+    <% it.sources.forEach(function(source) { %>
+        <button type="button"
+                class="btn btn-light relative min-h-20 w-full flex-col justify-center gap-1 border-2 px-2 py-2 text-center payment-source-item <%= source.available ? '' : 'opacity-60' %>"
+                data-action="checkout:payment-source:add"
+                data-payment-kind="source"
+                data-code="<%= source.code %>"
+                data-label="<%= source.label %>"
+                data-description="<%= source.description ?? '' %>"
+                data-available="<%= source.available ? 'true' : 'false' %>"
+                data-available-amount="<%= source.available_amount ?? '' %>"
+                data-status="<%= source.status ?? 'AVAILABLE' %>"
+                data-message="<%= source.message ?? '' %>"
+                aria-pressed="false"
+            <%= source.available ? '' : 'disabled' %>>
+            <i class="fa-solid fa-fw <%= source.icon || 'fa-circle-dot' %> text-lg" aria-hidden="true"></i>
+            <span class="w-full whitespace-normal text-center text-sm leading-tight"><%= source.label %></span>
+            <% if (source.availableText) { %>
+                <span class="w-full whitespace-normal text-center text-xs leading-tight text-slate-500"><%= source.availableText %></span>
+            <% } else if (source.message) { %>
+                <span class="w-full whitespace-normal text-center text-xs leading-tight text-slate-500"><%= source.message %></span>
+            <% } else if (source.description) { %>
+                <span class="w-full whitespace-normal text-center text-xs leading-tight text-slate-500"><%= source.description %></span>
+            <% } %>
+            <i data-payment-source-check hidden
+               class="fa-solid fa-circle-check absolute right-1.5 top-1.5 text-sm text-blue-600"
+               aria-hidden="true"></i>
+        </button>
+    <% }) %>
 
-        <% if (it.status === 'loading') { %>
-            <div class="col-span-full flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-500"
-                 data-payment-sources-loading>
-                <span class="loading loading-spinner loading-xs"></span>
-                <span><%= it.texts.loading %></span>
-            </div>
-        <% } else if (it.status === 'error') { %>
-            <div class="col-span-full flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600"
-                 data-payment-sources-error>
-                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-                <span><%= it.texts.error %></span>
-                <button type="button" class="btn btn-naked ml-2"
-                        data-action="checkout:payment-sources:retry">
-                    <%= it.texts.retry %>
-                </button>
-            </div>
-        <% } else if (!it.sources.length) { %>
-            <div class="col-span-full rounded-lg border border-slate-200 bg-slate-50 p-3 text-center text-sm text-slate-500"
-                 data-payment-sources-empty>
-                <%= it.texts.empty %>
-            </div>
-        <% } %>
-    </div>
+    <% if (it.status === 'loading') { %>
+        <div class="col-span-full flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-500"
+             data-payment-sources-loading>
+            <span class="loading loading-spinner loading-xs"></span>
+            <span><%= it.texts.loading %></span>
+        </div>
+    <% } else if (it.status === 'error') { %>
+        <div class="col-span-full flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600"
+             data-payment-sources-error>
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            <span><%= it.texts.error %></span>
+            <button type="button" class="btn btn-naked ml-2"
+                    data-action="checkout:payment-sources:retry">
+                <%= it.texts.retry %>
+            </button>
+        </div>
+    <% } else if (!it.sources.length) { %>
+        <div class="col-span-full rounded-lg border border-slate-200 bg-slate-50 p-3 text-center text-sm text-slate-500"
+             data-payment-sources-empty>
+            <%= it.texts.empty %>
+        </div>
+    <% } %>
 </script>

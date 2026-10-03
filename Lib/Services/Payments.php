@@ -1,12 +1,11 @@
 <?php
+
 /**
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2025 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 
 namespace FacturaScripts\Plugins\POS\Lib\Services;
-
-use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentPolicy;
 
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Dinamic\Lib\ReceiptGenerator;
@@ -15,6 +14,7 @@ use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use FacturaScripts\Dinamic\Model\ReciboCliente;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
+use FacturaScripts\Plugins\POS\Enum\PaymentPolicy;
 use RuntimeException;
 
 /**
@@ -50,17 +50,13 @@ class Payments
     /**
      * Save a receipt for an invoice payment.
      */
-    public function saveInvoiceReceipt(
-        SalesDocument $invoice,
-        PagoPuntoVenta $payment,
-        int $number = 1
-    ): void {
+    public function saveInvoiceReceipt(SalesDocument $invoice, PagoPuntoVenta $payment, int $number = 1): void
+    {
         if ('FacturaCliente' !== $invoice->modelClassName()) {
             return;
         }
 
         $receipt = new ReciboCliente();
-
         $receipt->codcliente = $invoice->codcliente;
         $receipt->coddivisa = $invoice->coddivisa;
         $receipt->idempresa = $invoice->idempresa;
@@ -85,13 +81,9 @@ class Payments
      * @param PagoPuntoVenta[] $payments
      * @return bool
      */
-    public function savePayments(
-        SalesDocument $document,
-        OrdenPuntoVenta $orden,
-        array $payments
-    ): bool {
+    public function savePayments(SalesDocument $document, OrdenPuntoVenta $orden, array $payments): bool
+    {
         $this->cleanInvoiceReceipts($document);
-
         $counter = 1;
         $cashAmount = 0.0;
         foreach ($payments as $payment) {
@@ -101,7 +93,6 @@ class Payments
 
             $payment->idoperacion = $orden->idoperacion;
             $payment->idsesion = $orden->idsesion;
-
             if (false === $payment->save()) {
                 return false;
             }
@@ -111,7 +102,9 @@ class Payments
 
         $unpaid = 0.0;
         if ($orden->payment_policy === PaymentPolicy::OPTIONAL->value) {
-            $collected = array_sum(array_map(static fn(PagoPuntoVenta $payment): float => $payment->pagoNeto(), $payments));
+            $collected = array_sum(
+                array: array_map(static fn(PagoPuntoVenta $payment): float => $payment->pagoNeto(), $payments)
+            );
             $unpaid = round(max(0, (float)$document->total - $collected), (new Currencies())->getDecimals());
         }
         if ($unpaid > 0 && $document->modelClassName() === 'FacturaCliente') {
@@ -125,13 +118,15 @@ class Payments
             $receipt->numero = $counter;
             $receipt->fecha = $document->fecha;
             $receipt->setPaymentMethod($document->codpago);
-            // Payment terms determine maturity, never whether deferred money was received.
             $receipt->pagado = false;
             $receipt->liquidado = 0.0;
             $receipt->fechapago = null;
+
             if (!$receipt->save()) {
                 throw new RuntimeException('payment-receipt-save-error');
             }
+
+            /** @var FacturaCliente $document */
             (new ReceiptGenerator())->update($document);
         }
 

@@ -14,6 +14,7 @@ class CheckoutModel {
         this.paymentPolicy = AppSettings.document.payment_policy ?? 'required';
         this.documentType = '';
         this.documentSeries = '';
+        this.customerCode = '';
     }
 
     clear() {
@@ -22,6 +23,7 @@ class CheckoutModel {
         this.paymentSources = [];
         this.documentType = '';
         this.documentSeries = '';
+        this.customerCode = '';
         this.updateCheckoutEvent();
     }
 
@@ -29,6 +31,7 @@ class CheckoutModel {
         return {
             type: this.documentType,
             series: this.documentSeries,
+            customerCode: this.customerCode,
         };
     }
 
@@ -86,17 +89,17 @@ class CheckoutModel {
             && String(item.codserie) === String(doc.codserie)
         );
 
-        this.paymentPolicy = config?.payment_policy ?? 'required';
-        this.documentType = String(doc['tipo-documento'] ?? doc.generadocumento ?? '');
-        this.documentSeries = String(doc.codserie ?? '');
-
         const total = normalizeAmount(doc.total);
 
         if (this.total !== total) {
             this.updateTotal(total);
-        } else {
-            this.updateCheckoutEvent();
         }
+
+        this.paymentPolicy = config?.payment_policy ?? 'required';
+        this.documentType = String(doc['tipo-documento'] ?? doc.generadocumento ?? '');
+        this.documentSeries = String(doc.codserie ?? '');
+        this.customerCode = String(doc.codcliente ?? '');
+        this.updateCheckoutEvent();
     }
 
     getPaymentAmount(method) {

@@ -2,8 +2,8 @@
 
 namespace FacturaScripts\Plugins\POS\Lib\Services;
 
+use FacturaScripts\Plugins\POS\Enum\PaymentPolicy;
 use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
-use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentPolicy;
 
 final class PaymentValidator
 {
@@ -21,20 +21,24 @@ final class PaymentValidator
         $this->factor = 10 ** $this->decimals;
 
         foreach ($supportedMethods as $method) {
-            $code = trim((string)($method->codpago ?? ''));
+            $code = trim($method->codpago ?? '');
             if ('' === $code) {
                 continue;
             }
 
             $this->supportedMethods[$code] = true;
-            if ('' === $this->cashMethod && true === (bool)($method->recibecambio ?? false)) {
+            if ('' === $this->cashMethod && true === ($method->recibecambio ?? false)) {
                 $this->cashMethod = $code;
             }
         }
     }
 
     /**
+     * @param array $payments
+     * @param float $documentTotal
+     * @param int $operation
      * @return array<int, array{method: string, amount: float, change: float, is_cash: bool, net: float}>
+     * @throws InvalidTransactionException
      */
     public function validate(array $payments, float $documentTotal, int $operation): array
     {
@@ -139,8 +143,15 @@ final class PaymentValidator
         return $validated;
     }
 
-public function validateSettlement(array $payments, float $documentTotal, PaymentPolicy $policy, float $coveredBySources = 0.0): array
-    {
+    /**
+     * @throws InvalidTransactionException
+     */
+    public function validateSettlement(
+        array $payments,
+        float $documentTotal,
+        PaymentPolicy $policy,
+        float $coveredBySources = 0.0
+    ): array {
         $total = $this->toMinor($documentTotal, 'total');
         if ($total <= 0) {
             throw $this->error('payment-invalid-total');
@@ -149,11 +160,19 @@ public function validateSettlement(array $payments, float $documentTotal, Paymen
         $expected = max(0.0, $documentTotal - $coveredBySources);
 
         if ($policy === PaymentPolicy::OPTIONAL) {
-            return $this->validateOptional($payments, $total, max(0, $total - $this->toMinor($coveredBySources, 'covered')));
+            return $this->validateOptional(
+                $payments,
+                $total,
+                max(0, $total - $this->toMinor($coveredBySources, 'covered'))
+            );
         }
 
         if ($coveredBySources < $documentTotal) {
-            return $this->validate($payments, $this->fromMinor((int)round($expected * $this->factor)), self::SALE);
+            return $this->validate(
+                $payments,
+                $this->fromMinor((int)round($expected * $this->factor)),
+                self::SALE
+            );
         }
 
         // Sources cover the document in full; native payments are optional.
@@ -164,10 +183,11 @@ public function validateSettlement(array $payments, float $documentTotal, Paymen
         return $this->validate($payments, $this->fromMinor($total), self::SALE);
     }
 
-/**
+    /**
      * OPTIONAL documents may keep an unpaid balance. Real payments must not
      * exceed the document total. When Payment Sources cover part of the
      * document, the remaining total is the cap for native payments.
+     * @throws InvalidTransactionException
      */
     private function validateOptional(array $payments, int $total, int $remainingMinor): array
     {
@@ -214,9 +234,12 @@ public function validateSettlement(array $payments, float $documentTotal, Paymen
         return $amount / $this->factor;
     }
 
+    /**
+     * @throws InvalidTransactionException
+     */
     private function toMinor(mixed $value, string $field, int|string|null $index = null): int
     {
-        if (is_bool($value) || null === $value || (!is_int($value) && !is_float($value) && !is_string($value))) {
+        if ((!is_int($value) && !is_float($value) && !is_string($value))) {
             throw $this->error('payment-invalid-' . $field, $index);
         }
 

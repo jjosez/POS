@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2022-2025 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
@@ -13,17 +14,11 @@ class ProductNotFoundException extends POSException
 {
     public static function withReference(string $reference): self
     {
-        return new self(
-            'product-not-found',
-            ['reference' => $reference]
-        );
+        return new self('product-not-found', ['reference' => $reference]);
     }
 
     public static function withBarcode(string $barcode): self
     {
-        return new self(
-            'product-not-found-by-barcode',
-            ['barcode' => $barcode]
-        );
+        return new self('product-not-found-by-barcode', ['barcode' => $barcode]);
     }
 }

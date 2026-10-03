@@ -12,7 +12,6 @@ const elements = {
     moreButton: document.querySelector('[data-action="checkout:payment:more"]'),
     moreMethods: document.getElementById('checkoutMoreMethods'),
     paymentInput: document.getElementById('paymentApplyInput'),
-    paymentMethods: document.querySelectorAll('[data-payment-method]'),
     balanceRow: document.getElementById('checkoutBalanceRow'),
     title: document.getElementById('checkoutTitle'),
     pendingSummary: document.getElementById('checkoutPendingSummary'),
@@ -115,7 +114,7 @@ export function render(model) {
         : elements.confirmLabel.dataset.charge;
 
     // Mantener los controles actuales
-    renderPaymentMethods(state.payments);
+    renderPaymentMethods(state.payments, state.paymentSources);
     updateConfirmButton(state);
 }
 
@@ -188,15 +187,15 @@ function hideMoreMethods() {
     elements.moreButton.setAttribute('aria-expanded', 'false');
 }
 
-function renderPaymentMethods(payments) {
+function renderPaymentMethods(payments, sources) {
     const selectedNative = new Set(
         payments.filter(p => p.kind === 'native').map(payment => payment.method)
     );
     const selectedSources = new Set(
-        payments.filter(p => p.kind === 'source').map(payment => payment.code)
+        sources.map(source => source.code)
     );
 
-    elements.paymentMethods.forEach(button => {
+    document.querySelectorAll('[data-payment-method], [data-payment-kind="source"]').forEach(button => {
         const kind = button.dataset.paymentKind ?? 'native';
         const key = button.dataset.code;
         const selected = kind === 'source'
@@ -207,9 +206,11 @@ function renderPaymentMethods(payments) {
         button.classList.toggle('border-blue-500', selected);
         button.classList.toggle('bg-blue-50', selected);
         button.classList.toggle('text-blue-700', selected);
-        const check = button.querySelector('[data-payment-check]');
+        const check = button.querySelector(kind === 'source'
+            ? '[data-payment-source-check]'
+            : '[data-payment-check]');
 
-        if (check && kind === 'native') {
+        if (check) {
             check.hidden = !selected;
         }
         if (kind === 'source') {

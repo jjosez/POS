@@ -87,6 +87,12 @@ class TransactionRequest
         return $this->documentType;
     }
 
+    public function replaceDocument(string $documentType, array $documentData): void
+    {
+        $this->documentType = $documentType;
+        $this->documentData = $documentData;
+    }
+
     public function isDraft(): bool
     {
         return $this->documentType === 'BorradorPuntoVenta';

@@ -16,6 +16,7 @@ use FacturaScripts\Plugins\POS\Lib\Hooks\Hook;
 use FacturaScripts\Plugins\POS\Lib\Hooks\HookManager;
 use FacturaScripts\Plugins\POS\Lib\Http\ResponseBuilder;
 use FacturaScripts\Plugins\POS\Lib\Http\Validator;
+use FacturaScripts\Plugins\POS\Lib\Exception\POSException;
 
 /**
  * Base controller for Point of Sale operations.
@@ -113,6 +114,21 @@ abstract class BaseController extends Controller
         $this->responseBuilder->addMessage($message, $type);
     }
 
+    protected function handlePOSException(POSException $exception): void
+    {
+        if ($this->dataBase->inTransaction()) {
+            $this->dataBase->rollback();
+        }
+
+        Tools::log('POS-debug')->warning($exception->getMessage());
+        $this->setErrorResponse(['error' => $exception->getTranslationKey()]);
+        $this->addMessage(
+            $exception->getTranslationKey(),
+            'warning',
+            $exception->getContext()
+        );
+    }
+
     // ========================================================================
     // Validation
     // ========================================================================
@@ -186,11 +202,6 @@ abstract class BaseController extends Controller
     public function addHookAction(Hook $hook, array $action): void
     {
         $this->hookManager->addHookAction($hook, $action);
-    }
-
-    public function addPaymentSourceProvider(PaymentSourceProviderInterface $paymentSource)
-    {
-        $this->hookManager->addPaymentSourceProvider($paymentSource);
     }
 
     /**

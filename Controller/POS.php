@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2022-2026 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
@@ -16,8 +17,8 @@ use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\BorradorPuntoVenta;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
+use FacturaScripts\Plugins\POS\Enum\PaymentPolicy;
 use FacturaScripts\Plugins\POS\Lib\Core\BaseController;
-use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentPolicy;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContext;
 use FacturaScripts\Plugins\POS\Lib\Core\SessionManager;
 use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
@@ -26,7 +27,6 @@ use FacturaScripts\Plugins\POS\Lib\Services\Refunds;
 use FacturaScripts\Plugins\POS\Lib\Services\TransactionRequest;
 use FacturaScripts\Plugins\POS\Lib\Services\Transactions;
 use FacturaScripts\Plugins\POS\Model\DevolucionPuntoVenta;
-use RuntimeException;
 use Throwable;
 
 /**
@@ -34,8 +34,7 @@ use Throwable;
  */
 class POS extends BaseController
 {
-    const DEFAULT_POS_DOCUMENT = 'FacturaCliente';
-    const DRAFT_POS_DOCUMENT = 'BorradorPuntoVenta';
+    protected const DRAFT_POS_DOCUMENT = 'BorradorPuntoVenta';
 
     /**
      * @param Response $response
@@ -55,19 +54,14 @@ class POS extends BaseController
         // Initialize session and context (lazy loading)
         $this->session = new SessionManager($user);
         $this->setupContext();
-
         $this->loadPaymentSourceProviders();
-        $this->context->paymentSources()->registerExternalProviders(
-            $this->hookManager->getPaymentSourceProviders()
-        );
 
         $action = $this->request->inputOrQuery('action', '');
-        // Execute cart-specific actions
+
         if ($action && $this->execCartQueryAction($action)) {
             return;
         }
 
-        // Execute actions
         if ($action && !$this->execAction($action)) {
             return;
         }
@@ -78,7 +72,6 @@ class POS extends BaseController
         $this->loadCustomDocumentFields();
         $this->loadCustomMenuElements();
         $this->loadPointOfSaleHooks();
-        $this->loadPaymentSourceProviders();
 
         $template = $this->session->getView();
         $this->setTemplate($template);
@@ -109,8 +102,10 @@ class POS extends BaseController
                 $code = $this->request->request->get('code', '');
                 $customer = $this->request->request->get('customer', '');
                 $terminal = $this->context->config()->getTerminal();
-                $company = $terminal->productsource === $terminal::PRODUCTS_FROM_COMPANY ? $terminal->idempresa : '';
-                $warehouse = $terminal->productsource === $terminal::PRODUCTS_FROM_WAREHOUSE ? $terminal->codalmacen : '';
+                $company = $terminal->productsource === $terminal::PRODUCTS_FROM_COMPANY
+                    ? $terminal->idempresa : '';
+                $warehouse = $terminal->productsource === $terminal::PRODUCTS_FROM_WAREHOUSE
+                    ? $terminal->codalmacen : '';
                 $this->setResponse($this->context->products()->getDetail($code, $customer, $warehouse, $company));
                 return false;
 
@@ -292,8 +287,7 @@ class POS extends BaseController
         try {
             $this->validateSupportedDocument($draft->generadocumento, $draft->codserie);
         } catch (POSException $exception) {
-            $this->setErrorResponse(['error' => $exception->getTranslationKey()]);
-            $this->addMessage($exception->getTranslationKey(), 'warning', $exception->getContext());
+            $this->handlePOSException($exception);
             $this->buildResponse();
             return;
         }
@@ -331,12 +325,7 @@ class POS extends BaseController
                 throw InvalidTransactionException::saveError('database-transaction-commit-error');
             }
         } catch (POSException $exception) {
-            if ($this->dataBase->inTransaction()) {
-                $this->dataBase->rollback();
-            }
-            Tools::log('POS-debug')->warning($exception->getMessage());
-            $this->setErrorResponse(['error' => $exception->getTranslationKey()]);
-            $this->addMessage($exception->getTranslationKey(), 'warning', $exception->getContext());
+            $this->handlePOSException($exception);
             $this->buildResponse();
             return;
         } catch (Throwable $exception) {
@@ -389,6 +378,9 @@ class POS extends BaseController
         }
     }
 
+    /**
+     * @throws InvalidTransactionException
+     */
     protected function validateRefundLines(OrdenPuntoVenta $order, array $requestedLines): void
     {
         $refundData = $this->context->storage()->getRefundData($order);
@@ -465,9 +457,7 @@ class POS extends BaseController
 
             $this->setSuccessResponse(['total' => $total]);
         } catch (POSException $exception) {
-            Tools::log('POS-debug')->warning($exception->getMessage());
-            $this->setErrorResponse(['error' => $exception->getTranslationKey()]);
-            $this->addMessage($exception->getTranslationKey(), 'warning', $exception->getContext());
+            $this->handlePOSException($exception);
         } catch (Throwable $exception) {
             Tools::log('POS-debug')->error('refund-quote-error', [
                 '%code%' => $originalCode,
@@ -480,6 +470,9 @@ class POS extends BaseController
         $this->buildResponse();
     }
 
+    /**
+     * @throws InvalidTransactionException
+     */
     protected function lockOrderForRefund(OrdenPuntoVenta $order): void
     {
         $id = (int)$order->idoperacion;
@@ -565,12 +558,7 @@ class POS extends BaseController
                 throw InvalidTransactionException::saveError('database-transaction-commit-error');
             }
         } catch (POSException $e) {
-            if ($this->dataBase->inTransaction()) {
-                $this->dataBase->rollback();
-            }
-            Tools::log('POS-debug')->warning($e->getMessage());
-            $this->setErrorResponse(['error' => $e->getTranslationKey()]);
-            $this->addMessage($e->getTranslationKey(), 'warning', $e->getContext());
+            $this->handlePOSException($e);
             $this->buildResponse();
             return false;
         } catch (Throwable $e) {
@@ -627,8 +615,7 @@ class POS extends BaseController
         try {
             $this->validateRefundLines($originalOrder, $lines);
         } catch (POSException $exception) {
-            $this->setErrorResponse(['error' => $exception->getTranslationKey()]);
-            $this->addMessage($exception->getTranslationKey(), 'warning', $exception->getContext());
+            $this->handlePOSException($exception);
             $this->buildResponse();
             return;
         }
@@ -879,12 +866,14 @@ class POS extends BaseController
             $transaction = new Transactions($request);
             $this->setResponse($transaction->recalculate());
         } catch (POSException $exception) {
-            $this->setErrorResponse(['error' => $exception->getTranslationKey()]);
-            $this->addMessage($exception->getTranslationKey(), 'warning', $exception->getContext());
+            $this->handlePOSException($exception);
             $this->buildResponse();
         }
     }
 
+    /**
+     * @throws InvalidTransactionException
+     */
     protected function validateDocumentType(TransactionRequest $request): void
     {
         $documentData = $request->getDocumentData();
@@ -894,6 +883,9 @@ class POS extends BaseController
         $this->validateSupportedDocument($type, (string)($documentData['codserie'] ?? ''));
     }
 
+    /**
+     * @throws InvalidTransactionException
+     */
     protected function validateSupportedDocument(string $type, string $serie): void
     {
         foreach ($this->context->config()->getSupportedDocuments() as $document) {
@@ -905,6 +897,9 @@ class POS extends BaseController
         throw InvalidTransactionException::invalidDocumentType($type);
     }
 
+    /**
+     * @throws InvalidTransactionException
+     */
     protected function resolvePaymentPolicy(SalesDocument $document): PaymentPolicy
     {
         $this->validateSupportedDocument($document->modelClassName(), $document->codserie);
@@ -925,21 +920,22 @@ class POS extends BaseController
         throw InvalidTransactionException::invalidDocumentType($document->modelClassName());
     }
 
-protected function validateSettlement(
+    /**
+     * @throws InvalidTransactionException
+     */
+    protected function validateSettlement(
         Transactions $transaction,
         array $payments,
         float $coveredBySources = 0.0
     ): array {
         $document = $transaction->getDocument();
         $transaction->setPaymentPolicy($this->resolvePaymentPolicy($document));
-        $validated = $this->context->paymentValidator()->validateSettlement(
+        return $this->context->paymentValidator()->validateSettlement(
             $payments,
             (float)$document->total,
             $transaction->getPaymentPolicy(),
             $coveredBySources
         );
-
-        return $validated;
     }
 
     protected function saveOrder(): void
@@ -957,13 +953,13 @@ protected function validateSettlement(
                 throw InvalidTransactionException::saveError('fail-calculate-document');
             }
 
-            // Apply extension-provided Payment Sources (e.g., customer account).
-            $coveredBySources = $this->applyPaymentSourcesForOrder($transaction, $request);
+            $requestedSources = $this->sanitiseSources($request->getPaymentSourcesData());
+            $requestedSourceAmount = array_sum(array_column($requestedSources, 'amount'));
 
             $validatedPayments = $this->validateSettlement(
                 $transaction,
                 $transaction->getRawPayments(),
-                $coveredBySources
+                $requestedSourceAmount
             );
             $transaction->setValidatedPayments($validatedPayments);
 
@@ -974,16 +970,19 @@ protected function validateSettlement(
             if (!$transaction->prepareDocument()) {
                 throw InvalidTransactionException::saveError('fail-calculate-document');
             }
+
+            if (!$this->dataBase->beginTransaction()) {
+                throw InvalidTransactionException::saveError('database-transaction-start-error');
+            }
+
+            // Providers run against the final document selected by saveBefore.
+            $coveredBySources = $this->applyPaymentSourcesForOrder($transaction, $request);
             $validatedPayments = $this->validateSettlement(
                 $transaction,
                 $transaction->getPaymentData(),
                 $coveredBySources
             );
             $transaction->setValidatedPayments($validatedPayments);
-
-            if (!$this->dataBase->beginTransaction()) {
-                throw InvalidTransactionException::saveError('database-transaction-start-error');
-            }
 
             if (!$transaction->saveDocument()) {
                 throw InvalidTransactionException::saveError('fail-update');
@@ -993,7 +992,7 @@ protected function validateSettlement(
             $payments = $transaction->getPayments();
 
             // Ensure persistence did not alter the total used during validation.
-            $this->validateSettlement($transaction, $transaction->getPaymentData());
+            $this->validateSettlement($transaction, $transaction->getPaymentData(), $coveredBySources);
 
             $order = new OrdenPuntoVenta();
             $order->payment_policy = $transaction->getPaymentPolicy()->value;
@@ -1013,12 +1012,7 @@ protected function validateSettlement(
                 throw InvalidTransactionException::saveError('database-transaction-commit-error');
             }
         } catch (POSException $exception) {
-            if ($this->dataBase->inTransaction()) {
-                $this->dataBase->rollback();
-            }
-            Tools::log('POS-debug')->warning($exception->getMessage());
-            $this->setErrorResponse(['error' => $exception->getTranslationKey()]);
-            $this->addMessage($exception->getTranslationKey(), 'warning', $exception->getContext());
+            $this->handlePOSException($exception);
             return;
         } catch (Throwable $exception) {
             if ($this->dataBase->inTransaction()) {
@@ -1042,70 +1036,6 @@ protected function validateSettlement(
             'model' => $document->modelClassName(),
             'order' => $order->id()
         ]);
-    }
-
-    protected function executeTransaction(Transactions $transaction): bool
-    {
-        try {
-            if (!$transaction->prepareDocument()) {
-                throw InvalidTransactionException::saveError('fail-calculate-document');
-            }
-
-            $validatedPayments = $this->validateSettlement($transaction, $transaction->getRawPayments());
-            $transaction->setValidatedPayments($validatedPayments);
-
-            if (!$this->dataBase->beginTransaction()) {
-                throw InvalidTransactionException::saveError('database-transaction-start-error');
-            }
-
-            if (!$transaction->saveDocument()) {
-                throw new RuntimeException('fail-update');
-            }
-
-            $document = $transaction->getDocument();
-            $payments = $transaction->getPayments();
-            $order = new OrdenPuntoVenta();
-            $this->validateSettlement($transaction, $transaction->getPaymentData());
-            $order->payment_policy = $transaction->getPaymentPolicy()->value;
-
-            if (!$this->context->storage()->saveOrder($order, $document)) {
-                throw new RuntimeException('fail-save-order');
-            }
-
-            if (!$this->context->storage()->completeDraft($document)) {
-                throw new RuntimeException('fail-update-paused-document');
-            }
-
-            if (!$this->context->payments()->savePayments($document, $order, $payments)) {
-                throw new RuntimeException('fail-save-payments');
-            }
-
-            if (!$this->dataBase->commit()) {
-                throw InvalidTransactionException::saveError('database-transaction-commit-error');
-            }
-        } catch (Throwable $exception) {
-            if ($this->dataBase->inTransaction()) {
-                $this->dataBase->rollback();
-            }
-            Tools::log('POS-debug')->warning($exception->getMessage());
-            return false;
-        }
-
-        try {
-            $this->pipe('save', $document, $payments);
-        } catch (Throwable $exception) {
-            Tools::log('POS-debug')->error('transaction-hook-error', ['%error%' => $exception->getMessage()]);
-        }
-        Tools::log('POS')->notice('record-updated-correctly');
-
-        $this->setSuccessResponse([
-            'code' => $document->id(),
-            'model' => $document->modelClassName(),
-            'order' => $order->id(),
-            'token' => $order->id(),
-        ]);
-
-        return true;
     }
 
 
@@ -1389,7 +1319,7 @@ protected function validateSettlement(
         }
 
         $class = '\FacturaScripts\Dinamic\Model\\' . $documentClass;
-        /** @var \FacturaScripts\Core\Model\Base\SalesDocument $document */
+        /** @var SalesDocument $document */
         $document = new $class();
         $document->codcliente = $codcliente;
         $document->codserie = (string)($payload['codserie'] ?? ($defaultDocument->codserie ?? ''));
@@ -1408,7 +1338,7 @@ protected function validateSettlement(
             'idempresa' => (int)$terminal->idempresa,
             'codalmacen' => (string)$terminal->codalmacen,
         ];
-        if (isset($payload['idpausada']) && $payload['idpausada'] !== '' && $payload['idpausada'] !== null) {
+        if (isset($payload['idpausada']) && $payload['idpausada'] !== '') {
             $extra['idpausada'] = (int)$payload['idpausada'];
         }
 
@@ -1427,10 +1357,11 @@ protected function validateSettlement(
      * Apply any extension-contributed Payment Sources to the document inside
      * the current order. Returns the total amount covered by sources so the
      * PaymentValidator can validate native payments accordingly.
+     * @throws InvalidTransactionException
      */
     protected function applyPaymentSourcesForOrder(
-        \FacturaScripts\Plugins\POS\Lib\Services\Transactions $transaction,
-        \FacturaScripts\Plugins\POS\Lib\Services\TransactionRequest $request
+        Transactions $transaction,
+        TransactionRequest $request
     ): float {
         $manager = $this->context->paymentSources();
         $applied = $this->sanitiseSources($request->getPaymentSourcesData());
@@ -1448,7 +1379,7 @@ protected function validateSettlement(
 
         $context = new PaymentSourceContext(
             document: $document,
-            customerCode: (string)($document->codcliente ?? ''),
+            customerCode: $document->codcliente ?? '',
             total: (float)$document->total,
             coveredAmount: 0.0,
             sources: $applied,
@@ -1460,7 +1391,7 @@ protected function validateSettlement(
         $covered = 0.0;
         foreach ($results as $result) {
             if (!($result['approved'] ?? false)) {
-                throw \FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException::paymentError(
+                throw InvalidTransactionException::paymentError(
                     'payment-source-rejected',
                     ['%code%' => (string)($result['code'] ?? '')]
                 );
@@ -1468,7 +1399,7 @@ protected function validateSettlement(
             $covered += (float)($result['consumed'] ?? 0.0);
         }
 
-        \FacturaScripts\Core\Tools::log('POS')->notice(
+        Tools::log('POS')->notice(
             'payment-sources-applied',
             ['%count%' => (string)count($results), '%amount%' => (string)$covered]
         );
@@ -1496,8 +1427,6 @@ protected function validateSettlement(
 
         return $sources;
     }
-
-
 
 
     public function getPageData(): array

@@ -1,6 +1,6 @@
 <?php
 
-namespace FacturaScripts\Plugins\POS\Lib\Core\PaymentSource;
+namespace FacturaScripts\Plugins\POS\Enum;
 
 enum PaymentPolicy: string
 {

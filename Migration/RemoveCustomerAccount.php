@@ -7,7 +7,7 @@ use RuntimeException;
 
 class RemoveCustomerAccount extends MigrationClass
 {
-    const MIGRATION_NAME = 'remove_pos_customer_account_v2.79.0';
+    const MIGRATION_NAME = 'remove_pos_customer_account_v2.79.1';
 
     public function run(): void
     {
@@ -16,7 +16,8 @@ class RemoveCustomerAccount extends MigrationClass
             if (
                 in_array('payment_policy', $columns, true)
                 && false === $this->db()->exec(
-                    "UPDATE pos_document_types SET payment_policy = 'required' WHERE payment_policy = 'customer-account'"
+                    "UPDATE pos_document_types SET payment_policy = 'required'"
+                    . " WHERE payment_policy IS NULL OR payment_policy NOT IN ('required', 'optional')"
                 )
             ) {
                 throw new RuntimeException('Unable to migrate POS document payment policies.');
@@ -31,7 +32,8 @@ class RemoveCustomerAccount extends MigrationClass
         if (
             in_array('payment_policy', $columns, true)
             && false === $this->db()->exec(
-                "UPDATE pos_operations SET payment_policy = 'required' WHERE payment_policy = 'customer-account'"
+                "UPDATE pos_operations SET payment_policy = 'required'"
+                . " WHERE payment_policy IS NULL OR payment_policy NOT IN ('required', 'optional')"
             )
         ) {
             throw new RuntimeException('Unable to migrate POS operation payment policies.');

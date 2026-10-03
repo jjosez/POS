@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2025 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
@@ -12,9 +13,9 @@ use FacturaScripts\Plugins\POS\Contract\PaymentSourceProviderInterface;
  * Central registry for extension-based Payment Sources.
  *
  * Native FormaPago entries are intentionally NOT routed through this manager:
- * they keep the existing terminal configuration, persistence and validation.
+ * they keep the existing terminal configuration, persistence, and validation.
  *
- * Extensions contribute providers by invoking
+ * Extensions contribute to providers by invoking
  * `HookManager::addPaymentSourceProvider()` from inside their
  * `loadPaymentSourceRegistration` extension hook.
  */
@@ -134,7 +135,7 @@ class PaymentSourceManager
     /**
      * Apply the requested amount to each provider in `applied`. Each provider
      * is responsible for its own domain side effects; the manager only routes
-     * the request and normalises the resulting status payload.
+     * the request and normalizes the resulting status payload.
      *
      * @param array<int, array<string, mixed>> $applied
      * @return array<int, array<string, mixed>>
@@ -190,22 +191,5 @@ class PaymentSourceManager
         }
 
         $this->booted = true;
-    }
-
-    /**
-     * Push externally registered providers (typically contributed by the
-     * `PaymentSourceRegistration` hook) into the manager.
-     *
-     * @param iterable<PaymentSourceProviderInterface> $providers
-     */
-    public function registerExternalProviders(iterable $providers): void
-    {
-        $this->boot();
-
-        foreach ($providers as $provider) {
-            if ($provider instanceof PaymentSourceProviderInterface) {
-                $this->register($provider);
-            }
-        }
     }
 }

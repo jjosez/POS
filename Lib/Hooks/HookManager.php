@@ -18,7 +18,6 @@ class HookManager
     private array $customDocumentFields;
     private array $customMenuElements;
     private array $hookActions = [];
-    private array $paymentSourceProviders = [];
 
     public function __construct()
     {
@@ -99,24 +98,5 @@ class HookManager
     public function getPrintClosingTicketActions(): array
     {
         return $this->getHookActions(Hook::OnClosingTicketPrinting->value);
-    }
-
-    /**
-     * Registers a Payment Source Provider contributed by an extension plugin.
-     * The PaymenSourceManager collects these entries and aggregates them.
-     */
-    public function addPaymentSourceProvider(PaymentSourceProviderInterface $provider): void
-    {
-        $this->paymentSourceProviders[] = $provider;
-    }
-
-    /**
-     * Returns all Payment Source Providers declared through the hook system.
-     *
-     * @return PaymentSourceProviderInterface[]
-     */
-    public function getPaymentSourceProviders(): array
-    {
-        return $this->paymentSourceProviders;
     }
 }
