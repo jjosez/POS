@@ -3,9 +3,11 @@
 namespace FacturaScripts\Plugins\POS\Tests\Unit;
 
 use FacturaScripts\Core\Model\Base\SalesDocument;
+use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Plugins\POS\Contract\PaymentSourceProviderInterface;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceAvailability;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContext;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContextFactory;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceManager;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceResult;
 use PHPUnit\Framework\TestCase;
@@ -14,7 +16,7 @@ class PaymentSourceManagerTest extends TestCase
 {
     public function testRegistryIgnoresEmptyCodeAndDuplicates(): void
     {
-        $manager = new PaymentSourceManager();
+        $manager = $this->manager();
         $manager->register(new FakeProvider(''));
         $a = new FakeProvider('customer-account');
         $b = new FakeProvider('customer-account');
@@ -27,7 +29,7 @@ class PaymentSourceManagerTest extends TestCase
 
     public function testExternalProvidersAreAggregated(): void
     {
-        $manager = new PaymentSourceManager();
+        $manager = $this->manager();
         $a = new FakeProvider('a');
         $b = new FakeProvider('b');
 
@@ -39,7 +41,7 @@ class PaymentSourceManagerTest extends TestCase
 
     public function testCheckAvailabilityCatchesExceptions(): void
     {
-        $manager = new PaymentSourceManager();
+        $manager = $this->manager();
         $manager->register(new ThrowingProvider('broken'));
 
         $context = $this->context();
@@ -53,7 +55,7 @@ class PaymentSourceManagerTest extends TestCase
 
     public function testApplySourcesRejectsWhenProviderRefuses(): void
     {
-        $manager = new PaymentSourceManager();
+        $manager = $this->manager();
         $manager->register(new FakeProvider('a', approved: false));
 
         $context = $this->context();
@@ -65,7 +67,7 @@ class PaymentSourceManagerTest extends TestCase
 
     public function testApplySourcesIgnoresUnknownProviders(): void
     {
-        $manager = new PaymentSourceManager();
+        $manager = $this->manager();
         $results = $manager->applySources($this->context(), [
             ['code' => 'ghost', 'amount' => 10.0],
         ]);
@@ -73,6 +75,20 @@ class PaymentSourceManagerTest extends TestCase
         $this->assertCount(1, $results);
         $this->assertFalse($results[0]['approved']);
         $this->assertSame('NOT_AVAILABLE', $results[0]['status']);
+    }
+
+    public function testRequestedAmountIgnoresInvalidSources(): void
+    {
+        $manager = $this->manager();
+
+        $amount = $manager->requestedAmount([
+            ['code' => 'credit', 'amount' => 25.5],
+            ['code' => '', 'amount' => 10],
+            ['code' => 'negative', 'amount' => -5],
+            'invalid',
+        ]);
+
+        $this->assertSame(25.5, $amount);
     }
 
     private function context(): PaymentSourceContext
@@ -83,6 +99,12 @@ class PaymentSourceManagerTest extends TestCase
             total: 100.0,
             coveredAmount: 0.0,
         );
+    }
+
+    private function manager(): PaymentSourceManager
+    {
+        $terminal = $this->createMock(TerminalPuntoVenta::class);
+        return new PaymentSourceManager(new PaymentSourceContextFactory($terminal));
     }
 }
 

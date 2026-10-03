@@ -8,6 +8,7 @@ namespace FacturaScripts\Plugins\POS\Lib\Core;
 
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContextFactory;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceManager;
 use FacturaScripts\Plugins\POS\Lib\Services\Agents;
 use FacturaScripts\Plugins\POS\Lib\Services\Configuration;
@@ -119,7 +120,9 @@ class Context
 
     public function paymentSources(): PaymentSourceManager
     {
-        return $this->services['paymentSources'] ??= new PaymentSourceManager();
+        return $this->services['paymentSources'] ??= new PaymentSourceManager(
+            new PaymentSourceContextFactory($this->terminal)
+        );
     }
 
     /**

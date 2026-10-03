@@ -32,7 +32,7 @@ const PaymentSourceManager = {
         this.state = 'loading';
         this.loading = true;
 
-        this.request = fetch('POS?action=payment-sources', {
+        this.request = fetch('POS?action=checkout:payment-sources:get', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
