@@ -1,11 +1,11 @@
 {# /**
  *  This file is part of POS plugin for FacturaScripts
- *  Pantalla de cobro estilo Odoo - Reemplaza el modal de checkout
+ *  Odoo-style checkout screen - Replaces the checkout modal
  */ #}
 <div class="flex h-full w-full flex-col bg-slate-50 md:flex-row">
-    {# Panel Izquierdo - Resumen del pedido #}
+    {# Left panel - Order summary #}
     <div class="flex w-full flex-col bg-white md:w-2/5 md:shadow-lg">
-        {# Header con información del documento #}
+        {# Header with document information #}
         <div class="border-b-2 border-slate-200 p-4">
             <div class="flex items-center justify-between">
                 <div>
@@ -22,7 +22,7 @@
                 </button>
             </div>
 
-            {# Cliente y Agente #}
+            {# Customer and agent #}
             <div class="mt-4 grid grid-cols-2 gap-3">
                 <div class="rounded-lg bg-slate-50 p-3">
                     <p class="text-[10px] font-semibold uppercase text-slate-500">{{ trans('customer') }}</p>
@@ -46,14 +46,14 @@
             </div>
         </div>
 
-        {# Lista de productos del carrito #}
+        {# Cart product list #}
         <div id="checkout:cart:summary" class="flex-1 overflow-auto p-4">
             <div class="space-y-3">
-                {# Los productos se renderizarán dinámicamente aquí #}
+                {# Products are rendered dynamically here #}
             </div>
         </div>
 
-        {# Totales #}
+        {# Totals #}
         <div class="border-t-2 border-slate-200 bg-slate-50 p-4">
             <div class="space-y-3 text-base font-medium">
                 <div class="flex justify-between">
@@ -72,9 +72,9 @@
         </div>
     </div>
 
-    {# Panel Derecho - Interfaz de pago #}
+    {# Right panel - Payment interface #}
     <div class="flex flex-1 flex-col">
-        {# Montos de pago #}
+        {# Payment amounts #}
         <div class="flex border-b-4 border-slate-300 text-white font-medium">
             <div class="flex-1 bg-green-500 p-6">
                 <h2 class="text-base font-semibold uppercase text-green-800">{{ trans('tendered-amount') }}</h2>
@@ -86,9 +86,9 @@
             </div>
         </div>
 
-        {# Área de trabajo principal #}
+        {# Main work area #}
         <div class="flex flex-1 flex-col overflow-auto p-6">
-            {# Input de monto #}
+            {# Amount input #}
             <div class="mb-6">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">{{ trans('amount') }}</label>
                 <div class="flex gap-3">
@@ -106,7 +106,7 @@
                 </div>
             </div>
 
-            {# Botones de métodos de pago #}
+            {# Payment method buttons #}
             <div class="mb-6">
                 <h3 class="mb-3 text-sm font-semibold text-slate-700">{{ trans('payment-methods') }}</h3>
                 <div class="grid grid-cols-2 gap-3 lg:grid-cols-3">
@@ -123,16 +123,16 @@
                 </div>
             </div>
 
-            {# Lista de pagos agregados #}
+            {# Added payments list #}
             <div class="flex-1">
                 <h3 class="mb-3 text-sm font-semibold text-slate-700">{{ trans('payments') }}</h3>
                 <div id="payment:list:view" class="space-y-3">
-                    {# Los pagos se renderizarán dinámicamente aquí #}
+                    {# Payments are rendered dynamically here #}
                 </div>
             </div>
         </div>
 
-        {# Footer con acciones #}
+        {# Footer with actions #}
         <div class="border-t-4 border-slate-300 bg-white p-6">
             <div class="flex gap-4">
                 <button class="btn btn-danger flex-1 py-4 text-lg font-bold"
@@ -154,7 +154,7 @@
     </div>
 </div>
 
-{# Template para la lista de pagos #}
+{# Template for the payments list #}
 <script id="payment:list:template" type="text/template">
     <% if (payments.length === 0) { %>
     <div class="flex h-32 items-center justify-center rounded-lg border-2 border-dashed border-slate-300 text-slate-400">
@@ -183,7 +183,7 @@
     <% }) %>
 </script>
 
-{# Template para el resumen de productos en checkout #}
+{# Template for the checkout product summary #}
 <script id="checkout:cart:template" type="text/template">
     <% if (lines.length === 0) { %>
     <div class="flex h-32 items-center justify-center text-slate-400">

@@ -47,7 +47,7 @@ export function render(model) {
     ];
     const payments = mergedList;
 
-    // Totales
+    // Totals
     const remaining = Math.max(
         0,
         state.total - state.collectedAmount
@@ -62,7 +62,7 @@ export function render(model) {
         hasChange ? state.change : remaining
     );
 
-    // Saldo pendiente o cambio
+    // Pending balance or change
     elements.balanceRow.classList.toggle(
         'hidden',
         !hasChange && (optional || !hasRemaining)
@@ -81,7 +81,7 @@ export function render(model) {
         !hasChange
     );
 
-    // Pagos registrados
+    // Applied payments
     elements.appliedPayments.classList.toggle(
         'hidden',
         payments.length === 0
@@ -93,7 +93,7 @@ export function render(model) {
         'payment:list:view'
     );
 
-    // Resumen inferior
+    // Bottom summary
     const showPendingSummary = optional && hasRemaining;
 
     elements.pendingSummary.classList.toggle(
@@ -103,17 +103,17 @@ export function render(model) {
 
     elements.pendingAmount.textContent = roundFixed(remaining);
 
-    // Total cobrado
+    // Collected total
     elements.collectedAmount.textContent = roundFixed(
         state.collectedAmount
     );
 
-    // Botón de confirmación
+    // Confirm button
     elements.confirmLabel.textContent = optional
         ? elements.confirmLabel.dataset.finalize
         : elements.confirmLabel.dataset.charge;
 
-    // Mantener los controles actuales
+    // Keep the current controls in sync
     renderPaymentMethods(state.payments, state.paymentSources);
     updateConfirmButton(state);
 }

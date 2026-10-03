@@ -8,11 +8,13 @@ const CustomerController = {
     async create() {
         const taxID = Core.getElement('newCustomerTaxID').value;
         const name = Core.getElement('newCustomerName').value;
+        const tokenResponse = await Core.getNewToken();
         const data = new FormData();
 
         data.set('action', 'customer:create');
         data.set('taxID', taxID);
         data.set('name', name);
+        data.set('token', tokenResponse?.token ?? '');
 
         const response = await Core.postRequest(data);
 

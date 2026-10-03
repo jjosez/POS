@@ -259,7 +259,9 @@ class POS extends BaseController
 
     protected function deleteDraftOrder(): void
     {
-        if (!$this->validateDelete()) {
+        // Destructive action: require delete permission AND a valid CSRF token.
+        if (!$this->validateDelete() || !$this->validator->validateToken()) {
+            $this->setNewToken();
             $this->buildResponse();
             return;
         }
@@ -613,27 +615,28 @@ class POS extends BaseController
 
         try {
             $this->validateRefundLines($originalOrder, $lines);
+
+            // Quote through the shared refund pipeline so the draft total
+            // matches the final refund calculation (single source of truth).
+            $refunds = new Refunds(
+                $this->session->getSession(),
+                $this->session->getTerminal(),
+                $this->context->paymentValidator()
+            );
+            $total = $refunds->quoteRefund($originalOrder, $lines);
         } catch (POSException $exception) {
             $this->handlePOSException($exception);
             $this->buildResponse();
             return;
-        }
-
-        $refundData = $this->context->storage()->getRefundData($originalOrder);
-        $total = 0.0;
-        foreach ($refundData['lines'] as $line) {
-            foreach ($lines as $sel) {
-                if ((int)$sel['idlinea'] === (int)$line['idlinea']) {
-                    $qty = min(abs((float)$sel['cantidad']), (float)$line['refundable']);
-                    $net = (float)$line['pvpunitario'] * $qty
-                        * (1 - ((float)($line['dtopor'] ?? 0)) / 100)
-                        * (1 - ((float)($line['dtopor2'] ?? 0)) / 100);
-                    $iva = $net * ((float)($line['iva'] ?? 0)) / 100;
-                    $recargo = $net * ((float)($line['recargo'] ?? 0)) / 100;
-                    $total += $net + $iva + $recargo;
-                    break;
-                }
-            }
+        } catch (Throwable $exception) {
+            Tools::log('POS-debug')->error('refund-draft-quote-error', [
+                '%code%' => $originalCode,
+                '%error%' => $exception->getMessage(),
+            ]);
+            $this->setErrorResponse(['error' => 'order-refund-failed']);
+            $this->addMessage('order-refund-failed', 'warning');
+            $this->buildResponse();
+            return;
         }
 
         $draft = new DevolucionPuntoVenta();
@@ -818,7 +821,7 @@ class POS extends BaseController
     {
         $order = new OrdenPuntoVenta();
 
-        // 1. Buscar por codigo
+        // 1. Search by order code (codigo)
         if ($order->loadWhereEq('codigo', $query)) {
             if (!$order->esdevolucion) {
                 Tools::log('POS')->info('Encontrada por codigo: ' . $query);
@@ -827,21 +830,21 @@ class POS extends BaseController
             Tools::log('POS')->warning('Orden de devolucion omitida por codigo: ' . $query);
         }
 
-        // 2. Buscar por iddocumento
+        // 2. Search by document ID
         if ($order->loadWhereEq('iddocumento', $query)) {
             if (!$order->esdevolucion) {
                 return $order;
             }
         }
 
-        // 3. Buscar por idoperacion
+        // 3. Search by operation ID
         if ($order->load($query)) {
             if (!$order->esdevolucion) {
                 return $order;
             }
         }
 
-        // 4. Buscar documentos por codigo y luego la orden vinculada
+        // 4. Search sales documents by code, then the linked order
         $docModels = ['FacturaCliente', 'AlbaranCliente', 'PedidoCliente'];
         foreach ($docModels as $modelClass) {
             $className = '\\FacturaScripts\\Dinamic\\Model\\' . $modelClass;
@@ -1087,6 +1090,11 @@ class POS extends BaseController
 
     protected function saveNewCustomer(): void
     {
+        // Write action: require update permission AND a valid CSRF token.
+        if (!$this->validateRequest()) {
+            return;
+        }
+
         $taxID = $this->request->request->get('taxID');
         $name = $this->request->request->get('name');
         $result = [];

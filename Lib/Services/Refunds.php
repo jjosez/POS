@@ -12,6 +12,7 @@ use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
+use FacturaScripts\Plugins\POS\Model\PagoPuntoVenta as BasePagoPuntoVenta;
 
 class Refunds
 {
@@ -86,7 +87,7 @@ class Refunds
     {
         $collected = array_sum(
             array: array_map(
-                static fn(PagoPuntoVenta $payment): float => $payment->pagoNeto(),
+                static fn(BasePagoPuntoVenta $payment): float => $payment->pagoNeto(),
                 $originalOrder->getPayments()
             )
         );

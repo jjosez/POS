@@ -26,7 +26,7 @@ class TransactionRequest
             throw new RuntimeException('Petición invalida.');
         }
 
-        // Asignar secciones específicas
+        // Assign specific sections
         $lines = $data['lines'] ?? [];
         $payments = $data['payments'] ?? [];
         $paymentSources = $data['payment_sources'] ?? [];
@@ -50,7 +50,7 @@ class TransactionRequest
             $this->documentType = $data['tipo-documento'] = 'BorradorPuntoVenta';
         }
 
-        // El resto de los datos se consideran parte del documento
+        // Remaining data is treated as document fields
         unset(
             $data['lines'],
             $data['payments'],

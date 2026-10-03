@@ -98,7 +98,7 @@ class Modals {
         document.addEventListener('keydown', this._escapeKeyEventHandler);
     }
 
-    // Manejo automático al hacer clic en botones con data-toggle="modal"
+    // Automatic handling for clicks on buttons with data-toggle="modal"
     _modalToggleEventHandler = event => {
         const element = event.target.closest('[data-toggle]');
         if (!element) return;
@@ -148,25 +148,25 @@ class Modals {
     toggleModal(modalId) {
         let modal = this.modalCache[modalId];
 
-        // Si no existe en la caché, lo creamos y lo guardamos
+        // If not cached, create and store it
         if (!modal) {
             modal = new ModalElement(modalId);
             this.modalCache[modalId] = modal;
         }
 
-        // Si ya está abierto, simplemente lo cerramos
+        // If already open, just close it
         if (modal.isVisible) {
             modal.hide();
             this.currentModal = null;
             return;
         }
 
-        // Si hay otro modal abierto, lo cerramos antes
+        // If another modal is open, close it first
         if (this.currentModal && this.currentModal !== modal) {
             this.currentModal.hide();
         }
 
-        // Mostramos el nuevo modal
+        // Show the new modal
         modal.show();
         this.currentModal = modal;
     }
@@ -196,7 +196,7 @@ class Modals {
         }
     }
 
-    // Métodos de acceso directo a cada modal
+    // Shortcut accessors for each modal
     documentTypeModal = () => this.modalCache['document:type:modal'];
     closeSessionModal = () => this.modalCache['session:close:modal'];
     customerSearchModal = () => this.modalCache['customer:search:modal'];
@@ -215,12 +215,12 @@ class Modals {
 
 
 
-    // Acceso al fondo
+    // Backdrop access
     backdrop() {
         return backdrop;
     }
 }
 
-// Exportamos una única instancia
+// Export a single shared instance
 const modalsInstance = new Modals();
 export default modalsInstance;

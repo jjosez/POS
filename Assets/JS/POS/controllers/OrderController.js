@@ -14,20 +14,22 @@ const OrderController = {
     isSaving: false,
 
     /**
-     * Eliminar un pedido en pausa / borrador
+     * Delete a paused / draft order
      * @param {string} code
      */
     async deleteDraftOrder(code) {
+        const tokenResponse = await Core.getNewToken();
         const data = new FormData();
 
         data.set('action', 'order:draft:delete');
         data.set('code', code);
+        data.set('token', tokenResponse?.token ?? '');
 
         return Core.postRequest(data);
     },
 
     /**
-     * Reanudar un pedido en pausa
+     * Resume a paused order
      * @param {string} code
      */
     async resumeOrder(code) {
@@ -40,7 +42,7 @@ const OrderController = {
     },
 
 /**
- * Guardar pedido definitivo
+ * Save the final order
  * @param {{doc: object, lines: array, token: string}} state
  * @param {array} payments
  * @param {array} [paymentSources]
@@ -58,7 +60,7 @@ async saveRequest(state, payments, paymentSources = []) {
 },
 
     /**
-     * Guardar pedido en borrador / pausa
+     * Save order as draft / paused
      * @param {{doc: object, lines: array, token: string}} state
      */
     async saveDraftRequest(state) {

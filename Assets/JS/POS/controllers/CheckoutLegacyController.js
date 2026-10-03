@@ -52,7 +52,7 @@ const CheckoutLegacyController = {
         CheckoutView.togglePaymentModal();
         CheckoutView.render(CheckoutModel);
 
-        // Renderizar el resumen del carrito
+        // Render the cart summary
         //CheckoutView.toggleCheckoutBlock();
         //const cartState = CartController.getState();
         //CheckoutView.renderCartSummary(cartState);

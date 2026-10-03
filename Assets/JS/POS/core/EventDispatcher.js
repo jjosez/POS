@@ -1,5 +1,5 @@
 /**
- * EventDispatcher — Control centralizado de eventos basado en `data-action`.
+ * EventDispatcher — Centralized event control based on `data-action`.
  */
 class EventDispatcher {
     constructor() {
@@ -9,9 +9,9 @@ class EventDispatcher {
     }
 
     /**
-     * Registra una acción y su función asociada
-     * @param {string} action - Nombre de la acción (ej. "showMesaDetailAction")
-     * @param {Function} handler - Función que se ejecuta al hacer clic
+     * Registers an action and its associated handler
+     * @param {string} action - The action name (e.g. "showMesaDetailAction")
+     * @param {Function} handler - The function executed on click
      */
     register(action, handler) {
         if (!this.listeners[action]) {
@@ -31,7 +31,7 @@ class EventDispatcher {
     }
 
     /**
-     * Inicializa el listener global (una sola vez)
+     * Initializes the global listener (only once)
      */
     listen() {
         if (this._listening) return;

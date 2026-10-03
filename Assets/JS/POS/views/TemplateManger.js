@@ -18,7 +18,7 @@ class TemplateManager {
     }
 
     /**
-     * Asignar plantilla manualmente
+     * Register a template manually
      */
     registerTemplate(name, htmlString)
     {
@@ -26,7 +26,7 @@ class TemplateManager {
     }
 
     /**
-     * Carga plantillas al inicializar
+     * Loads templates on initialization
      */
     preloadTemplatesFromDOM(prefix = '')
     {
@@ -39,7 +39,7 @@ class TemplateManager {
     }
 
     /**
-     * Recarga un template específico del DOM
+     * Reloads a specific template from the DOM
      * @param {string} templateId
      */
     loadTemplate(templateId)
@@ -54,10 +54,10 @@ class TemplateManager {
     }
 
     /**
-     * Renderiza una plantilla con datos en un contenedor
-     * @param {string} templateName - clave de la plantilla
-     * @param {object} data - datos para renderizar
-     * @param {HTMLElement|string} container - contenedor DOM o id
+     * Renders a template with data into a container
+     * @param {string} templateName - the template key
+     * @param {object} data - data to render
+     * @param {HTMLElement|string} container - DOM container or its id
      */
     render(templateName, data = {}, container)
     {
@@ -90,7 +90,7 @@ class TemplateManager {
     }
 
     /**
-     * Renderiza y devuelve el HTML
+     * Renders and returns the HTML string
      */
     renderToString(templateName, data = {})
     {

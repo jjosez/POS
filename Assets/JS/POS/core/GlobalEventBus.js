@@ -1,10 +1,10 @@
 /**
- * Global Event Bus - Sistema de eventos globales para comunicación entre scripts
+ * Global Event Bus - Global event system for communication between scripts
  *
- * Uso:
- * - Escuchar eventos: window.posAppEvents.on('eventName', callback)
- * - Emitir eventos: window.posAppEvents.emit('eventName', data)
- * - Dejar de escuchar: window.posAppEvents.off('eventName', callback)
+ * Usage:
+ * - Listen to events: window.posAppEvents.on('eventName', callback)
+ * - Emit events: window.posAppEvents.emit('eventName', data)
+ * - Stop listening: window.posAppEvents.off('eventName', callback)
  */
 class GlobalEventBus {
     constructor() {
@@ -13,9 +13,9 @@ class GlobalEventBus {
     }
 
     /**
-     * Registra un listener para un evento
-     * @param {string} event - Nombre del evento
-     * @param {Function} listener - Función callback
+     * Registers a listener for an event
+     * @param {string} event - The event name
+     * @param {Function} listener - The callback function
      */
     on(event, listener) {
         if (typeof listener !== 'function') {
@@ -37,9 +37,9 @@ class GlobalEventBus {
     }
 
     /**
-     * Registra un listener que se ejecuta solo una vez
-     * @param {string} event - Nombre del evento
-     * @param {Function} listener - Función callback
+     * Registers a listener that runs only once
+     * @param {string} event - The event name
+     * @param {Function} listener - The callback function
      */
     once(event, listener) {
         const onceWrapper = (...args) => {
@@ -50,9 +50,9 @@ class GlobalEventBus {
     }
 
     /**
-     * Emite un evento con datos opcionales
-     * @param {string} event - Nombre del evento
-     * @param {...*} args - Argumentos a pasar a los listeners
+     * Emits an event with optional data
+     * @param {string} event - The event name
+     * @param {...*} args - Arguments passed to the listeners
      */
     emit(event, ...args) {
         if (!this.events[event] || this.events[event].length === 0) {
@@ -76,9 +76,9 @@ class GlobalEventBus {
     }
 
     /**
-     * Elimina un listener específico de un evento
-     * @param {string} event - Nombre del evento
-     * @param {Function} listener - Función callback a eliminar
+     * Removes a specific listener from an event
+     * @param {string} event - The event name
+     * @param {Function} listener - The callback function to remove
      */
     off(event, listener) {
         if (!this.events[event]) return;
@@ -91,8 +91,8 @@ class GlobalEventBus {
     }
 
     /**
-     * Limpia todos los listeners de un evento o todos los eventos
-     * @param {string} [event] - Nombre del evento (opcional)
+     * Clears all listeners from an event, or all events
+     * @param {string} [event] - The event name (optional)
      */
     clear(event) {
         if (event) {
@@ -109,7 +109,7 @@ class GlobalEventBus {
     }
 
     /**
-     * Lista todos los eventos registrados
+     * Lists all registered events
      * @returns {Array<string>}
      */
     listEvents() {
@@ -117,8 +117,8 @@ class GlobalEventBus {
     }
 
     /**
-     * Obtiene el número de listeners para un evento
-     * @param {string} event - Nombre del evento
+     * Gets the number of listeners for an event
+     * @param {string} event - The event name
      * @returns {number}
      */
     listenerCount(event) {
@@ -126,7 +126,7 @@ class GlobalEventBus {
     }
 
     /**
-     * Activa/desactiva el modo debug
+     * Enables/disables debug mode
      * @param {boolean} enabled
      */
     setDebug(enabled) {
@@ -135,10 +135,10 @@ class GlobalEventBus {
     }
 }
 
-// Crear instancia global
+// Create the global instance
 if (!window.posAppEvents) {
     window.posAppEvents = new GlobalEventBus();
 }
 
-// Exportar para uso con módulos ES6
+// Export for use with ES6 modules
 export default window.posAppEvents;

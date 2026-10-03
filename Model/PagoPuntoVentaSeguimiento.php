@@ -23,7 +23,7 @@ use FacturaScripts\Core\Template\ModelClass;
 use FacturaScripts\Core\Template\ModelTrait;
 
 /**
- * Seguimiento de los pagos desde el POS y su ciclo de vida.
+ * Tracks payments made from the POS and their lifecycle.
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */

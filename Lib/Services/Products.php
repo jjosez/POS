@@ -21,13 +21,13 @@ use FacturaScripts\Plugins\TarifasAvanzadas\Model\TarifaFamilia;
  * Product service for POS operations.
  * Handles product search, stock management, and pricing.
  *
- * -- Índice en codbarras (búsqueda por barcode)
+ * -- Index on codbarras (barcode search)
  * CREATE INDEX idx_variantes_codbarras ON variantes(codbarras);
  *
- * -- Índice en referencia (búsqueda por referencia)
+ * -- Index on referencia (reference search)
  * CREATE INDEX idx_variantes_referencia ON variantes(referencia);
  *
- * -- Índice fulltext para descripción (búsqueda de texto)
+ * -- Fulltext index on descripcion (text search)
  * CREATE FULLTEXT INDEX idx_productos_descripcion ON productos(descripcion);
  */
 class Products

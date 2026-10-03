@@ -44,14 +44,14 @@ const KeyboardController = {
     },
 
     handleKeydown(e) {
-        // no secuestrar teclas si estás escribiendo
+        // don't hijack keys while the user is typing
         const tag = e.target?.tagName?.toLowerCase?.() ?? '';
         const isTyping = tag === 'input' || tag === 'textarea' || e.target?.isContentEditable;
         if (isTyping) return;
 
         const idx = this.getSelectedIndex();
 
-        // si no hay selección y presionan arriba/abajo, selecciona primera
+        // if nothing is selected and up/down is pressed, select the first row
         if (idx === null && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
             e.preventDefault();
             this.selectNext(0);
@@ -105,7 +105,7 @@ const KeyboardController = {
                 break;
 
             case 'Escape':
-                // opcional: limpiar selección y ocultar toolbar
+                // optional: clear selection and hide the toolbar
                 // e.preventDefault();
                 // EventManager.emit('cart:line:cleared');
                 break;

@@ -7,8 +7,8 @@
 })*/
 
 /**
- * Función para alternar la visibilidad de un elemento.
- * @param {HTMLElement} target - El elemento que se debe alternar.
+ * Toggles the visibility of an element.
+ * @param {HTMLElement} target - The element to toggle.
  */
 function toggleVisibility(target)
 {
@@ -19,8 +19,8 @@ function toggleVisibility(target)
 }
 
 /**
- * Función para manejar la lógica de un "collapse".
- * @param {HTMLElement} element - El elemento que activa el colapso.
+ * Handles the logic for a "collapse" toggle.
+ * @param {HTMLElement} element - The element that triggers the collapse.
  */
 export function toggleCollapse(element)
 {
@@ -34,8 +34,8 @@ export function toggleCollapse(element)
 }
 
 /**
- * Función para manejar la lógica de un "block".
- * @param {HTMLElement} element - El elemento que activa el cambio de bloque.
+ * Handles the logic for a "block" toggle.
+ * @param {HTMLElement} element - The element that triggers the block switch.
  */
 export function toggleBlock(element)
 {
@@ -49,8 +49,8 @@ export function toggleBlock(element)
 }
 
 /**
- * Función para manejar el cambio de pestañas (tab).
- * @param {HTMLElement} element - El elemento que activa el cambio de pestaña.
+ * Handles tab switching.
+ * @param {HTMLElement} element - The element that triggers the tab switch.
  */
 const toggleTab = element => {
     const target = document.getElementById(element.dataset.target);
@@ -61,24 +61,24 @@ const toggleTab = element => {
         return;
     }
 
-    // Ocultar todas las pestañas
+    // Hide all tab contents
     tabsContainer.querySelectorAll('.tabcontent').forEach(tabContent => {
         tabContent.style.display = 'none';
     });
 
-    // Eliminar la clase 'tab-active' de todas las pestañas
+    // Remove the 'tab-active' class from all tabs
     tabList.querySelectorAll('.tab').forEach(tab => {
         tab.classList.remove('tab-active');
     });
 
-    // Mostrar la pestaña activa y marcarla como activa
+    // Show the active tab and mark it as active
     target.style.display = 'block';
     element.classList.add('tab-active');
 };
 
 /**
- * Manejador de eventos para los diferentes toggles.
- * Usamos un objeto para mapear el tipo de toggle a su respectiva función.
+ * Event handler for the different toggle types.
+ * Maps each toggle type to its respective handler function.
  */
 const eventHandler = element => {
     const toggleType = element.dataset.toggle;

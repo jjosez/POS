@@ -13,7 +13,7 @@ use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\User;
 
 /**
- * Sesion en la que se registran las operaciones de las terminales POS.
+ * Session where POS terminal operations are recorded.
  *
  * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
