@@ -241,18 +241,22 @@ class SesionPuntoVenta extends ModelClass
         return $this->save() && $terminal->save();
     }
 
-    public function close(TerminalPuntoVenta $terminal, array $coinsCount): bool
+    public function close(TerminalPuntoVenta $terminal, array $cashCount): bool
     {
         $totalCounted = 0.0;
-        foreach ($coinsCount as $value => $count) {
-            $totalCounted += (float)$value * (float)$count;
+        foreach ($cashCount as $entry) {
+            if (!is_array($entry)) {
+                continue;
+            }
+
+            $totalCounted += (float)($entry['value'] ?? 0.0) * (int)($entry['quantity'] ?? 0);
         }
 
         $this->abierto = false;
         $this->fechafin = Tools::date();
         $this->horafin = Tools::hour();
         $this->saldocontado = $totalCounted;
-        $this->conteo = json_encode($coinsCount);
+        $this->conteo = json_encode($cashCount);
 
         $terminal->disponible = true;
 

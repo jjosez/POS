@@ -9,7 +9,7 @@ namespace FacturaScripts\Plugins\POS\Lib\Core;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContextFactory;
-use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceManager;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSourceManager;
 use FacturaScripts\Plugins\POS\Lib\Services\Agents;
 use FacturaScripts\Plugins\POS\Lib\Services\Configuration;
 use FacturaScripts\Plugins\POS\Lib\Services\Currencies;

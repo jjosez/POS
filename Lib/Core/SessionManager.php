@@ -147,7 +147,7 @@ class SessionManager
     /**
      * Closes the current POS session.
      */
-    public function close(array $coinsCount): bool
+    public function close(array $cashCount): bool
     {
         if (!$this->isOpen()) {
             Tools::log('POS')->info('till-session-not-opened');
@@ -156,9 +156,9 @@ class SessionManager
 
         // Update counted balance before closing
         $balanceService = $this->getBalanceService();
-        $balance = $balanceService->updateCountedBalance($coinsCount);
+        $balance = $balanceService->updateCountedBalance($cashCount);
 
-        if ($this->session->close($this->terminal, $coinsCount)) {
+        if ($this->session->close($this->terminal, $cashCount)) {
             // Clear cache
             $this->stateManager->clearCache();
 

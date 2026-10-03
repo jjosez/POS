@@ -6,7 +6,7 @@
 
 namespace FacturaScripts\Plugins\POS\Lib\Hooks;
 
-use FacturaScripts\Plugins\POS\Contract\PaymentSourceProviderInterface;
+use FacturaScripts\Plugins\POS\Contract\PaymentSourceInterface;
 
 /**
  * Infrastructure Service for managing hooks and extension points.

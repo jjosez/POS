@@ -4,11 +4,12 @@ namespace FacturaScripts\Plugins\POS\Tests\Unit;
 
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
-use FacturaScripts\Plugins\POS\Contract\PaymentSourceProviderInterface;
+use FacturaScripts\Plugins\POS\Contract\PaymentSourceInterface;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceAvailability;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContext;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContextFactory;
-use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceManager;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceDefinition;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSourceManager;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceResult;
 use PHPUnit\Framework\TestCase;
 
@@ -17,9 +18,9 @@ class PaymentSourceManagerTest extends TestCase
     public function testRegistryIgnoresEmptyCodeAndDuplicates(): void
     {
         $manager = $this->manager();
-        $manager->register(new FakeProvider(''));
-        $a = new FakeProvider('customer-account');
-        $b = new FakeProvider('customer-account');
+        $manager->register(new Fake(''));
+        $a = new Fake('customer-account');
+        $b = new Fake('customer-account');
 
         $manager->register($a);
         $manager->register($b);
@@ -30,8 +31,8 @@ class PaymentSourceManagerTest extends TestCase
     public function testExternalProvidersAreAggregated(): void
     {
         $manager = $this->manager();
-        $a = new FakeProvider('a');
-        $b = new FakeProvider('b');
+        $a = new Fake('a');
+        $b = new Fake('b');
 
         $manager->registerExternalProviders([$a, $b, $a]);
 
@@ -42,7 +43,7 @@ class PaymentSourceManagerTest extends TestCase
     public function testCheckAvailabilityCatchesExceptions(): void
     {
         $manager = $this->manager();
-        $manager->register(new ThrowingProvider('broken'));
+        $manager->register(new Throwing('broken'));
 
         $context = $this->context();
         $result = $manager->checkAvailability($context);
@@ -56,7 +57,7 @@ class PaymentSourceManagerTest extends TestCase
     public function testApplySourcesRejectsWhenProviderRefuses(): void
     {
         $manager = $this->manager();
-        $manager->register(new FakeProvider('a', approved: false));
+        $manager->register(new Fake('a', approved: false));
 
         $context = $this->context();
         $results = $manager->applySources($context, [['code' => 'a', 'amount' => 10.0]]);
@@ -108,7 +109,7 @@ class PaymentSourceManagerTest extends TestCase
     }
 }
 
-final class FakeProvider implements PaymentSourceProviderInterface
+final class Fake implements PaymentSourceInterface
 {
     public function __construct(
         private string $code,
@@ -121,9 +122,15 @@ final class FakeProvider implements PaymentSourceProviderInterface
         return $this->code;
     }
 
-    public function getDefinition(): array
+    public function getDefinition(): PaymentSourceDefinition
     {
-        return ['code' => $this->code, 'label' => $this->code, 'icon' => 'fa-foo'];
+        return new PaymentSourceDefinition(
+            code: $this->code,
+            label: $this->code,
+            description: '',
+            icon: 'fa-foo',
+            metadata: [],
+        );
     }
 
     public function checkAvailability(PaymentSourceContext $context): PaymentSourceAvailability
@@ -139,7 +146,7 @@ final class FakeProvider implements PaymentSourceProviderInterface
     }
 }
 
-final class ThrowingProvider implements PaymentSourceProviderInterface
+final class Throwing implements PaymentSourceInterface
 {
     public function __construct(private string $code)
     {
@@ -150,9 +157,15 @@ final class ThrowingProvider implements PaymentSourceProviderInterface
         return $this->code;
     }
 
-    public function getDefinition(): array
+    public function getDefinition(): PaymentSourceDefinition
     {
-        return ['code' => $this->code, 'label' => $this->code];
+        return new PaymentSourceDefinition(
+            code: $this->code,
+            label: $this->code,
+            description: '',
+            icon: '',
+            metadata: [],
+        );
     }
 
     public function checkAvailability(PaymentSourceContext $context): PaymentSourceAvailability

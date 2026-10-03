@@ -5,10 +5,12 @@
  * Copyright (C) 2025 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 
-namespace FacturaScripts\Plugins\POS\Lib\Core\PaymentSource;
+namespace FacturaScripts\Plugins\POS\Lib\Core;
 
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Plugins\POS\Contract\PaymentSourceProviderInterface;
+use FacturaScripts\Plugins\POS\Contract\PaymentSourceInterface;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContext;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContextFactory;
 use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
 use FacturaScripts\Plugins\POS\Lib\Services\Transactions;
 
@@ -24,7 +26,7 @@ use FacturaScripts\Plugins\POS\Lib\Services\Transactions;
  */
 class PaymentSourceManager
 {
-    /** @var array<string, PaymentSourceProviderInterface> */
+    /** @var array<string, PaymentSourceInterface> */
     private array $providers = [];
     private bool $booted = false;
 
@@ -74,7 +76,7 @@ class PaymentSourceManager
         return $covered;
     }
 
-    public function register(PaymentSourceProviderInterface $provider): void
+    public function register(PaymentSourceInterface $provider): void
     {
         $code = (string)$provider->getCode();
         if ($code === '' || isset($this->providers[$code])) {
@@ -92,7 +94,7 @@ class PaymentSourceManager
     }
 
     /**
-     * @return PaymentSourceProviderInterface[]
+     * @return PaymentSourceInterface[]
      */
     public function getProviders(): array
     {
@@ -101,7 +103,7 @@ class PaymentSourceManager
         return array_values($this->providers);
     }
 
-    public function find(string $code): ?PaymentSourceProviderInterface
+    public function find(string $code): ?PaymentSourceInterface
     {
         $this->boot();
 
@@ -120,11 +122,11 @@ class PaymentSourceManager
         foreach ($this->getProviders() as $provider) {
             $definition = $provider->getDefinition();
             $definitions[] = [
-                'code' => $provider->getCode(),
-                'label' => (string)($definition['label'] ?? $provider->getCode()),
-                'icon' => $definition['icon'] ?? null,
-                'description' => $definition['description'] ?? null,
-                'metadata' => (object)($definition['metadata'] ?? []),
+                'code' => $definition->code,
+                'label' => $definition->label,
+                'icon' => $definition->icon,
+                'description' => $definition->description,
+                'metadata' => (object)$definition->metadata,
             ];
         }
 
@@ -153,11 +155,11 @@ class PaymentSourceManager
         foreach ($this->getProviders() as $provider) {
             $definition = $provider->getDefinition();
             $base = [
-                'code' => $provider->getCode(),
-                'label' => (string)($definition['label'] ?? $provider->getCode()),
-                'icon' => $definition['icon'] ?? null,
-                'description' => $definition['description'] ?? null,
-                'metadata' => (object)($definition['metadata'] ?? []),
+                'code' => $definition->code,
+                'label' => $definition->label,
+                'icon' => $definition->icon,
+                'description' => $definition->description,
+                'metadata' => (object)$definition->metadata,
             ];
 
             try {

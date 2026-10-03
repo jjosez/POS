@@ -158,9 +158,9 @@ class CashBalanceManager
     /**
      * Updates counted balance during session closing.
      */
-    public function updateCountedBalance(array $coinsCount): CashBalance
+    public function updateCountedBalance(array $cashCount): CashBalance
     {
-        $totalCounted = $this->calculateTotalFromCoins($coinsCount);
+        $totalCounted = $this->calculateTotalFromCash($cashCount);
 
         $this->session->saldocontado = $totalCounted;
 
@@ -226,15 +226,19 @@ class CashBalanceManager
     /**
      * Calculates total cash from coins/bills count.
      *
-     * @param array $coinsCount Array with denomination => count
+     * @param array $cashCount Cash entries keyed by denomination code.
      * @return float Total amount
      */
-    private function calculateTotalFromCoins(array $coinsCount): float
+    private function calculateTotalFromCash(array $cashCount): float
     {
         $total = 0.0;
 
-        foreach ($coinsCount as $denomination => $count) {
-            $total += (float)$denomination * (int)$count;
+        foreach ($cashCount as $entry) {
+            if (!is_array($entry)) {
+                continue;
+            }
+
+            $total += (float)($entry['value'] ?? 0.0) * (int)($entry['quantity'] ?? 0);
         }
 
         return $total;

@@ -10,7 +10,7 @@ use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Template\ExtensionsTrait;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Plugins\POS\Contract\PaymentSourceProviderInterface;
+use FacturaScripts\Plugins\POS\Contract\PaymentSourceInterface;
 use FacturaScripts\Plugins\POS\Lib\Forms\FormManager;
 use FacturaScripts\Plugins\POS\Lib\Hooks\Hook;
 use FacturaScripts\Plugins\POS\Lib\Hooks\HookManager;

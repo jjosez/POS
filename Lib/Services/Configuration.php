@@ -48,7 +48,7 @@ class Configuration
 
     public function getDenominations(): array
     {
-        return DenominacionMoneda::all([], ['valor' => 'ASC']);
+        return DenominacionMoneda::all([], ['valor' => 'DESC']);
     }
 
     public function getPaymentMethods(): array

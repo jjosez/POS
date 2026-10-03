@@ -19,7 +19,21 @@ class DenominacionMoneda extends ModelClass
 
     public $clave;
     public $coddivisa;
+    public $tipo;
     public $valor;
+
+    public function clear(): void
+    {
+        parent::clear();
+        $this->tipo = 'coin';
+        $this->valor = 0.0;
+    }
+
+    public function test(): bool
+    {
+        $this->tipo = $this->tipo === 'bill' ? 'bill' : 'coin';
+        return parent::test();
+    }
 
     public static function primaryColumn(): string
     {

@@ -4,8 +4,40 @@
  *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
  */
 #}
+{% macro denominationRows(denominations, symbol) %}
+    {% for denomination in denominations %}
+        <div class="grid grid-cols-3 items-center gap-3 border-b border-slate-100 py-2 last:border-b-0"
+             data-cash-count-row>
+            <span class="font-medium text-slate-800">
+                {{ symbol }}<span data-cash-denomination data-value="{{ denomination.valor }}">{{ denomination.valor }}</span>
+            </span>
+            <label class="flex items-center justify-center gap-2 text-slate-400">
+                <span aria-hidden="true">×</span>
+                <input name="cash[{{ denomination.clave }}]" type="number" value="0" min="0" step="1"
+                       inputmode="numeric" class="h-10 w-20 rounded-md border border-slate-300 text-center text-base"
+                       data-cash-count-input data-code="{{ denomination.clave }}" data-value="{{ denomination.valor }}"
+                       aria-label="{{ trans('quantity') }}">
+            </label>
+            <strong class="text-right font-semibold text-slate-900">
+                {{ symbol }}<span data-cash-subtotal>0.00</span>
+            </strong>
+        </div>
+    {% endfor %}
+{% endmacro %}
+
+{% set bills = [] %}
+{% set coins = [] %}
+{% for denomination in context.config().getDenominations() %}
+    {% if denomination.tipo == 'bill' %}
+        {% set bills = bills|merge([denomination]) %}
+    {% else %}
+        {% set coins = coins|merge([denomination]) %}
+    {% endif %}
+{% endfor %}
+{% set currencySymbol = context.currency().getCurrency().simbolo %}
+
 <div id="session:close:modal" class="modal hidden">
-    <div class="modal-content">
+    <div class="modal-content md:modal-content-sm">
         <div class="modal-header items-center p-4">
             <div class="flex min-w-0 items-center gap-3">
                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
@@ -33,26 +65,45 @@
         <div class="modal-body">
             <form id="closeSessionForm" method="POST">
                 <input type="hidden" name="action" value="session:close">
-                <p>Detalle de monedas / billetes</p>
-                <div class="grid grid-cols-4 gap-4 mt-4">
-                    {% for denominacion in context.config().getDenominations() %}
-                        <div class="form-group">
-                            <span class="text-xl font-medium text-left">{{ denominacion.valor }} X </span>
-                            <input name="cash[{{ denominacion.valor }}]" type="number" value="0">
-                        </div>
-                    {% else %}
-                        <div class="alert alert-warning" role="alert">
-                            No hay denominaciones registradas, registralas en.
-                            <a href="{{ trans('EditConfiguracionPOS') }}">{{ trans('pos-settings') }}</a>
-                        </div>
-                    {% endfor %}
-                </div>
+                <h3 class="mb-4 text-sm font-semibold text-slate-700">{{ trans('cash-count-detail') }}</h3>
+
+                {% if bills %}
+                    <section class="mb-5" aria-labelledby="cashBillsTitle">
+                        <h4 id="cashBillsTitle" class="py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                            {{ trans('bills') }}
+                        </h4>
+                        {{ _self.denominationRows(bills, currencySymbol) }}
+                    </section>
+                {% endif %}
+
+                {% if coins %}
+                    <section aria-labelledby="cashCoinsTitle">
+                        <h4 id="cashCoinsTitle" class="py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                            {{ trans('coins') }}
+                        </h4>
+                        {{ _self.denominationRows(coins, currencySymbol) }}
+                    </section>
+                {% endif %}
+
+                {% if not bills and not coins %}
+                    <div class="alert alert-warning" role="alert">
+                        {{ trans('no-currency-denominations') }}
+                        <a href="{{ terminal.url('edit') }}">{{ trans('pos-settings') }}</a>
+                    </div>
+                {% endif %}
             </form>
         </div>
-        <div class="modal-footer">
-            <button type="submit" class="btn btn-warning btn-round" id="closeSessionButton" data-action="session:close"
+        <div class="modal-footer items-center gap-4 border-t border-slate-200 p-4">
+            <div class="mr-auto flex min-w-0 items-baseline gap-3">
+                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ trans('cash-counted') }}</span>
+                <strong class="text-xl text-slate-900">
+                    {{ currencySymbol }}<span id="cashCountedTotal">0.00</span>
+                </strong>
+            </div>
+            <button type="submit" class="btn btn-primary" id="closeSessionButton" data-action="session:close"
                     data-toggle="modal" data-target="session:close:modal">
-                {{ trans('continue') }}</button>
+                {{ trans('continue') }}
+            </button>
         </div>
     </div>
 </div>

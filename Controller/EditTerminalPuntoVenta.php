@@ -197,12 +197,14 @@ class EditTerminalPuntoVenta extends ExtendedController\EditController
     {
         $code = $this->request->inputOrQuery('clave');
         $currency = $this->request->inputOrQuery('coddivisa');
+        $type = $this->request->inputOrQuery('tipo', 'coin');
         $value = $this->request->inputOrQuery('valor');
 
         $denomination = new DenominacionMoneda();
 
         $denomination->clave = $code;
         $denomination->coddivisa = $currency;
+        $denomination->tipo = $type;
         $denomination->valor = $value;
 
         if ($denomination->save()) {

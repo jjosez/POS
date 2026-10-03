@@ -11,6 +11,12 @@
         <null>NO</null>
     </column>
     <column>
+        <name>tipo</name>
+        <type>character varying(5)</type>
+        <null>NO</null>
+        <default>'coin'</default>
+    </column>
+    <column>
         <name>valor</name>
         <type>double precision</type>
         <null>NO</null>

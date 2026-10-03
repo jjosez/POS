@@ -1,8 +1,53 @@
 import * as Core from '../Core.js';
 import dispatcher from '../core/EventDispatcher.js';
+import EventManager from '../core/EventManager.js';
 import MainView from '../views/MainView.js';
 
+const decimals = Number.parseInt(AppSettings.currency?.decimals, 10) || 2;
+const locale = document.documentElement.lang || undefined;
+const amountFormatter = new Intl.NumberFormat(locale, {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+});
+const denominationFormatter = new Intl.NumberFormat(locale, {
+    maximumFractionDigits: decimals,
+});
+
 const SessionController = {
+    updateCashCount(input) {
+        const form = MainView.closeSessionForm();
+        const quantity = Math.max(0, Math.trunc(Number(input.value) || 0));
+        const value = Number(input.dataset.value) || 0;
+        const subtotal = value * quantity;
+        const row = input.closest('[data-cash-count-row]');
+
+        if (input.value !== '' && Number(input.value) !== quantity) {
+            input.value = String(quantity);
+        }
+        const subtotalElement = row?.querySelector('[data-cash-subtotal]');
+        if (subtotalElement) {
+            subtotalElement.textContent = amountFormatter.format(subtotal);
+        }
+
+        const total = Array.from(form.querySelectorAll('[data-cash-count-input]'))
+            .reduce((sum, element) => {
+                const count = Math.max(0, Math.trunc(Number(element.value) || 0));
+                return sum + (Number(element.dataset.value) || 0) * count;
+            }, 0);
+
+        const totalElement = document.getElementById('cashCountedTotal');
+        if (totalElement) {
+            totalElement.textContent = amountFormatter.format(total);
+        }
+
+        EventManager.emit('session:cash-count:changed', {
+            code: input.dataset.code,
+            quantity,
+            subtotal,
+            total,
+        });
+    },
+
     async closeSession() {
         MainView.toggleLoadingModal();
         const formData = new FormData(MainView.closeSessionForm());
@@ -58,9 +103,19 @@ const SessionController = {
         dispatcher.register('session:close', this.closeSession);
         dispatcher.register('session:report:x', this.printSessionReportX);
 
-        MainView.closeSessionForm().addEventListener('submit', function (e) {
+        const closeSessionForm = MainView.closeSessionForm();
+        closeSessionForm.addEventListener('submit', function (e) {
             e.preventDefault();
             return false;
+        });
+        closeSessionForm.addEventListener('input', event => {
+            if (event.target.matches('[data-cash-count-input]')) {
+                this.updateCashCount(event.target);
+            }
+        });
+
+        closeSessionForm.querySelectorAll('[data-cash-denomination]').forEach(element => {
+            element.textContent = denominationFormatter.format(Number(element.dataset.value) || 0);
         });
     }
 };

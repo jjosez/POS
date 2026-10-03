@@ -1181,7 +1181,8 @@ class POS extends BaseController
 
     protected function closeSession(): void
     {
-        $cash = $this->request->request->getArray('cash') ?? [];
+        $quantities = $this->request->request->getArray('cash') ?? [];
+        $cash = $this->buildCashCount($quantities);
 
         if ($this->session->close($cash)) {
             $this->printCashRegisterReportZ();
@@ -1189,6 +1190,21 @@ class POS extends BaseController
         }
 
         $this->buildResponse();
+    }
+
+    private function buildCashCount(array $quantities): array
+    {
+        $cash = [];
+        foreach ($this->context->config()->getDenominations() as $denomination) {
+            $code = (string)$denomination->clave;
+            $cash[$code] = [
+                'type' => $denomination->tipo === 'bill' ? 'bill' : 'coin',
+                'value' => (float)$denomination->valor,
+                'quantity' => max(0, (int)($quantities[$code] ?? 0)),
+            ];
+        }
+
+        return $cash;
     }
 
     protected function openSession(): void
