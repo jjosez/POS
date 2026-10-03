@@ -32,10 +32,21 @@ export function render(model) {
 
     const optional = state.paymentPolicy === 'optional';
 
-    const payments = state.payments.map(payment => ({
-        ...payment,
-        formattedAmount: roundFixed(payment.amount),
-    }));
+    const mergedList = [
+        ...state.payments.map(payment => ({
+            ...payment,
+            formattedAmount: roundFixed(payment.amount),
+            kind: 'native'
+        })),
+        ...state.paymentSources.map(source => ({
+            description: source.label,
+            amount: source.amount,
+            formattedAmount: roundFixed(source.amount),
+            kind: 'source',
+            code: source.code
+        }))
+    ];
+    const payments = mergedList;
 
     // Totales
     const remaining = Math.max(
@@ -178,18 +189,31 @@ function hideMoreMethods() {
 }
 
 function renderPaymentMethods(payments) {
-    const selectedMethods = new Set(payments.map(payment => payment.method));
+    const selectedNative = new Set(
+        payments.filter(p => p.kind === 'native').map(payment => payment.method)
+    );
+    const selectedSources = new Set(
+        payments.filter(p => p.kind === 'source').map(payment => payment.code)
+    );
 
     elements.paymentMethods.forEach(button => {
-        const isSelected = selectedMethods.has(button.dataset.code);
-        button.setAttribute('aria-pressed', String(isSelected));
-        button.classList.toggle('border-blue-500', isSelected);
-        button.classList.toggle('bg-blue-50', isSelected);
-        button.classList.toggle('text-blue-700', isSelected);
+        const kind = button.dataset.paymentKind ?? 'native';
+        const key = button.dataset.code;
+        const selected = kind === 'source'
+            ? selectedSources.has(key)
+            : selectedNative.has(key);
+
+        button.setAttribute('aria-pressed', String(selected));
+        button.classList.toggle('border-blue-500', selected);
+        button.classList.toggle('bg-blue-50', selected);
+        button.classList.toggle('text-blue-700', selected);
         const check = button.querySelector('[data-payment-check]');
 
-        if (check) {
-            check.hidden = !isSelected;
+        if (check && kind === 'native') {
+            check.hidden = !selected;
+        }
+        if (kind === 'source') {
+            button.disabled = button.dataset.available === 'false';
         }
     });
 }

@@ -12,18 +12,19 @@ final class PaymentSourceResult
         public readonly bool $approved = true,
         public readonly string $status = 'APPROVED',
         public readonly ?string $message = null,
-        public readonly ?float $consumed = null
+        public readonly ?float $consumed = null,
+        public readonly array $metadata = []
     ) {
     }
 
-    public static function approved(?float $consumed = null, ?string $message = null): self
+    public static function approved(?float $consumed = null, ?string $message = null, array $metadata = []): self
     {
-        return new self(true, 'APPROVED', $message, $consumed);
+        return new self(true, 'APPROVED', $message, $consumed, $metadata);
     }
 
-    public static function rejected(string $status, ?string $message = null): self
+    public static function rejected(string $status, ?string $message = null, array $metadata = []): self
     {
-        return new self(false, $status, $message);
+        return new self(false, $status, $message, null, $metadata);
     }
 
     public function toArray(): array
@@ -33,6 +34,7 @@ final class PaymentSourceResult
             'status' => $this->status,
             'message' => $this->message,
             'consumed' => $this->consumed,
+            'metadata' => (object)$this->metadata,
         ];
     }
 }

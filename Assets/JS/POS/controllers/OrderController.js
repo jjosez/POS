@@ -39,21 +39,23 @@ const OrderController = {
         return Core.postRequest(data);
     },
 
-    /**
-     * Guardar pedido definitivo
-     * @param {{doc: object, lines: array, token: string}} state
-     * @param {array} payments
-     */
-    async saveRequest(state, payments) {
-        const payload = {
-            ...state.doc,
-            lines: state.lines,
-            payments
-        };
+/**
+ * Guardar pedido definitivo
+ * @param {{doc: object, lines: array, token: string}} state
+ * @param {array} payments
+ * @param {array} [paymentSources]
+ */
+async saveRequest(state, payments, paymentSources = []) {
+    const payload = {
+        ...state.doc,
+        lines: state.lines,
+        payments,
+        payment_sources: paymentSources,
+    };
 
-        const resource = `POS?action=order:save&token=${state.token}`;
-        return this.postJsonRequest(resource, payload);
-    },
+    const resource = `POS?action=order:save&token=${state.token}`;
+    return this.postJsonRequest(resource, payload);
+},
 
     /**
      * Guardar pedido en borrador / pausa
@@ -187,7 +189,7 @@ const OrderController = {
     /**
      * data-action="order:save"
      */
-    async handleOrderSaveAction() {
+async handleOrderSaveAction() {
         if (this.isSaving || !CartController.hasLines()) return;
 
         const checkoutState = CheckoutController.getState();
@@ -200,7 +202,8 @@ const OrderController = {
         try {
             const result = await this.saveRequest(
                 CartController.getState(),
-                checkoutState.payments
+                checkoutState.payments,
+                checkoutState.paymentSources
             );
 
             if (result?.status === 'success') {

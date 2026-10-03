@@ -10,6 +10,7 @@ use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Template\ExtensionsTrait;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Plugins\POS\Contract\PaymentSourceProviderInterface;
 use FacturaScripts\Plugins\POS\Lib\Forms\FormManager;
 use FacturaScripts\Plugins\POS\Lib\Hooks\Hook;
 use FacturaScripts\Plugins\POS\Lib\Hooks\HookManager;
@@ -185,6 +186,21 @@ abstract class BaseController extends Controller
     public function addHookAction(Hook $hook, array $action): void
     {
         $this->hookManager->addHookAction($hook, $action);
+    }
+
+    public function addPaymentSourceProvider(PaymentSourceProviderInterface $paymentSource)
+    {
+        $this->hookManager->addPaymentSourceProvider($paymentSource);
+    }
+
+    /**
+     * Allow extension plugins to register their Payment Source implementations.
+     * The pipe receives a mutable array; plugins append their provider
+     * instances without disturbing the rest of the list.
+     */
+    protected function loadPaymentSourceProviders(): void
+    {
+        $this->pipe('loadPaymentSourceProviders');
     }
 
     protected function loadCustomDocumentFields(): void

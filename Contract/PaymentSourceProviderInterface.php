@@ -3,6 +3,7 @@
 namespace FacturaScripts\Plugins\POS\Contract;
 
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceAvailability;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContext;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceResult;
 
 interface PaymentSourceProviderInterface

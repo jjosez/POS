@@ -10,13 +10,26 @@ class CheckoutModel {
         this.change = 0;
         this.total = 0;
         this.payments = [];
+        this.paymentSources = [];
         this.paymentPolicy = AppSettings.document.payment_policy ?? 'required';
+        this.documentType = '';
+        this.documentSeries = '';
     }
 
     clear() {
         this.change = 0;
         this.payments = [];
+        this.paymentSources = [];
+        this.documentType = '';
+        this.documentSeries = '';
         this.updateCheckoutEvent();
+    }
+
+    getDocument() {
+        return {
+            type: this.documentType,
+            series: this.documentSeries,
+        };
     }
 
     getState() {
@@ -24,9 +37,12 @@ class CheckoutModel {
             total: this.total,
             change: this.change,
             payments: this.payments,
+            paymentSources: this.paymentSources,
             paymentsTotal: this.getPaymentsTotal(),
+            sourcesTotal: this.getSourcesTotal(),
             paymentPolicy: this.paymentPolicy,
             collectedAmount: this.getCollectedAmount(),
+            sourcesCoveredAmount: this.getSourcesCoveredAmount(),
             settledAmount: this.getSettledAmount(),
             pendingAmount: this.getPendingAmount(),
             outstandingBalance: this.getOutstandingBalance(),
@@ -39,15 +55,24 @@ class CheckoutModel {
     }
 
     getOutstandingBalance() {
-        return normalizeAmount(this.total - this.getPaymentsTotal());
+        return normalizeAmount(this.total - this.getPaymentsTotal() - this.getSourcesTotal());
     }
 
     getCollectedAmount() {
-        return normalizeAmount(this.payments.reduce((sum, payment) => sum + payment.amount - payment.change, 0));
+        const nativeCollected = this.payments.reduce((sum, payment) => sum + payment.amount - payment.change, 0);
+        return normalizeAmount(nativeCollected);
+    }
+
+    getSourcesTotal() {
+        return normalizeAmount(this.paymentSources.reduce((sum, payment) => sum + payment.amount, 0));
+    }
+
+    getSourcesCoveredAmount() {
+        return this.getSourcesTotal();
     }
 
     getSettledAmount() {
-        return this.getCollectedAmount();
+        return normalizeAmount(this.getCollectedAmount() + this.getSourcesCoveredAmount());
     }
 
     getPendingAmount() {
@@ -62,6 +87,8 @@ class CheckoutModel {
         );
 
         this.paymentPolicy = config?.payment_policy ?? 'required';
+        this.documentType = String(doc['tipo-documento'] ?? doc.generadocumento ?? '');
+        this.documentSeries = String(doc.codserie ?? '');
 
         const total = normalizeAmount(doc.total);
 
@@ -96,6 +123,11 @@ class CheckoutModel {
         this.updateCheckoutEvent();
     }
 
+    deletePaymentSource(code) {
+        this.paymentSources = this.paymentSources.filter(source => source.code !== code);
+        this.updateCheckoutEvent();
+    }
+
     setPayment({amount, method, description}) {
         const balance = Math.max(0, this.getOutstandingBalance());
         const isCashMethod = (method === this.cashMethod);
@@ -120,11 +152,44 @@ class CheckoutModel {
                 method: method,
                 description: description,
                 change: 0,
-                is_cash: isCashMethod
+                is_cash: isCashMethod,
+                kind: 'native'
             });
         }
 
         this.updateMoneyChange();
+        this.updateCheckoutEvent();
+    }
+
+    setPaymentSource({code, label, amount, description, maxAmount, status}) {
+        if (!code || !label) return;
+        amount = normalizeAmount(amount);
+        if (!Number.isFinite(amount) || amount <= 0) return;
+
+        const balance = Math.max(0, this.getOutstandingBalance());
+        if (amount > balance) {
+            amount = balance;
+        }
+        if (amount <= 0) return;
+
+        if (typeof maxAmount === 'number' && Number.isFinite(maxAmount) && amount > maxAmount) {
+            amount = maxAmount;
+        }
+
+        const existing = this.paymentSources.find(source => source.code === code);
+        if (existing) {
+            existing.amount = parseFloat((existing.amount + amount).toFixed(CURRENCY_DECIMALS));
+        } else {
+            this.paymentSources.push({
+                code,
+                label,
+                description: description ?? '',
+                amount,
+                status: status ?? 'AVAILABLE',
+                kind: 'source'
+            });
+        }
+
         this.updateCheckoutEvent();
     }
 

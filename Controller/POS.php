@@ -18,6 +18,7 @@ use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\POS\Lib\Core\BaseController;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentPolicy;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContext;
 use FacturaScripts\Plugins\POS\Lib\Core\SessionManager;
 use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
 use FacturaScripts\Plugins\POS\Lib\Exception\POSException;
@@ -55,6 +56,11 @@ class POS extends BaseController
         $this->session = new SessionManager($user);
         $this->setupContext();
 
+        $this->loadPaymentSourceProviders();
+        $this->context->paymentSources()->registerExternalProviders(
+            $this->hookManager->getPaymentSourceProviders()
+        );
+
         $action = $this->request->inputOrQuery('action', '');
         // Execute cart-specific actions
         if ($action && $this->execCartQueryAction($action)) {
@@ -72,6 +78,7 @@ class POS extends BaseController
         $this->loadCustomDocumentFields();
         $this->loadCustomMenuElements();
         $this->loadPointOfSaleHooks();
+        $this->loadPaymentSourceProviders();
 
         $template = $this->session->getView();
         $this->setTemplate($template);
@@ -170,6 +177,10 @@ class POS extends BaseController
                 $codfamilia = $this->request->request->get('query', '');
                 $result = $this->context->families()->getFamilyHierarchy($codfamilia);
                 $this->setResponse($result);
+                return false;
+
+            case 'payment-sources':
+                $this->discoverPaymentSources();
                 return false;
 
             case 'print:draft':
@@ -914,14 +925,18 @@ class POS extends BaseController
         throw InvalidTransactionException::invalidDocumentType($document->modelClassName());
     }
 
-    protected function validateSettlement(Transactions $transaction, array $payments): array
-    {
+protected function validateSettlement(
+        Transactions $transaction,
+        array $payments,
+        float $coveredBySources = 0.0
+    ): array {
         $document = $transaction->getDocument();
         $transaction->setPaymentPolicy($this->resolvePaymentPolicy($document));
         $validated = $this->context->paymentValidator()->validateSettlement(
             $payments,
             (float)$document->total,
-            $transaction->getPaymentPolicy()
+            $transaction->getPaymentPolicy(),
+            $coveredBySources
         );
 
         return $validated;
@@ -942,7 +957,14 @@ class POS extends BaseController
                 throw InvalidTransactionException::saveError('fail-calculate-document');
             }
 
-            $validatedPayments = $this->validateSettlement($transaction, $transaction->getRawPayments());
+            // Apply extension-provided Payment Sources (e.g., customer account).
+            $coveredBySources = $this->applyPaymentSourcesForOrder($transaction, $request);
+
+            $validatedPayments = $this->validateSettlement(
+                $transaction,
+                $transaction->getRawPayments(),
+                $coveredBySources
+            );
             $transaction->setValidatedPayments($validatedPayments);
 
             if ($this->pipeFalse('saveBefore', $request, $transaction) === false) {
@@ -952,7 +974,11 @@ class POS extends BaseController
             if (!$transaction->prepareDocument()) {
                 throw InvalidTransactionException::saveError('fail-calculate-document');
             }
-            $validatedPayments = $this->validateSettlement($transaction, $transaction->getPaymentData());
+            $validatedPayments = $this->validateSettlement(
+                $transaction,
+                $transaction->getPaymentData(),
+                $coveredBySources
+            );
             $transaction->setValidatedPayments($validatedPayments);
 
             if (!$this->dataBase->beginTransaction()) {
@@ -1312,9 +1338,167 @@ class POS extends BaseController
                 'templateDisplayMode' => $terminal->getProductDisplayMode()
             ],
             'supported-documents' => $terminal->getSupportedDocuments(),
-            'agents' => $this->context->agents()->getAgentsList()
+            'agents' => $this->context->agents()->getAgentsList(),
         ];
     }
+
+    public function discoverPaymentSources(): void
+    {
+        $payload = $this->readSourceDiscoveryPayload();
+        $context = $this->buildDiscoveryContext($payload);
+
+        $manager = $this->context->paymentSources();
+        $sources = $manager->checkAvailability($context);
+
+        $this->setResponse([
+            'sources' => $sources,
+            'remaining' => $context->remainingAmount(),
+        ]);
+    }
+
+    /**
+     * Read the JSON payload sent from the checkout bridge. Tolerant to
+     * missing payload; returns an empty array on failure so callers can
+     * still emit a sane response.
+     */
+    private function readSourceDiscoveryPayload(): array
+    {
+        $raw = $this->request->getContent();
+        if (!is_string($raw) || $raw === '') {
+            return [];
+        }
+
+        $decoded = json_decode($raw, true);
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    /**
+     * Build a PaymentSourceContext from the checkout payload coming in
+     * via the discovery endpoint. The document is a lightweight stub the
+     * providers can inspect; it is NEVER persisted.
+     */
+    private function buildDiscoveryContext(array $payload): PaymentSourceContext
+    {
+        $terminal = $this->context->terminal();
+        $defaultDocument = $this->context->config()->getDefaultDocument();
+
+        $codcliente = (string)($payload['customerCode'] ?? '');
+        $documentClass = (string)($payload['documentType'] ?? ($defaultDocument->tipodoc ?? 'FacturaCliente'));
+        if ($documentClass === '' || !class_exists('\FacturaScripts\Dinamic\Model\\' . $documentClass)) {
+            $documentClass = 'FacturaCliente';
+        }
+
+        $class = '\FacturaScripts\Dinamic\Model\\' . $documentClass;
+        /** @var \FacturaScripts\Core\Model\Base\SalesDocument $document */
+        $document = new $class();
+        $document->codcliente = $codcliente;
+        $document->codserie = (string)($payload['codserie'] ?? ($defaultDocument->codserie ?? ''));
+        $document->coddivisa = (string)($payload['currency'] ?? '');
+        $document->idempresa = (int)$terminal->idempresa;
+        $document->codalmacen = (string)$terminal->codalmacen;
+        $document->total = (float)($payload['total'] ?? 0.0);
+
+        $total = (float)($payload['total'] ?? 0.0);
+        $coveredAmount = (float)($payload['coveredAmount'] ?? 0.0);
+        $payments = is_array($payload['payments'] ?? null) ? $payload['payments'] : [];
+        $customerCode = $codcliente !== '' ? $codcliente : null;
+
+        $extra = [
+            'terminal' => (int)$terminal->idterminal,
+            'idempresa' => (int)$terminal->idempresa,
+            'codalmacen' => (string)$terminal->codalmacen,
+        ];
+        if (isset($payload['idpausada']) && $payload['idpausada'] !== '' && $payload['idpausada'] !== null) {
+            $extra['idpausada'] = (int)$payload['idpausada'];
+        }
+
+        return new PaymentSourceContext(
+            document: $document,
+            customerCode: $customerCode,
+            total: $total,
+            coveredAmount: $coveredAmount,
+            sources: [],
+            payments: $payments,
+            extra: $extra,
+        );
+    }
+
+    /**
+     * Apply any extension-contributed Payment Sources to the document inside
+     * the current order. Returns the total amount covered by sources so the
+     * PaymentValidator can validate native payments accordingly.
+     */
+    protected function applyPaymentSourcesForOrder(
+        \FacturaScripts\Plugins\POS\Lib\Services\Transactions $transaction,
+        \FacturaScripts\Plugins\POS\Lib\Services\TransactionRequest $request
+    ): float {
+        $manager = $this->context->paymentSources();
+        $applied = $this->sanitiseSources($request->getPaymentSourcesData());
+        if ($applied === []) {
+            return 0.0;
+        }
+
+        $terminal = $this->context->terminal();
+        $document = $transaction->getDocument();
+        $extra = [
+            'terminal' => (int)$terminal->idterminal,
+            'idempresa' => (int)$terminal->idempresa,
+            'codalmacen' => (string)$terminal->codalmacen,
+        ];
+
+        $context = new PaymentSourceContext(
+            document: $document,
+            customerCode: (string)($document->codcliente ?? ''),
+            total: (float)$document->total,
+            coveredAmount: 0.0,
+            sources: $applied,
+            payments: [],
+            extra: $extra,
+        );
+
+        $results = $manager->applySources($context, $applied);
+        $covered = 0.0;
+        foreach ($results as $result) {
+            if (!($result['approved'] ?? false)) {
+                throw \FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException::paymentError(
+                    'payment-source-rejected',
+                    ['%code%' => (string)($result['code'] ?? '')]
+                );
+            }
+            $covered += (float)($result['consumed'] ?? 0.0);
+        }
+
+        \FacturaScripts\Core\Tools::log('POS')->notice(
+            'payment-sources-applied',
+            ['%count%' => (string)count($results), '%amount%' => (string)$covered]
+        );
+
+        return $covered;
+    }
+
+    /**
+     * @return array<int, array{code: string, amount: float}>
+     */
+    private function sanitiseSources(array $raw): array
+    {
+        $sources = [];
+        foreach ($raw as $entry) {
+            if (!is_array($entry)) {
+                continue;
+            }
+            $code = (string)($entry['code'] ?? '');
+            $amount = (float)($entry['amount'] ?? 0.0);
+            if ($code === '' || $amount <= 0) {
+                continue;
+            }
+            $sources[] = ['code' => $code, 'amount' => $amount];
+        }
+
+        return $sources;
+    }
+
+
+
 
     public function getPageData(): array
     {

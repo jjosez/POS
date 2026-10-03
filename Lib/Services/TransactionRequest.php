@@ -15,6 +15,7 @@ class TransactionRequest
     protected array $documentData = [];
     protected array $documentLinesData = [];
     protected array $paymentData = [];
+    protected array $paymentSourcesData = [];
     protected string $documentType = 'FacturaCliente';
 
     public function __construct(Request $request)
@@ -28,14 +29,19 @@ class TransactionRequest
         // Asignar secciones específicas
         $lines = $data['lines'] ?? [];
         $payments = $data['payments'] ?? [];
+        $paymentSources = $data['payment_sources'] ?? [];
         if (!is_array($lines)) {
             throw InvalidTransactionException::emptyLines();
         }
         if (!is_array($payments)) {
             throw InvalidTransactionException::paymentError('payment-invalid-format');
         }
+        if (!is_array($paymentSources)) {
+            $paymentSources = [];
+        }
         $this->documentLinesData = $lines;
         $this->paymentData = $payments;
+        $this->paymentSourcesData = $paymentSources;
 
         $this->documentType = $data['tipo-documento'] ?? 'FacturaCliente';
 
@@ -45,7 +51,14 @@ class TransactionRequest
         }
 
         // El resto de los datos se consideran parte del documento
-        unset($data['lines'], $data['payments'], $data['tipo-documento'], $data['customerAccountAmount'], $data['payment_policy']);
+        unset(
+            $data['lines'],
+            $data['payments'],
+            $data['payment_sources'],
+            $data['tipo-documento'],
+            $data['customerAccountAmount'],
+            $data['payment_policy']
+        );
         $this->documentData = $data;
     }
 
@@ -62,6 +75,11 @@ class TransactionRequest
     public function getPaymentData(): array
     {
         return $this->paymentData;
+    }
+
+    public function getPaymentSourcesData(): array
+    {
+        return $this->paymentSourcesData;
     }
 
     public function getDocumentType(): string

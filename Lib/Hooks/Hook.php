@@ -11,6 +11,8 @@ enum Hook: string
     case OnSaleTicketPrinting = 'onSaleTicketPrinting';
     case OnDraftTicketPrinting = 'onDraftTicketPrinting';
 
+    case PaymentSourceRegistration = 'paymentSourceRegistration';
+
 
     public static function isValid(string $hook): bool
     {

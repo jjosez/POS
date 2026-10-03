@@ -8,6 +8,7 @@ namespace FacturaScripts\Plugins\POS\Lib\Core;
 
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceManager;
 use FacturaScripts\Plugins\POS\Lib\Services\Agents;
 use FacturaScripts\Plugins\POS\Lib\Services\Configuration;
 use FacturaScripts\Plugins\POS\Lib\Services\Currencies;
@@ -114,6 +115,11 @@ class Context
             $this->config()->getPaymentMethods(),
             $this->currency()->getDecimals()
         );
+    }
+
+    public function paymentSources(): PaymentSourceManager
+    {
+        return $this->services['paymentSources'] ??= new PaymentSourceManager();
     }
 
     /**

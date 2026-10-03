@@ -139,25 +139,37 @@ final class PaymentValidator
         return $validated;
     }
 
-    public function validateSettlement(array $payments, float $documentTotal, PaymentPolicy $policy): array
+public function validateSettlement(array $payments, float $documentTotal, PaymentPolicy $policy, float $coveredBySources = 0.0): array
     {
         $total = $this->toMinor($documentTotal, 'total');
         if ($total <= 0) {
             throw $this->error('payment-invalid-total');
         }
 
+        $expected = max(0.0, $documentTotal - $coveredBySources);
+
         if ($policy === PaymentPolicy::OPTIONAL) {
-            return $this->validateOptional($payments, $total);
+            return $this->validateOptional($payments, $total, max(0, $total - $this->toMinor($coveredBySources, 'covered')));
+        }
+
+        if ($coveredBySources < $documentTotal) {
+            return $this->validate($payments, $this->fromMinor((int)round($expected * $this->factor)), self::SALE);
+        }
+
+        // Sources cover the document in full; native payments are optional.
+        if ($payments === []) {
+            return [];
         }
 
         return $this->validate($payments, $this->fromMinor($total), self::SALE);
     }
 
-    /**
+/**
      * OPTIONAL documents may keep an unpaid balance. Real payments must not
-     * exceed the document total.
+     * exceed the document total. When Payment Sources cover part of the
+     * document, the remaining total is the cap for native payments.
      */
-    private function validateOptional(array $payments, int $total): array
+    private function validateOptional(array $payments, int $total, int $remainingMinor): array
     {
         if ($payments === []) {
             return [];
@@ -172,9 +184,10 @@ final class PaymentValidator
                 - $this->toMinor($payment['change'] ?? 0, 'change', $index);
         }
 
-        if ($requestedMinor <= 0 || $requestedMinor > $total) {
+        $capMinor = $remainingMinor > 0 ? $remainingMinor : $total;
+        if ($requestedMinor <= 0 || $requestedMinor > $capMinor) {
             throw InvalidTransactionException::paymentError('payment-total-mismatch', [
-                '%expected%' => $this->formatMinor($total),
+                '%expected%' => $this->formatMinor($capMinor),
                 '%received%' => $this->formatMinor($requestedMinor),
             ]);
         }

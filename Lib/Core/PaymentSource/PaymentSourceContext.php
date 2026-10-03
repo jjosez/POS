@@ -12,13 +12,17 @@ final class PaymentSourceContext
 {
     /**
      * @param array<int, array<string, mixed>> $sources
+     * @param array<int, array<string, mixed>> $payments
+     * @param array<string, mixed> $extra
      */
     public function __construct(
         public readonly SalesDocument $document,
         public readonly ?string $customerCode = null,
         public readonly float $total = 0.0,
         public readonly float $coveredAmount = 0.0,
-        public readonly array $sources = []
+        public readonly array $sources = [],
+        public readonly array $payments = [],
+        public readonly array $extra = []
     ) {
     }
 

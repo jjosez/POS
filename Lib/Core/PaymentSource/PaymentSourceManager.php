@@ -6,40 +6,39 @@
 
 namespace FacturaScripts\Plugins\POS\Lib\Core\PaymentSource;
 
-use FacturaScripts\Core\Template\ExtensionsTrait;
 use FacturaScripts\Plugins\POS\Contract\PaymentSourceProviderInterface;
-use FacturaScripts\Plugins\POS\Lib\Services\Configuration;
-use FacturaScripts\Plugins\POS\Model\FormaPagoPuntoVenta;
 
 /**
- * Registry of payment source providers keyed by opaque code.
+ * Central registry for extension-based Payment Sources.
  *
- * Built-in providers come from the FormaPago entries configured on the terminal.
- * Extensions register additional providers via the standard
- * ExtensionsTrait pipe ('paymentSourceProvider').
+ * Native FormaPago entries are intentionally NOT routed through this manager:
+ * they keep the existing terminal configuration, persistence and validation.
+ *
+ * Extensions contribute providers by invoking
+ * `HookManager::addPaymentSourceProvider()` from inside their
+ * `loadPaymentSourceRegistration` extension hook.
  */
 class PaymentSourceManager
 {
-    use ExtensionsTrait;
-
     /** @var array<string, PaymentSourceProviderInterface> */
     private array $providers = [];
-    private Configuration $config;
     private bool $booted = false;
-
-    public function __construct(Configuration $config)
-    {
-        $this->config = $config;
-    }
 
     public function register(PaymentSourceProviderInterface $provider): void
     {
-        $code = $provider->getCode();
-        if (isset($this->providers[$code])) {
-            // win by registered order: keep existing, ignore duplicate
+        $code = (string)$provider->getCode();
+        if ($code === '' || isset($this->providers[$code])) {
             return;
         }
+
         $this->providers[$code] = $provider;
+    }
+
+    public function isRegistered(string $code): bool
+    {
+        $this->boot();
+
+        return isset($this->providers[$code]);
     }
 
     /**
@@ -48,20 +47,20 @@ class PaymentSourceManager
     public function getProviders(): array
     {
         $this->boot();
+
         return array_values($this->providers);
     }
 
     public function find(string $code): ?PaymentSourceProviderInterface
     {
         $this->boot();
+
         return $this->providers[$code] ?? null;
     }
 
     /**
-     * Returns a normalized list of definitions as the POS expects them.
-     *
-     * Shape per entry:
-     *   { code, label, icon, metadata: object }
+     * Lightweight definition catalog used by the POS bootstrap. Only static
+     * metadata is returned; availability is queried on demand.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -69,38 +68,32 @@ class PaymentSourceManager
     {
         $definitions = [];
         foreach ($this->getProviders() as $provider) {
-            $definitions[] = $provider->getDefinition();
+            $definition = $provider->getDefinition();
+            $definitions[] = [
+                'code' => $provider->getCode(),
+                'label' => (string)($definition['label'] ?? $provider->getCode()),
+                'icon' => $definition['icon'] ?? null,
+                'description' => $definition['description'] ?? null,
+                'metadata' => (object)($definition['metadata'] ?? []),
+            ];
         }
+
         return $definitions;
     }
 
     /**
-     * Returns definitions contributed by built-in providers only.
-     *
-     * Used to seed the JS catalog at boot with the FormaPago configured
-     * on the terminal. Extension sources come in later through the
-     * `payment-sources:availability` endpoint and are never part of the
-     * static catalog.
-     *
-     * @return array<int, array<string, mixed>>
+     * Returns true when at least one provider is registered.
      */
-    public function getBuiltInDefinitions(): array
+    public function hasProviders(): bool
     {
-        $definitions = [];
-        foreach ($this->getProviders() as $provider) {
-            if (!$provider instanceof PaymentMethodProvider) {
-                continue;
-            }
-            $definitions[] = $provider->getDefinition();
-        }
-        return $definitions;
+        $this->boot();
+
+        return !empty($this->providers);
     }
 
     /**
-     * Returns per-provider availability for the current sale context.
-     *
-     * Shape per entry:
-     *   { code, label, icon, available, available_amount, status, message, metadata }
+     * Query availability and metadata for every registered provider within the
+     * current checkout context.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -109,40 +102,41 @@ class PaymentSourceManager
         $output = [];
         foreach ($this->getProviders() as $provider) {
             $definition = $provider->getDefinition();
+            $base = [
+                'code' => $provider->getCode(),
+                'label' => (string)($definition['label'] ?? $provider->getCode()),
+                'icon' => $definition['icon'] ?? null,
+                'description' => $definition['description'] ?? null,
+                'metadata' => (object)($definition['metadata'] ?? []),
+            ];
+
             try {
                 $availability = $provider->checkAvailability($context);
-                $output[] = [
-                    'code' => $provider->getCode(),
-                    'label' => $definition['label'] ?? $provider->getCode(),
-                    'icon' => $definition['icon'] ?? null,
-                    'metadata' => $definition['metadata'] ?? new \stdClass(),
+                $output[] = array_merge($base, [
                     'available' => $availability->available,
                     'available_amount' => $availability->isUnlimited() ? null : $availability->availableAmount,
                     'status' => $availability->status,
                     'message' => $availability->message,
-                ];
+                ]);
             } catch (\Throwable $exception) {
-                $output[] = [
-                    'code' => $provider->getCode(),
-                    'label' => $definition['label'] ?? $provider->getCode(),
-                    'icon' => $definition['icon'] ?? null,
-                    'metadata' => $definition['metadata'] ?? new \stdClass(),
+                $output[] = array_merge($base, [
                     'available' => false,
                     'available_amount' => 0.0,
                     'status' => 'ERROR',
-                    'message' => $exception->getMessage(),
-                ];
+                    'message' => null,
+                ]);
             }
         }
+
         return $output;
     }
 
     /**
-     * Authorize every applied non-payment-method source. The caller decides
-     * which entries are payment-method (via metadata.paymentMethod === true)
-     * and which go through this apply path.
+     * Apply the requested amount to each provider in `applied`. Each provider
+     * is responsible for its own domain side effects; the manager only routes
+     * the request and normalises the resulting status payload.
      *
-     * @param array<int, array{code: string, amount: float}> $applied
+     * @param array<int, array<string, mixed>> $applied
      * @return array<int, array<string, mixed>>
      */
     public function applySources(PaymentSourceContext $context, array $applied): array
@@ -152,7 +146,7 @@ class PaymentSourceManager
             $code = (string)($entry['code'] ?? '');
             $amount = (float)($entry['amount'] ?? 0.0);
 
-            if ($amount <= 0) {
+            if ($code === '' || $amount <= 0) {
                 continue;
             }
 
@@ -163,22 +157,29 @@ class PaymentSourceManager
                     'approved' => false,
                     'status' => 'NOT_AVAILABLE',
                     'message' => null,
+                    'consumed' => null,
+                    'metadata' => new \stdClass(),
                 ];
                 continue;
             }
 
             try {
                 $result = $provider->apply($context, $amount);
-                $results[] = array_merge(['code' => $code], $result->toArray());
+                $payload = $result->toArray();
+                $payload['code'] = $code;
+                $results[] = $payload;
             } catch (\Throwable $exception) {
                 $results[] = [
                     'code' => $code,
                     'approved' => false,
                     'status' => 'ERROR',
-                    'message' => $exception->getMessage(),
+                    'message' => null,
+                    'consumed' => null,
+                    'metadata' => new \stdClass(),
                 ];
             }
         }
+
         return $results;
     }
 
@@ -189,37 +190,22 @@ class PaymentSourceManager
         }
 
         $this->booted = true;
-
-        $this->registerConfiguredPaymentMethods();
-
-        foreach ($this->getExtensions() as $extension) {
-            if (!$extension instanceof PaymentSourceProviderInterface) {
-                continue;
-            }
-            $this->register($extension);
-        }
-    }
-
-    private function registerConfiguredPaymentMethods(): void
-    {
-        foreach ($this->config->getPaymentMethods() as $method) {
-            if (!$method instanceof FormaPagoPuntoVenta) {
-                continue;
-            }
-            $this->register(new PaymentMethodProvider($method));
-        }
     }
 
     /**
-     * @return PaymentSourceProviderInterface[]
+     * Push externally registered providers (typically contributed by the
+     * `PaymentSourceRegistration` hook) into the manager.
+     *
+     * @param iterable<PaymentSourceProviderInterface> $providers
      */
-    private function getExtensions(): array
+    public function registerExternalProviders(iterable $providers): void
     {
-        $candidates = $this->pipe('paymentSourceProvider') ?? [];
-        if (!is_array($candidates)) {
-            return [];
-        }
+        $this->boot();
 
-        return $candidates;
+        foreach ($providers as $provider) {
+            if ($provider instanceof PaymentSourceProviderInterface) {
+                $this->register($provider);
+            }
+        }
     }
 }
