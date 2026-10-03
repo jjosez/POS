@@ -8,7 +8,6 @@ namespace FacturaScripts\Plugins\POS\Lib\Core;
 
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
-use FacturaScripts\Plugins\POS\Lib\CustomerAccount\AccountManager;
 use FacturaScripts\Plugins\POS\Lib\Services\Agents;
 use FacturaScripts\Plugins\POS\Lib\Services\Configuration;
 use FacturaScripts\Plugins\POS\Lib\Services\Currencies;
@@ -115,15 +114,6 @@ class Context
             $this->config()->getPaymentMethods(),
             $this->currency()->getDecimals()
         );
-    }
-
-    /**
-     * Customer account manager.
-     * Resolves the single active provider and normalizes results.
-     */
-    public function customerAccount(): AccountManager
-    {
-        return $this->services['customerAccount'] ??= new AccountManager();
     }
 
     /**

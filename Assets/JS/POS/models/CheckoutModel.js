@@ -11,11 +11,6 @@ class CheckoutModel {
         this.total = 0;
         this.payments = [];
         this.paymentPolicy = AppSettings.document.payment_policy ?? 'required';
-        this.customerCode = AppSettings.customer.codcliente;
-        this.accountResult = null;
-        this.accountMessage = '';
-        this.accountChecking = false;
-        this.accountRevision = 0;
     }
 
     clear() {
@@ -25,8 +20,6 @@ class CheckoutModel {
     }
 
     getState() {
-        const accountAmount = this.getCustomerAccountAmount();
-
         return {
             total: this.total,
             change: this.change,
@@ -34,26 +27,13 @@ class CheckoutModel {
             paymentsTotal: this.getPaymentsTotal(),
             paymentPolicy: this.paymentPolicy,
             collectedAmount: this.getCollectedAmount(),
-            customerAccountAmount: accountAmount,
             settledAmount: this.getSettledAmount(),
             pendingAmount: this.getPendingAmount(),
             outstandingBalance: this.getOutstandingBalance(),
-
-            accountResult: this.accountResult,
-            accountMessage: this.accountMessage,
-            accountChecking: this.accountChecking,
-
             canFinalize: this.total > 0
                 && (
                     this.paymentPolicy === 'optional'
                     || this.getPendingAmount() === 0
-                )
-                && (
-                    accountAmount === 0
-                    || (
-                        !this.accountChecking
-                        && this.accountResult?.customer_account === true
-                    )
                 )
         };
     }
@@ -66,23 +46,12 @@ class CheckoutModel {
         return normalizeAmount(this.payments.reduce((sum, payment) => sum + payment.amount - payment.change, 0));
     }
 
-    getCustomerAccountAmount() {
-        return this.paymentPolicy === 'customer-account'
-            ? normalizeAmount(Math.max(0, this.total - this.getCollectedAmount()))
-            : 0;
-    }
-
     getSettledAmount() {
-        return normalizeAmount(this.getCollectedAmount() + this.getCustomerAccountAmount());
+        return this.getCollectedAmount();
     }
 
     getPendingAmount() {
         return normalizeAmount(this.total - this.getSettledAmount());
-    }
-
-    requiresCustomer() {
-        return this.getCustomerAccountAmount() > 0
-            && (!this.customerCode || String(this.customerCode) === String(AppSettings.customer.codcliente));
     }
 
     updateDocument(doc) {
@@ -93,7 +62,6 @@ class CheckoutModel {
         );
 
         this.paymentPolicy = config?.payment_policy ?? 'required';
-        this.customerCode = doc.codcliente;
 
         const total = normalizeAmount(doc.total);
 
@@ -180,32 +148,7 @@ class CheckoutModel {
     }
 
     updateCheckoutEvent() {
-        this.accountResult = null;
-        this.accountMessage = '';
-        this.accountChecking = false;
-        this.accountRevision++;
-
         eventManager.emit('checkout:update');
-    }
-
-    beginAccountCheck(revision) {
-        if (revision !== this.accountRevision) return;
-
-        this.accountChecking = true;
-        this.accountResult = null;
-        this.accountMessage = '';
-
-        eventManager.emit('checkout:account:updated');
-    }
-
-    setAccountResult(result, revision, message = '') {
-        if (revision !== this.accountRevision) return;
-
-        this.accountResult = result;
-        this.accountMessage = message || result?.message || '';
-        this.accountChecking = false;
-
-        eventManager.emit('checkout:account:updated');
     }
 }
 

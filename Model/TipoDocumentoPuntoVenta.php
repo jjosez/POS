@@ -9,7 +9,7 @@ namespace FacturaScripts\Plugins\POS\Model;
 use FacturaScripts\Core\Template\ModelClass;
 use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Plugins\POS\Lib\Services\PaymentPolicy;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentPolicy;
 
 /**
  * Operaciones realizadas terminales POS.

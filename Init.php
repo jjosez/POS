@@ -24,6 +24,7 @@ class Init extends InitClass
         Migrations::runPluginMigration(new CreateDraftTables());
         Migrations::runPluginMigration(new Migration\CreateDefaultDraftStatuses());
         Migrations::runPluginMigration(new Migration\CreateSearchIndexes());
+        Migrations::runPluginMigration(new Migration\RemoveCustomerAccount());
 
         $this->updateSchemaColumns();
     }
@@ -37,7 +38,6 @@ class Init extends InitClass
             'pos_operations' => [
                 'idoperacion_original' => 'INTEGER',
                 'esdevolucion' => 'BOOLEAN NOT NULL DEFAULT false',
-                'customer_account_amount' => 'DOUBLE PRECISION NOT NULL DEFAULT 0',
                 'payment_policy' => "VARCHAR(20) NOT NULL DEFAULT 'required'",
             ],
             'pos_document_types' => [

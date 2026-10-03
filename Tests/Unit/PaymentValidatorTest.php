@@ -3,8 +3,8 @@
 namespace FacturaScripts\Plugins\POS\Tests\Unit;
 
 use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentPolicy;
 use FacturaScripts\Plugins\POS\Lib\Services\PaymentValidator;
-use FacturaScripts\Plugins\POS\Lib\Services\PaymentPolicy;
 use PHPUnit\Framework\TestCase;
 
 final class PaymentValidatorTest extends TestCase
@@ -114,38 +114,13 @@ final class PaymentValidatorTest extends TestCase
         ];
     }
 
-    public function testCustomerAccountSettlementKeepsOnlyRealPayments(): void
+    public function testRequiredSettlementRequiresFullPayment(): void
     {
-        $cases = [
-            [[['method' => 'CASH', 'amount' => 1000]], 0, 1000.0, PaymentPolicy::REQUIRED],
-            [[], 1000, 0.0, PaymentPolicy::CUSTOMER_ACCOUNT],
-            [[['method' => 'CASH', 'amount' => 300]], 700, 300.0, PaymentPolicy::CUSTOMER_ACCOUNT],
-            [[['method' => 'CASH', 'amount' => 300], ['method' => 'CARD', 'amount' => 200]], 500, 500.0, PaymentPolicy::CUSTOMER_ACCOUNT],
-            [[['method' => 'CASH', 'amount' => 1200, 'change' => 200]], 0, 1000.0, PaymentPolicy::CUSTOMER_ACCOUNT],
-        ];
-        foreach ($cases as [$payments, $account, $collected, $policy]) {
-            $result = $this->validator()->validateSettlement($payments, 1000, $account, $policy);
-            self::assertCount(count($payments), $result);
-            self::assertSame($collected, (float)array_sum(array_column($result, 'net')));
-        }
-    }
+        $result = $this->validator()->validateSettlement([
+            ['method' => 'CASH', 'amount' => 1200, 'change' => 200],
+        ], 1000, PaymentPolicy::REQUIRED);
 
-    public function testRejectsIncompleteOrForbiddenCustomerAccountSettlement(): void
-    {
-        $cases = [
-            [500, PaymentPolicy::CUSTOMER_ACCOUNT, 'payment-total-mismatch'],
-            [700, PaymentPolicy::REQUIRED, 'payment-customer-account-not-allowed'],
-            [-1, PaymentPolicy::CUSTOMER_ACCOUNT, 'payment-invalid-customer-account'],
-            [null, PaymentPolicy::CUSTOMER_ACCOUNT, 'payment-invalid-customer-account'],
-        ];
-        foreach ($cases as [$account, $policy, $key]) {
-            try {
-                $this->validator()->validateSettlement([['method' => 'CASH', 'amount' => 300]], 1000, $account, $policy);
-                self::fail('Expected settlement validation exception');
-            } catch (InvalidTransactionException $exception) {
-                self::assertSame($key, $exception->getTranslationKey());
-            }
-        }
+        self::assertSame(1000.0, $result[0]['net']);
     }
 
     private function validator(): PaymentValidator
@@ -155,29 +130,28 @@ final class PaymentValidatorTest extends TestCase
 
     public function testOptionalAllowsUnpaidAndPartialDocuments(): void
     {
-        self::assertSame([], $this->validator()->validateSettlement([], 1000, 0, PaymentPolicy::OPTIONAL));
+        self::assertSame([], $this->validator()->validateSettlement([], 1000, PaymentPolicy::OPTIONAL));
         $payments = $this->validator()->validateSettlement([
             ['method' => 'CASH', 'amount' => 200],
-        ], 1000, 0, PaymentPolicy::OPTIONAL);
+        ], 1000, PaymentPolicy::OPTIONAL);
         self::assertSame(200.0, $payments[0]['net']);
         $payments = $this->validator()->validateSettlement([
             ['method' => 'CASH', 'amount' => 1200, 'change' => 200],
-        ], 1000, 0, PaymentPolicy::OPTIONAL);
+        ], 1000, PaymentPolicy::OPTIONAL);
         self::assertSame(1000.0, $payments[0]['net']);
     }
 
-    public function testOptionalRejectsMalformedPaymentsAndAccountCharges(): void
+    public function testOptionalRejectsMalformedOrExcessivePayments(): void
     {
         $cases = [
-            [[['method' => 'OTHER', 'amount' => 0]], 0],
-            [[['method' => 'CASH', 'amount' => 200], ['method' => 'CARD', 'amount' => -200]], 0],
-            [[['method' => 'CARD', 'amount' => 1100]], 0],
-            [[['method' => 'CARD', 'amount' => 200, 'change' => 10]], 0],
-            [[['method' => 'CASH', 'amount' => 200]], 800],
+            [['method' => 'OTHER', 'amount' => 0]],
+            [['method' => 'CASH', 'amount' => 200], ['method' => 'CARD', 'amount' => -200]],
+            [['method' => 'CARD', 'amount' => 1100]],
+            [['method' => 'CARD', 'amount' => 200, 'change' => 10]],
         ];
-        foreach ($cases as [$payments, $account]) {
+        foreach ($cases as $payments) {
             try {
-                $this->validator()->validateSettlement($payments, 1000, $account, PaymentPolicy::OPTIONAL);
+                $this->validator()->validateSettlement($payments, 1000, PaymentPolicy::OPTIONAL);
                 self::fail('Expected optional settlement rejection');
             } catch (InvalidTransactionException $exception) {
                 self::assertNotEmpty($exception->getTranslationKey());

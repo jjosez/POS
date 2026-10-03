@@ -7,6 +7,7 @@ use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Model\Base\SalesDocumentLine;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentPolicy;
 use RuntimeException;
 
 /**
@@ -42,8 +43,6 @@ class Transactions
 
     protected array $rawPayments = [];
 
-    protected mixed $customerAccountAmount = 0;
-
     protected PaymentPolicy $paymentPolicy = PaymentPolicy::REQUIRED;
 
 
@@ -60,7 +59,6 @@ class Transactions
         );
         $this->products = $request->getDocumentLinesData();
         $this->rawPayments = $request->getPaymentData();
-        $this->customerAccountAmount = $request->getCustomerAccountAmount();
     }
 
     /**
@@ -84,11 +82,6 @@ class Transactions
         return $this->rawPayments;
     }
 
-    public function getCustomerAccountAmount(): mixed
-    {
-        return $this->customerAccountAmount;
-    }
-
     public function getCollectedAmount(): float
     {
         return array_sum(array_map(static fn(PagoPuntoVenta $payment): float => $payment->pagoNeto(), $this->payments));
@@ -96,7 +89,7 @@ class Transactions
 
     public function getSettledAmount(): float
     {
-        return $this->getCollectedAmount() + (float)$this->customerAccountAmount;
+        return $this->getCollectedAmount();
     }
 
     public function getPendingAmount(): float

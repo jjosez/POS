@@ -6,6 +6,8 @@
 
 namespace FacturaScripts\Plugins\POS\Lib\Services;
 
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentPolicy;
+
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Dinamic\Lib\ReceiptGenerator;
 use FacturaScripts\Dinamic\Model\FacturaCliente;
@@ -107,7 +109,7 @@ class Payments
             $this->saveInvoiceReceipt($document, $payment, $counter++);
         }
 
-        $unpaid = (float)$orden->customer_account_amount;
+        $unpaid = 0.0;
         if ($orden->payment_policy === PaymentPolicy::OPTIONAL->value) {
             $collected = array_sum(array_map(static fn(PagoPuntoVenta $payment): float => $payment->pagoNeto(), $payments));
             $unpaid = round(max(0, (float)$document->total - $collected), (new Currencies())->getDecimals());

@@ -36,7 +36,6 @@
                 <widget type="select" fieldname="payment_policy" translate="true" required="true">
                     <values title="payment-policy-required">required</values>
                     <values title="payment-policy-optional">optional</values>
-                    <values title="customer-account">customer-account</values>
                 </widget>
             </column>
         </group>

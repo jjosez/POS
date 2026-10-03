@@ -119,37 +119,17 @@
                 <div id="payment:list:view"></div>
             </section>
 
-            <div id="checkoutAccountSummary"
-                 class="hidden space-y-2 rounded-lg border border-slate-200 p-3 text-sm"
-                 aria-live="polite">
+            <div id="checkoutPendingSummary"
+                  class="hidden space-y-2 rounded-lg border border-slate-200 p-3 text-sm"
+                  aria-live="polite">
 
                 <div class="flex items-center justify-between gap-2">
-                    <span id="checkoutAccountLabel"
-                          data-account="{{ trans('customer-account') }}"
-                          data-optional="{{ trans('checkout-remaining') }}">
-                    </span>
+                    <span>{{ trans('checkout-remaining') }}</span>
                     <strong>
                         {{ context.currency().getCurrency().simbolo }}
-                        <span id="checkoutAccountAmount">0.00</span>
+                        <span id="checkoutPendingAmount">0.00</span>
                     </strong>
                 </div>
-
-                <div id="checkoutAccountLoading"
-                     class="hidden"
-                     role="status"
-                     aria-label="{{ trans('loading') }}">
-                    <i class="fa-solid fa-spinner fa-spin text-slate-500"
-                       aria-hidden="true"></i>
-                </div>
-                <p id="checkoutAccountMessage" class="text-slate-600"></p>
-
-                {# Crédito disponible #}
-                <p class="hidden text-slate-600">
-                    {{ trans('customer-account-available-credit') }}:
-                    {{ context.currency().getCurrency().simbolo }}
-                    <span id="checkoutAvailableCredit">0.00</span>
-                </p>
-
             </div>
 
             <div class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">

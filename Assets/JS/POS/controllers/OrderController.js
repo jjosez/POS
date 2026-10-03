@@ -44,12 +44,11 @@ const OrderController = {
      * @param {{doc: object, lines: array, token: string}} state
      * @param {array} payments
      */
-    async saveRequest(state, payments, customerAccountAmount = 0) {
+    async saveRequest(state, payments) {
         const payload = {
             ...state.doc,
             lines: state.lines,
-            payments,
-            customerAccountAmount
+            payments
         };
 
         const resource = `POS?action=order:save&token=${state.token}`;
@@ -201,8 +200,7 @@ const OrderController = {
         try {
             const result = await this.saveRequest(
                 CartController.getState(),
-                checkoutState.payments,
-                checkoutState.customerAccountAmount
+                checkoutState.payments
             );
 
             if (result?.status === 'success') {

@@ -3,6 +3,7 @@
 namespace FacturaScripts\Plugins\POS\Lib\Services;
 
 use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentPolicy;
 
 final class PaymentValidator
 {
@@ -138,32 +139,23 @@ final class PaymentValidator
         return $validated;
     }
 
-    public function validateSettlement(array $payments, float $documentTotal, mixed $accountAmount, PaymentPolicy $policy): array
+    public function validateSettlement(array $payments, float $documentTotal, PaymentPolicy $policy): array
     {
         $total = $this->toMinor($documentTotal, 'total');
-        $account = $this->toMinor($accountAmount, 'customer-account');
-        if ($total <= 0 || $account < 0 || $account > $total) {
-            throw $this->error('payment-invalid-customer-account');
-        }
-        if ($account !== 0 && $policy !== PaymentPolicy::CUSTOMER_ACCOUNT) {
-            throw $this->error('payment-customer-account-not-allowed');
+        if ($total <= 0) {
+            throw $this->error('payment-invalid-total');
         }
 
         if ($policy === PaymentPolicy::OPTIONAL) {
             return $this->validateOptional($payments, $total);
         }
 
-        $collected = $total - $account;
-        if ($collected === 0 && $payments === []) {
-            return [];
-        }
-
-        return $this->validate($payments, $this->fromMinor($collected), self::SALE);
+        return $this->validate($payments, $this->fromMinor($total), self::SALE);
     }
 
     /**
      * OPTIONAL documents may keep an unpaid balance. Real payments must not
-     * exceed the document total and never generate a customer-account charge.
+     * exceed the document total.
      */
     private function validateOptional(array $payments, int $total): array
     {

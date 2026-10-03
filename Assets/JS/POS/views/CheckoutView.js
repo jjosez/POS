@@ -15,14 +15,10 @@ const elements = {
     paymentMethods: document.querySelectorAll('[data-payment-method]'),
     balanceRow: document.getElementById('checkoutBalanceRow'),
     title: document.getElementById('checkoutTitle'),
-    accountSummary: document.getElementById('checkoutAccountSummary'),
-    accountAmount: document.getElementById('checkoutAccountAmount'),
+    pendingSummary: document.getElementById('checkoutPendingSummary'),
+    pendingAmount: document.getElementById('checkoutPendingAmount'),
     collectedAmount: document.getElementById('checkoutCollectedAmount'),
     confirmLabel: document.getElementById('checkoutConfirmLabel'),
-    accountLabel: document.getElementById('checkoutAccountLabel'),
-    accountMessage: document.getElementById('checkoutAccountMessage'),
-    availableCredit: document.getElementById('checkoutAvailableCredit'),
-    accountLoading: document.getElementById('checkoutAccountLoading'),
 };
 
 let isProcessing = false;
@@ -34,7 +30,6 @@ const checkoutBaseTitle = elements.title?.textContent.trim() ?? '';
 export function render(model) {
     const state = model.getState();
 
-    const onAccount = state.paymentPolicy === 'customer-account';
     const optional = state.paymentPolicy === 'optional';
 
     const payments = state.payments.map(payment => ({
@@ -60,7 +55,7 @@ export function render(model) {
     // Saldo pendiente o cambio
     elements.balanceRow.classList.toggle(
         'hidden',
-        !hasChange && (onAccount || optional || !hasRemaining)
+        !hasChange && (optional || !hasRemaining)
     );
 
     elements.changeLabel.classList.toggle('hidden', !hasChange);
@@ -89,54 +84,14 @@ export function render(model) {
     );
 
     // Resumen inferior
-    const showAccountSummary =
-        (onAccount || optional) && hasRemaining;
+    const showPendingSummary = optional && hasRemaining;
 
-    elements.accountSummary.classList.toggle(
+    elements.pendingSummary.classList.toggle(
         'hidden',
-        !showAccountSummary
+        !showPendingSummary
     );
 
-    elements.accountAmount.textContent = roundFixed(remaining);
-
-    // Etiqueta según la política
-    elements.accountLabel.textContent = optional
-        ? elements.accountLabel.dataset.optional
-        : elements.accountLabel.dataset.account;
-
-    // Estado de consulta
-    const checking = showAccountSummary && state.accountChecking;
-
-    elements.accountLoading.classList.toggle(
-        'hidden',
-        !checking
-    );
-
-    // Mensaje traducido por el backend
-    elements.accountMessage.textContent =
-        showAccountSummary && !checking
-            ? state.accountMessage ?? ''
-            : '';
-
-    // Crédito disponible
-    const result = onAccount && showAccountSummary && !checking
-        ? state.accountResult
-        : null;
-
-    const showCredit = result !== null
-        && ['approved', 'insufficient-credit'].includes(result.status)
-        && Number.isFinite(result.available_credit);
-
-    elements.availableCredit.parentElement.classList.toggle(
-        'hidden',
-        !showCredit
-    );
-
-    if (showCredit) {
-        elements.availableCredit.textContent = roundFixed(
-            result.available_credit
-        );
-    }
+    elements.pendingAmount.textContent = roundFixed(remaining);
 
     // Total cobrado
     elements.collectedAmount.textContent = roundFixed(
@@ -144,7 +99,7 @@ export function render(model) {
     );
 
     // Botón de confirmación
-    elements.confirmLabel.textContent = onAccount || optional
+    elements.confirmLabel.textContent = optional
         ? elements.confirmLabel.dataset.finalize
         : elements.confirmLabel.dataset.charge;
 

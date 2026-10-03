@@ -1,10 +1,9 @@
 <?php
 
-namespace FacturaScripts\Plugins\POS\Lib\Services;
+namespace FacturaScripts\Plugins\POS\Lib\Core\PaymentSource;
 
 enum PaymentPolicy: string
 {
     case REQUIRED = 'required';
     case OPTIONAL = 'optional';
-    case CUSTOMER_ACCOUNT = 'customer-account';
 }

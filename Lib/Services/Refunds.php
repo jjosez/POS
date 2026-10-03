@@ -85,9 +85,14 @@ class Refunds
 
     private function prepareRefund(OrdenPuntoVenta $originalOrder, array $refundLines): array
     {
-        if ((float)$originalOrder->customer_account_amount > 0) {
-            throw InvalidTransactionException::paymentError('customer-account-refund-not-supported');
+        $collected = array_sum(array_map(
+            static fn(PagoPuntoVenta $payment): float => $payment->pagoNeto(),
+            $originalOrder->getPayments()
+        ));
+        if (!Tools::floatcmp((float)$originalOrder->total, $collected)) {
+            throw InvalidTransactionException::paymentError('refund-unpaid-operation-not-supported');
         }
+
         $originalDoc = $originalOrder->getDocument();
         $newDoc = $this->createRefundDocument($originalDoc, $originalDoc->modelClassName());
         $lineRefs = $this->createRefundLines($newDoc, $originalDoc, $refundLines);

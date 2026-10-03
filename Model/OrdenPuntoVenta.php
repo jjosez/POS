@@ -24,8 +24,6 @@ class OrdenPuntoVenta extends ModelClass
 
     public $codcliente;
 
-    public $customer_account_amount;
-
     public $payment_policy;
 
     public $collected_amount;
@@ -89,7 +87,6 @@ class OrdenPuntoVenta extends ModelClass
         parent::clear();
         $this->fecha = Tools::date();
         $this->hora = Tools::hour();
-        $this->customer_account_amount = 0.0;
         $this->payment_policy = 'required';
         $this->collected_amount = 0.0;
     }
@@ -192,7 +189,7 @@ class OrdenPuntoVenta extends ModelClass
             $pagos += $payment->pagoNeto();
         }
 
-        return Tools::floatcmp($this->total, $pagos + (float)$this->customer_account_amount);
+        return Tools::floatcmp($this->total, $pagos);
     }
 
     /**
