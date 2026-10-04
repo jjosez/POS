@@ -1,0 +1,101 @@
+{% from 'Macro/Forms.html.twig' import simpleSelect as simpleSelect %}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post">
+            <input type="hidden" name="action" value="load-fields-options">
+            <input type="hidden" name="activetab" value="{{ fsc.getCurrentView().getViewName() }}">
+            <div class="row">
+                <div class="col">
+                    <p>Desde aquí puedes modificar los campos visibles en el punto de venta</p>
+                </div>
+                <div class="col-3">
+                    <div class="input-group mb-3">
+                        {{ simpleSelect(
+                            'nick',
+                            'nick',
+                            fsc.selectedUser,
+                            {'': trans('all')} | merge(fsc.getUserList()),
+                            NULL,
+                            'fas fa-users',
+                            {'onChange': 'this.form.submit()'}
+                        ) }}
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <form method="post" name="fields">
+        <input type="hidden" name="nick" value="{{ fsc.selectedUser }}"/>
+        <input type="hidden" name="activetab" value="{{ fsc.getCurrentView().getViewName() }}">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Titulo</th>
+                <th>Decimales</th>
+                <th class="text-center">Disponible</th>
+                <th class="text-center">Solo lectura</th>
+                <th class="text-center">Ver en carrito</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for column in fsc.getTerminalFields() %}
+                {% set checkSelectBoxData = {1: trans('yes'), 0:trans('no')} %}
+                <tr>
+                    <td>
+                        <input type="hidden" name="field[{{ column.name }}][data]" value="{{ column.data }}"/>
+                        <input type="hidden" name="field[{{ column.name }}][name]" value="{{ column.name }}"/>
+                        <input type="hidden" name="field[{{ column.name }}][type]" value="{{ column.type }}"/>
+                        <label class="d-inline">
+                            <input class="form-control" type="text" name="field[{{ column.name }}][tittle]"
+                                   placeholder="{{ column.tittle ?: trans(column.name) }}">
+                        </label>
+                    </td>
+                    <td>
+                        {% if column.type == 'number' %}
+                            <input type="number" name="field[{{ column.name }}][decimales]" min="0" max="7" step="1"
+                                   value="2"
+                                   class="form-control">
+                        {% endif %}
+                    </td>
+                    <td title="{{ trans('available') }}">
+                        {{ simpleSelect(
+                            'field['~column.name~'][eneabled]',
+                            'field['~column.name~'][eneabled]',
+                            column.eneabled,
+                            checkSelectBoxData) }}
+                    </td>
+                    <td title="{{ trans('readonly') }}">
+                        {{ simpleSelect(
+                            'field['~column.name~'][readonly]',
+                            'field['~column.name~'][readonly]',
+                            column.readonly,
+                            checkSelectBoxData) }}
+                    </td>
+                    <td class="text-center">
+                        {{ simpleSelect(
+                            'field['~column.name~'][carrito]',
+                            'field['~column.name~'][carrito]',
+                            column.carrito,
+                            checkSelectBoxData) }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="card-body">
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-sm btn-danger" type="submit" name="action" value="delete-fields-options">
+                        <i class="fas fa-trash-alt fa-fw" aria-hidden="true"></i> {{ i18n.trans('delete') }}
+                    </button>
+                </div>
+                <div class="col text-right">
+                    <button class="btn btn-sm btn-primary" type="submit" name="action" value="save-fields-options">
+                        <i class="fas fa-save fa-fw" aria-hidden="true"></i> {{ i18n.trans('save') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

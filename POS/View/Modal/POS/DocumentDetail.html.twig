@@ -1,0 +1,65 @@
+{% import 'Macro/POS.html.twig' as form %}
+<div class="modal hidden" id="totalsDetailModal">
+    <div class="modal-content md:modal-content-sm">
+        <div class="modal-header items-center p-4">
+            <div class="flex min-w-0 items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <i class="fa-solid fa-file-invoice" aria-hidden="true"></i>
+                </div>
+                <div class="min-w-0">
+                    <h2 class="text-xl font-semibold text-slate-900">{{ trans('detail') }}</h2>
+                    <p class="truncate text-sm text-slate-500">{{ trans('document') }}</p>
+                </div>
+            </div>
+            <button type="button" class="btn btn-icon btn-naked ml-2" data-toggle="modal" data-target="totalsDetailModal" aria-label="{{ trans('close') }}">
+                <i class="fa-solid fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="flex flex-col place-content-between text-xl font-medium">
+                {% for element in fsc.getCustomDocumentFields('detail') %}
+                    {% if element.type == 'checkbox' %}
+                        {{ form.customCheckboxInput(element.id, element.name, element.label, element.value) }}
+                    {% elseif element.type == 'text' %}
+                        {{ form.customTextInput(element.id, element.name, element.label, element.value) }}
+                    {% elseif element.type == 'number' %}
+                        {{ form.customNumberInput(element.id, element.name, element.label, element.value) }}
+                    {% endif %}
+                {% endfor %}
+                {{ form.customTextArea('orderObservations', 'observaciones', trans('observations')) }}
+                <div class="p-4 flex justify-between">
+                    <span><i class="fas fa-shopping-cart"></i></span>
+                    <span id="orderItemsNumber" class="text-right">0</span>
+                </div>
+                <div class="p-4 flex justify-between border-t-2 border-dashed">
+                    <span>{{ trans('subtotal') }}</span>
+                    <span class="text-right" data-document-field="netosindto" data-format="number">0.000</span>
+                </div>
+                <div class="p-4 flex justify-between border-t-2 border-dashed">
+                    <div class="w-1/2 text-sm">
+                        <span>{{ trans('dto') }}</span>
+                        <label class="input-icon text-gray-400">
+                            <span><i class="fa fa-sm fa-percent"></i></span>
+                            <input id="orderDiscountAmountInput" type="number" class="grow-0 text-red-500" value="0"
+                                   data-action="ui:order:field:edit" data-document-field="dtopor1">
+                        </label>
+                    </div>
+                    <span id="orderDiscountAmountLabel" class="flex-1 self-center text-right text-red-500" data-view="CartView">0.000</span>
+                </div>
+                <div class="p-4 flex justify-between border-t-2 border-dashed">
+                    <span>{{ trans('net') }}</span>
+                    <span id="orderTotalNet" class="text-right">0.000</span>
+                </div>
+                <div class="p-4 flex justify-between border-t-2 border-dashed">
+                    <span>{{ trans('taxes') }}</span>
+                    <span class="text-right" data-document-field="totaliva" data-format="number">0.000</span>
+                </div>
+                <div class="p-4 flex justify-between border-t-2 border-dashed">
+                    <span>{{ trans('payable-amount') }}</span>
+                    <span class="text-right" data-document-field="total" data-format="number">0.000</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

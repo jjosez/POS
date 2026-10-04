@@ -70,6 +70,7 @@
   "no-draft-orders-description": "Las órdenes guardadas para continuar después aparecerán aquí.",
   "no-lines-for-return": "No hay líneas para devolver",
   "no-payment-method-set": "No se configuro ningun metodo de pago.",
+  "no-more-payment-methods": "No hay más métodos de pago configurados.",
   "no-product-images": "No hay imágenes disponibles",
   "no-stock-available": "No hay stock disponible.",
   "order-refund-failed": "Error al registrar la devolución",

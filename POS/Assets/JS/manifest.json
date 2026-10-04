@@ -1,0 +1,46 @@
+{
+  "id": "fs_pos",
+  "dir": "ltr",
+  "name": "Point of Sale",
+  "display": "standalone",
+  "short_name": "POS",
+  "description": "Punto de venta, para Facturascripts.",
+  "orientation": "any",
+  "theme_color": "#8936FF",
+  "background_color": "#FFFFFF",
+  "prefer_related_applications": false,
+  "display_override": [
+    "window-controls-overlay"
+  ],
+  "features": [
+    "Cross Platform"
+  ],
+  "categories": [
+    "productivity"
+  ],
+  "icons": [
+    {
+      "purpose": "maskable",
+      "sizes": "512x512",
+      "src": "../Images/app/icon_maskable_512.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "any",
+      "sizes": "512x512",
+      "src": "../Images/app/icon.png",
+      "type": "image/png"
+    },
+    {
+      "src": "../Images/app/icon_maskable.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "edge_side_panel": {},
+  "shortcuts": []
+}

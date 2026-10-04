@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+-->
+
+<view>
+    <columns>
+        <column name="ID" order="100">
+            <widget type="text" fieldname="idoperacion"/>
+        </column>
+         <column name="code" order="100">
+            <widget type="text" fieldname="codigo"/>
+        </column>
+        <column name="doc-type" order="100">
+            <widget type="select" fieldname="tipodoc" translate="true">
+                <values title="customer-estimation">PresupuestoCliente</values>
+                <values title="customer-order">PedidoCliente</values>
+                <values title="customer-delivery-note">AlbaranCliente</values>
+                <values title="customer-invoice">FacturaCliente</values>
+                <values title="supplier-estimation">PresupuestoProveedor</values>
+                <values title="supplier-order">PedidoProveedor</values>
+                <values title="supplier-delivery-note">AlbaranProveedor</values>
+                <values title="supplier-invoice">FacturaProveedor</values>
+                <values title="service">Servicio</values>
+            </widget>
+        </column>
+        <column name="customer" order="100">
+            <widget type="select" fieldname="codcliente">
+                <values source="clientes" fieldcode="codcliente" fieldtitle="nombre"/>
+            </widget>
+        </column>
+        <column name='date' order='100' display='right'>
+            <widget type='date' fieldname='fecha'/>
+        </column>
+        <column name='time' order='100' display='right'>
+            <widget type='time' fieldname='hora'/>
+        </column>
+        <column name="total" display="right" order="100">
+            <widget type="money" decimal="2" fieldname="total"/>
+        </column>
+        <column name="imbalance" display="none" order="100">
+            <widget type="text" fieldname="descuadre"/>
+        </column>
+        <column name="collected-amount" display="right" order="110">
+            <widget type="money" fieldname="collected_amount"/>
+        </column>
+    </columns>
+    <rows>
+        <row type="status">
+            <option color="danger" title="Descuadre" fieldname="descuadre">neq:1</option>
+            <option color='warning' title="Devolucion" fieldname='total'>lte:0</option>
+        </row>
+    </rows>
+</view>

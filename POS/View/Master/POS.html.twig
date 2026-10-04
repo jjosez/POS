@@ -1,0 +1,54 @@
+{#
+/**
+ *  This file is part of POS plugin for FacturaScripts
+ *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
+#}
+{% extends 'Master/MicroTemplate.html.twig' %}
+{% set context = fsc.getContext() %}
+{% set terminal = context.terminal() %}
+{% set config = context.config() %}
+{% block meta -%}
+    {{ parent() }}
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="white">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+{%- endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="{{ asset('node_modules/@fortawesome/fontawesome-free/css/all.min.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('Dinamic/Assets/CSS/pos.app.min.css') }}?v={{ 'now' | date('ymd') }}"/>
+    <link rel="manifest" href="{{ asset('Plugins/POS/Assets/JS/manifest.json') }}" crossorigin="use-credentials"/>
+{% endblock %}
+{% block javascripts %}
+{% endblock %}
+{% block fullBody %}
+    <body class="bg-slate-100 text-slate-800 min-h-[100dvh]">
+    {% block messages %}
+        <div id="messageListTemplateView" class="alert-container pointer-events-none" style="z-index:99999;">
+            {{- _self.alert(log, ['warning', 'error', 'critical'], 'warning') -}}
+            {{- _self.alert(log, ['notice'], 'success') -}}
+            {{- _self.alert(log, ['info'], 'info') -}}
+        </div>
+    {% endblock %}
+    {% block body %}
+    {% endblock %}
+    {% block modals %}
+    {% endblock %}
+    {% block js %}
+    {% endblock %}
+    </body>
+{% endblock %}
+
+{% macro alert(log, types, style) %}
+    {%- set messages = log.read('', types) -%}
+    {%- if messages | length > 0 -%}
+        <div class="alert alert-{{ style }}" role="alert" data-delay="2000">
+            {% for msg in messages %}
+                <div>{{ msg.message | raw }}</div>
+            {% endfor %}
+        </div>
+    {%- endif -%}
+{% endmacro %}

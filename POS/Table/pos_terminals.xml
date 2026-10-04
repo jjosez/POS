@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table>
+    <column>
+        <name>anchopapel</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>aceptapagos</name>
+        <type>boolean</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>can_change_agent</name>
+        <type>boolean</type>
+        <null>YES</null>
+        <null>false</null>
+    </column>
+    <column>
+        <name>codalmacen</name>
+        <type>character varying(4)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>codcliente</name>
+        <type>character varying(10)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>comandoapertura</name>
+        <type>character varying(15)</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>comandocorte</name>
+        <type>character varying(15)</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>disponible</name>
+        <type>boolean</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>free_cart_lines</name>
+        <type>boolean</type>
+        <null>YES</null>
+        <default>null</default>
+    </column>
+    <column>
+        <name>free_cart_line_text</name>
+        <type>character varying(50)</type>
+        <null>YES</null>
+        <default>null</default>
+    </column>
+    <column>
+        <name>group_cart_lines</name>
+        <type>boolean</type>
+        <null>YES</null>
+        <default>true</default>
+    </column>
+    <column>
+        <name>idterminal</name>
+        <type>serial</type>
+        <null>NO</null>
+        <default>nextval('pos_terminals_idterminal_seq'::regclass)</default>
+    </column>
+    <column>
+        <name>idempresa</name>
+        <type>integer</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>nombre</name>
+        <type>character varying(100)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>numerotickets</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>productsource</name>
+        <type>integer</type>
+        <default>NULL</default>
+    </column>
+    <column>
+        <name>product_display_mode</name>
+        <type>character varying(10)</type>
+        <null>YES</null>
+        <default>'grid'</default>
+    </column>
+    <column>
+        <name>terminal_type</name>
+        <type>character varying(10)</type>
+        <default>NULL</default>
+    </column>
+    <column>
+        <name>codserierect</name>
+        <type>character varying(6)</type>
+        <null>YES</null>
+    </column>
+    <constraint>
+        <name>pos_terminals_pkey</name>
+        <type>PRIMARY KEY (idterminal)</type>
+    </constraint>
+    <constraint>
+        <name>ca_pos_terminals_almacen</name>
+        <type>FOREIGN KEY (codalmacen) REFERENCES almacenes (codalmacen) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_pos_terminals_cliente</name>
+        <type>FOREIGN KEY (codcliente) REFERENCES clientes (codcliente) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_pos_terminals_empresa</name>
+        <type>FOREIGN KEY (idempresa) REFERENCES empresas (idempresa) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+</table>

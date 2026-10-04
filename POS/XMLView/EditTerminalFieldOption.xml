@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+-->
+<view>
+    <columns>
+        <column name="reference" order="100">
+            <widget type="text" fieldname="referencia" eneabled="true" readonly="true" carrito="false"/>
+        </column>
+        <column name="description" order="110">
+            <widget type="text" fieldname="descripcion" eneabled="true" readonly="false" carrito="true"/>
+        </column>
+        <column name="quantity" order="120">
+            <widget type="number" fieldname="cantidad" eneabled="true" readonly="false" carrito="false"/>
+        </column>
+        <column name="price" order="130">
+            <widget type="money" fieldname="pvpunitario" eneabled="true" readonly="false" carrito="true"/>
+        </column>
+        <column name="dto" order="140">
+            <widget type="number" fieldname="dtopor" eneabled="true" readonly="false" carrito="false"/>
+        </column>
+        <column name="dto-2" order="150">
+            <widget type="number" fieldname="dtopor2" eneabled="false" readonly="true" carrito="false"/>
+        </column>
+        <column name="percentage-vat" order="180">
+            <widget type="number" fieldname="iva" eneabled="true" readonly="true" carrito="false"/>
+        </column>
+        <column name="price-with-tax" order="190">
+            <widget type="money" fieldname="pvpunitarioiva" eneabled="true" readonly="false" carrito="false"/>
+        </column>
+        <column name="percentage-surcharge" order="230">
+            <widget type="percentage" fieldname="recargo" eneabled="true" readonly="true" carrito="false"/>
+        </column>
+        <column name="irpf" order="240">
+            <widget type="percentage" fieldname="irpf" eneabled="true" readonly="true" carrito="false"/>
+        </column>
+        <column name="total" order="200">
+            <widget type="money" fieldname="pvptotaliva" eneabled="true" readonly="true" carrito="false"/>
+        </column>
+    </columns>
+</view>

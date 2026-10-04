@@ -1,0 +1,83 @@
+<div id="context:action:modal" class="modal hidden">
+    <div class="modal-content md:modal-content-sm">
+        <div class="modal-header items-center p-4">
+            <div class="flex min-w-0 items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <i class="fa-solid fa-print" aria-hidden="true"></i>
+                </div>
+                <div class="min-w-0">
+                    <h2 class="text-xl font-semibold text-slate-900">{{ trans('select') }}</h2>
+                    <p class="truncate text-sm text-slate-500">{{ trans('printing') }}</p>
+                </div>
+            </div>
+            <button type="button" class="btn btn-icon btn-naked ml-2" data-toggle="modal" data-target="context:action:modal" aria-label="{{ trans('close') }}">
+                <i class="fa-solid fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="contextActionTemplateView" class="flex flex-col space-y-2">
+            </div>
+        </div>
+        <div class="modal-footer">
+        </div>
+    </div>
+</div>
+<script id="printOrderActionTemplate" type="text/template">
+    {% for action in fsc.getPrintSaleTicketActions() %}
+        <button class="btn btn-block btn-light cursor-pointer"
+                data-action="print:order:ticket"
+                data-code="<%= data.code %>"
+                data-document="<%= data.model %>"
+                data-order="<%= data.order %>"
+                data-name="{{ action.actionName }}"
+                data-params='{{ action.params }}'
+                data-controller='{{ asset(action.actionController) }}'
+                data-type='{{ action.actionType }}'>
+            <i class="fa-fw {{ action.actionIcon }}"></i><span class="ml-2">{{ action.actionTitle }}</span>
+        </button>
+    {% endfor %}
+</script>
+<script id="printOrderContextActionTemplate" type="text/template">
+    {% for action in fsc.getPrintSaleTicketActions() %}
+        <button class="btn btn-block btn-light cursor-pointer"
+                data-action="print:order:ticket"
+                data-code="<%= data.code %>"
+                data-document="<%= data.model %>"
+                data-order="<%= data.order %>"
+                data-name="{{ action.actionName }}"
+                data-params='{{ action.params }}'
+                data-controller='{{ asset(action.actionController) }}'
+                data-type='{{ action.actionType }}'>
+            <i class="fa-fw {{ action.actionIcon }}"></i><span class="ml-2">{{ action.actionTitle }}</span>
+        </button>
+    {% endfor %}
+</script>
+<script id="printDraftActionTemplate" type="text/template">
+    {% for action in fsc.getPrintDraftTicketActions() %}
+        <button class="btn btn-block btn-light cursor-pointer"
+                data-action="print:draft:ticket"
+                data-code="<%= data.code %>"
+                data-document="<%= data.document %>"
+                data-order="<%= data.order %>"
+                data-name="{{ action.actionName }}"
+                data-params='{{ action.params }}'
+                data-controller='{{ asset(action.actionController) }}'
+                data-type='{{ action.actionType }}'>
+            <i class="fa-fw {{ action.actionIcon }}"></i><span class="ml-2">{{ action.actionTitle }}</span>
+        </button>
+    {% endfor %}
+</script>
+<script id="printClosingActionTemplate" type="text/template">
+    {% for action in fsc.getPrintClosingTicketActions() %}
+        <button class="btn btn-block btn-light cursor-pointer"
+                data-action="session:report:x"
+                data-code="<%= data.code %>"
+                data-name="{{ action.actionName }}"
+                data-params='{{ action.params }}'
+                data-controller='{{ asset(action.actionController) }}'
+                data-type='{{ action.actionType }}'>
+            <i class="fa-fw {{ action.actionIcon }}"></i><span class="ml-2">{{ action.actionTitle }}</span>
+        </button>
+    {% endfor %}
+</script>
+

@@ -1,0 +1,80 @@
+{# Legacy checkout modal kept for reference. #}
+<div id="checkout:modal" class="modal hidden">
+    <div class="modal-content md:modal-content-sm">
+        <div class="modal-header">
+            <h2 class="text-2xl text-slate-gray-700 font-semibold">{{ trans('charge') }}</h2>
+            <button class="btn btn-icon btn-naked ml-2" data-toggle="modal" data-target="checkout:modal">
+                <i class="fa fw fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="flex">
+                <label class="flex-1 input-icon text-slate-gray-800">
+                    <span><i class="fa fa-sm fa-dollar-sign"></i></span>
+                    <input type="number" id="paymentApplyInput" placeholder="0">
+                </label>
+                <button class="ml-4 btn btn-secondary payment-add-btn"
+                        data-action="checkout:payment:recalc"
+                        data-value="balance">
+                    <span class="w-full text-center">{{ trans('balance') }}</span>
+                </button>
+            </div>
+            <div class="py-4">
+                <div class="flex flex-wrap justify-center gap-4">
+                    {% for element in context.config().getPaymentMethods() %}
+                        <button class="btn btn-primary payment-modal-btn" data-action="checkout:payment:add"
+                                data-code="{{ element.codpago }}" data-description="{{ element.descripcion }}"
+                                data-paid="{{ element.formaPago().pagado ?? 0}}">
+                            <i class="fas fa-plus-circle mr-2"></i>
+                            <span class="w-full text-center">{{ element.descripcion }}</span>
+                        </button>
+                    {% endfor %}
+                </div>
+            </div>
+            <div id="payment:list:view" class="flex-1">
+            </div>
+            <div class="flex flex-col place-content-between text-lg font-medium">
+                <div class="p-3 flex justify-between border-t-2 border-dashed">
+                    <span class="text-green-800">{{ trans('payable-amount') }}</span>
+                    <span id="checkoutTotal" class="text-right">0.000</span>
+                </div>
+                <div class="p-3 flex justify-between border-t-2 border-dashed">
+                    <span class="text-green-800">{{ trans('tendered-amount') }}</span>
+                    <span id="checkoutTenderedAmount" class="text-right">0.000</span>
+                </div>
+                <div class="p-3 flex justify-between border-t-2 border-dashed">
+                    <span class="text-yellow-800">{{ trans('change-amount') }}</span>
+                    <span id="checkoutChangeAmount" class="text-right">0.000</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-naked" data-toggle="modal" data-target="checkout:modal">
+                <i class="fa fa-arrow-alt-circle-left"></i>
+                <span class="mx-2 text-center">{{ trans('cancel') }}</span>
+            </button>
+            <button id="orderSaveButton" class="btn btn-success ml-auto" data-action="order:save" disabled>
+                <span class="mx-2 text-center">{{ trans('confirm') }}</span>
+                <i class="fa fa-arrow-alt-circle-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<script id="payment:list:template" type="text/template">
+    <% payments.forEach(function(value, index) { %>
+    <div class="my-4 flex rounded-lg bg-slate-100 p-4 shadow-sm">
+        <div class="mr-4 flex items-center">
+            <span class="bg-slate-gray-200"><i class="fas fa-1x fa-plus-circle"></i></span>
+        </div>
+        <div class="flex-1">
+            <p class="text-sm font-bold uppercase text-gray-600"><%= value.description %></p>
+            <p class="text-lg font-bold text-blue-500"><%= value.amount %></p>
+        </div>
+        <div class="flex items-center">
+            <button class="btn btn-icon btn-danger" data-action="checkout:payment:delete" data-index="<%= index %>">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+    </div>
+    <% }) %>
+</script>

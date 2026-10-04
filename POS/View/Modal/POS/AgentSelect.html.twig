@@ -1,0 +1,46 @@
+<div id="agent:select:modal" class="modal hidden">
+    <!--content-->
+    <div class="modal-content md:modal-content-sm">
+        <!--header-->
+        <div class="modal-header items-center p-4">
+            <div class="flex min-w-0 items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <i class="fa-solid fa-user-tie" aria-hidden="true"></i>
+                </div>
+                <div class="min-w-0">
+                    <h2 class="text-xl font-semibold text-slate-900">{{ trans('agent') }}</h2>
+                    <p class="truncate text-sm text-slate-500">{{ trans('select-agent') }}</p>
+                </div>
+            </div>
+            <button type="button" class="btn btn-icon btn-naked ml-2" data-toggle="modal" data-target="agent:select:modal" aria-label="{{ trans('close') }}">
+                <i class="fa-solid fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
+        <!--body-->
+        <div class="modal-body p-0">
+            <div class="overflow-hidden">
+                <table class="w-full">
+                    <tbody id="agentSelectList" class="font-semibold text-slate-gray-700">
+                    {% for agent in context.agents().getAgentsList() %}
+                        <tr class="bg-slate-50 cursor-pointer hover:bg-blue-500 hover:text-white">
+                            <td class="p-4 font-medium" data-action="ui:cart:agent:set"
+                                data-code="{{ agent.codagente }}" data-description="{{ agent.nombre }}">
+                                {{ agent.nombre }}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td class="m-4 p-4 w-auto bg-blue-500 text-white rounded-lg">
+                                {{ trans('no-agents-available') }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span>{{ trans('slide-to-see-more-items') }}</span>
+        </div>
+    </div>
+</div>

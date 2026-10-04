@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table>
+    <column>
+        <name>payment_policy</name>
+        <type>character varying(20)</type>
+        <null>NO</null>
+        <default>'required'</default>
+    </column>
+    <column>
+        <name>codcliente</name>
+        <type>character varying(10)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>codigo</name>
+        <type>character varying(20)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>esdevolucion</name>
+        <type>boolean</type>
+        <null>NO</null>
+        <default>false</default>
+    </column>
+    <column>
+        <name>fecha</name>
+        <type>date</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>hora</name>
+        <type>time without time zone</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>iddocumento</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>idoperacion</name>
+        <type>serial</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>idoperacion_original</name>
+        <type>integer</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>idsesion</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>tipodoc</name>
+        <type>character varying(30)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>total</name>
+        <type>double precision</type>
+        <null>NO</null>
+    </column>
+    <constraint>
+        <name>pos_operations_pkey</name>
+        <type>PRIMARY KEY (idoperacion)</type>
+    </constraint>
+    <constraint>
+        <name>ca_pos_operations_session</name>
+        <type>FOREIGN KEY (idsesion) REFERENCES pos_sessions (idsesion) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_pos_operations_cliente</name>
+        <type>FOREIGN KEY (codcliente) REFERENCES clientes (codcliente) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+</table>

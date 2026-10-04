@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table>
+    <column>
+        <name>cantidad</name>
+        <type>double precision</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>cambio</name>
+        <type>double precision</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>codpago</name>
+        <type>character varying(10)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>idoperacion</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>idsesion</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>idpago</name>
+        <type>serial</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>nick</name>
+        <type>character varying(50)</type>
+    </column>
+    <column>
+        <name>nickupdate</name>
+        <type>character varying(50)</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>createdat</name>
+        <type>timestamp</type>
+    </column>
+    <column>
+        <name>updatedat</name>
+        <type>timestamp</type>
+    </column>
+    <constraint>
+        <name>pos_payments_pkey</name>
+        <type>PRIMARY KEY (idpago)</type>
+    </constraint>
+    <constraint>
+        <name>ca_pos_payments_formaspago</name>
+        <type>FOREIGN KEY (codpago) REFERENCES formaspago (codpago) ON DELETE RESTRICT ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_pos_payments_users_nick</name>
+        <type>FOREIGN KEY (nick) REFERENCES users (nick) ON DELETE SET NULL ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_pos_payments_users_nickupdate</name>
+        <type>FOREIGN KEY (nickupdate) REFERENCES users (nick) ON DELETE SET NULL ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_pos_payments_operations</name>
+        <type>FOREIGN KEY (idoperacion) REFERENCES pos_operations (idoperacion) ON DELETE CASCADE ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_pos_payments_session</name>
+        <type>FOREIGN KEY (idsesion) REFERENCES pos_sessions (idsesion) ON DELETE CASCADE ON UPDATE CASCADE</type>
+    </constraint>
+</table>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+-->
+
+<view>
+    <columns>
+        <group name="data" title="general" numcolumns="12" valign="bottom">
+            <column name="name" numcolumns="4" order="100">
+                <widget type="text" fieldname="nombre" icon="fas fa-tag" required="true"/>
+            </column>
+            <column name='customer' numcolumns='4' order='110'>
+                <widget type='autocomplete' fieldname='codcliente' onclick='EditCliente'>
+                    <values source='clientes' fieldcode='codcliente' fieldtitle='nombre'/>
+                </widget>
+            </column>
+             <column name="company" titleurl="ListEmpresa" order="120">
+                <widget type="select" fieldname="idempresa" required='true' onclick="EditEmpresa" icon="fas fa-building"
+                        readonly="true">
+                    <values source="empresas" fieldcode="idempresa" fieldtitle="nombre"/>
+                </widget>
+            </column>
+            <column name="warehouse" titleurl="ListAlmacen" numcolumns="4" order="130">
+                <widget type="select" fieldname="codalmacen" parent="idpemresa" required='true' onclick="EditAlmacen"
+                        icon="fas fa-warehouse" readonly="dinamic">
+                    <values source="almacenes" fieldcode="codalmacen" fieldtitle="nombre" fieldfilter="idempresa"/>
+                </widget>
+            </column>
+            <column name="product-source" numcolumns="4" order="150">
+                <widget type="select" fieldname="productsource" translate="true" icon="fas fa-search">
+                    <values title="company">1</values>
+                    <values title="warehouse">2</values>
+                </widget>
+            </column>
+             <column name="product-display-mode" numcolumns="4" order="160">
+                <widget type="select" fieldname="product_display_mode" translate="true" icon="fas fa-list">
+                    <values title="grid">grid</values>
+                    <values title="row">list</values>
+                </widget>
+            </column>
+        </group>
+        <group name="extra" title="settings" numcolumns="12" valign="bottom">
+            <column name="pos-checkout-available" numcolumns="3" order='100'>
+                <widget type="checkbox" fieldname="aceptapagos"/>
+            </column>
+            <column name="group-by-product" numcolumns="3" order='110'>
+                <widget type="checkbox" fieldname="group_cart_lines"/>
+            </column>
+            <column name="can-change-agent" numcolumns="3" order='120'>
+                <widget type="checkbox" fieldname="can_change_agent"/>
+            </column>
+            <column name="available" title="available" display="none" numcolumns="3" order="140">
+                <widget type="checkbox" fieldname="disponible" readonly="true"/>
+            </column>
+            <column name="free-product-line" numcolumns="3" order='140'>
+                <widget type="checkbox" fieldname="free_cart_lines"/>
+            </column>
+            <column name="free-product-line-text" numcolumns="8" order="150">
+                <widget type="text" fieldname="free_cart_line_text" icon="fas fa-tag"/>
+            </column>
+            <column name="ticket-copies" numcolumns="4" order="160">
+                <widget type="number" fieldname="numerotickets"/>
+            </column>
+        </group>
+    </columns>
+    <rows>
+        <row type="actions">
+            <button type="link" label="pos-currency" color="warning" action="ListDenominacionMoneda"
+                    icon="fas fa-money-bill-alt"/>
+        </row>
+    </rows>
+</view>

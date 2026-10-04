@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+-->
+
+<view>
+    <columns>
+        <column name="ID" order="100">
+            <widget type="text" fieldname="idsesion"/>
+        </column>
+        <column name="user" order="100">
+            <widget type="text" fieldname="nickusuario"/>
+        </column>
+        <column name='start-date' order='100' display='right'>
+            <widget type='date' fieldname='fechainicio'/>
+        </column>
+        <column name='start-time' order='100' display='right'>
+            <widget type='time' fieldname='horainicio'/>
+        </column>
+        <column name="Saldo inicial" display="right" order="100">
+            <widget type="number" decimal="2" fieldname="saldoinicial"/>
+        </column>
+        <column name='end-date' order='100' display='right'>
+            <widget type='date' fieldname='fechafin'/>
+        </column>
+        <column name='end-time' order='100' display='right'>
+            <widget type='time' fieldname='horafin'/>
+        </column>
+        <column name="total-expected" display="right" order="100">
+            <widget type="money" decimal="2" fieldname="saldoesperado"/>
+        </column>
+    </columns>
+    <rows>
+        <row type='status'>
+            <option color='info' title="Abierto" fieldname='abierto'>1</option>
+        </row>
+    </rows>
+</view>

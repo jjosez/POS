@@ -1,0 +1,50 @@
+{% import 'Macro/POS.html.twig' as pos %}
+<nav id="navbar" class="flex flex-col justify-between bg-gray-900 px-4 py-2 md:flex-row">
+    <div class="flex flex-1 justify-between">
+        <a class="inline-block whitespace-nowrap py-2 ml-4 font-semibold leading-normal text-slate-50"
+           href="{{ asset('') }}">
+            <i class="text-xl fa fa-home"></i>
+        </a>
+        <button class="py-1 text-xl text-slate-100 btn bg-transparent focus:text-slate-700 focus:ring-transparent md:hidden"
+                type="button" data-toggle="collapse" data-target="navbarMenu">
+            <span class="flex font-medium"><i class="fa fa-bars"></i></span>
+        </button>
+    </div>
+    <div class="hidden md:flex" id="navbarMenu">
+        {# <ul class="flex list-none flex-col flex-wrap items-center justify-center md:flex-row md:space-x-2 md:p-0"> #}
+        <ul class="flex list-none w-full flex-col md:flex-row md:flex-wrap md:space-x-2 md:items-center md:p-0">
+            {% for element in fsc.getCustomMenuElements('navbar') %}
+                {% if element.type == 'modal' %}
+                    {{ pos.menuToggleElement('modal', element.action, element.icon, element.text, element.title) }}
+                {% elseif  element.type == 'link' %}
+                    {{ pos.menuLinkElement(asset(element.action), element.icon, element.text, element.title) }}
+                {% elseif  element.type == 'js' %}
+                    {{ pos.menuActionElement(element.action, element.icon, element.text, element.title) }}
+                {% endif %}
+            {% endfor %}
+            {{ pos.menuActionElement('order:draft:list', 'fas fa-hourglass-half', '') }}
+            {{ pos.menuActionElement('order:last:list', 'fas fa-history', '') }}
+            {{ pos.menuToggleElement('modal', 'session:close:modal', 'fas fa-cash-register') }}
+            {{ pos.menuToggleElement('modal', 'moneyInOutModal', 'fas fa-money-bill-transfer') }}
+            {{ pos.menuToggleElement('modal', 'userModal', 'fas fa-user-circle', fsc.user.nick) }}
+        </ul>
+    </div>
+</nav>
+{% set contentMenuElements = fsc.getCustomMenuElements('content-navbar') %}
+{% if contentMenuElements is not empty %}
+    <nav id="contentNavbar" class="flex bg-emerald-500 px-4 py-2">
+        <div class="hidden md:flex mx-auto" id="contentNavbarMenu">
+            <ul class="flex list-none flex-col flex-wrap justify-center md:space-x-2 md:flex-row md:p-0">
+                {% for element in contentMenuElements %}
+                    {% if element.type == 'modal' %}
+                        {{ pos.menuToggleElement('modal', element.action, element.icon, element.text, element.title) }}
+                    {% elseif  element.type == 'link' %}
+                        {{ pos.menuLinkElement(asset(element.action), element.icon, element.text, element.title) }}
+                    {% elseif  element.type == 'js' %}
+                        {{ pos.menuActionElement(element.action, element.icon, element.text, element.title) }}
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </nav>
+{% endif %}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+-->
+
+<view>
+    <columns>
+         <column name="code" order="100">
+            <widget type="text" fieldname="id"/>
+        </column>
+        <column name="user" order="110">
+            <widget type="text" fieldname="nickusuario"/>
+        </column>
+        <column name="description" order="120">
+            <widget type="text" fieldname="descripcion"/>
+        </column>
+        <column name='date' order='130' display='right'>
+            <widget type='date' fieldname='fecha'/>
+        </column>
+        <column name='time' order='140' display='right'>
+            <widget type='time' fieldname='hora'/>
+        </column>
+        <column name="total" display="right" order="150">
+            <widget type="money" decimal="2" fieldname="total"/>
+        </column>
+    </columns>
+</view>

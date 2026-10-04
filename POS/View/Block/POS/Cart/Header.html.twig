@@ -1,0 +1,62 @@
+{# helpers #}
+{% set defaultDoc = config.getDefaultDocument() %}
+{% set defaultCustomer = config.getDefaultCustomer() %}
+
+{% set agentIsEnabled = terminal.can_change_agent %}
+{% set agentAttrs = agentIsEnabled ? 'data-toggle="modal" data-target="agent:select:modal"' : 'disabled' %}
+
+{% set agentName = trans('select-agent') %}
+{% if fsc.user.codagente %}
+    {% set agent = context.agents().getAgent(fsc.user.codagente) %}
+    {% set agentName = agent.nombre %}
+{% endif %}
+
+<div class="flex flex-col gap-4 p-4">
+    <div class="flex items-start justify-between gap-3">
+        <div>
+            <p class="text-xs font-semibold text-slate-500">{{ trans('document') }}</p>
+            <h2 id="documentClassLabel" class="text-lg font-bold tracking-tight">
+                {{ defaultDoc.descripcion ?: trans(defaultDoc.tipodoc) }}
+            </h2>
+        </div>
+
+        <button class="btn btn-icon btn-naked" title="{{ trans('edit') }}"
+                data-toggle="modal" data-target="document:type:modal">
+            <i class="ml-auto fa-solid fa-pencil"></i>
+        </button>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+        {{ _self.selectBtn(
+            'customerNameLabel',
+            'fa-solid fa-user',
+            trans('customer'),
+            defaultCustomer.nombre,
+            'customer:search:modal',
+            ''
+        ) }}
+
+        {{ _self.selectBtn(
+            'agentNameLabel',
+            'fa-solid fa-user-tie',
+            trans('agent'),
+            agentName,
+            agentIsEnabled ? 'agent:select:modal' : null,
+            agentIsEnabled ? '' : 'disabled'
+        ) }}
+    </div>
+</div>
+
+{% macro selectBtn(idLabel, iconClass, smallLabel, valueText, toggleTarget, extraAttrs) %}
+    <button class="btn btn-primary grid grid-cols-[auto_1fr] gap-x-3 items-center h-auto py-2 px-4 text-left"
+            {% if toggleTarget %}data-toggle="modal" data-target="{{ toggleTarget }}"{% endif %}
+            {{ extraAttrs|raw }}>
+        <span class="h-8 w-8 rounded-xl bg-white ring-1 ring-slate-200 text-center text-slate-900">
+            <i class="{{ iconClass }} align-middle"></i>
+        </span>
+        <span class="flex flex-col">
+            <span class="text-[10px] opacity-80">{{ smallLabel }}</span>
+            <span id="{{ idLabel }}" class="text-sm font-bold leading-none">{{ valueText }}</span>
+        </span>
+    </button>
+{% endmacro %}

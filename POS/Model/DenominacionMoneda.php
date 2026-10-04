@@ -1,0 +1,47 @@
+<?php
+/**
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
+namespace FacturaScripts\Plugins\POS\Model;
+
+use FacturaScripts\Core\Template\ModelClass;
+use FacturaScripts\Core\Template\ModelTrait;
+
+/**
+ * Cash denomination .
+ *
+ * @author Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
+class DenominacionMoneda extends ModelClass
+{
+    use ModelTrait;
+
+    public $clave;
+    public $coddivisa;
+    public $tipo;
+    public $valor;
+
+    public function clear(): void
+    {
+        parent::clear();
+        $this->tipo = 'coin';
+        $this->valor = 0.0;
+    }
+
+    public function test(): bool
+    {
+        $this->tipo = $this->tipo === 'bill' ? 'bill' : 'coin';
+        return parent::test();
+    }
+
+    public static function primaryColumn(): string
+    {
+        return 'clave';
+    }
+
+    public static function tableName(): string
+    {
+        return 'pos_currency_denominations';
+    }
+}

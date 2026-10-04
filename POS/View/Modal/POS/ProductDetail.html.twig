@@ -1,0 +1,154 @@
+<div id="product:detail:modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="product:detail:title">
+    <div class="modal-content h-full md:h-auto md:max-h-[90vh] md:w-4/5 md:max-w-5xl">
+        <div class="modal-header items-center p-4">
+            <div class="flex min-w-0 items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                </div>
+                <div class="min-w-0">
+                    <h2 id="product:detail:title" class="text-xl font-semibold text-slate-900">{{ trans('product-detail') }}</h2>
+                    <p class="truncate text-sm text-slate-500">{{ trans('product-information') }}</p>
+                </div>
+            </div>
+            <button type="button" class="btn btn-icon btn-naked ml-2" data-toggle="modal"
+                    data-target="product:detail:modal" aria-label="{{ trans('close') }}">
+                <i class="fa-solid fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div id="product:detail:view" class="modal-body overflow-y-auto p-0"></div>
+    </div>
+</div>
+
+<script id="product:detail:template" type="text/template">
+    <% const product = it.product || {} %>
+    <% const images = it.images || [] %>
+    <% const stocks = it.stocks || [] %>
+    <% const mainImage = images[0] || product.thumbnail || '' %>
+    <% const unavailable = product.isOutOfStock || Number(product.bloqueado) === 1 %>
+    <% const attributes = [product.atribute1, product.atribute2, product.atribute3, product.atribute4].filter(Boolean) %>
+    <% const totalStock = stocks.reduce((total, item) => total + Number(item.stock || 0), 0) %>
+
+    <div class="grid min-h-0 md:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+        <section class="border-b border-slate-200 bg-slate-50 p-4 md:border-b-0 md:border-r md:p-6">
+            <div class="mx-auto flex aspect-square max-h-[26rem] w-full max-w-[26rem] items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-slate-200">
+                <% if (mainImage) { %>
+                <img id="product:detail:main:image" src="<%= mainImage %>" alt="<%= product.description || product.code %>"
+                     class="h-full w-full object-contain p-5" loading="lazy" decoding="async">
+                <% } else { %>
+                <div class="flex flex-col items-center gap-3 text-slate-300">
+                    <i class="fa-regular fa-image text-6xl" aria-hidden="true"></i>
+                    <span class="text-sm font-medium text-slate-400">{{ trans('no-product-images') }}</span>
+                </div>
+                <% } %>
+            </div>
+
+            <% if (images.length > 1) { %>
+            <div class="mx-auto mt-3 flex w-full max-w-[26rem] gap-2 overflow-x-auto pb-1" role="list" aria-label="{{ trans('images') }}">
+                <% images.forEach(function(image, index) { %>
+                <button type="button"
+                        class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-white ring-2 <%= index === 0 ? 'ring-blue-500' : 'ring-slate-200 hover:ring-blue-300' %>"
+                        data-action="product:detail:image:select" data-image="<%= image %>"
+                        aria-label="{{ trans('image') }} <%= index + 1 %>" aria-pressed="<%= index === 0 ? 'true' : 'false' %>">
+                    <img src="<%= image %>" alt="" class="h-full w-full object-contain p-1" loading="lazy" decoding="async">
+                </button>
+                <% }) %>
+            </div>
+            <% } %>
+        </section>
+
+        <section class="flex min-w-0 flex-col p-4 md:p-6">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600"><%= product.code || '' %></span>
+                <% if (Number(product.bloqueado) === 1) { %>
+                <span class="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
+                    <i class="fa-solid fa-lock mr-1" aria-hidden="true"></i>{{ trans('blocked-product') }}
+                </span>
+                <% } else if (product.isOutOfStock) { %>
+                <span class="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">{{ trans('out-of-stock') }}</span>
+                <% } %>
+            </div>
+
+            <h3 class="mt-3 text-xl font-bold leading-tight text-slate-950 md:text-2xl"><%= product.description || '' %></h3>
+            <% if (product.detail) { %>
+            <p class="mt-2 text-sm leading-relaxed text-slate-500"><%= product.detail %></p>
+            <% } %>
+
+            <div class="mt-5 flex items-center justify-between gap-4 border-y border-slate-200 py-4">
+                <div>
+                    <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">{{ trans('price') }}</div>
+                    <div class="mt-1 text-2xl font-extrabold tabular-nums text-slate-950"><%= product.priceWithFormat || '' %></div>
+                </div>
+                <button type="button"
+                        class="flex h-11 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition <%= unavailable ? 'cursor-not-allowed bg-slate-200 text-slate-400' : 'bg-slate-950 text-white hover:bg-blue-600 active:scale-[0.98]' %>"
+                        data-action="<%= unavailable ? '' : 'ui:cart:line:add' %>" data-code="<%= product.code || '' %>"
+                        data-description="<%= product.description || '' %>" data-thumbnail="<%= product.thumbnail || mainImage %>"
+                        data-bloqueado="<%= product.bloqueado ?? 0 %>" <%= unavailable ? 'disabled' : '' %>>
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                    <span>{{ trans('add') }}</span>
+                </button>
+            </div>
+
+            <% if (unavailable) { %>
+            <div class="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                <i class="fa-solid fa-circle-exclamation mr-1.5" aria-hidden="true"></i>
+                <% if (Number(product.bloqueado) === 1) { %>
+                {{ trans('blocked-product-description') }}
+                <% } else { %>
+                {{ trans('no-stock-available') }}
+                <% } %>
+            </div>
+            <% } %>
+
+            <dl class="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                <div class="min-w-0">
+                    <dt class="text-xs font-medium text-slate-400">{{ trans('reference') }}</dt>
+                    <dd class="mt-0.5 truncate font-semibold text-slate-700"><%= product.code || '-' %></dd>
+                </div>
+                <div class="min-w-0">
+                    <dt class="text-xs font-medium text-slate-400">{{ trans('barcode') }}</dt>
+                    <dd class="mt-0.5 truncate font-semibold text-slate-700"><%= product.barcode || '-' %></dd>
+                </div>
+                <div class="min-w-0">
+                    <dt class="text-xs font-medium text-slate-400">{{ trans('family') }}</dt>
+                    <dd class="mt-0.5 truncate font-semibold text-slate-700"><%= product.family || '-' %></dd>
+                </div>
+                <div class="min-w-0">
+                    <dt class="text-xs font-medium text-slate-400">{{ trans('brand') }}</dt>
+                    <dd class="mt-0.5 truncate font-semibold text-slate-700"><%= product.brandname || '-' %></dd>
+                </div>
+            </dl>
+
+            <% if (attributes.length) { %>
+            <div class="mt-5">
+                <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-400">{{ trans('attributes') }}</h4>
+                <div class="mt-2 flex flex-wrap gap-2">
+                    <% attributes.forEach(function(attribute) { %>
+                    <span class="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700"><%= attribute %></span>
+                    <% }) %>
+                </div>
+            </div>
+            <% } %>
+
+            <div class="mt-5">
+                <div class="flex items-center justify-between gap-3">
+                    <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-400">{{ trans('stock-by-warehouse') }}</h4>
+                    <span class="text-sm font-bold tabular-nums <%= totalStock > 0 ? 'text-emerald-600' : 'text-red-600' %>"><%= totalStock %></span>
+                </div>
+                <div class="mt-2 overflow-hidden rounded-lg border border-slate-200">
+                    <% if (stocks.length) { %>
+                    <div class="divide-y divide-slate-100">
+                        <% stocks.forEach(function(stock) { %>
+                        <div class="flex items-center justify-between gap-3 px-3 py-2.5 text-sm">
+                            <span class="min-w-0 truncate font-medium text-slate-600"><%= stock.warehouse || stock.codewarehouse %></span>
+                            <span class="shrink-0 font-bold tabular-nums <%= Number(stock.stock) > 0 ? 'text-emerald-600' : 'text-slate-400' %>"><%= stock.stock ?? 0 %></span>
+                        </div>
+                        <% }) %>
+                    </div>
+                    <% } else { %>
+                    <p class="p-3 text-sm text-slate-500">{{ trans('no-stock-available') }}</p>
+                    <% } %>
+                </div>
+            </div>
+        </section>
+    </div>
+</script>

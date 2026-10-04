@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+-->
+
+<view>
+    <columns>
+        <column name="ID" order="100">
+            <widget type="text" fieldname="idterminal" onclick="EditTerminalPOS"/>
+        </column>
+        <column name="name" order="100">
+            <widget type="text" fieldname="nombre"/>
+        </column>
+        <column name="default-customer" order="100">
+            <widget type="select" fieldname="codcliente">
+                <values source="clientes" fieldcode="codcliente" fieldtitle="nombre"/>
+            </widget>
+        </column>
+        <column name="default-warehouse" order="100">
+            <widget type="text" fieldname="codalmacen"/>
+        </column>
+        <column name="default-warehouse" order="100">
+            <widget type="select" fieldname="codalmacen">
+                <values source="almacenes" fieldcode="codalmacen" fieldtitle="nombre"/>
+            </widget>
+        </column>
+        <column name='Numero tickets' order='100' display='right'>
+            <widget type='number' decimal="0" fieldname='numerotickets'/>
+        </column>
+        <column name='Disponible' order='100' display='right'>
+            <widget type="checkbox" fieldname='disponible'/>
+        </column>        
+    </columns>
+    <rows>
+        <row type='status'>
+            <option color='warning' fieldname='disponible'>0</option>
+        </row>
+    </rows>
+</view>

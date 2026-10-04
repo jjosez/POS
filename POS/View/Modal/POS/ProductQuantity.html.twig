@@ -1,0 +1,42 @@
+{#
+/**
+ *  This file is part of POSpro plugin for FacturaScripts
+ *  Copyright (C) 2020 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+ */
+#}
+<div id="productQuantityEditModal" class="hidden modal">
+    <!--content-->
+    <div class="min-h-min modal-content md:modal-content-sm">
+        <!--header-->
+        <div class="modal-header items-center p-4">
+            <div class="flex min-w-0 items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <i class="fa-solid fa-arrow-up-9-1" aria-hidden="true"></i>
+                </div>
+                <div class="min-w-0">
+                    <h2 class="text-xl font-semibold text-slate-900">{{ trans('edit') }}</h2>
+                    <p class="truncate text-sm text-slate-500">{{ trans('quantity') }}</p>
+                </div>
+            </div>
+            <button type="button" class="ml-2 btn btn-icon btn-naked" data-toggle="modal" data-target="productQuantityEditModal" aria-label="{{ trans('close') }}">
+                <i class="fa-solid fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
+        <!--body-->
+        <div class="modal-body">
+            <div id="productQuantityForm" class="flex-col items-center">
+                <label for="productQuantityInput" class="mb-2 font-semibold uppercase">{{ trans('quantity') }}</label>
+                <div class="flex space-x-3">
+                    <button class="flex-none btn btn-icon btn-warning" data-action="quantityDecreaseAction">
+                        <i class="fa fw fa-minus"></i>
+                    </button>
+                    <input id="productQuantityInput" type="number" class="flex-1 form-control" value="0"
+                           data-action="productEditFieldAction" data-index="" data-field="cantidad">
+                    <button class="flex-none btn btn-icon btn-secondary" data-action="quantityIncreaseAction">
+                        <i class="fa fw fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

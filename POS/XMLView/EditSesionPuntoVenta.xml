@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of POS plugin for FacturaScripts
+ * Copyright (C) 2019 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
+-->
+
+<view>
+    <columns>
+        <group name="data" numcolumns="12">
+            <column name="user" titleurl="ListUser" numcolumns="3" order="100">
+                <widget type="select" fieldname="nickusuario" required='true' onclick="EditUser" readonly="true">
+                    <values source="users" fieldcode="nick" fieldtitle="nick"/>
+                </widget>
+            </column>
+            <column name="initial-amount" numcolumns="3" order="100">
+                <widget type="money" fieldname="saldoinicial" readonly="true"/>
+            </column>
+            <column name="total-expected" numcolumns="3" order="100">
+                <widget type="money" fieldname="saldoesperado" readonly="true"/>
+            </column>
+            <column name="total-counted" numcolumns="3" order="100">
+                <widget type="money" fieldname="saldocontado" readonly="true"/>
+            </column>
+            <column name="start-date" numcolumns="3" order="100">
+                <widget type="date" fieldname="fechainicio" icon="fas fa-calendar-alt" readonly="true"/>
+            </column>
+            <column name="start-time" numcolumns="3" order="100">
+                <widget type="time" fieldname="horainicio" icon="fas fa-clock" readonly="true"/>
+            </column>
+            <column name="end-date" numcolumns="3" order='100'>
+                <widget type='date' fieldname='fechafin' icon="fas fa-calendar-alt" readonly="true"/>
+            </column>
+            <column name="end-time" numcolumns="3" order="100">
+                <widget type="time" fieldname="horafin" icon="fas fa-clock" readonly="true"/>
+            </column>
+            <column name="opened" numcolumns="3" order="100">
+                <widget type="checkbox" fieldname="abierto" readonly="false"/>
+            </column>
+        </group>
+    </columns>
+</view>
