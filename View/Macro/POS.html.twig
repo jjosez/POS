@@ -22,7 +22,7 @@
     </div>
 {% endmacro %}
 
-{% macro customTextArea(id, name, label, value) %}
+{% macro customTextArea(id, name, label, value = null) %}
     <div class="form-group text-sm mb-2">
         <label for="{{ id }}" class="font-semibold capitalize mb-1.5">{{ label }}</label>
         <textarea id="{{ id }}" name="{{ name }}" cols="30" rows="4"
@@ -30,7 +30,7 @@
     </div>
 {% endmacro %}
 
-{% macro menuToggleElement(toggle, target, icon, text, title) %}
+{% macro menuToggleElement(toggle, target, icon, text = null, title = null) %}
     <li>
         <button class="btn w-full flex items-center justify-center hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
                 data-toggle="{{ toggle }}" data-target="{{ target }}" title="{{ title }}">
@@ -42,7 +42,7 @@
     </li>
 {% endmacro %}
 
-{% macro menuActionElement(action, icon, text, title) %}
+{% macro menuActionElement(action, icon, text, title = null) %}
     <li>
         <button class="btn w-full items-center justify-center hover:bg-slate-300 hover:text-slate-800 focus:ring-slate-100"
                 data-action="{{ action }}" title="{{ title }}">
