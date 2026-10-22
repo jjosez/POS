@@ -54,6 +54,10 @@ class TerminalPuntoVenta extends ModelClass
 
     public $group_cart_lines;
 
+    public $line_rounding_decimals;
+
+    public $line_rounding_mode;
+
     public $terminal_type;
 
     public function clear(): void
@@ -67,6 +71,8 @@ class TerminalPuntoVenta extends ModelClass
         $this->free_cart_line_text = '';
         $this->disponible = true;
         $this->numerotickets = 1;
+        $this->line_rounding_decimals = 2;
+        $this->line_rounding_mode = 'none';
         $this->terminal_type = self::MODE_CASHIER;
     }
 
@@ -160,6 +166,17 @@ class TerminalPuntoVenta extends ModelClass
     public function getProductDisplayMode(): string
     {
         return $this->product_display_mode ?? 'grid';
+    }
+
+    public function getLineRoundingDecimals(): int
+    {
+        return max(0, min(6, (int)($this->line_rounding_decimals ?? 2)));
+    }
+
+    public function getLineRoundingMode(): string
+    {
+        $mode = (string)($this->line_rounding_mode ?? 'none');
+        return in_array($mode, ['none', 'nearest', 'up', 'precision'], true) ? $mode : 'none';
     }
 
     public function save(): bool

@@ -1,4 +1,10 @@
 {
+  "line-rounding-mode": "Line price rounding",
+  "line-rounding-decimals": "Line price decimals",
+  "line-rounding-none": "No rounding",
+  "line-rounding-nearest": "Nearest value",
+  "line-rounding-up": "Always round up",
+  "line-rounding-precision": "Only correct precision residues",
   "payment-policy-optional": "Optional payment",
   "checkout-payment-amount": "Payment amount",
   "checkout-remaining": "Remaining",

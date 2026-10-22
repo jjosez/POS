@@ -60,6 +60,18 @@
         <default>true</default>
     </column>
     <column>
+        <name>line_rounding_decimals</name>
+        <type>integer</type>
+        <null>NO</null>
+        <default>2</default>
+    </column>
+    <column>
+        <name>line_rounding_mode</name>
+        <type>character varying(20)</type>
+        <null>NO</null>
+        <default>'none'</default>
+    </column>
+    <column>
         <name>idterminal</name>
         <type>serial</type>
         <null>NO</null>

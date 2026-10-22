@@ -71,7 +71,7 @@ class Context
      */
     public function products(): Products
     {
-        return $this->services['products'] ??= new Products();
+        return $this->services['products'] ??= new Products($this->terminal);
     }
 
     /**

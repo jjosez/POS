@@ -45,6 +45,8 @@ class Init extends InitClass
             ],
             'pos_terminals' => [
                 'codserierect' => 'VARCHAR(6)',
+                'line_rounding_decimals' => 'INTEGER NOT NULL DEFAULT 2',
+                'line_rounding_mode' => "VARCHAR(20) NOT NULL DEFAULT 'none'",
             ],
             'pos_payment_methods' => [
                 'icon' => 'VARCHAR(25)',

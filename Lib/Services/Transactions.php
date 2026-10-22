@@ -7,6 +7,7 @@ use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Model\Base\SalesDocumentLine;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
+use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Plugins\POS\Enum\PaymentPolicy;
 use RuntimeException;
 
@@ -45,13 +46,16 @@ class Transactions
 
     protected PaymentPolicy $paymentPolicy = PaymentPolicy::REQUIRED;
 
+    protected ?TerminalPuntoVenta $terminal;
+
 
     /**
      * Transaction constructor.
      * @param TransactionRequest $request
      */
-    public function __construct(TransactionRequest $request)
+    public function __construct(TransactionRequest $request, ?TerminalPuntoVenta $terminal = null)
     {
+        $this->terminal = $terminal;
         $this->setDocument(
             $request->getDocumentData(),
             $request->getDocumentType(),
@@ -215,7 +219,9 @@ class Transactions
             }
 
             if (true === isset($product['cantidad'])) {
-                $this->documentLines[] = $this->document->getNewLine($product);
+                $newLine = $this->document->getNewLine($product);
+                $this->applyLinePriceRounding($newLine);
+                $this->documentLines[] = $newLine;
                 continue;
             }
 
@@ -229,8 +235,23 @@ class Transactions
                 $newLine->thumbnail = $product['thumbnail'];
             }
 
+            $this->applyLinePriceRounding($newLine);
             $this->documentLines[] = $newLine;
         }
+    }
+
+    protected function applyLinePriceRounding(SalesDocumentLine $line): void
+    {
+        if ($this->terminal === null) {
+            return;
+        }
+
+        $line->pvpunitario = LinePriceRounder::adjustNetPrice(
+            (float)$line->pvpunitario,
+            (float)$line->iva,
+            $this->terminal->getLineRoundingMode(),
+            $this->terminal->getLineRoundingDecimals()
+        );
     }
 
     protected function deleteDocumentLines(): bool

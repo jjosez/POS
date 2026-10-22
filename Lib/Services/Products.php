@@ -9,12 +9,14 @@ namespace FacturaScripts\Plugins\POS\Lib\Services;
 use FacturaScripts\Core\DataSrc\Almacenes;
 use FacturaScripts\Core\Plugins;
 use FacturaScripts\Core\Template\ExtensionsTrait;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\GrupoClientes;
 use FacturaScripts\Dinamic\Model\Join\ProductoStock;
 use FacturaScripts\Dinamic\Model\Join\ProductoVariante;
 use FacturaScripts\Dinamic\Model\Tarifa;
+use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Plugins\TarifasAvanzadas\Model\TarifaFamilia;
 
 /**
@@ -36,10 +38,12 @@ class Products
 
     private ProductoVariante $product;
     private mixed $familyRateCache = [];
+    private ?TerminalPuntoVenta $terminal;
 
-    public function __construct()
+    public function __construct(?TerminalPuntoVenta $terminal = null)
     {
         $this->product = new ProductoVariante();
+        $this->terminal = $terminal;
     }
 
     /**
@@ -122,6 +126,7 @@ class Products
         }
 
         $this->applyProductRates($products, ['codcliente' => $customerCode]);
+        $this->applyLinePriceRounding($products);
         $product = current($products);
 
         return [
@@ -175,6 +180,7 @@ class Products
         $products = $this->product->all($where, [], 0, 30);
 
         $this->applyProductRates($products, $filters);
+        $this->applyLinePriceRounding($products);
 
         return $products;
     }
@@ -237,6 +243,31 @@ class Products
             }
 
             $product->applyRate($rate);
+        }
+    }
+
+    /**
+     * Applies the terminal line-price rule to catalogue prices so the product
+     * list and detail modal show the same tax-inclusive price as the cart.
+     *
+     * @param ProductoVariante[] $products
+     */
+    private function applyLinePriceRounding(array $products): void
+    {
+        if ($this->terminal === null) {
+            return;
+        }
+
+        $mode = $this->terminal->getLineRoundingMode();
+        $decimals = $this->terminal->getLineRoundingDecimals();
+
+        foreach ($products as $product) {
+            $product->priceWithTax = LinePriceRounder::roundGrossPrice(
+                (float)$product->priceWithTax,
+                $mode,
+                $decimals
+            );
+            $product->priceWithFormat = Tools::number($product->priceWithTax);
         }
     }
 

@@ -314,7 +314,7 @@ class POS extends BaseController
                     throw InvalidTransactionException::saveError('draft-session-mismatch');
                 }
             }
-            $transaction = new Transactions($request);
+            $transaction = new Transactions($request, $this->context->terminal());
 
             if (!$this->dataBase->beginTransaction()) {
                 throw InvalidTransactionException::saveError('database-transaction-start-error');
@@ -865,7 +865,7 @@ class POS extends BaseController
         try {
             $request = new TransactionRequest($this->request);
             $this->validateDocumentType($request);
-            $transaction = new Transactions($request);
+            $transaction = new Transactions($request, $this->context->terminal());
             $this->setResponse($transaction->recalculate());
         } catch (POSException $exception) {
             $this->handlePOSException($exception);
@@ -949,7 +949,7 @@ class POS extends BaseController
         try {
             $request = new TransactionRequest($this->request);
             $this->validateDocumentType($request);
-            $transaction = new Transactions($request);
+            $transaction = new Transactions($request, $this->context->terminal());
 
             if (!$transaction->prepareDocument()) {
                 throw InvalidTransactionException::saveError('fail-calculate-document');
@@ -1290,6 +1290,10 @@ class POS extends BaseController
                 'freeLineText' => $terminal->free_cart_line_text,
                 'freeLines' => $terminal->free_cart_lines,
                 'groupLines' => $terminal->group_cart_lines,
+            ],
+            'lineRounding' => [
+                'mode' => $terminal->getLineRoundingMode(),
+                'decimals' => $terminal->getLineRoundingDecimals(),
             ],
             'productsearch' => [
                 'templateDisplayMode' => $terminal->getProductDisplayMode()

@@ -62,6 +62,17 @@
             <column name="ticket-copies" numcolumns="4" order="160">
                 <widget type="number" fieldname="numerotickets"/>
             </column>
+            <column name="line-rounding-mode" numcolumns="4" order="170">
+                <widget type="select" fieldname="line_rounding_mode" translate="true">
+                    <values title="line-rounding-none">none</values>
+                    <values title="line-rounding-nearest">nearest</values>
+                    <values title="line-rounding-up">up</values>
+                    <values title="line-rounding-precision">precision</values>
+                </widget>
+            </column>
+            <column name="line-rounding-decimals" numcolumns="4" order="180">
+                <widget type="number" fieldname="line_rounding_decimals" min="0" max="6"/>
+            </column>
         </group>
     </columns>
     <rows>

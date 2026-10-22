@@ -160,7 +160,7 @@ class ProductoVariante extends JoinModel implements JsonSerializable
     public function recalculateCustomPriceFields(): void
     {
         $iva = $this->getTax()->iva;
-        $this->priceWithTax = $this->price * (100 + $iva) / 100;
+        $this->priceWithTax = Tools::round($this->price * (100 + $iva) / 100);
         $this->priceWithFormat = Tools::number($this->priceWithTax);
     }
 
