@@ -135,10 +135,42 @@ class Transactions
     {
         $this->prepareDocument();
 
+        $productMetadata = [];
+        foreach ($this->products as $product) {
+            $reference = (string)($product['referencia'] ?? '');
+            if ($reference === '') {
+                continue;
+            }
+            $productMetadata[$reference] = [
+                'stock' => isset($product['stock']) ? (float)$product['stock'] : null,
+                'allow_no_stock' => filter_var(
+                    $product['allow_no_stock'] ?? false,
+                    FILTER_VALIDATE_BOOL
+                ),
+            ];
+        }
+        if ($this->terminal !== null) {
+            $productsService = new Products($this->terminal);
+            foreach (array_keys($productMetadata) as $reference) {
+                $availability = $productsService->getAvailability(
+                    $reference,
+                    (string)$this->document->codalmacen
+                );
+                if ($availability !== []) {
+                    $productMetadata[$reference] = $availability;
+                }
+            }
+        }
+
         return [
             'doc' => $this->document->toArray(true),
-            'lines' => array_map(function ($line) {
-                return $line->toArray(true);
+            'lines' => array_map(function ($line) use ($productMetadata) {
+                $data = $line->toArray(true);
+                $reference = (string)($data['referencia'] ?? '');
+                if (isset($productMetadata[$reference])) {
+                    $data = array_merge($data, $productMetadata[$reference]);
+                }
+                return $data;
             }, $this->documentLines),
         ];
     }
@@ -226,6 +258,10 @@ class Transactions
             }
 
             $newLine = $this->document->getNewProductLine($product['referencia']);
+
+            if (isset($product['pending_quantity'])) {
+                $newLine->cantidad = max(0, (float)$product['pending_quantity']);
+            }
 
             if (true === empty($product['referencia'])) {
                 $newLine->descripcion = $product['descripcion'];

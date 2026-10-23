@@ -8,6 +8,7 @@ const viewElements = {
     beepAudio: document.getElementById('beepAudio'),
     cartLineToolbar: document.getElementById('cartLineToolbar'),
     cartLineToolbarIndex: document.getElementById('cartLineToolbarIndex'),
+    cartQuantityIncrease: document.querySelector('[data-cart-quantity-increase]'),
     cartTotalLabel: document.getElementById('cartTotal'),
     customerNameLabel: document.getElementById('customerNameLabel'),
     customerSearchBox: document.getElementById('customerSearchBox'),
@@ -69,6 +70,13 @@ class CartView {
         viewElements.cartLineToolbar.classList.add('hidden');
     };
 
+    setQuantityIncreaseEnabled = enabled => {
+        if (!viewElements.cartQuantityIncrease) return;
+        viewElements.cartQuantityIncrease.disabled = !enabled;
+        viewElements.cartQuantityIncrease.classList.toggle('opacity-50', !enabled);
+        viewElements.cartQuantityIncrease.classList.toggle('cursor-not-allowed', !enabled);
+    };
+
     renderCartEditView = (product = {}) => {
         templates.render('cart:edit:form:template', {product}, 'cart:edit:form:view');
     };
@@ -78,9 +86,15 @@ class CartView {
         Modals.toggleModal('product:edit:modal');
     };
 
-    showQuantityEditModal = ({index, cantidad}) => {
-        this.productQuantityInput().dataset.index = index;
-        this.productQuantityInput().value = cantidad;
+    showQuantityEditModal = ({index, cantidad}, maxQuantity = null) => {
+        const input = this.productQuantityInput();
+        input.dataset.index = index;
+        input.value = cantidad;
+        if (maxQuantity === null) {
+            input.removeAttribute('max');
+        } else {
+            input.max = String(maxQuantity);
+        }
         Modals.toggleModal('productQuantityEditModal');
     };
 

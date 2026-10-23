@@ -83,7 +83,7 @@ const CartController = {
      * @param data
      */
     addLine(data) {
-        const {code, description, thumbnail, bloqueado} = data;
+        const {code, description, thumbnail, bloqueado, stock, allow_no_stock} = data;
 
         if ([true, 1, '1', 'true'].includes(bloqueado)) {
             return;
@@ -93,12 +93,17 @@ const CartController = {
         const groupLinesEnabled = !!AppSettings.cart.groupLines;
         const isFreeLine = code === '';
 
+        if (!isFreeLine && !Cart.canAddProduct({code, stock, allow_no_stock})) {
+            this.notifyStockLimit({referencia: code, stock});
+            return;
+        }
+
         const forceNewLine = (isFreeLine && freeLinesEnabled) || !groupLinesEnabled;
 
         if (forceNewLine) {
-            Cart.addProduct(code, description, thumbnail);
+            Cart.addProduct(code, description, thumbnail, stock, allow_no_stock);
         } else {
-            Cart.addOrUpdateProduct(code, description, thumbnail);
+            Cart.addOrUpdateProduct(code, description, thumbnail, stock, allow_no_stock);
         }
 
         CartController.playBeepSound();
@@ -156,7 +161,7 @@ const CartController = {
         }
 
         const item = Cart.getProduct(index);
-        CartView.showQuantityEditModal(item);
+        CartView.showQuantityEditModal(item, Cart.getMaxQuantity(Number(index)));
     },
 
     /**
@@ -169,7 +174,21 @@ const CartController = {
      */
     async editProductField(el, value) {
         const {index, field} = el.dataset;
+        if (field === 'cantidad') {
+            const requested = Math.max(0, Number(value) || 0);
+            const maxQuantity = Cart.getMaxQuantity(Number(index));
+            value = maxQuantity === null ? requested : Math.min(requested, maxQuantity);
+            if (requested > value + Number.EPSILON) {
+                this.notifyStockLimit(Cart.getProduct(index));
+            }
+            if ('value' in el) {
+                el.value = String(value);
+            }
+        }
         await Cart.editProduct(index, field, value);
+        if (field === 'cantidad') {
+            this.updateQuantityIncreaseButton(index);
+        }
         //await CartController.cartChange();
         CartView.renderCartEditView(Cart.getProduct(index));
     },
@@ -193,8 +212,33 @@ const CartController = {
             return;
         }
 
-        const value = Math.max(product.cantidad + delta, 0);
+        const value = Math.max((Number(product.cantidad) || 0) + delta, 0);
+        if (delta > 0 && !Cart.canSetQuantity(Number(index), value)) {
+            this.notifyStockLimit(product);
+            this.updateQuantityIncreaseButton(index);
+            return;
+        }
         CartController.editProductField({dataset: {index, field: 'cantidad'}}, value);
+    },
+
+    notifyStockLimit(product = {}) {
+        const baseMessage = AppSettings.messages?.noStockAvailable ?? 'No stock available.';
+        const stock = Number(product.stock);
+        const message = Number.isFinite(stock)
+            ? `${baseMessage} (${product.referencia ?? ''}: ${stock})`
+            : baseMessage;
+        EventManager.emit('responseMessages', [{type: 'warning', message}]);
+    },
+
+    canIncreaseQuantity(index) {
+        if (!this.validateIndex(index)) return false;
+        const product = Cart.getProduct(index);
+        const nextQuantity = (Number(product.cantidad) || 0) + 1;
+        return Cart.canSetQuantity(Number(index), nextQuantity);
+    },
+
+    updateQuantityIncreaseButton(index = this.selectedIndex) {
+        CartView.setQuantityIncreaseEnabled(this.canIncreaseQuantity(index));
     },
 
     /**
@@ -311,6 +355,7 @@ const CartController = {
         this.selectedIndex = Number.isFinite(idx) ? idx : null;
 
         this.applySelection();
+        this.updateQuantityIncreaseButton(this.selectedIndex);
     },
 
     applySelection() {
@@ -393,9 +438,9 @@ const CartController = {
      * @property {string} el.dataset.bloqueado - Whether sales are blocked for the product.
      */
     handleLineAdd(el) {
-        const {code, description, thumbnail, bloqueado} = el.dataset;
+        const {code, description, thumbnail, bloqueado, stock, allowNoStock} = el.dataset;
 
-        this.addLine({code, description, thumbnail, bloqueado});
+        this.addLine({code, description, thumbnail, bloqueado, stock, allow_no_stock: allowNoStock});
     },
 
     /**
@@ -471,7 +516,10 @@ const CartController = {
         EventDispatcher.register('ui:cart:line:toolbar:qty:decrease', () => this.quantityDecrease(this.selectedIndex));
 
         EventManager.on('event:cart:line:selected', (index) => this.setSelectedIndex(index));
-        EventManager.on('event:cart:rendered', () => this.applySelection());
+        EventManager.on('event:cart:rendered', () => {
+            this.applySelection();
+            this.updateQuantityIncreaseButton();
+        });
         EventManager.on('event:cart:updated', this.cartUpdateTotals.bind(this));
         EventManager.on('event:customer:changed', this.setCustomer.bind(this));
         EventManager.on('event:order:completed', this.resetOrder.bind(this));

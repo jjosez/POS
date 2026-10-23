@@ -18,7 +18,9 @@
                             : 'border-slate-200 hover:border-blue-400 hover:shadow-sm active:scale-[0.99] cursor-pointer' %>"
                  data-action="<%= unavailable ? '' : 'ui:cart:line:add' %>"
                  data-code="<%= product.code %>" data-description="<%= product.description %>"
-                 data-thumbnail="<%= product.thumbnail %>" data-bloqueado="<%= product.bloqueado ?? 0 %>">
+                 data-thumbnail="<%= product.thumbnail %>" data-bloqueado="<%= product.bloqueado ?? 0 %>"
+                 data-stock="<%= product.stock ?? 0 %>"
+                 data-allow-no-stock="<%= product.allow_no_stock ? 'true' : 'false' %>">
             <div class="relative aspect-[16/9] overflow-hidden rounded-lg bg-slate-100">
                 <button type="button"
                         class="pointer-events-auto absolute left-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/40 text-slate-400 transition hover:bg-white/80 hover:text-blue-600"
@@ -72,8 +74,9 @@
                             class="pointer-events-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm transition
                                    <%= unavailable ? 'bg-slate-200 text-slate-400' : 'bg-slate-950 text-white hover:bg-blue-600 active:scale-95' %>"
                             data-action="<%= unavailable ? '' : 'ui:cart:line:add' %>" data-code="<%= product.code %>"
-                            data-description="<%= product.description %>" data-thumbnail="<%= product.thumbnail %>"
-                            data-bloqueado="<%= product.bloqueado ?? 0 %>"
+                             data-description="<%= product.description %>" data-thumbnail="<%= product.thumbnail %>"
+                             data-bloqueado="<%= product.bloqueado ?? 0 %>" data-stock="<%= product.stock ?? 0 %>"
+                             data-allow-no-stock="<%= product.allow_no_stock ? 'true' : 'false' %>"
                             title="{{ trans('add') }}" aria-label="{{ trans('add') }}: <%= product.description %>"
                     <%= unavailable ? 'disabled' : '' %>>
                     <i class="fa-solid fa-plus" aria-hidden="true"></i>
@@ -98,8 +101,9 @@
             <article role="listitem"
                      class="group flex h-full min-w-0 flex-col overflow-hidden rounded-xl border bg-white p-2.5 transition-all duration-150 product-add-btn {{ templateState }}"
                      data-action="{{ templateAction }}" data-code="{{ product.code }}"
-                     data-description="{{ product.description }}" data-thumbnail="{{ product.thumbnail }}"
-                     data-bloqueado="{{ product.bloqueado ?? 0 }}">
+                      data-description="{{ product.description }}" data-thumbnail="{{ product.thumbnail }}"
+                      data-bloqueado="{{ product.bloqueado ?? 0 }}" data-stock="{{ product.stock ?? 0 }}"
+                      data-allow-no-stock="{{ product.allow_no_stock ? 'true' : 'false' }}">
                 <div class="relative aspect-[16/9] overflow-hidden rounded-lg bg-slate-100">
                     <button type="button"
                             class="pointer-events-auto absolute left-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/40 text-slate-400 transition hover:bg-white/80 hover:text-blue-600"
@@ -150,8 +154,9 @@
                         <button type="button"
                                 class="pointer-events-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm transition {{ unavailable ? 'bg-slate-200 text-slate-400' : 'bg-slate-950 text-white hover:bg-blue-600 active:scale-95' }}"
                                 data-action="{{ unavailable ? '' : 'ui:cart:line:add' }}" data-code="{{ product.code }}"
-                                data-description="{{ product.description }}" data-thumbnail="{{ product.thumbnail }}"
-                                data-bloqueado="{{ product.bloqueado ?? 0 }}"
+                                 data-description="{{ product.description }}" data-thumbnail="{{ product.thumbnail }}"
+                                 data-bloqueado="{{ product.bloqueado ?? 0 }}" data-stock="{{ product.stock ?? 0 }}"
+                                 data-allow-no-stock="{{ product.allow_no_stock ? 'true' : 'false' }}"
                                 title="{{ trans('add') }}" aria-label="{{ trans('add') }}: {{ product.description }}"
                                 {{ unavailable ? 'disabled' : '' }}>
                             <i class="fa-solid fa-plus" aria-hidden="true"></i>

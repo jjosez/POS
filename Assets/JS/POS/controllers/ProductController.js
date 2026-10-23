@@ -45,7 +45,9 @@ const ProductController = {
                 code: result.code,
                 description: result.description,
                 thumbnail: result.thumbnail || '',
-                bloqueado: result.bloqueado
+                bloqueado: result.bloqueado,
+                stock: result.stock,
+                allow_no_stock: result.allow_no_stock,
             });
         }
     },

@@ -47,7 +47,12 @@ class Currencies
 
     public function getSeparator(): string
     {
-        return Tools::settings('default', 'decimal_separator', ',');
+        return Tools::settings('default', 'decimal_separator', '.');
+    }
+
+    public function getThousandsSeparator(): string
+    {
+        return Tools::settings('default', 'thousands_separator', ' ');
     }
 
     public function getCurrenciesList(): array

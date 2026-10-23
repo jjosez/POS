@@ -293,7 +293,18 @@ class POS extends BaseController
             return;
         }
 
-        $result = ['doc' => $draft, 'lines' => $draft->getLines()];
+        $lines = [];
+        foreach ($draft->getLines() as $line) {
+            $data = $line->toArray(true);
+            if (!empty($line->referencia)) {
+                $data = array_merge($data, $this->context->products()->getAvailability(
+                    (string)$line->referencia,
+                    (string)$draft->codalmacen
+                ));
+            }
+            $lines[] = $data;
+        }
+        $result = ['doc' => $draft, 'lines' => $lines];
         $this->setNewToken();
         $this->buildResponse($result);
     }
@@ -1124,7 +1135,10 @@ class POS extends BaseController
     protected function searchBarcode(): void
     {
         $barcode = $this->request->request->get('query');
-        $result = $this->context->products()->searchBarcode($barcode);
+        $terminal = $this->context->config()->getTerminal();
+        $company = $terminal->productsource === $terminal::PRODUCTS_FROM_COMPANY ? $terminal->idempresa : '';
+        $warehouse = $terminal->productsource === $terminal::PRODUCTS_FROM_WAREHOUSE ? $terminal->codalmacen : '';
+        $result = $this->context->products()->searchBarcode($barcode, $warehouse, $company);
 
         if (!$result) {
             $this->addMessage('barcode-not-found');
@@ -1245,7 +1259,10 @@ class POS extends BaseController
     public function getHomeProducts(): array
     {
         $filters = ['codcliente' => $this->context->terminal()->codcliente];
-        return $this->context->products()->search('', $filters);
+        $terminal = $this->context->terminal();
+        $company = $terminal->productsource === $terminal::PRODUCTS_FROM_COMPANY ? $terminal->idempresa : '';
+        $warehouse = $terminal->productsource === $terminal::PRODUCTS_FROM_WAREHOUSE ? $terminal->codalmacen : '';
+        return $this->context->products()->search('', $filters, $warehouse, $company);
     }
 
     /**
@@ -1279,6 +1296,8 @@ class POS extends BaseController
                 'divisa' => $currency->getCurrency()->coddivisa,
                 'decimals' => $currency->getDecimals(),
                 'separator' => $currency->getSeparator(),
+                'decimalSeparator' => $currency->getSeparator(),
+                'thousandsSeparator' => $currency->getThousandsSeparator(),
                 'symbol' => $currency->getCurrency()->simbolo,
             ],
             'payment' => [
@@ -1294,6 +1313,9 @@ class POS extends BaseController
             'lineRounding' => [
                 'mode' => $terminal->getLineRoundingMode(),
                 'decimals' => $terminal->getLineRoundingDecimals(),
+            ],
+            'messages' => [
+                'noStockAvailable' => Tools::lang()->trans('no-stock-available'),
             ],
             'productsearch' => [
                 'templateDisplayMode' => $terminal->getProductDisplayMode()

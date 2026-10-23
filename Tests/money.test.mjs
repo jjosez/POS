@@ -2,7 +2,11 @@ import assert from 'node:assert/strict';
 import {test} from 'node:test';
 
 globalThis.AppSettings = {
-    currency: {decimals: 2},
+    currency: {
+        decimals: 2,
+        decimalSeparator: '.',
+        thousandsSeparator: ',',
+    },
 };
 
 const Money = await import('../Assets/JS/POS/Money.js');
@@ -42,4 +46,16 @@ test('rounds line prices according to terminal settings', () => {
     assert.equal(Money.roundLinePrice(294.123, {mode: 'up', decimals: 2}), 294.13);
     assert.equal(Money.roundLinePrice(294.123, {mode: 'precision', decimals: 2}), 294.123);
     assert.equal(Money.roundLinePrice(294.999994, {mode: 'precision', decimals: 2}), 295);
+});
+
+test('formats amounts with FacturaScripts separators', () => {
+    assert.equal(Money.formatNumber(1234.5), '1,234.50');
+    assert.equal(Money.formatNumber(1234.5, {minimumFractionDigits: 0}), '1,234.5');
+
+    AppSettings.currency.decimalSeparator = ',';
+    AppSettings.currency.thousandsSeparator = '.';
+    assert.equal(Money.formatNumber(1234.5), '1.234,50');
+
+    AppSettings.currency.decimalSeparator = '.';
+    AppSettings.currency.thousandsSeparator = ',';
 });

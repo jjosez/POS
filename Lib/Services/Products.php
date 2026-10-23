@@ -126,6 +126,7 @@ class Products
         }
 
         $this->applyProductRates($products, ['codcliente' => $customerCode]);
+        $this->applyTerminalAvailability($products);
         $this->applyLinePriceRounding($products);
         $product = current($products);
 
@@ -184,6 +185,7 @@ class Products
         $products = $this->product->all($where, [], 0, 30);
 
         $this->applyProductRates($products, $filters);
+        $this->applyTerminalAvailability($products);
         $this->applyLinePriceRounding($products);
 
         return $products;
@@ -195,12 +197,21 @@ class Products
      * @param string $text Barcode to search
      * @return array Product found or false
      */
-    public function searchBarcode(string $text): array
+    public function searchBarcode(string $text, string $warehouse = '', string $company = ''): array
     {
         $where = [
             Where::eq('V.referencia', $text),
             Where::orEq('V.codbarras', $text)
         ];
+
+        if ($company) {
+            $where[] = $this->getCompanyDatabaseWhere($company);
+        } elseif ($warehouse) {
+            $where[] = Where::sub([
+                Where::eq('S.codalmacen', $warehouse),
+                Where::orIsNull('S.codalmacen'),
+            ]);
+        }
 
         $result = $this->product->all($where, [], 0, 1);
 
@@ -209,11 +220,43 @@ class Products
         }
 
         $model = current($result);
+        $availability = $this->terminal === null
+            ? []
+            : $this->getAvailability((string)$model->code, (string)$this->terminal->codalmacen);
         return [
             'code' => $model->code,
             'description' => $model->description,
             'thumbnail' => $model->thumbnail ?? '',
             'bloqueado' => $model->bloqueado ?? false,
+            'stock' => (float)($availability['stock'] ?? $model->stock ?? 0),
+            'allow_no_stock' => (bool)($availability['allow_no_stock'] ?? $model->allow_no_stock ?? false),
+        ];
+    }
+
+    public function getAvailability(string $code, string $warehouse = ''): array
+    {
+        if ($code === '') {
+            return [];
+        }
+
+        $products = $this->product->all([Where::eq('V.referencia', $code)], [], 0, 1);
+        if (empty($products)) {
+            return [];
+        }
+
+        $product = current($products);
+        $stock = (float)($product->stock ?? 0);
+        if ($warehouse !== '') {
+            $stock = array_reduce(
+                $this->getStock($code, $warehouse),
+                static fn(float $total, ProductoStock $row): float => $total + (float)$row->stock,
+                0.0
+            );
+        }
+
+        return [
+            'stock' => $stock,
+            'allow_no_stock' => (bool)($product->allow_no_stock ?? false),
         ];
     }
 
@@ -272,6 +315,42 @@ class Products
                 $decimals
             );
             $product->priceWithFormat = Tools::number($product->priceWithTax);
+        }
+    }
+
+    /**
+     * Product source controls catalogue visibility, but sales always consume
+     * stock from the terminal warehouse. Keep the displayed limit aligned
+     * with the warehouse used by the generated document.
+     *
+     * @param ProductoVariante[] $products
+     */
+    private function applyTerminalAvailability(array $products): void
+    {
+        if ($this->terminal === null) {
+            return;
+        }
+
+        $references = array_values(array_unique(array_filter(array_map(
+            static fn(ProductoVariante $product): string => (string)$product->code,
+            $products
+        ))));
+        if ($references === []) {
+            return;
+        }
+
+        $stockByReference = array_fill_keys($references, 0.0);
+        $stockRows = ProductoStock::all([
+            Where::in('S.referencia', implode(',', $references)),
+            Where::eq('S.codalmacen', (string)$this->terminal->codalmacen),
+        ]);
+        foreach ($stockRows as $stockRow) {
+            $stockByReference[(string)$stockRow->code] = (float)$stockRow->stock;
+        }
+
+        foreach ($products as $product) {
+            $product->stock = $stockByReference[(string)$product->code] ?? 0.0;
+            $product->isOutOfStock = $product->stock <= 0 && !$product->allow_no_stock;
         }
     }
 

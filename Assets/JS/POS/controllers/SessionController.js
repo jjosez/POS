@@ -2,16 +2,15 @@ import * as Core from '../Core.js';
 import dispatcher from '../core/EventDispatcher.js';
 import EventManager from '../core/EventManager.js';
 import MainView from '../views/MainView.js';
+import {formatNumber} from '../Money.js';
 
 const decimals = Number.parseInt(AppSettings.currency?.decimals, 10) || 2;
-const locale = document.documentElement.lang || undefined;
-const amountFormatter = new Intl.NumberFormat(locale, {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-});
-const denominationFormatter = new Intl.NumberFormat(locale, {
-    maximumFractionDigits: decimals,
-});
+const amountFormatter = {
+    format: value => formatNumber(value, {minimumFractionDigits: decimals}),
+};
+const denominationFormatter = {
+    format: value => formatNumber(value, {minimumFractionDigits: 0}),
+};
 
 const SessionController = {
     updateCashCount(input) {

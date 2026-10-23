@@ -53,3 +53,29 @@ export function roundCurrency(amount) {
 export function roundFixed(amount) {
     return roundCurrency(amount).toFixed(DECIMALS_RATE);
 }
+
+export function formatNumber(amount, {minimumFractionDigits = DECIMALS_RATE} = {}) {
+    const number = Number(amount) || 0;
+    const minimum = Math.max(0, Math.min(DECIMALS_RATE, Number.parseInt(minimumFractionDigits, 10) || 0));
+    const decimalSeparator = String(
+        AppSettings.currency?.decimalSeparator ?? AppSettings.currency?.separator ?? '.'
+    );
+    const configuredThousandsSeparator = String(AppSettings.currency?.thousandsSeparator ?? ' ');
+    const thousandsSeparator = configuredThousandsSeparator === decimalSeparator
+        ? ''
+        : configuredThousandsSeparator;
+    const roundedNumber = roundCurrency(number);
+    const absolute = Math.abs(roundedNumber).toFixed(DECIMALS_RATE);
+    let [integer, fraction = ''] = absolute.split('.');
+
+    while (fraction.length > minimum && fraction.endsWith('0')) {
+        fraction = fraction.slice(0, -1);
+    }
+
+    if (thousandsSeparator) {
+        integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator);
+    }
+
+    const sign = roundedNumber < 0 ? '-' : '';
+    return sign + integer + (fraction ? decimalSeparator + fraction : '');
+}
