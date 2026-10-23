@@ -165,8 +165,10 @@ class Products
         if ($company) {
             $where[] = $this->getCompanyDatabaseWhere($company);
         } elseif ($warehouse) {
-            $where[] = Where::eq('S.codalmacen', $warehouse);
-            $where[] = Where::orIsNull('S.codalmacen');
+            $where[] = Where::sub([
+                Where::eq('S.codalmacen', $warehouse),
+                Where::orIsNull('S.codalmacen'),
+            ]);
         }
 
         $where[] = Where::eq('P.sevende', true);
@@ -176,6 +178,8 @@ class Products
 
             $where[] = Where::in('P.codfamilia', $families);
         }
+
+        Tools::log('pos')->info(Where::multiSql($where));
 
         $products = $this->product->all($where, [], 0, 30);
 

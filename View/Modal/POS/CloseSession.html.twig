@@ -6,7 +6,7 @@
 #}
 {% macro denominationRows(denominations, symbol) %}
     {% for denomination in denominations %}
-        <div class="grid grid-cols-3 items-center gap-3 border-b border-slate-100 py-2 last:border-b-0"
+        <div class="grid grid-cols-3 items-center gap-3 border-slate-100 py-2 last:border-b-0"
              data-cash-count-row>
             <span class="font-medium text-slate-800">
                 {{ symbol }}<span data-cash-denomination data-value="{{ denomination.valor }}">{{ denomination.valor }}</span>
@@ -45,7 +45,7 @@
                 </div>
                 <div class="min-w-0">
                     <h2 class="text-xl font-semibold text-slate-900">{{ trans('cashup') }}</h2>
-                    <p class="truncate text-sm text-slate-500">{{ terminal.nombre }}</p>
+                    <p class="truncate text-sm text-slate-500">{{ terminal.nombre }} &bull; {{ trans('cash-count-detail') }}</p>
                 </div>
             </div>
             <a class="btn btn-icon btn-light ml-auto" href="{{ context.session().url() }}" target="_blank">
@@ -65,24 +65,45 @@
         <div class="modal-body">
             <form id="closeSessionForm" method="POST">
                 <input type="hidden" name="action" value="session:close">
-                <h3 class="mb-4 text-sm font-semibold text-slate-700">{{ trans('cash-count-detail') }}</h3>
 
-                {% if bills %}
-                    <section class="mb-5" aria-labelledby="cashBillsTitle">
-                        <h4 id="cashBillsTitle" class="py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                            {{ trans('bills') }}
-                        </h4>
-                        {{ _self.denominationRows(bills, currencySymbol) }}
-                    </section>
-                {% endif %}
+                {% if bills or coins %}
+                    {% if bills and coins %}
+                        <div class="mb-4 border-b border-slate-200">
+                            <ul class="-mb-px flex flex-wrap tablist" data-target="cash-count-tabs" role="tablist"
+                                aria-label="{{ trans('cash-count-detail') }}">
+                                <li class="mr-2" role="presentation">
+                                    <button type="button" id="cashBillsTab" role="tab"
+                                            class="tab tab-active cursor-pointer" data-toggle="tab"
+                                            data-target="cashBillsPanel" aria-controls="cashBillsPanel">
+                                        {{ trans('bills') }}
+                                    </button>
+                                </li>
+                                <li class="mr-2" role="presentation">
+                                    <button type="button" id="cashCoinsTab" role="tab"
+                                            class="tab cursor-pointer" data-toggle="tab"
+                                            data-target="cashCoinsPanel" aria-controls="cashCoinsPanel">
+                                        {{ trans('coins') }}
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    {% endif %}
 
-                {% if coins %}
-                    <section aria-labelledby="cashCoinsTitle">
-                        <h4 id="cashCoinsTitle" class="py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                            {{ trans('coins') }}
-                        </h4>
-                        {{ _self.denominationRows(coins, currencySymbol) }}
-                    </section>
+                    <div id="cash-count-tabs">
+                    {% if bills %}
+                        <section id="cashBillsPanel" role="tabpanel" aria-labelledby="cashBillsTab"
+                                 class="max-h-[55dvh] overflow-y-auto pr-1 {{ bills and coins ? 'tabcontent' : '' }}">
+                            {{ _self.denominationRows(bills, currencySymbol) }}
+                        </section>
+                    {% endif %}
+
+                    {% if coins %}
+                        <section id="cashCoinsPanel" role="tabpanel" aria-labelledby="cashCoinsTab"
+                                 class="max-h-[55dvh] overflow-y-auto pr-1 {{ bills and coins ? 'tabcontent hidden' : '' }}">
+                            {{ _self.denominationRows(coins, currencySymbol) }}
+                        </section>
+                    {% endif %}
+                    </div>
                 {% endif %}
 
                 {% if not bills and not coins %}

@@ -113,7 +113,6 @@ const SessionController = {
                 this.updateCashCount(event.target);
             }
         });
-
         closeSessionForm.querySelectorAll('[data-cash-denomination]').forEach(element => {
             element.textContent = denominationFormatter.format(Number(element.dataset.value) || 0);
         });
