@@ -45,6 +45,15 @@
         <column name="collected-amount" display="right" order="110">
             <widget type="money" fieldname="collected_amount"/>
         </column>
+        <column name="method" order="105">
+            <widget type="text" fieldname="paymentMethod" readonly="true"/>
+        </column>
+        <column name="payment-sources" display="right" order="120">
+            <widget type="money" fieldname="source_amount"/>
+        </column>
+        <column name="settled-amount" display="right" order="130">
+            <widget type="money" fieldname="settled_amount"/>
+        </column>
     </columns>
     <rows>
         <row type="status">

@@ -85,5 +85,11 @@
   "touch-to-add": "Toca per afegir",
   "transaction-requires-lines": "L'operació requereix almenys una línia.",
   "transaction-save-error": "No s'ha pogut desar l'operació.",
+  "payment-source": "Font de pagament",
+  "payment-sources": "Fonts de pagament",
+  "requested-amount": "Import sol·licitat",
+  "consumed-amount": "Import consumit",
+  "settled-amount": "Import liquidat",
+  "refund-payment-source-not-supported": "No es pot retornar automàticament una operació que utilitza fonts de pagament.",
   "wait": "Espereu"
 }

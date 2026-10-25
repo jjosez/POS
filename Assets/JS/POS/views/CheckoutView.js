@@ -51,10 +51,7 @@ export function render(model) {
     const payments = mergedList;
 
     // Totals
-    const remaining = Math.max(
-        0,
-        state.total - state.collectedAmount
-    );
+    const remaining = Math.max(0, state.pendingAmount);
 
     const hasChange = state.change > 0;
     const hasRemaining = remaining > 0.005;
@@ -108,7 +105,7 @@ export function render(model) {
 
     // Collected total
     elements.collectedAmount.textContent = roundFixed(
-        state.collectedAmount
+        state.settledAmount
     );
 
     // Confirm button

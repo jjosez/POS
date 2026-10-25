@@ -16,6 +16,7 @@ use FacturaScripts\Plugins\POS\Lib\Services\Currencies;
 use FacturaScripts\Plugins\POS\Lib\Services\Customers;
 use FacturaScripts\Plugins\POS\Lib\Services\Families;
 use FacturaScripts\Plugins\POS\Lib\Services\Payments;
+use FacturaScripts\Plugins\POS\Lib\Services\PaymentSourceRecords;
 use FacturaScripts\Plugins\POS\Lib\Services\PaymentValidator;
 use FacturaScripts\Plugins\POS\Lib\Services\Products;
 use FacturaScripts\Plugins\POS\Lib\Services\SessionStorage;
@@ -123,6 +124,11 @@ class Context
         return $this->services['paymentSources'] ??= new PaymentSourceManager(
             new PaymentSourceContextFactory($this->terminal)
         );
+    }
+
+    public function paymentSourceRecords(): PaymentSourceRecords
+    {
+        return $this->services['paymentSourceRecords'] ??= new PaymentSourceRecords();
     }
 
     /**

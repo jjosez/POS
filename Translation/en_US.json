@@ -172,5 +172,11 @@
   "updated-at": "Updated at",
   "updated-by": "Updated by",
   "wait": "Please wait",
+  "payment-source": "Payment Source",
+  "payment-sources": "Payment Sources",
+  "requested-amount": "Requested amount",
+  "consumed-amount": "Consumed amount",
+  "settled-amount": "Settled amount",
+  "refund-payment-source-not-supported": "An operation that uses Payment Sources cannot be refunded automatically.",
   "withdraw": "Withdraw"
 }

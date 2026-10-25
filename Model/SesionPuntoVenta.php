@@ -159,6 +159,16 @@ class SesionPuntoVenta extends ModelClass
     }
 
     /**
+     * @return FuentePagoPuntoVenta[]
+     */
+    public function getPaymentSources(): array
+    {
+        return FuentePagoPuntoVenta::all([
+            Where::eq('idsesion', $this->idsesion)
+        ]);
+    }
+
+    /**
      * @return array
      */
     public function getPaymentsAmount(): array
@@ -181,6 +191,8 @@ class SesionPuntoVenta extends ModelClass
         $summary = [
             'total' => 0.0,
             'collectedAmount' => 0.0,
+            'sourceCoveredAmount' => 0.0,
+            'settledAmount' => 0.0,
             'optionalDocumentAmount' => 0.0,
             'advanceAmount' => 0.0,
         ];
@@ -199,6 +211,10 @@ class SesionPuntoVenta extends ModelClass
                 $summary['advanceAmount'] += $payment->pagoNeto();
             }
         }
+        foreach ($this->getPaymentSources() as $source) {
+            $summary['sourceCoveredAmount'] += (float)$source->consumed_amount;
+        }
+        $summary['settledAmount'] = $summary['collectedAmount'] + $summary['sourceCoveredAmount'];
 
         return $summary;
     }

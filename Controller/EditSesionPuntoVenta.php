@@ -50,6 +50,7 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
 
         $this->createOrdenesView();
         $this->createPagosView();
+        $this->createPaymentSourcesView();
         $this->createMovimientosView();
         $this->createDraftView();
     }
@@ -101,6 +102,20 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
         $this->disableButtons($viewName);
     }
 
+    protected function createPaymentSourcesView(string $viewName = 'ListFuentePagoPuntoVenta'): void
+    {
+        $this->addListView(
+            $viewName,
+            'FuentePagoPuntoVenta',
+            'payment-sources',
+            'fas fa-puzzle-piece'
+        )->addOrderBy(['idoperacion'], 'No. operacion', 2);
+
+        $this->setSettings($viewName, 'clickable', false);
+        $this->setSettings($viewName, 'btnNew', false);
+        $this->setSettings($viewName, 'btnDelete', false);
+    }
+
     protected function disableButtons(string $viewName): void
     {
         $this->setSettings($viewName, 'btnNew', false);
@@ -115,6 +130,7 @@ class EditSesionPuntoVenta extends ExtendedController\EditController
     {
         switch ($viewName) {
             case 'ListPagoPuntoVenta':
+            case 'ListFuentePagoPuntoVenta':
             case 'ListMovimientoPuntoVenta':
             case 'ListOrdenPuntoVenta':
                 $where = [new DataBaseWhere('idsesion', $this->getModel()->primaryColumnValue())];

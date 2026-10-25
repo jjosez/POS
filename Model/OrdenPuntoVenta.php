@@ -28,6 +28,10 @@ class OrdenPuntoVenta extends ModelClass
 
     public $collected_amount;
 
+    public $source_amount;
+
+    public $settled_amount;
+
     public $codigo;
 
     public $esdevolucion;
@@ -89,6 +93,8 @@ class OrdenPuntoVenta extends ModelClass
         $this->hora = Tools::hour();
         $this->payment_policy = 'required';
         $this->collected_amount = 0.0;
+        $this->source_amount = 0.0;
+        $this->settled_amount = 0.0;
     }
 
     public static function primaryColumn(): string
@@ -121,7 +127,13 @@ class OrdenPuntoVenta extends ModelClass
         parent::loadFromData($data, $exclude, $sync);
 
         $payments = $this->getPayments();
+        $sources = $this->getPaymentSources();
         $this->collected_amount = array_sum(array_map(static fn(PagoPuntoVenta $payment): float => $payment->pagoNeto(), $payments));
+        $this->source_amount = array_sum(array_map(
+            static fn(FuentePagoPuntoVenta $source): float => (float)$source->consumed_amount,
+            $sources
+        ));
+        $this->settled_amount = $this->collected_amount + $this->source_amount;
         $paymentMethods = [];
         $this->nickusuario = null;
         $this->paymentMethod = '';
@@ -129,8 +141,12 @@ class OrdenPuntoVenta extends ModelClass
             $paymentMethods[$payment->codpago] = $payment->descripcion();
             $this->nickusuario ??= $payment->nick;
         }
+        foreach ($sources as $source) {
+            $paymentMethods['source:' . $source->id] = $source->descripcion();
+            $this->nickusuario ??= $source->nick;
+        }
 
-        $this->descuadre = $this->testDescuadre($payments);
+        $this->descuadre = $this->testDescuadre($payments, $sources);
         $this->tipodocumento = Tools::trans($this->tipodoc);
         $this->nombrecliente = $this->getSubject()->nombre;
         $this->paymentMethod = implode(' + ', $paymentMethods);
@@ -145,6 +161,16 @@ class OrdenPuntoVenta extends ModelClass
     public function getPayments(): array
     {
         return PagoPuntoVenta::all([
+            Where::eq('idoperacion', $this->idoperacion),
+        ]);
+    }
+
+    /**
+     * @return FuentePagoPuntoVenta[]
+     */
+    public function getPaymentSources(): array
+    {
+        return FuentePagoPuntoVenta::all([
             Where::eq('idoperacion', $this->idoperacion),
         ]);
     }
@@ -181,15 +207,22 @@ class OrdenPuntoVenta extends ModelClass
         ], ['fecha' => 'DESC', 'hora' => 'DESC']);
     }
 
-    protected function testDescuadre(array $payments): bool
+    protected function testDescuadre(array $payments, array $sources = []): bool
     {
-        $pagos = 0;
+        $settled = 0.0;
 
         foreach ($payments as $payment) {
-            $pagos += $payment->pagoNeto();
+            $settled += $payment->pagoNeto();
+        }
+        foreach ($sources as $source) {
+            $settled += (float)$source->consumed_amount;
         }
 
-        return Tools::floatcmp($this->total, $pagos);
+        if ($this->payment_policy === 'optional') {
+            return $settled < (float)$this->total || Tools::floatcmp($this->total, $settled);
+        }
+
+        return Tools::floatcmp($this->total, $settled);
     }
 
     /**

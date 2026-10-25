@@ -12,6 +12,7 @@ use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceDefinition;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceEntry;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSourceManager;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceResult;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceSettlement;
 use PHPUnit\Framework\TestCase;
 
 class PaymentSourceManagerTest extends TestCase
@@ -61,22 +62,22 @@ class PaymentSourceManagerTest extends TestCase
         $manager->register(new Fake('a', approved: false));
 
         $context = $this->context();
-        $results = $manager->applySources($context, [['code' => 'a', 'amount' => 10.0]]);
+        $applications = $manager->applySources($context, [['code' => 'a', 'amount' => 10.0]]);
 
-        $this->assertFalse($results[0]['approved']);
-        $this->assertSame('REJECTED', $results[0]['status']);
+        $this->assertFalse($applications[0]->result->approved);
+        $this->assertSame('REJECTED', $applications[0]->result->status);
     }
 
     public function testApplySourcesIgnoresUnknownProviders(): void
     {
         $manager = $this->manager();
-        $results = $manager->applySources($this->context(), [
+        $applications = $manager->applySources($this->context(), [
             ['code' => 'ghost', 'amount' => 10.0],
         ]);
 
-        $this->assertCount(1, $results);
-        $this->assertFalse($results[0]['approved']);
-        $this->assertSame('NOT_AVAILABLE', $results[0]['status']);
+        $this->assertCount(1, $applications);
+        $this->assertFalse($applications[0]->result->approved);
+        $this->assertSame('NOT_AVAILABLE', $applications[0]->result->status);
     }
 
     public function testRequestedAmountIgnoresInvalidSources(): void
@@ -119,7 +120,7 @@ class PaymentSourceManagerTest extends TestCase
         $provider = new EntryFake('coupon');
         $manager->register($provider);
 
-        $results = $manager->applySources($this->context(), [
+        $applications = $manager->applySources($this->context(), [
             [
                 'code' => 'coupon',
                 'amount' => 100.0,
@@ -133,8 +134,11 @@ class PaymentSourceManagerTest extends TestCase
         $this->assertSame('12345', $provider->entries[0]->reference);
         $this->assertSame(['campaign' => 'summer'], $provider->entries[0]->metadata);
         $this->assertSame('67890', $provider->entries[1]->reference);
-        $this->assertSame('12345', $results[0]['reference']);
-        $this->assertSame('67890', $results[1]['reference']);
+        $this->assertSame('12345', $applications[0]->entry->reference);
+        $this->assertSame('67890', $applications[1]->entry->reference);
+
+        $settlement = new PaymentSourceSettlement($applications);
+        $this->assertSame(150.0, $settlement->coveredAmount());
     }
 
     private function context(): PaymentSourceContext

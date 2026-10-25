@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view>
+    <columns>
+        <column name="operation" order="100">
+            <widget type="select" fieldname="idoperacion">
+                <values source="pos_operations" fieldcode="idoperacion" fieldtitle="codigo"/>
+            </widget>
+        </column>
+        <column name="payment-source" order="110">
+            <widget type="text" fieldname="label" readonly="true"/>
+        </column>
+        <column name="code" order="120">
+            <widget type="text" fieldname="code" readonly="true"/>
+        </column>
+        <column name="reference" order="130">
+            <widget type="text" fieldname="reference" readonly="true"/>
+        </column>
+        <column name="requested-amount" display="right" order="140">
+            <widget type="money" decimal="2" fieldname="requested_amount" readonly="true"/>
+        </column>
+        <column name="consumed-amount" display="right" order="150">
+            <widget type="money" decimal="2" fieldname="consumed_amount" readonly="true"/>
+        </column>
+        <column name="created-at" display="right" order="160">
+            <widget type="datetime" fieldname="createdat" readonly="true"/>
+        </column>
+        <column name="created-by" display="right" order="170">
+            <widget type="text" fieldname="nick" readonly="true"/>
+        </column>
+    </columns>
+</view>

@@ -169,5 +169,11 @@
   "updated-at": "Fecha de actualización",
   "updated-by": "Actualizado por",
   "wait": "Espere",
+  "payment-source": "Fuente de pago",
+  "payment-sources": "Fuentes de pago",
+  "requested-amount": "Importe solicitado",
+  "consumed-amount": "Importe consumido",
+  "settled-amount": "Importe liquidado",
+  "refund-payment-source-not-supported": "No se puede devolver automáticamente una operación que utiliza fuentes de pago.",
   "withdraw": "Retiro"
 }

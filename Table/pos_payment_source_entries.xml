@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table>
+    <column>
+        <name>id</name>
+        <type>serial</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>idoperacion</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>idsesion</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>code</name>
+        <type>character varying(80)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>label</name>
+        <type>character varying(255)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>reference</name>
+        <type>character varying(255)</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>requested_amount</name>
+        <type>double precision</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>consumed_amount</name>
+        <type>double precision</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>metadata</name>
+        <type>text</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>nick</name>
+        <type>character varying(50)</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>createdat</name>
+        <type>timestamp</type>
+        <null>NO</null>
+    </column>
+    <constraint>
+        <name>pos_payment_source_entries_pkey</name>
+        <type>PRIMARY KEY (id)</type>
+    </constraint>
+    <constraint>
+        <name>ca_pos_payment_source_entries_operation</name>
+        <type>FOREIGN KEY (idoperacion) REFERENCES pos_operations (idoperacion) ON DELETE CASCADE ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_pos_payment_source_entries_session</name>
+        <type>FOREIGN KEY (idsesion) REFERENCES pos_sessions (idsesion) ON DELETE CASCADE ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_pos_payment_source_entries_user</name>
+        <type>FOREIGN KEY (nick) REFERENCES users (nick) ON DELETE SET NULL ON UPDATE CASCADE</type>
+    </constraint>
+</table>

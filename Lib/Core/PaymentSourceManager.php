@@ -9,9 +9,12 @@ namespace FacturaScripts\Plugins\POS\Lib\Core;
 
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Plugins\POS\Contract\PaymentSourceInterface;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceApplication;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContext;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContextFactory;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceEntry;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceResult;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceSettlement;
 use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
 use FacturaScripts\Plugins\POS\Lib\Services\Transactions;
 
@@ -50,36 +53,39 @@ class PaymentSourceManager
     /**
      * @throws InvalidTransactionException
      */
-    public function applyForTransaction(Transactions $transaction, array $sources): float
+    public function applyForTransaction(Transactions $transaction, array $sources): PaymentSourceSettlement
     {
         $applied = $this->sanitise($sources);
         if ($applied === []) {
-            return 0.0;
+            return new PaymentSourceSettlement();
         }
 
         $context = $this->contextFactory->createForTransaction(
             $transaction,
             $applied
         );
-        $results = $this->applySources($context, $applied);
-        $covered = 0.0;
+        $applications = $this->applySources($context, $applied);
 
-        foreach ($results as $result) {
-            if (!($result['approved'] ?? false)) {
+        foreach ($applications as $application) {
+            if (!$application->result->approved) {
                 throw InvalidTransactionException::paymentError(
                     'payment-source-rejected',
-                    ['%code%' => (string)($result['code'] ?? '')]
+                    ['%code%' => $application->entry->code]
                 );
             }
-            $covered += (float)($result['consumed'] ?? 0.0);
         }
+
+        $settlement = new PaymentSourceSettlement($applications);
 
         Tools::log('POS')->notice(
             'payment-sources-applied',
-            ['%count%' => (string)count($results), '%amount%' => (string)$covered]
+            [
+                '%count%' => (string)count($applications),
+                '%amount%' => (string)$settlement->coveredAmount(),
+            ]
         );
 
-        return $covered;
+        return $settlement;
     }
 
     public function register(PaymentSourceInterface $provider): void
@@ -209,11 +215,11 @@ class PaymentSourceManager
      * the request and normalizes the resulting status payload.
      *
      * @param array<int, PaymentSourceEntry|array<string, mixed>> $applied
-     * @return array<int, array<string, mixed>>
+     * @return PaymentSourceApplication[]
      */
     public function applySources(PaymentSourceContext $context, array $applied): array
     {
-        $results = [];
+        $applications = [];
         foreach ($applied as $rawEntry) {
             $entry = $rawEntry instanceof PaymentSourceEntry
                 ? $rawEntry
@@ -224,38 +230,28 @@ class PaymentSourceManager
 
             $provider = $this->find($entry->code);
             if ($provider === null) {
-                $results[] = [
-                    'code' => $entry->code,
-                    'reference' => $entry->reference,
-                    'approved' => false,
-                    'status' => 'NOT_AVAILABLE',
-                    'message' => null,
-                    'consumed' => null,
-                    'metadata' => new \stdClass(),
-                ];
+                $applications[] = new PaymentSourceApplication(
+                    entry: $entry,
+                    result: PaymentSourceResult::rejected('NOT_AVAILABLE'),
+                    label: $entry->code,
+                );
                 continue;
             }
 
+            $label = $provider->getDefinition()->label;
             try {
                 $result = $provider->apply($context, $entry);
-                $payload = $result->toArray();
-                $payload['code'] = $entry->code;
-                $payload['reference'] = $entry->reference;
-                $results[] = $payload;
+                $applications[] = new PaymentSourceApplication($entry, $result, $label);
             } catch (\Throwable $exception) {
-                $results[] = [
-                    'code' => $entry->code,
-                    'reference' => $entry->reference,
-                    'approved' => false,
-                    'status' => 'ERROR',
-                    'message' => null,
-                    'consumed' => null,
-                    'metadata' => new \stdClass(),
-                ];
+                $applications[] = new PaymentSourceApplication(
+                    entry: $entry,
+                    result: PaymentSourceResult::rejected('ERROR'),
+                    label: $label,
+                );
             }
         }
 
-        return $results;
+        return $applications;
     }
 
     public function boot(): void

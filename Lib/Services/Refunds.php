@@ -85,6 +85,10 @@ class Refunds
 
     private function prepareRefund(OrdenPuntoVenta $originalOrder, array $refundLines): array
     {
+        if ($originalOrder->getPaymentSources() !== []) {
+            throw InvalidTransactionException::paymentError('refund-payment-source-not-supported');
+        }
+
         $collected = array_sum(
             array: array_map(
                 static fn(BasePagoPuntoVenta $payment): float => $payment->pagoNeto(),

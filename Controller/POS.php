@@ -990,10 +990,11 @@ class POS extends BaseController
             }
 
             // Providers run against the final document selected by saveBefore.
-            $coveredBySources = $this->context->paymentSources()->applyForTransaction(
+            $sourceSettlement = $this->context->paymentSources()->applyForTransaction(
                 $transaction,
                 $request->getPaymentSourcesData()
             );
+            $coveredBySources = $sourceSettlement->coveredAmount();
             $validatedPayments = $this->validateSettlement(
                 $transaction,
                 $transaction->getPaymentData(),
@@ -1015,6 +1016,13 @@ class POS extends BaseController
             $order->payment_policy = $transaction->getPaymentPolicy()->value;
             if (!$this->context->storage()->saveOrder($order, $document)) {
                 throw InvalidTransactionException::saveError('fail-save-order');
+            }
+
+            if (!$this->context->paymentSourceRecords()->saveApplications(
+                $order,
+                $sourceSettlement->applications
+            )) {
+                throw InvalidTransactionException::saveError('fail-save-payment-sources');
             }
 
             if (!$this->context->storage()->completeDraft($document)) {
@@ -1156,18 +1164,21 @@ class POS extends BaseController
         if ($documentModel === self::DRAFT_POS_DOCUMENT) {
             $document = $this->context->storage()->getDraft($documentCode);
             $payments = [];
+            $paymentsSources = [];
         } elseif ($documentOrder) {
             $order = $this->context->storage()->getOrder($documentOrder);
             $document = $order->getDocument();
             $payments = $order->getPayments();
+            $paymentsSources = $order->getPaymentSources();
         } else {
             $order = $this->context->storage()->getOrderFromDocument($documentModel, $documentCode);
             $document = $order->getDocument();
             $payments = $order->getPayments();
+            $paymentsSources = $order->getPaymentSources();
         }
 
         $this->addMessage('printing-sale-ticket');
-        $this->pipeFalse('printOrderTicket', $document, $payments, $this->request);
+        $this->pipeFalse('printOrderTicket', $document, $payments, $this->request, $paymentsSources);
         $this->buildResponse();
     }
 

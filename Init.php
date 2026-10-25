@@ -6,6 +6,7 @@ use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Migrations;
 use FacturaScripts\Core\Template\InitClass;
 use FacturaScripts\Plugins\POS\Migration\CreateDraftTables;
+use FacturaScripts\Plugins\POS\Migration\CreatePaymentSourceEntries;
 use FacturaScripts\Plugins\POS\Migration\RenameTables;
 
 class Init extends InitClass
@@ -22,6 +23,7 @@ class Init extends InitClass
     {
         Migrations::runPluginMigration(new RenameTables());
         Migrations::runPluginMigration(new CreateDraftTables());
+        Migrations::runPluginMigration(new CreatePaymentSourceEntries());
         Migrations::runPluginMigration(new Migration\CreateDefaultDraftStatuses());
         Migrations::runPluginMigration(new Migration\CreateSearchIndexes());
         Migrations::runPluginMigration(new Migration\RemoveCustomerAccount());
