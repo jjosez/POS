@@ -2,6 +2,11 @@ import templates from './TemplateManger.js';
 import Modals from '../components/Modals.js';
 import {roundFixed} from '../Money.js';
 
+const sourceSelectionKey = (code, reference = null) => JSON.stringify([
+    String(code ?? ''),
+    reference ? String(reference) : null,
+]);
+
 const elements = {
     appliedPayments: document.getElementById('checkoutAppliedPayments'),
     balanceLabel: document.getElementById('checkoutBalanceLabel'),
@@ -192,14 +197,14 @@ function renderPaymentMethods(payments, sources) {
         payments.filter(p => p.kind === 'native').map(payment => payment.method)
     );
     const selectedSources = new Set(
-        sources.map(source => source.code)
+        sources.map(source => sourceSelectionKey(source.code, source.reference))
     );
 
     document.querySelectorAll('[data-payment-method], [data-payment-kind="source"]').forEach(button => {
         const kind = button.dataset.paymentKind ?? 'native';
         const key = button.dataset.code;
         const selected = kind === 'source'
-            ? selectedSources.has(key)
+            ? selectedSources.has(sourceSelectionKey(key, button.dataset.reference || null))
             : selectedNative.has(key);
 
         button.setAttribute('aria-pressed', String(selected));

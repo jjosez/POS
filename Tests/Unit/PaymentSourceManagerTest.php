@@ -10,6 +10,7 @@ use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContext;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContextFactory;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceDefinition;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceEntry;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceOption;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSourceManager;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceResult;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceSettlement;
@@ -141,6 +142,22 @@ class PaymentSourceManagerTest extends TestCase
         $this->assertSame(150.0, $settlement->coveredAmount());
     }
 
+    public function testAvailabilityOptionsBecomeSeparateButtonsWithSameCode(): void
+    {
+        $manager = $this->manager();
+        $manager->register(new OptionsFake('coupon'));
+
+        $sources = $manager->checkAvailability($this->context());
+
+        $this->assertCount(2, $sources);
+        $this->assertSame('coupon', $sources[0]['code']);
+        $this->assertSame('coupon', $sources[1]['code']);
+        $this->assertSame('X25CAMPA', $sources[0]['reference']);
+        $this->assertSame('VALE-1000', $sources[1]['reference']);
+        $this->assertSame('CUPÓN 50.00', $sources[0]['label']);
+        $this->assertSame(1000.0, $sources[1]['available_amount']);
+    }
+
     private function context(): PaymentSourceContext
     {
         return new PaymentSourceContext(
@@ -257,6 +274,42 @@ final class EntryFake implements PaymentSourceInterface
         PaymentSourceEntry $entry
     ): PaymentSourceResult {
         $this->entries[] = $entry;
+        return PaymentSourceResult::approved($entry->amount);
+    }
+}
+
+final class OptionsFake implements PaymentSourceInterface
+{
+    public function __construct(private string $code)
+    {
+    }
+
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+
+    public function getDefinition(): PaymentSourceDefinition
+    {
+        return new PaymentSourceDefinition(
+            $this->code,
+            'Cupones',
+            'Cupones disponibles',
+            'fa-ticket',
+            ['allowsMultiple' => true]
+        );
+    }
+
+    public function checkAvailability(PaymentSourceContext $context): PaymentSourceAvailability
+    {
+        return PaymentSourceAvailability::withOptions([
+            new PaymentSourceOption('X25CAMPA', 'CUPÓN 50.00', 50.0),
+            new PaymentSourceOption('VALE-1000', 'VALE 1000', 1000.0),
+        ]);
+    }
+
+    public function apply(PaymentSourceContext $context, PaymentSourceEntry $entry): PaymentSourceResult
+    {
         return PaymentSourceResult::approved($entry->amount);
     }
 }

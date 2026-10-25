@@ -5,6 +5,11 @@ import EventManager from '../core/EventManager.js';
 import PaymentSourceManager from '../paymentSources/PaymentSourceManager.js';
 import templates from '../views/TemplateManger.js';
 
+const sourceSelectionKey = (code, reference = null) => JSON.stringify([
+    String(code ?? ''),
+    reference ? String(reference) : null,
+]);
+
 const CheckoutController = {
     inputHandler: null,
     mountId: 'checkoutPaymentSourcesMount',
@@ -175,13 +180,16 @@ const CheckoutController = {
     },
 
     markSelectedSources() {
-        const appliedCodes = new Set(CheckoutModel.getState().paymentSources
-            .map(source => source.code));
+        const appliedSources = new Set(CheckoutModel.getState().paymentSources
+            .map(source => sourceSelectionKey(source.code, source.reference)));
 
         document.querySelectorAll('[data-payment-source-check]').forEach(icon => {
             const button = icon.closest('[data-payment-kind="source"]');
             if (!button) return;
-            const selected = appliedCodes.has(button.dataset.code);
+            const selected = appliedSources.has(sourceSelectionKey(
+                button.dataset.code,
+                button.dataset.reference || null
+            ));
             button.setAttribute('aria-pressed', String(selected));
             icon.hidden = !selected;
             button.classList.toggle('border-blue-500', selected);

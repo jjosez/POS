@@ -13,6 +13,7 @@ use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceApplication;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContext;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContextFactory;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceEntry;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceOption;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceResult;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceSettlement;
 use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
@@ -190,7 +191,28 @@ class PaymentSourceManager
 
             try {
                 $availability = $provider->checkAvailability($context);
+                if ($availability->options !== []) {
+                    foreach ($availability->options as $option) {
+                        if (!$option instanceof PaymentSourceOption) {
+                            continue;
+                        }
+
+                        $output[] = array_merge($base, [
+                            'label' => $option->label,
+                            'description' => $option->description ?? $definition->description,
+                            'reference' => $option->reference,
+                            'metadata' => (object)array_merge($definition->metadata, $option->metadata),
+                            'available' => $availability->available,
+                            'available_amount' => $option->availableAmount,
+                            'status' => $availability->status,
+                            'message' => $availability->message,
+                        ]);
+                    }
+                    continue;
+                }
+
                 $output[] = array_merge($base, [
+                    'reference' => null,
                     'available' => $availability->available,
                     'available_amount' => $availability->isUnlimited() ? null : $availability->availableAmount,
                     'status' => $availability->status,
@@ -198,6 +220,7 @@ class PaymentSourceManager
                 ]);
             } catch (\Throwable $exception) {
                 $output[] = array_merge($base, [
+                    'reference' => null,
                     'available' => false,
                     'available_amount' => 0.0,
                     'status' => 'ERROR',

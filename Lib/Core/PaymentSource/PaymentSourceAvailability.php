@@ -8,14 +8,23 @@ namespace FacturaScripts\Plugins\POS\Lib\Core\PaymentSource;
 
 final class PaymentSourceAvailability
 {
+    /**
+     * @param PaymentSourceOption[] $options
+     */
     public function __construct(
         public readonly bool $available = true,
         public readonly ?float $availableAmount = null,
         public readonly string $status = 'AVAILABLE',
-        public readonly ?string $message = null
+        public readonly ?string $message = null,
+        public readonly array $options = [],
     ) {
         if ($availableAmount !== null && (!is_finite($availableAmount) || $availableAmount < 0)) {
             throw new \InvalidArgumentException('Invalid available amount.');
+        }
+        foreach ($options as $option) {
+            if (!$option instanceof PaymentSourceOption) {
+                throw new \InvalidArgumentException('Invalid Payment Source option.');
+            }
         }
     }
 
@@ -34,6 +43,29 @@ final class PaymentSourceAvailability
         return new self(false, $availableAmount ?? 0.0, $status, $message);
     }
 
+    /**
+     * @param PaymentSourceOption[] $options
+     */
+    public static function withOptions(array $options, ?string $message = null): self
+    {
+        foreach ($options as $option) {
+            if (!$option instanceof PaymentSourceOption) {
+                throw new \InvalidArgumentException('Invalid Payment Source option.');
+            }
+        }
+
+        if ($options === []) {
+            return self::blocked('NOT_AVAILABLE', $message);
+        }
+
+        $availableAmount = array_sum(array_map(
+            static fn(PaymentSourceOption $option): float => $option->availableAmount,
+            $options
+        ));
+
+        return new self(true, $availableAmount, 'AVAILABLE', $message, $options);
+    }
+
     public function isUnlimited(): bool
     {
         return $this->availableAmount === null;
@@ -46,6 +78,13 @@ final class PaymentSourceAvailability
             'available_amount' => $this->isUnlimited() ? null : $this->availableAmount,
             'status' => $this->status,
             'message' => $this->message,
+            'options' => array_map(static fn(PaymentSourceOption $option): array => [
+                'reference' => $option->reference,
+                'label' => $option->label,
+                'available_amount' => $option->availableAmount,
+                'description' => $option->description,
+                'metadata' => (object)$option->metadata,
+            ], $this->options),
         ];
     }
 }

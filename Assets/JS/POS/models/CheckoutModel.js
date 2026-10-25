@@ -177,6 +177,7 @@ class CheckoutModel {
 
     setPaymentSource({code, label, amount, description, maxAmount, status, reference = null, metadata = {}}) {
         if (!code || !label) return null;
+        const normalizedReference = reference ? String(reference) : null;
         amount = normalizeAmount(amount);
         if (!Number.isFinite(amount) || amount <= 0) return null;
 
@@ -188,7 +189,8 @@ class CheckoutModel {
 
         if (typeof maxAmount === 'number' && Number.isFinite(maxAmount)) {
             const alreadyApplied = this.paymentSources
-                .filter(source => source.code === code)
+                .filter(source => source.code === code
+                    && source.reference === normalizedReference)
                 .reduce((sum, source) => sum + source.amount, 0);
             amount = Math.min(amount, Math.max(0, maxAmount - alreadyApplied));
         }
@@ -200,7 +202,7 @@ class CheckoutModel {
             label,
             description: description ?? '',
             amount,
-            reference: reference ? String(reference) : null,
+            reference: normalizedReference,
             metadata: metadata && typeof metadata === 'object' && !Array.isArray(metadata) ? metadata : {},
             status: status ?? 'AVAILABLE',
             kind: 'source'
