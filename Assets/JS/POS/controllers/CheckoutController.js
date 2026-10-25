@@ -20,7 +20,7 @@ const CheckoutController = {
         if (!entry) return;
 
         if (entry.kind === 'source') {
-            CheckoutModel.deletePaymentSource(entry.code);
+            CheckoutModel.deletePaymentSource(entry.key);
         } else {
             CheckoutModel.deletePayment(this.nativeIndexFor(state, index));
         }
@@ -88,16 +88,19 @@ const CheckoutController = {
         }
 
         CheckoutView.setPaymentInputValue(0);
-        CheckoutModel.setPaymentSource({
+        const entry = CheckoutModel.setPaymentSource({
             code,
             label,
             description,
             amount,
             maxAmount,
             status: el.dataset.status,
+            reference: el.dataset.reference ?? null,
         });
 
-        EventManager.emit('checkout:payment-source:selected', {code, amount});
+        if (entry) {
+            EventManager.emit('checkout:payment-source:selected', {...entry});
+        }
     },
 
     /**
@@ -243,6 +246,10 @@ const CheckoutController = {
 
     getState() {
         return CheckoutModel.getState();
+    },
+
+    getPaymentSourcesForRequest() {
+        return CheckoutModel.getPaymentSourcesForRequest();
     },
 
     handleMoreMethods(el) {

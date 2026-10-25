@@ -3,6 +3,8 @@ import eventManager from "../core/EventManager.js";
 const configuredDecimals = parseInt(AppSettings.currency.decimals);
 const CURRENCY_DECIMALS = Number.isInteger(configuredDecimals) ? configuredDecimals : 2;
 const normalizeAmount = amount => parseFloat((parseFloat(amount) || 0).toFixed(CURRENCY_DECIMALS));
+const createEntryKey = () => globalThis.crypto?.randomUUID?.()
+    ?? `ps_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
 class CheckoutModel {
     constructor({cashMethod = ""}) {
@@ -74,6 +76,15 @@ class CheckoutModel {
         return this.getSourcesTotal();
     }
 
+    getPaymentSourcesForRequest() {
+        return this.paymentSources.map(source => ({
+            code: source.code,
+            amount: source.amount,
+            reference: source.reference ?? null,
+            metadata: source.metadata ?? {},
+        }));
+    }
+
     getSettledAmount() {
         return normalizeAmount(this.getCollectedAmount() + this.getSourcesCoveredAmount());
     }
@@ -126,8 +137,8 @@ class CheckoutModel {
         this.updateCheckoutEvent();
     }
 
-    deletePaymentSource(code) {
-        this.paymentSources = this.paymentSources.filter(source => source.code !== code);
+    deletePaymentSource(key) {
+        this.paymentSources = this.paymentSources.filter(source => source.key !== key);
         this.updateCheckoutEvent();
     }
 
@@ -164,36 +175,40 @@ class CheckoutModel {
         this.updateCheckoutEvent();
     }
 
-    setPaymentSource({code, label, amount, description, maxAmount, status}) {
-        if (!code || !label) return;
+    setPaymentSource({code, label, amount, description, maxAmount, status, reference = null, metadata = {}}) {
+        if (!code || !label) return null;
         amount = normalizeAmount(amount);
-        if (!Number.isFinite(amount) || amount <= 0) return;
+        if (!Number.isFinite(amount) || amount <= 0) return null;
 
         const balance = Math.max(0, this.getOutstandingBalance());
         if (amount > balance) {
             amount = balance;
         }
-        if (amount <= 0) return;
+        if (amount <= 0) return null;
 
-        if (typeof maxAmount === 'number' && Number.isFinite(maxAmount) && amount > maxAmount) {
-            amount = maxAmount;
+        if (typeof maxAmount === 'number' && Number.isFinite(maxAmount)) {
+            const alreadyApplied = this.paymentSources
+                .filter(source => source.code === code)
+                .reduce((sum, source) => sum + source.amount, 0);
+            amount = Math.min(amount, Math.max(0, maxAmount - alreadyApplied));
         }
+        if (amount <= 0) return null;
 
-        const existing = this.paymentSources.find(source => source.code === code);
-        if (existing) {
-            existing.amount = parseFloat((existing.amount + amount).toFixed(CURRENCY_DECIMALS));
-        } else {
-            this.paymentSources.push({
-                code,
-                label,
-                description: description ?? '',
-                amount,
-                status: status ?? 'AVAILABLE',
-                kind: 'source'
-            });
-        }
+        const entry = {
+            key: createEntryKey(),
+            code,
+            label,
+            description: description ?? '',
+            amount,
+            reference: reference ? String(reference) : null,
+            metadata: metadata && typeof metadata === 'object' && !Array.isArray(metadata) ? metadata : {},
+            status: status ?? 'AVAILABLE',
+            kind: 'source'
+        };
+        this.paymentSources.push(entry);
 
         this.updateCheckoutEvent();
+        return entry;
     }
 
     updateMoneyChange() {

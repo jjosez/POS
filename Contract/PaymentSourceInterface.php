@@ -5,6 +5,7 @@ namespace FacturaScripts\Plugins\POS\Contract;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceAvailability;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContext;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceDefinition;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceEntry;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceResult;
 
 interface PaymentSourceInterface
@@ -15,5 +16,5 @@ interface PaymentSourceInterface
 
     public function checkAvailability(PaymentSourceContext $context): PaymentSourceAvailability;
 
-    public function apply(PaymentSourceContext $context, float $amount): PaymentSourceResult;
+    public function apply(PaymentSourceContext $context, PaymentSourceEntry $entry): PaymentSourceResult;
 }

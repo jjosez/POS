@@ -205,7 +205,7 @@ async handleOrderSaveAction() {
             const result = await this.saveRequest(
                 CartController.getState(),
                 checkoutState.payments,
-                checkoutState.paymentSources
+                CheckoutController.getPaymentSourcesForRequest()
             );
 
             if (result?.status === 'success') {

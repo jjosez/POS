@@ -48,7 +48,7 @@ final class PaymentSourceContextFactory
     }
 
     /**
-     * @param array<int, array{code: string, amount: float}> $sources
+     * @param PaymentSourceEntry[] $sources
      */
     public function createForTransaction(Transactions $transaction, array $sources): PaymentSourceContext
     {

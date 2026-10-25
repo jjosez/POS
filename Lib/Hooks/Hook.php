@@ -11,6 +11,7 @@ enum Hook: string
     case OnSaleTicketPrinting = 'onSaleTicketPrinting';
     case OnDraftTicketPrinting = 'onDraftTicketPrinting';
 
+    /** @deprecated Register providers through loadPaymentSourceProviders. */
     case PaymentSourceRegistration = 'paymentSourceRegistration';
 
 

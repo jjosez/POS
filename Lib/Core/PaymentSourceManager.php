@@ -11,6 +11,7 @@ use FacturaScripts\Core\Tools;
 use FacturaScripts\Plugins\POS\Contract\PaymentSourceInterface;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContext;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContextFactory;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceEntry;
 use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
 use FacturaScripts\Plugins\POS\Lib\Services\Transactions;
 
@@ -20,9 +21,8 @@ use FacturaScripts\Plugins\POS\Lib\Services\Transactions;
  * Native FormaPago entries are intentionally NOT routed through this manager:
  * they keep the existing terminal configuration, persistence, and validation.
  *
- * Extensions contribute to providers by invoking
- * `HookManager::addPaymentSourceProvider()` from inside their
- * `loadPaymentSourceProviders` extension hook.
+ * Extensions contribute providers by registering them in the
+ * `loadPaymentSourceProviders` controller extension hook.
  */
 class PaymentSourceManager
 {
@@ -41,7 +41,10 @@ class PaymentSourceManager
 
     public function requestedAmount(array $sources): float
     {
-        return array_sum(array_column($this->sanitise($sources), 'amount'));
+        return array_sum(array_map(
+            static fn(PaymentSourceEntry $entry): float => $entry->amount,
+            $this->sanitise($sources)
+        ));
     }
 
     /**
@@ -54,7 +57,10 @@ class PaymentSourceManager
             return 0.0;
         }
 
-        $context = $this->contextFactory->createForTransaction($transaction, $applied);
+        $context = $this->contextFactory->createForTransaction(
+            $transaction,
+            $applied
+        );
         $results = $this->applySources($context, $applied);
         $covered = 0.0;
 
@@ -84,6 +90,20 @@ class PaymentSourceManager
         }
 
         $this->providers[$code] = $provider;
+    }
+
+    /**
+     * Backwards-compatible bulk registration helper.
+     *
+     * @param iterable<PaymentSourceInterface> $providers
+     */
+    public function registerExternalProviders(iterable $providers): void
+    {
+        foreach ($providers as $provider) {
+            if ($provider instanceof PaymentSourceInterface) {
+                $this->register($provider);
+            }
+        }
     }
 
     public function isRegistered(string $code): bool
@@ -188,24 +208,25 @@ class PaymentSourceManager
      * is responsible for its own domain side effects; the manager only routes
      * the request and normalizes the resulting status payload.
      *
-     * @param array<int, array<string, mixed>> $applied
+     * @param array<int, PaymentSourceEntry|array<string, mixed>> $applied
      * @return array<int, array<string, mixed>>
      */
     public function applySources(PaymentSourceContext $context, array $applied): array
     {
         $results = [];
-        foreach ($applied as $entry) {
-            $code = (string)($entry['code'] ?? '');
-            $amount = (float)($entry['amount'] ?? 0.0);
-
-            if ($code === '' || $amount <= 0) {
+        foreach ($applied as $rawEntry) {
+            $entry = $rawEntry instanceof PaymentSourceEntry
+                ? $rawEntry
+                : (is_array($rawEntry) ? PaymentSourceEntry::fromArray($rawEntry) : null);
+            if ($entry === null) {
                 continue;
             }
 
-            $provider = $this->find($code);
+            $provider = $this->find($entry->code);
             if ($provider === null) {
                 $results[] = [
-                    'code' => $code,
+                    'code' => $entry->code,
+                    'reference' => $entry->reference,
                     'approved' => false,
                     'status' => 'NOT_AVAILABLE',
                     'message' => null,
@@ -216,13 +237,15 @@ class PaymentSourceManager
             }
 
             try {
-                $result = $provider->apply($context, $amount);
+                $result = $provider->apply($context, $entry);
                 $payload = $result->toArray();
-                $payload['code'] = $code;
+                $payload['code'] = $entry->code;
+                $payload['reference'] = $entry->reference;
                 $results[] = $payload;
             } catch (\Throwable $exception) {
                 $results[] = [
-                    'code' => $code,
+                    'code' => $entry->code,
+                    'reference' => $entry->reference,
                     'approved' => false,
                     'status' => 'ERROR',
                     'message' => null,
@@ -245,7 +268,7 @@ class PaymentSourceManager
     }
 
     /**
-     * @return array<int, array{code: string, amount: float}>
+     * @return PaymentSourceEntry[]
      */
     private function sanitise(array $raw): array
     {
@@ -255,10 +278,9 @@ class PaymentSourceManager
                 continue;
             }
 
-            $code = (string)($entry['code'] ?? '');
-            $amount = (float)($entry['amount'] ?? 0.0);
-            if ($code !== '' && $amount > 0.0) {
-                $sources[] = ['code' => $code, 'amount' => $amount];
+            $source = PaymentSourceEntry::fromArray($entry);
+            if ($source !== null) {
+                $sources[] = $source;
             }
         }
 

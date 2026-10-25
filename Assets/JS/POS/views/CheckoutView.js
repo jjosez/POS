@@ -38,11 +38,14 @@ export function render(model) {
             kind: 'native'
         })),
         ...state.paymentSources.map(source => ({
-            description: source.label,
+            description: source.reference
+                ? `${source.label} · ${source.reference}`
+                : source.label,
             amount: source.amount,
             formattedAmount: roundFixed(source.amount),
             kind: 'source',
-            code: source.code
+            code: source.code,
+            key: source.key
         }))
     ];
     const payments = mergedList;

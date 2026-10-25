@@ -9,6 +9,7 @@ use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceAvailability;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContext;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceContextFactory;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceDefinition;
+use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceEntry;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSourceManager;
 use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentSourceResult;
 use PHPUnit\Framework\TestCase;
@@ -92,6 +93,50 @@ class PaymentSourceManagerTest extends TestCase
         $this->assertSame(25.5, $amount);
     }
 
+    public function testEntryPreservesReferenceAndMetadata(): void
+    {
+        $entry = PaymentSourceEntry::fromArray([
+            'code' => 'coupon',
+            'amount' => 25.5,
+            'reference' => 'CP-001',
+            'metadata' => ['campaign' => 'summer'],
+        ]);
+
+        $this->assertInstanceOf(PaymentSourceEntry::class, $entry);
+        $this->assertSame('CP-001', $entry->reference);
+        $this->assertSame(['campaign' => 'summer'], $entry->metadata);
+        $this->assertSame([
+            'code' => 'coupon',
+            'amount' => 25.5,
+            'reference' => 'CP-001',
+            'metadata' => ['campaign' => 'summer'],
+        ], $entry->toArray());
+    }
+
+    public function testProviderReceivesDuplicateCodesAsSeparateEntries(): void
+    {
+        $manager = $this->manager();
+        $provider = new EntryFake('coupon');
+        $manager->register($provider);
+
+        $results = $manager->applySources($this->context(), [
+            [
+                'code' => 'coupon',
+                'amount' => 100.0,
+                'reference' => '12345',
+                'metadata' => ['campaign' => 'summer'],
+            ],
+            ['code' => 'coupon', 'amount' => 50.0, 'reference' => '67890'],
+        ]);
+
+        $this->assertCount(2, $provider->entries);
+        $this->assertSame('12345', $provider->entries[0]->reference);
+        $this->assertSame(['campaign' => 'summer'], $provider->entries[0]->metadata);
+        $this->assertSame('67890', $provider->entries[1]->reference);
+        $this->assertSame('12345', $results[0]['reference']);
+        $this->assertSame('67890', $results[1]['reference']);
+    }
+
     private function context(): PaymentSourceContext
     {
         return new PaymentSourceContext(
@@ -138,10 +183,10 @@ final class Fake implements PaymentSourceInterface
         return PaymentSourceAvailability::allowed(50.0);
     }
 
-    public function apply(PaymentSourceContext $context, float $amount): PaymentSourceResult
+    public function apply(PaymentSourceContext $context, PaymentSourceEntry $entry): PaymentSourceResult
     {
         return $this->approved
-            ? PaymentSourceResult::approved($amount)
+            ? PaymentSourceResult::approved($entry->amount)
             : PaymentSourceResult::rejected('REJECTED', 'nope');
     }
 }
@@ -173,8 +218,41 @@ final class Throwing implements PaymentSourceInterface
         throw new \RuntimeException('exploded');
     }
 
-    public function apply(PaymentSourceContext $context, float $amount): PaymentSourceResult
+    public function apply(PaymentSourceContext $context, PaymentSourceEntry $entry): PaymentSourceResult
     {
         return PaymentSourceResult::approved(0.0);
+    }
+}
+
+final class EntryFake implements PaymentSourceInterface
+{
+    /** @var PaymentSourceEntry[] */
+    public array $entries = [];
+
+    public function __construct(private string $code)
+    {
+    }
+
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+
+    public function getDefinition(): PaymentSourceDefinition
+    {
+        return new PaymentSourceDefinition($this->code, $this->code, '', '', []);
+    }
+
+    public function checkAvailability(PaymentSourceContext $context): PaymentSourceAvailability
+    {
+        return PaymentSourceAvailability::unlimited();
+    }
+
+    public function apply(
+        PaymentSourceContext $context,
+        PaymentSourceEntry $entry
+    ): PaymentSourceResult {
+        $this->entries[] = $entry;
+        return PaymentSourceResult::approved($entry->amount);
     }
 }

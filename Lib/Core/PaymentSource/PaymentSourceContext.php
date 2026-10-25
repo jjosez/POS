@@ -11,7 +11,7 @@ use FacturaScripts\Core\Model\Base\SalesDocument;
 final class PaymentSourceContext
 {
     /**
-     * @param array<int, array<string, mixed>> $sources
+     * @param PaymentSourceEntry[] $sources
      * @param array<int, array<string, mixed>> $payments
      * @param array<string, mixed> $extra
      */
