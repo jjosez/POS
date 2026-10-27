@@ -11,6 +11,7 @@ use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Template\ExtensionsTrait;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Plugins\POS\Contract\PaymentSourceInterface;
+use FacturaScripts\Plugins\POS\Lib\Customer\CustomerSearchResults;
 use FacturaScripts\Plugins\POS\Lib\Forms\FormManager;
 use FacturaScripts\Plugins\POS\Lib\Hooks\Hook;
 use FacturaScripts\Plugins\POS\Lib\Hooks\HookManager;
@@ -227,6 +228,18 @@ abstract class BaseController extends Controller
     protected function loadPointOfSaleHooks(): void
     {
         $this->pipe('loadPointOfSaleHooks');
+    }
+
+    /**
+     * Allows plugins to append information to customer search results.
+     * Extensions mutate the result object and return null so every
+     * registered extension can participate. Extensions can rely on
+     * customerCodes() to perform a single batched lookup instead of
+     * issuing one query per row.
+     */
+    protected function extendCustomerSearchResults(CustomerSearchResults $results, string $query): void
+    {
+        $this->pipe('extendCustomerSearchResults', $results, $query);
     }
 
     // ========================================================================

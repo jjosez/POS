@@ -18,6 +18,7 @@ use FacturaScripts\Dinamic\Model\BorradorPuntoVenta;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\POS\Enum\PaymentPolicy;
+use FacturaScripts\Plugins\POS\Lib\Customer\CustomerSearchResults;
 use FacturaScripts\Plugins\POS\Lib\Core\BaseController;
 use FacturaScripts\Plugins\POS\Lib\Core\SessionManager;
 use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
@@ -225,8 +226,10 @@ class POS extends BaseController
                 $this->saveNewCustomer();
                 return true;
             case 'customer:search':
-                $query = $this->request->request->get('query');
-                $this->setResponse($this->context->customers()->search($query));
+                $query = (string)$this->request->request->get('query', '');
+                $results = new CustomerSearchResults($this->context->customers()->search($query));
+                $this->extendCustomerSearchResults($results, $query);
+                $this->setResponse($results->toArray());
                 return true;
 
             case 'product:search':
@@ -1193,7 +1196,7 @@ class POS extends BaseController
         $document = $this->context->storage()->getDraft($code);
         $this->addMessage('printing-draft-ticket');
 
-        $this->pipeFalse('printOrderTicket', $document, [], $this->request);
+        $this->pipeFalse('printOrderTicket', $document, [], $this->request, []);
         $this->buildResponse();
     }
 

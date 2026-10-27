@@ -52,11 +52,9 @@
                             data-action="customer:save">{{ trans('save') }}</button>
                 </div>
             </div>
-            <div class="overflow-hidden">
-                <table class="w-full">
-                    <tbody id="customer:list:view" class="text-slate-gray-700">
-                    </tbody>
-                </table>
+            <div class="p-3 sm:p-4">
+                <div id="customer:list:view" class="flex flex-col gap-2" role="list" aria-live="polite">
+                </div>
             </div>
         </div>
         <div class="modal-footer">
@@ -66,16 +64,40 @@
 </div>
 <script id="customer:list:template" type="text/template">
     <% if(customers.length === 0) { %>
-    <tr>
-        <td colspan="20" class="p-4">No se encontraron clientes</td>
-    </tr>
+    <div class="flex min-h-48 flex-col items-center justify-center rounded-xl bg-slate-50 p-6 text-center">
+        <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-white text-slate-400 ring-1 ring-slate-200">
+            <i class="fa-solid fa-user-slash text-2xl" aria-hidden="true"></i>
+        </div>
+        <div class="font-semibold text-slate-700">{{ trans('no-results') }}</div>
+        <p class="mt-1 text-sm text-slate-500">No se encontraron clientes</p>
+    </div>
     <% } %>
     <% customers.forEach(function(customer){ %>
-    <tr class="cursor-pointer bg-slate-50 hover:bg-blue-500 hover:text-white">
-        <td class="p-4 font-medium add-customer-btn" data-action="cart:customer:set"
+    <button type="button" role="listitem"
+            class="add-customer-btn group pointer-events-auto flex w-full items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left transition focus:outline-none focus:ring-2 focus:ring-blue-400 hover:-translate-y-px hover:border-blue-400 hover:bg-blue-50/70 hover:shadow-sm"
+            data-action="cart:customer:set"
             data-code="<%= customer.code %>" data-description="<%= customer.description %>">
-            <%= customer.description %>
-        </td>
-    </tr>
+        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition group-hover:bg-blue-100 group-hover:text-blue-700">
+            <i class="fa-solid fa-user" aria-hidden="true"></i>
+        </span>
+        <span class="min-w-0 flex-1">
+            <span class="block truncate text-sm font-semibold text-slate-800 transition group-hover:text-blue-900"><%= customer.description %></span>
+            <% if(customer.details && customer.details.length) { %>
+            <span class="mt-1.5 flex flex-wrap items-start gap-x-4 gap-y-1.5 text-xs">
+                <% customer.details.forEach(function(detail){ %>
+                <% const labelText = detail.label
+                    ? detail.label.charAt(0).toUpperCase() + detail.label.slice(1).toLowerCase()
+                    : ''; %>
+                <span class="flex min-w-0 flex-col gap-0.5">
+                    <% if(labelText) { %>
+                    <span class="font-semibold text-slate-400"><%= labelText %></span>
+                    <% } %>
+                    <span class="text-sm font-semibold <% if(detail.tone === 'danger') { %>text-red-700<% } else if(detail.tone === 'warning') { %>text-amber-700<% } else if(detail.tone === 'success') { %>text-emerald-700<% } else if(detail.tone === 'info') { %>text-blue-700<% } else { %>text-slate-700<% } %>"><%= detail.value %></span>
+                </span>
+                <% }) %>
+            </span>
+            <% } %>
+        </span>
+    </button>
     <% }) %>
 </script>

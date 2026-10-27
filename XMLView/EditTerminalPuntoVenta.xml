@@ -73,6 +73,11 @@
             <column name="line-rounding-decimals" numcolumns="4" order="180">
                 <widget type="number" fieldname="line_rounding_decimals" min="0" max="6"/>
             </column>
+            <column name="rectifying-serie" numcolumns="4" order="190">
+                <widget type="select" fieldname="codserierect" icon="fas fa-undo">
+                    <values source="series" fieldcode="codserie" fieldtitle="descripcion"/>
+                </widget>
+            </column>
         </group>
     </columns>
     <rows>
