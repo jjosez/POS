@@ -1,8 +1,9 @@
-/vendor/
-composer.lock
-/node_modules/
-/AGENTS.md
 /.agents/
+/vendor/
+/node_modules/
 /POS/
 *.zip
+package-lock.json
+composer.lock
+
 

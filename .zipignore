@@ -1,0 +1,11 @@
+/_src/
+/node_modules/
+/vendor/
+/.agents/
+/Tests/
+*.zip
+composer.lock
+postcss.config.js
+tailwind.config.js
+package.json
+package-lock.json
