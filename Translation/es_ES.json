@@ -198,5 +198,18 @@
   "price-policy-tax-included": "Mostrar precio con impuestos",
   "price-policy-tax-excluded": "Mostrar precio sin impuestos",
   "price": "Precio",
-  "price-with-tax": "P. con IVA"
+  "price-with-tax": "P. con IVA",
+  "filters": "Filtros",
+  "clean-filters": "Limpiar",
+  "select-as-filter": "Seleccionar",
+  "open-family": "Abrir",
+  "has-subfamilies": "Subfamilias",
+  "open-subfamilies": "Ver",
+  "no-shortcut-families": "Sin accesos directos",
+  "no-families-available": "Sin familias",
+  "remove-filter": "Quitar",
+  "filter-direct-products": "Solo directos",
+  "no-agents-available": "Sin agentes",
+  "no-results": "Sin resultados",
+  "slide-to-see-more-items": "Desliza"
 }

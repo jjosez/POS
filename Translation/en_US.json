@@ -187,5 +187,18 @@
   "price-policy-tax-included": "Show price with taxes",
   "price-policy-tax-excluded": "Show price without taxes",
   "price": "Price",
-  "price-with-tax": "Price + tax"
+  "price-with-tax": "Price + tax",
+  "filters": "Filters",
+  "clean-filters": "Clear",
+  "select-as-filter": "Select",
+  "open-family": "Open",
+  "has-subfamilies": "Subfamilies",
+  "open-subfamilies": "View",
+  "no-shortcut-families": "No shortcuts",
+  "no-families-available": "No families",
+  "remove-filter": "Remove",
+  "filter-direct-products": "Direct only",
+  "no-agents-available": "No agents",
+  "no-results": "No results",
+  "slide-to-see-more-items": "Slide"
 }

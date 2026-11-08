@@ -95,5 +95,18 @@
   "scroll-for-more": "Desplaceu per veure més clients",
   "no-customers-found": "No s'han trobat clients",
   "can-change-agent": "Pot canviar agent",
-  "ticket-copies": "Còpies de ticket"
+  "ticket-copies": "Còpies de ticket",
+  "filters": "Filtres",
+  "clean-filters": "Netejar",
+  "select-as-filter": "Seleccionar",
+  "open-family": "Obrir",
+  "has-subfamilies": "Subfamílies",
+  "open-subfamilies": "Veure",
+  "no-shortcut-families": "Sense accessos",
+  "no-families-available": "Sense famílies",
+  "remove-filter": "Treure",
+  "filter-direct-products": "Només directes",
+  "no-agents-available": "Sense agents",
+  "no-results": "Sense resultats",
+  "slide-to-see-more-items": "Llisca"
 }

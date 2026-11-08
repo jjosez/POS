@@ -179,5 +179,18 @@
   "scroll-for-more": "Deslice para ver más clientes",
   "no-customers-found": "No se encontraron clientes",
   "can-change-agent": "Permite cambiar agente",
-  "ticket-copies": "Copias de ticket"
+  "ticket-copies": "Copias de ticket",
+  "filters": "Filtros",
+  "clean-filters": "Limpiar",
+  "select-as-filter": "Seleccionar",
+  "open-family": "Abrir",
+  "has-subfamilies": "Subfamilias",
+  "open-subfamilies": "Ver",
+  "no-shortcut-families": "Sin accesos directos",
+  "no-families-available": "Sin familias",
+  "remove-filter": "Quitar",
+  "filter-direct-products": "Solo directos",
+  "no-agents-available": "Sin agentes",
+  "no-results": "Sin resultados",
+  "slide-to-see-more-items": "Desliza"
 }
