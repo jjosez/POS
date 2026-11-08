@@ -10,7 +10,13 @@
 <script id="product:search:template" type="text/template">
     <div class="<%= mode === 'grid' ? 'grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4' : 'flex flex-col gap-3' %>">
         <% products.forEach(function(product){ %>
-        <% const unavailable = product.isOutOfStock || Number(product.bloqueado) === 1 %>
+        <%
+            const rawStock = Number(product.stock);
+            const hasFiniteStock = Number.isFinite(rawStock);
+            const outOfStock = product.isOutOfStock === true
+                || (hasFiniteStock && rawStock <= 0 && !product.allow_no_stock);
+            const unavailable = outOfStock || Number(product.bloqueado) === 1;
+        %>
         <article role="listitem"
                  class="group flex h-full min-w-0 flex-col overflow-hidden rounded-xl border bg-white p-2.5 transition-all duration-150 product-add-btn
                         <%= unavailable
@@ -55,7 +61,7 @@
                 <div class="mt-3 flex flex-wrap items-center gap-2">
                     <button type="button"
                             class="pointer-events-auto inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium
-                                   <%= product.isOutOfStock ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' %>"
+                                   <%= outOfStock ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' %>"
                             data-action="product:stock:show" data-code="<%= product.code %>">
                         {{ trans('stock') }}: <%= product.stock ?? 0 %>
                     </button>

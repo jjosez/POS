@@ -54,8 +54,13 @@ const CustomerController = {
     },
 
     async search(query) {
-        const results = await Core.searchRequest('customer:search', query);
-        CartView.updateCustomerListView(results);
+        CartView.setCustomerListLoading(true);
+        try {
+            const results = await Core.searchRequest('customer:search', query);
+            CartView.updateCustomerListView(results);
+        } finally {
+            CartView.setCustomerListLoading(false);
+        }
     }
 };
 

@@ -8,9 +8,9 @@ namespace FacturaScripts\Plugins\POS\Model\Join;
 
 use FacturaScripts\Core\DataSrc\Impuestos;
 use FacturaScripts\Core\Lib\MyFilesToken;
-use FacturaScripts\Core\Template\JoinModel;
 use FacturaScripts\Core\Plugins;
 use FacturaScripts\Core\Template\ExtensionsTrait;
+use FacturaScripts\Core\Template\JoinModel;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\Impuesto;
@@ -171,7 +171,6 @@ class ProductoVariante extends JoinModel implements JsonSerializable
         if (!empty($this->image_path) && !empty($this->image_filename)) {
             $this->thumbnail = $this->image_path . '?myft=' . MyFilesToken::get($this->image_path, true);
         }
-
         /*if (!empty($this->image_file)) {
             $imageFile = new AttachedFile();
             if ($imageFile->load($this->image_file)) {
@@ -216,7 +215,9 @@ class ProductoVariante extends JoinModel implements JsonSerializable
         if ($withCalculated) {
             $data['priceWithTax'] = $this->priceWithTax;
             $data['priceWithFormat'] = $this->priceWithFormat;
-            $data['isOutOfStock'] = $this->isOutOfStock;
+            $data['stock'] = (float)($this->stock ?? 0);
+            $data['allow_no_stock'] = (bool)$this->allow_no_stock;
+            $data['isOutOfStock'] = $data['stock'] <= 0 && !$data['allow_no_stock'];
             $data['thumbnail'] = $this->thumbnail;
         }
 

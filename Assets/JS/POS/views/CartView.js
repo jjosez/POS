@@ -23,6 +23,8 @@ const viewElements = {
     productQuantityInput: document.getElementById('productQuantityInput')
 };
 
+let isCustomerListLoading = false;
+
 class CartView {
     get beepAudio() { return document.getElementById('beepAudio'); }
     cartTotalLabel = () => viewElements.cartTotalLabel;
@@ -34,6 +36,8 @@ class CartView {
     orderNetoLabel = () => viewElements.orderNetoLabel;
     productQuantityInput = () => viewElements.productQuantityInput;
     cartLineToolbar = () => viewElements.cartLineToolbar;
+
+    isCustomerListLoading = () => isCustomerListLoading;
 
     applySelection(selectedIndex) {
         if (selectedIndex === null) {
@@ -122,7 +126,23 @@ class CartView {
     };
 
     updateCustomerListView = (data = []) => {
-        templates.render('customer:list:template', {customers: data}, 'customer:list:view');
+        isCustomerListLoading = false;
+        templates.render('customer:list:template', {
+            customers: data,
+            loading: false,
+        }, 'customer:list:view');
+    };
+
+    setCustomerListLoading = (loading = true) => {
+        const next = !!loading;
+        if (next === isCustomerListLoading) return;
+        isCustomerListLoading = next;
+        if (!next) return;
+        templates.render(
+            'customer:list:template',
+            {customers: [], loading: true},
+            'customer:list:view'
+        );
     };
 
     updateCustomerNameLabel = (name = '') => {

@@ -91,5 +91,9 @@
   "consumed-amount": "Import consumit",
   "settled-amount": "Import liquidat",
   "refund-payment-source-not-supported": "No es pot retornar automàticament una operació que utilitza fonts de pagament.",
-  "wait": "Espereu"
+  "wait": "Espereu",
+  "scroll-for-more": "Desplaceu per veure més clients",
+  "no-customers-found": "No s'han trobat clients",
+  "can-change-agent": "Pot canviar agent",
+  "ticket-copies": "Còpies de ticket"
 }

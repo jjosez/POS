@@ -1,46 +1,91 @@
 <div id="agent:select:modal" class="modal hidden">
     <!--content-->
-    <div class="modal-content md:modal-content-sm">
+    <div class="modal-content md:modal-content-sm min-h-4/5">
         <!--header-->
-        <div class="modal-header items-center p-4">
-            <div class="flex min-w-0 items-center gap-3">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
-                    <i class="fa-solid fa-user-tie" aria-hidden="true"></i>
+        <div class="modal-header flex-col items-stretch gap-3 p-4">
+            <div class="flex items-center">
+                <div class="flex min-w-0 items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                        <i class="fa-solid fa-user-tie" aria-hidden="true"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h2 class="text-xl font-semibold text-slate-900">{{ trans('agent') }}</h2>
+                        <p class="truncate text-sm text-slate-500">{{ trans('select-agent') }}</p>
+                    </div>
                 </div>
-                <div class="min-w-0">
-                    <h2 class="text-xl font-semibold text-slate-900">{{ trans('agent') }}</h2>
-                    <p class="truncate text-sm text-slate-500">{{ trans('select-agent') }}</p>
-                </div>
+                <button type="button" class="btn btn-icon btn-naked ml-auto"
+                        data-toggle="modal" data-target="agent:select:modal"
+                        aria-label="{{ trans('close') }}">
+                    <i class="fa-solid fa-times" aria-hidden="true"></i>
+                </button>
             </div>
-            <button type="button" class="btn btn-icon btn-naked ml-2" data-toggle="modal" data-target="agent:select:modal" aria-label="{{ trans('close') }}">
-                <i class="fa-solid fa-times" aria-hidden="true"></i>
-            </button>
+            <label class="input-icon text-gray-400">
+                <span><i class="fa-solid fa-search fa-sm" aria-hidden="true"></i></span>
+                <input type="search" id="agentSearchBox" placeholder="{{ trans('search') }}">
+            </label>
         </div>
         <!--body-->
         <div class="modal-body p-0">
-            <div class="overflow-hidden">
-                <table class="w-full">
-                    <tbody id="agentSelectList" class="font-semibold text-slate-gray-700">
+            <div class="p-3 sm:p-4">
+                <div id="agentSelectList" class="flex flex-col gap-2" role="list" aria-live="polite">
                     {% for agent in context.agents().getAgentsList() %}
-                        <tr class="bg-slate-50 cursor-pointer hover:bg-blue-500 hover:text-white">
-                            <td class="p-4 font-medium" data-action="ui:cart:agent:set"
-                                data-code="{{ agent.codagente }}" data-description="{{ agent.nombre }}">
-                                {{ agent.nombre }}
-                            </td>
-                        </tr>
+                        {% set displayName = agent.nombre ?? '' %}
+                        {% set initial = displayName|trim|slice(0, 1)|upper ?: '#' %}
+                        <button type="button" role="listitem"
+                                data-agent-row
+                                data-code="{{ agent.codagente }}"
+                                data-description="{{ agent.nombre }}"
+                                data-action="ui:cart:agent:set"
+                                class="add-agent-btn group pointer-events-auto flex w-full items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 min-h-14 text-left transition focus:outline-none focus:ring-2 focus-within:ring-blue-400 hover:border-blue-300 hover:bg-slate-50 active:bg-slate-100/60">
+                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-xs font-bold uppercase text-slate-700 ring-1 ring-slate-200 transition group-hover:bg-slate-100" aria-hidden="true">
+                                {{ initial }}
+                            </span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block truncate text-sm font-semibold text-slate-800">{{ agent.nombre }}</span>
+                            </span>
+                        </button>
                     {% else %}
-                        <tr>
-                            <td class="m-4 p-4 w-auto bg-blue-500 text-white rounded-lg">
-                                {{ trans('no-agents-available') }}
-                            </td>
-                        </tr>
+                        <div class="flex min-h-48 flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-400">
+                            <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-white text-slate-400 ring-1 ring-slate-200">
+                                <i class="fa-solid fa-user-slash text-2xl" aria-hidden="true"></i>
+                            </div>
+                            <div class="font-semibold text-slate-700">{{ trans('no-results') }}</div>
+                            <p class="mt-1 text-sm text-slate-500">{{ trans('no-agents-available') }}</p>
+                        </div>
                     {% endfor %}
-                    </tbody>
-                </table>
+                    <div id="agentNoFilterMatch" class="hidden flex min-h-32 flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-400">
+                        <div class="font-semibold text-slate-600">{{ trans('no-results') }}</div>
+                        <p class="mt-1 text-sm text-slate-500">{{ trans('no-agents-available') }}</p>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="modal-footer">
-            <span>{{ trans('slide-to-see-more-items') }}</span>
+            <span><i class="fas fa-arrow-down"></i> {{ trans('slide-to-see-more-items') }}</span>
         </div>
     </div>
 </div>
+<script>
+    (function () {
+        var box = document.getElementById('agentSearchBox');
+        var list = document.getElementById('agentSelectList');
+        var noMatch = document.getElementById('agentNoFilterMatch');
+        if (!box || !list) return;
+
+        var rows = list.querySelectorAll('[data-agent-row]');
+
+        box.addEventListener('input', function () {
+            var q = box.value.trim().toLowerCase();
+            var visible = 0;
+            rows.forEach(function (row) {
+                var desc = (row.dataset.description || '').toLowerCase();
+                var match = q === '' || desc.indexOf(q) !== -1;
+                row.hidden = !match;
+                if (match) visible++;
+            });
+            if (noMatch) {
+                noMatch.classList.toggle('hidden', visible > 0 || rows.length === 0);
+            }
+        });
+    })();
+</script>

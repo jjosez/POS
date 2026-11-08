@@ -324,6 +324,11 @@ const CartController = {
                 CartView.updateAgentLabel(agent.nombre);
             }
         }
+
+        const customerName = doc.nombrecliente
+            ?? (doc.codcliente === AppSettings.customer?.codcliente ? AppSettings.customer?.nombre : '')
+            ?? '';
+        CartView.updateCustomerNameLabel(customerName);
     },
 
     editDocumentField(el) {

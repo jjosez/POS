@@ -133,7 +133,7 @@ class Products
         $product = current($products);
 
         return [
-            'product' => $product->toArray(),
+            'product' => $product->toArray(true),
             'images' => $this->getImagesUrl((string)$product->id, $product->code),
             'stocks' => $this->getStock($product->code, $warehouse, $company),
         ];

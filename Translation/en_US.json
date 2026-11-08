@@ -178,5 +178,9 @@
   "consumed-amount": "Consumed amount",
   "settled-amount": "Settled amount",
   "refund-payment-source-not-supported": "An operation that uses Payment Sources cannot be refunded automatically.",
-  "withdraw": "Withdraw"
+"withdraw": "Withdraw",
+  "scroll-for-more": "Scroll for more customers",
+  "no-customers-found": "No customers found",
+  "can-change-agent": "Can change agent",
+  "ticket-copies": "Ticket copies"
 }
