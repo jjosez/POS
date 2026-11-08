@@ -6,9 +6,11 @@ use FacturaScripts\Core\Lib\Calculator;
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Model\Base\SalesDocumentLine;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
 use FacturaScripts\Plugins\POS\Enum\PaymentPolicy;
+use FacturaScripts\Plugins\POS\Model\Join\ProductoVariante;
 use RuntimeException;
 
 /**
@@ -271,9 +273,46 @@ class Transactions
                 $newLine->thumbnail = $product['thumbnail'];
             }
 
+            $this->applyCustomerTariff($newLine);
             $this->applyLinePriceRounding($newLine);
             $this->documentLines[] = $newLine;
         }
+    }
+
+    /**
+     * Apply the customer's tariff to a freshly created line so that unit price
+     * matches what the listing shows for the same product/customer combination.
+     */
+    protected function applyCustomerTariff(SalesDocumentLine $line): void
+    {
+        if ($this->terminal === null) {
+            return;
+        }
+
+        $customerCode = (string)($this->document->codcliente ?? '');
+        if ($customerCode === '') {
+            return;
+        }
+
+        $reference = (string)$line->referencia;
+        if ($reference === '') {
+            return;
+        }
+
+        $variants = (new ProductoVariante())->all(
+            [Where::eq('V.referencia', $reference)],
+            [],
+            0,
+            1
+        );
+        if ($variants === []) {
+            return;
+        }
+
+        $variantProduct = current($variants);
+        (new Products($this->terminal))->applyCustomerRate($variantProduct, $customerCode);
+
+        $line->pvpunitario = (float) $variantProduct->price;
     }
 
     protected function applyLinePriceRounding(SalesDocumentLine $line): void

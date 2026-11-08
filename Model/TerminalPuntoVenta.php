@@ -30,6 +30,9 @@ class TerminalPuntoVenta extends ModelClass
     public const MODE_SELLER = 'seller';
     public const MODE_CUSTOMER = 'customer';
 
+    public const PRICE_TAX_INCLUDED = 'tax_included';
+    public const PRICE_TAX_EXCLUDED = 'tax_excluded';
+
     public $anchopapel;
     public $aceptapagos;
     public $can_change_agent;
@@ -58,6 +61,8 @@ class TerminalPuntoVenta extends ModelClass
 
     public $line_rounding_mode;
 
+    public $price_policy;
+
     public $terminal_type;
 
     public function clear(): void
@@ -73,6 +78,7 @@ class TerminalPuntoVenta extends ModelClass
         $this->numerotickets = 1;
         $this->line_rounding_decimals = 2;
         $this->line_rounding_mode = 'none';
+        $this->price_policy = self::PRICE_TAX_INCLUDED;
         $this->terminal_type = self::MODE_CASHIER;
     }
 
@@ -177,6 +183,14 @@ class TerminalPuntoVenta extends ModelClass
     {
         $mode = (string)($this->line_rounding_mode ?? 'none');
         return in_array($mode, ['none', 'nearest', 'up', 'precision'], true) ? $mode : 'none';
+    }
+
+    public function getPricePolicy(): string
+    {
+        $policy = (string)($this->price_policy ?? self::PRICE_TAX_INCLUDED);
+        return in_array($policy, [self::PRICE_TAX_INCLUDED, self::PRICE_TAX_EXCLUDED], true)
+            ? $policy
+            : self::PRICE_TAX_INCLUDED;
     }
 
     public function save(): bool

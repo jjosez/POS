@@ -182,5 +182,10 @@
   "scroll-for-more": "Scroll for more customers",
   "no-customers-found": "No customers found",
   "can-change-agent": "Can change agent",
-  "ticket-copies": "Ticket copies"
+  "ticket-copies": "Ticket copies",
+  "price-policy": "Cart price policy",
+  "price-policy-tax-included": "Show price with taxes",
+  "price-policy-tax-excluded": "Show price without taxes",
+  "price": "Price",
+  "price-with-tax": "Price + tax"
 }

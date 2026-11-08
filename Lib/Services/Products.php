@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2022-2026 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
@@ -14,9 +15,9 @@ use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\GrupoClientes;
 use FacturaScripts\Dinamic\Model\Join\ProductoStock;
-use FacturaScripts\Dinamic\Model\Join\ProductoVariante;
 use FacturaScripts\Dinamic\Model\Tarifa;
 use FacturaScripts\Dinamic\Model\TerminalPuntoVenta;
+use FacturaScripts\Plugins\POS\Model\Join\ProductoVariante;
 use FacturaScripts\Plugins\TarifasAvanzadas\Model\TarifaFamilia;
 
 /**
@@ -35,6 +36,7 @@ use FacturaScripts\Plugins\TarifasAvanzadas\Model\TarifaFamilia;
 class Products
 {
     use ExtensionsTrait;
+
 
     private ProductoVariante $product;
     private mixed $familyRateCache = [];
@@ -70,7 +72,6 @@ class Products
     public function getImagesUrl(string $id, string $code): array
     {
         $routes = [];
-
         foreach (ProductoVariante::getImages($id, $code) as $image) {
             $routes[] = FS_ROUTE . '/' . $image->url('download-permanent');
         }
@@ -89,7 +90,6 @@ class Products
         $where = [
             Where::eq('LOWER(S.referencia)', mb_strtolower($code, 'UTF8'))
         ];
-
         if ($company) {
             $where[] = $this->getCompanyDatabaseWhere($company);
         } elseif ($warehouse) {
@@ -111,7 +111,6 @@ class Products
         $where = [
             Where::eq('V.referencia', $code),
         ];
-
         if ($company) {
             $where[] = $this->getCompanyDatabaseWhere($company);
         } elseif ($warehouse) {
@@ -122,7 +121,6 @@ class Products
         }
 
         $products = $this->product->all($where, [], 0, 1);
-
         if (empty($products)) {
             return [];
         }
@@ -131,7 +129,6 @@ class Products
         $this->applyTerminalAvailability($products);
         $this->applyLinePriceRounding($products);
         $product = current($products);
-
         return [
             'product' => $product->toArray(true),
             'images' => $this->getImagesUrl((string)$product->id, $product->code),
@@ -157,7 +154,6 @@ class Products
                 Where::orLike('V.referencia', $text),
                 Where::orXlike('P.descripcion', $text)
             ];
-
             if (Plugins::isEnabled('SKU')) {
                 $search[] = Where::orLike('P.referencia_fabricante', $text);
             }
@@ -175,19 +171,15 @@ class Products
         }
 
         $where[] = Where::eq('P.sevende', true);
-
         if (!empty($filters['families'])) {
             $families = array_column($filters['families'], 'code');
-
             $where[] = Where::in('P.codfamilia', $families);
         }
 
         $products = $this->product->all($where, [], 0, 30);
-
         $this->applyProductRates($products, $filters);
         $this->applyTerminalAvailability($products);
         $this->applyLinePriceRounding($products);
-
         return $products;
     }
 
@@ -203,7 +195,6 @@ class Products
             Where::eq('V.referencia', $text),
             Where::orEq('V.codbarras', $text)
         ];
-
         if ($company) {
             $where[] = $this->getCompanyDatabaseWhere($company);
         } elseif ($warehouse) {
@@ -214,7 +205,6 @@ class Products
         }
 
         $result = $this->product->all($where, [], 0, 1);
-
         if (empty($result)) {
             return [];
         }
@@ -263,6 +253,68 @@ class Products
     /**
      * Applies customer price rates to products.
      *
+     * Honour the TarifasAvanzadas priority chain: per-product TarifaProducto
+     * (articulostarifas) → per-family TarifaFamilia (tarifas_familias) → basic
+     * Tarifa header formula.
+     *
+     * @param ProductoVariante[] $products Product list
+     * @param array $filters Filters including customer code
+     */
+    public function applyCustomerRate(ProductoVariante $product, string $customerCode): void
+    {
+        if (empty($customerCode)) {
+            return;
+        }
+
+        $rate = $this->getCustomerRate($customerCode);
+        if (empty($rate->codtarifa)) {
+            return;
+        }
+
+        $overriddenPrice = $this->getTarifaProductoPvp($rate->codtarifa, (string)$product->code);
+        if (null !== $overriddenPrice) {
+            $product->price = $overriddenPrice;
+            $product->recalculateCustomPriceFields();
+            return;
+        }
+
+        if (Plugins::isEnabled('TarifasAvanzadas')) {
+            $this->preloadFamilyRates([$product], $rate);
+        }
+        $familyRate = $this->getFamilyRate($product, $rate);
+        if ($familyRate) {
+            $product->applyFamilyRate($familyRate);
+            return;
+        }
+
+        $product->applyRate($rate);
+    }
+
+    /**
+     * Returns the per-product overriden tariff pvp if the TarifasAvanzadas
+     * plugin already defined a TarifaProducto row for (codtarifa, referencia),
+     * or null otherwise.
+     */
+    protected function getTarifaProductoPvp(string $codtarifa, string $referencia): ?float
+    {
+        if (!Plugins::isEnabled('TarifasAvanzadas')) {
+            return null;
+        }
+
+        $rows = (new \FacturaScripts\Plugins\TarifasAvanzadas\Model\TarifaProducto())->all([
+            Where::eq('codtarifa', $codtarifa),
+            Where::eq('referencia', $referencia),
+        ]);
+        if ($rows === []) {
+            return null;
+        }
+
+        return (float)current($rows)->pvp;
+    }
+
+    /**
+     * Applies customer price rates to a list of products.
+     *
      * @param ProductoVariante[] $products Product list
      * @param array $filters Filters including customer code
      */
@@ -273,23 +325,8 @@ class Products
             return;
         }
 
-        $rate = $this->getCustomerRate($codcliente);
-        if (empty($rate->codtarifa)) {
-            return;
-        }
-
-        if (Plugins::isEnabled('TarifasAvanzadas')) {
-            $this->preloadFamilyRates($products, $rate);
-        }
-
         foreach ($products as $product) {
-            $familyRate = $this->getFamilyRate($product, $rate);
-            if ($familyRate) {
-                $product->applyFamilyRate($familyRate);
-                continue;
-            }
-
-            $product->applyRate($rate);
+            $this->applyCustomerRate($product, $codcliente);
         }
     }
 
@@ -307,14 +344,17 @@ class Products
 
         $mode = $this->terminal->getLineRoundingMode();
         $decimals = $this->terminal->getLineRoundingDecimals();
-
+        $decimalSeparator = (string)Tools::settings('default', 'decimal_separator', '.');
+        $thousandsSeparator = (string)Tools::settings('default', 'thousands_separator', ' ');
         foreach ($products as $product) {
-            $product->priceWithTax = LinePriceRounder::roundGrossPrice(
-                (float)$product->priceWithTax,
-                $mode,
-                $decimals
+            $rounded = LinePriceRounder::roundGrossPrice((float)$product->priceWithTax, $mode, $decimals);
+            $product->priceWithTax = $rounded;
+            $product->priceWithFormat = number_format(
+                (float)$rounded,
+                $decimals,
+                $decimalSeparator,
+                $thousandsSeparator
             );
-            $product->priceWithFormat = Tools::number($product->priceWithTax);
         }
     }
 
@@ -331,10 +371,13 @@ class Products
             return;
         }
 
-        $references = array_values(array_unique(array_filter(array_map(
-            static fn(ProductoVariante $product): string => (string)$product->code,
-            $products
-        ))));
+        $references = array_values(
+            array_unique(
+                array_filter(
+                    array_map(static fn(ProductoVariante $product): string => (string)$product->code, $products)
+                )
+            )
+        );
         if ($references === []) {
             return;
         }
@@ -358,7 +401,6 @@ class Products
     {
         $rate = new Tarifa();
         $customer = new Cliente();
-
         if ($customer->load($customerCode) && !empty($customer->codtarifa) && $rate->load($customer->codtarifa)) {
             return $rate;
         }
@@ -392,9 +434,7 @@ class Products
             Where::in('codfamilia', implode(',', $familias)),
             Where::eq('codtarifa', $rate->codtarifa)
         ];
-
         $familyRates = TarifaFamilia::all($where);
-
         foreach ($familyRates as $familyRate) {
             $cacheKey = $familyRate->codfamilia . '-' . $familyRate->codtarifa;
             $this->familyRateCache[$cacheKey] = $familyRate;

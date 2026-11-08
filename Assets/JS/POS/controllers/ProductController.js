@@ -253,6 +253,16 @@ const ProductController = {
         this.handleFilterChanged();
     },
 
+    syncCustomerWithCart(doc) {
+        const cartCustomer = doc?.codcliente ?? '';
+        if (searchFilter.codcliente === cartCustomer) {
+            return;
+        }
+
+        searchFilter.setCustomer(cartCustomer);
+        this.handleFilterChanged();
+    },
+
     syncFamilySelectionOnModalOpen(event) {
         const target = event.target;
         if (!target || target.id !== 'product:filter:modal') return;
@@ -277,6 +287,18 @@ const ProductController = {
             code: AppSettings.customer.codcliente
         }));
         eventManager.on('product:filter:changed', this.handleFilterChanged.bind(this));
+
+        // Mirror any cart-side customer change into the search filter — covers
+        // paths that bypass event:customer:changed (e.g. resuming a draft order
+        // where the cart.doc.codcliente is set server-side).
+        eventManager.on('event:cart:updated', ({doc}) => this.syncCustomerWithCart(doc));
+
+        // Replace the server-rendered home products with a JS-driven search so the
+        // visible prices honour the same customer tariff filter as the cart.
+        // Without this, the initial twig render uses terminal.codcliente while the
+        // cart's recalc uses cart.doc.codcliente — and any divergence would leak
+        // into the listing (e.g. listado 45.1 / carrito 65.1).
+        this.runProductSearch('');
 
         document.addEventListener('scan', (event) => {
             if (ReturnSaleView.isSessionActive()) return;

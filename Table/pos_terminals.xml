@@ -72,6 +72,12 @@
         <default>'none'</default>
     </column>
     <column>
+        <name>price_policy</name>
+        <type>character varying(20)</type>
+        <null>NO</null>
+        <default>'tax_included'</default>
+    </column>
+    <column>
         <name>idterminal</name>
         <type>serial</type>
         <null>NO</null>

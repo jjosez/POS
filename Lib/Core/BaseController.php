@@ -251,11 +251,6 @@ abstract class BaseController extends Controller
         return FormManager::getFormsGrid($this->user->nick) ?? [];
     }
 
-    public function getCartColumnCount(): int
-    {
-        return FormManager::getCartColumnCount($this->user->nick);
-    }
-
     // ========================================================================
     // Utility Methods
     // ========================================================================

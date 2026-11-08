@@ -193,5 +193,10 @@
   "scroll-for-more": "Deslice para ver más clientes",
   "no-customers-found": "No se encontraron clientes",
   "can-change-agent": "Permite cambiar agente",
-  "ticket-copies": "Copias de ticket"
+  "ticket-copies": "Copias de ticket",
+  "price-policy": "Política de precio en el carrito",
+  "price-policy-tax-included": "Mostrar precio con impuestos",
+  "price-policy-tax-excluded": "Mostrar precio sin impuestos",
+  "price": "Precio",
+  "price-with-tax": "P. con IVA"
 }

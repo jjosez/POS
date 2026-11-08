@@ -78,6 +78,13 @@
                     <values source="series" fieldcode="codserie" fieldtitle="descripcion"/>
                 </widget>
             </column>
+            <column name="price-policy" numcolumns="4" order="200">
+                <widget type="select" fieldname="price_policy" translate="true"
+                        icon="fas fa-coins" required="true">
+                    <values title="price-policy-tax-included">tax_included</values>
+                    <values title="price-policy-tax-excluded">tax_excluded</values>
+                </widget>
+            </column>
         </group>
     </columns>
     <rows>

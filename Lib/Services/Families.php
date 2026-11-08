@@ -9,13 +9,33 @@ class Families
 {
     /**
      * Returns root families flagged as POS shortcuts.
+     * A root family is included if it is marked as shortcut itself OR
+     * has a direct child marked as shortcut. This prevents shortcut
+     * children from being hidden when their parent is not flagged.
      * Used by the root level of the filter modal.
      */
     public function getShortcutFamilies(): array
     {
+        $shortcutChildrenCodes = array_column(
+            Familia::all([Where::eq('pos_shortcut', true)]),
+            'madre'
+        );
+        $shortcutChildrenCodes = array_values(array_unique(array_filter($shortcutChildrenCodes)));
+
+        if (empty($shortcutChildrenCodes)) {
+            $where = [
+                Where::isNull('madre'),
+                Where::eq('pos_shortcut', true),
+            ];
+            return Familia::all($where, ['descripcion' => 'ASC']);
+        }
+
         $where = [
-            Where::eq('pos_shortcut', true),
-            Where::isNull('madre')
+            Where::isNull('madre'),
+            Where::sub([
+                Where::eq('pos_shortcut', true),
+                Where::orIn('codfamilia', $shortcutChildrenCodes),
+            ]),
         ];
 
         return Familia::all($where, ['descripcion' => 'ASC']);

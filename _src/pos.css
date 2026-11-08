@@ -27,6 +27,11 @@
         border-color: var(--color-gray-200, currentcolor);
     }
 
+    html, body {
+        overscroll-behavior-y: contain;
+        touch-action: pan-x pan-y;
+    }
+
     @layer utilities {
         .btn > * {
             pointer-events: none;

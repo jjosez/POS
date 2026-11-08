@@ -44,31 +44,6 @@ class FormManager
     }
 
     /**
-     * Returns the count of visible cart columns for a user.
-     *
-     * @param string $nick User nickname
-     * @return int Count of visible cart columns
-     */
-    public static function getCartColumnCount(string $nick): int
-    {
-        $count = 0;
-        $excludedColumns = ['reference', 'description', 'quantity'];
-        $fields = self::getFormsGrid($nick);
-
-        foreach ($fields as $column) {
-            if (in_array($column['name'], $excludedColumns)) {
-                continue;
-            }
-
-            if ($column['carrito']) {
-                $count++;
-            }
-        }
-
-        return $count;
-    }
-
-    /**
      *
      * @return array
      */

@@ -204,7 +204,6 @@ class ProductoVariante extends JoinModel implements JsonSerializable
         return ProductoImagen::all($where);
     }
 
-
     public function toArray(bool $withCalculated = true): array
     {
         $data = [];

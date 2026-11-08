@@ -109,7 +109,12 @@ class CartModel {
 
     setPriceWithTax(line) {
         line.pvptotaliva = Money.priceWithTax(line.pvptotal, line.iva);
-        line.pvpunitarioiva = Money.roundFixed(line.pvptotaliva / line.cantidad);
+        const rounding = (typeof AppSettings !== 'undefined' && AppSettings.lineRounding) || {};
+        const mode = rounding.mode || 'none';
+        const decimals = Math.max(0, Math.min(6, Number.parseInt(rounding.decimals ?? 2, 10)));
+        const candidate = line.pvptotaliva / line.cantidad;
+        const rounded = Money.roundLinePrice(candidate, {mode, decimals});
+        line.pvpunitarioiva = Number(rounded.toFixed(decimals));
     }
 
     setProduct(code, description, thumbnail, stock = null, allow_no_stock = null) {
