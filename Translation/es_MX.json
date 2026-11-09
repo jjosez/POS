@@ -1,4 +1,5 @@
 {
+  "line-display-decimals": "Decimales para mostrar del precio de línea",
   "line-rounding-mode": "Redondeo del precio de línea",
   "line-rounding-decimals": "Decimales del precio de línea",
   "line-rounding-none": "Sin redondeo",

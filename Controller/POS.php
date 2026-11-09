@@ -1327,6 +1327,7 @@ class POS extends BaseController
             'lineRounding' => [
                 'mode' => $terminal->getLineRoundingMode(),
                 'decimals' => $terminal->getLineRoundingDecimals(),
+                'display' => $terminal->getLineDisplayDecimals(),
             ],
             'messages' => [
                 'noStockAvailable' => Tools::lang()->trans('no-stock-available'),

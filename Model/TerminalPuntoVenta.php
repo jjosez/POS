@@ -61,6 +61,8 @@ class TerminalPuntoVenta extends ModelClass
 
     public $line_rounding_mode;
 
+    public $line_display_decimals;
+
     public $price_policy;
 
     public $terminal_type;
@@ -78,6 +80,7 @@ class TerminalPuntoVenta extends ModelClass
         $this->numerotickets = 1;
         $this->line_rounding_decimals = 2;
         $this->line_rounding_mode = 'none';
+        $this->line_display_decimals = 2;
         $this->price_policy = self::PRICE_TAX_INCLUDED;
         $this->terminal_type = self::MODE_CASHIER;
     }
@@ -183,6 +186,11 @@ class TerminalPuntoVenta extends ModelClass
     {
         $mode = (string)($this->line_rounding_mode ?? 'none');
         return in_array($mode, ['none', 'nearest', 'up', 'precision'], true) ? $mode : 'none';
+    }
+
+    public function getLineDisplayDecimals(): int
+    {
+        return max(0, min(6, (int)($this->line_display_decimals ?? 2)));
     }
 
     public function getPricePolicy(): string

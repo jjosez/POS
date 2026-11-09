@@ -44,6 +44,61 @@ export function roundDecimals(amount) {
     return Math.round(amount * ROUND_RATE) / ROUND_RATE;
 }
 
+/**
+ * Resolve the configured display decimals from AppSettings, with a safe fallback.
+ *
+ * @returns {number}
+ */
+function getDisplayDecimals() {
+    const cfg = (typeof AppSettings !== 'undefined' && AppSettings.lineRounding) || {};
+    return clampDecimals(cfg.display);
+}
+
+/**
+ * Clamp display decimals into the 0..6 range accepted by the backend.
+ *
+ * @param {*} value
+ * @returns {number}
+ */
+function clampDecimals(value) {
+    const parsed = Number.parseInt(value ?? 2, 10);
+    if (Number.isNaN(parsed)) {
+        return 2;
+    }
+    return Math.max(0, Math.min(6, parsed));
+}
+
+/**
+ * Format a monetary amount using the configured display decimals and currency
+ * separators. Unlike roundLinePrice this does not modify the underlying
+ * numeric value, it just controls how many decimals appear in the resulting
+ * string. Pads trailing zeros when displayDecimals > stored precision, and
+ * trims extra digits when displayDecimals < stored precision.
+ *
+ * @param {number} amount
+ * @param {number|null} [decimalsOverride=null]
+ * @returns {string}
+ */
+export function formatDisplayedPrice(amount, decimalsOverride = null) {
+    const number = Number(amount) || 0;
+    const decimals = decimalsOverride !== null ? clampDecimals(decimalsOverride) : getDisplayDecimals();
+    const sign = number < 0 ? '-' : '';
+    const fixed = Math.abs(number).toFixed(decimals);
+    const [intPart = '0', fracPart = ''] = fixed.split('.');
+    const decimalSeparator = String(
+        AppSettings.currency?.decimalSeparator ?? AppSettings.currency?.separator ?? '.'
+    );
+    const configuredThousandsSeparator = String(AppSettings.currency?.thousandsSeparator ?? ' ');
+    const thousandsSeparator = configuredThousandsSeparator === decimalSeparator
+        ? ''
+        : configuredThousandsSeparator;
+    const integer = thousandsSeparator
+        ? intPart.replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator)
+        : intPart;
+    const fraction = decimals > 0 && fracPart ? decimalSeparator + fracPart : '';
+    return sign + integer + fraction;
+}
+
 export function roundCurrency(amount) {
     const number = Number(amount) || 0;
     const rounded = Math.round((Math.abs(number) + Number.EPSILON) * CURRENCY_RATE) / CURRENCY_RATE;

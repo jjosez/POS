@@ -344,6 +344,7 @@ class Products
 
         $mode = $this->terminal->getLineRoundingMode();
         $decimals = $this->terminal->getLineRoundingDecimals();
+        $displayDecimals = $this->terminal->getLineDisplayDecimals();
         $decimalSeparator = (string)Tools::settings('default', 'decimal_separator', '.');
         $thousandsSeparator = (string)Tools::settings('default', 'thousands_separator', ' ');
         foreach ($products as $product) {
@@ -351,7 +352,7 @@ class Products
             $product->priceWithTax = $rounded;
             $product->priceWithFormat = number_format(
                 (float)$rounded,
-                $decimals,
+                $displayDecimals,
                 $decimalSeparator,
                 $thousandsSeparator
             );

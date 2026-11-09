@@ -15,7 +15,7 @@
                     <values source='clientes' fieldcode='codcliente' fieldtitle='nombre'/>
                 </widget>
             </column>
-             <column name="company" titleurl="ListEmpresa" order="120">
+            <column name="company" titleurl="ListEmpresa" order="120">
                 <widget type="select" fieldname="idempresa" required='true' onclick="EditEmpresa" icon="fas fa-building"
                         readonly="true">
                     <values source="empresas" fieldcode="idempresa" fieldtitle="nombre"/>
@@ -33,10 +33,15 @@
                     <values title="warehouse">2</values>
                 </widget>
             </column>
-             <column name="product-display-mode" numcolumns="4" order="160">
+            <column name="product-display-mode" numcolumns="4" order="160">
                 <widget type="select" fieldname="product_display_mode" translate="true" icon="fas fa-list">
                     <values title="grid">grid</values>
                     <values title="row">list</values>
+                </widget>
+            </column>
+            <column name="rectifying-serie" numcolumns="4" order="190">
+                <widget type="select" fieldname="codserierect" icon="fas fa-undo">
+                    <values source="series" fieldcode="codserie" fieldtitle="descripcion"/>
                 </widget>
             </column>
         </group>
@@ -62,7 +67,16 @@
             <column name="ticket-copies" numcolumns="4" order="160">
                 <widget type="number" fieldname="numerotickets"/>
             </column>
-            <column name="line-rounding-mode" numcolumns="4" order="170">
+        </group>
+        <group name="pricing" title="price" numcolumns="12">
+            <column name="price-policy" numcolumns="3" order="170">
+                <widget type="select" fieldname="price_policy" translate="true"
+                        icon="fas fa-coins" required="true">
+                    <values title="price-policy-tax-included">tax_included</values>
+                    <values title="price-policy-tax-excluded">tax_excluded</values>
+                </widget>
+            </column>
+            <column name="line-rounding-mode" numcolumns="3" order="180">
                 <widget type="select" fieldname="line_rounding_mode" translate="true">
                     <values title="line-rounding-none">none</values>
                     <values title="line-rounding-nearest">nearest</values>
@@ -70,20 +84,11 @@
                     <values title="line-rounding-precision">precision</values>
                 </widget>
             </column>
-            <column name="line-rounding-decimals" numcolumns="4" order="180">
+            <column name="line-rounding-decimals" numcolumns="3" order="190">
                 <widget type="number" fieldname="line_rounding_decimals" min="0" max="6"/>
             </column>
-            <column name="rectifying-serie" numcolumns="4" order="190">
-                <widget type="select" fieldname="codserierect" icon="fas fa-undo">
-                    <values source="series" fieldcode="codserie" fieldtitle="descripcion"/>
-                </widget>
-            </column>
-            <column name="price-policy" numcolumns="4" order="200">
-                <widget type="select" fieldname="price_policy" translate="true"
-                        icon="fas fa-coins" required="true">
-                    <values title="price-policy-tax-included">tax_included</values>
-                    <values title="price-policy-tax-excluded">tax_excluded</values>
-                </widget>
+            <column name="line-display-decimals" numcolumns="3" order="200">
+                <widget type="number" fieldname="line_display_decimals" min="0" max="6"/>
             </column>
         </group>
     </columns>

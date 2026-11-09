@@ -59,3 +59,29 @@ test('formats amounts with FacturaScripts separators', () => {
     AppSettings.currency.decimalSeparator = '.';
     AppSettings.currency.thousandsSeparator = ',';
 });
+
+test('formats prices with terminal display decimals without changing the value', () => {
+    AppSettings.lineRounding = {mode: 'none', decimals: 2, display: 1};
+    assert.equal(Money.formatDisplayedPrice(146.82), '146.8');
+    assert.equal(Money.formatDisplayedPrice(116.06), '116.1');
+    assert.equal(Money.formatDisplayedPrice(242.83), '242.8');
+
+    AppSettings.lineRounding = {mode: 'none', decimals: 2, display: 2};
+    assert.equal(Money.formatDisplayedPrice(146.82), '146.82');
+
+    AppSettings.lineRounding = {mode: 'none', decimals: 2, display: 4};
+    assert.equal(Money.formatDisplayedPrice(146.82), '146.8200');
+    assert.equal(Money.formatDisplayedPrice(146.823456), '146.8235');
+});
+
+test('formatDisplayedPrice respects currency separators', () => {
+    AppSettings.lineRounding = {mode: 'none', decimals: 2, display: 2};
+    AppSettings.currency.decimalSeparator = ',';
+    AppSettings.currency.thousandsSeparator = '.';
+    assert.equal(Money.formatDisplayedPrice(1234.5), '1.234,50');
+
+    AppSettings.currency.decimalSeparator = '.';
+    AppSettings.currency.thousandsSeparator = ',';
+    AppSettings.lineRounding = undefined;
+    assert.equal(Money.formatDisplayedPrice(99.5), '99.50');
+});
