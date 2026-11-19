@@ -1021,10 +1021,12 @@ class POS extends BaseController
                 throw InvalidTransactionException::saveError('fail-save-order');
             }
 
-            if (!$this->context->paymentSourceRecords()->saveApplications(
-                $order,
-                $sourceSettlement->applications
-            )) {
+            if (
+                !$this->context->paymentSourceRecords()->saveApplications(
+                    $order,
+                    $sourceSettlement->applications
+                )
+            ) {
                 throw InvalidTransactionException::saveError('fail-save-payment-sources');
             }
 

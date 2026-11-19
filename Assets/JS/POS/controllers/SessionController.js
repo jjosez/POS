@@ -71,6 +71,9 @@ const SessionController = {
 
     async cashEntry() {
         const formData = new FormData(MainView.cashEntryForm());
+        const result = await Core.getNewToken();
+
+        formData.set('token', result.token);
         await Core.postRequest(formData);
 
         MainView.cashEntryForm().reset();
@@ -78,6 +81,9 @@ const SessionController = {
 
     async cashWithdraw() {
         const formData = new FormData(MainView.cashWithdrawForm());
+        const result = await Core.getNewToken();
+
+        formData.set('token', result.token);
         await Core.postRequest(formData);
 
         MainView.cashWithdrawForm().reset();

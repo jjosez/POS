@@ -213,10 +213,10 @@ class SessionStorage
         $movement->total = $amount;
 
         if (!$movement->save()) {
-            Tools::log('POS')->error('cash-movement-failed', [
+         /*   Tools::log('POS')->error('cash-movement-failed', [
                 'amount' => $amount,
                 'description' => $description
-            ]);
+            ]);*/
             return false;
         }
 
@@ -224,10 +224,10 @@ class SessionStorage
         $this->session->saldoesperado += $amount;
 
         if ($this->session->save()) {
-            Tools::log('POS')->info('cash-movement-saved', [
+            /*Tools::log('POS')->info('cash-movement-saved', [
                 'amount' => $amount,
                 'new_balance' => $this->session->saldoesperado
-            ]);
+            ]);*/
             return true;
         }
 

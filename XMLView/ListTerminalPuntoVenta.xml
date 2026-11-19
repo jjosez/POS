@@ -30,7 +30,7 @@
         </column>
         <column name='Disponible' order='100' display='right'>
             <widget type="checkbox" fieldname='disponible'/>
-        </column>        
+        </column>
     </columns>
     <rows>
         <row type='status'>
