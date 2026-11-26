@@ -5,6 +5,7 @@ namespace FacturaScripts\Plugins\POS;
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Migrations;
 use FacturaScripts\Core\Template\InitClass;
+use FacturaScripts\Plugins\POS\Migration\BackfillPaymentTracking;
 use FacturaScripts\Plugins\POS\Migration\CreateDraftTables;
 use FacturaScripts\Plugins\POS\Migration\CreatePaymentSourceEntries;
 use FacturaScripts\Plugins\POS\Migration\RenameTables;
@@ -17,6 +18,7 @@ class Init extends InitClass
         $this->loadExtension(new Extension\Model\Base\SalesDocument());
         $this->loadExtension(new Extension\Controller\EditEstadoDocumento());
         $this->loadExtension(new Extension\Controller\EditSecuenciaDocumento());
+        $this->loadExtension(new Extension\Lib\BusinessDocumentGenerator());
     }
 
     public function update(): void
@@ -27,8 +29,10 @@ class Init extends InitClass
         Migrations::runPluginMigration(new Migration\CreateDefaultDraftStatuses());
         Migrations::runPluginMigration(new Migration\CreateSearchIndexes());
         Migrations::runPluginMigration(new Migration\RemoveCustomerAccount());
+        new Model\PagoPuntoVentaSeguimiento();
+        Migrations::runPluginMigration(new BackfillPaymentTracking());
 
-        $this->updateSchemaColumns();
+        //$this->updateSchemaColumns();
     }
 
     private function updateSchemaColumns(): void

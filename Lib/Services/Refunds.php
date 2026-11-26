@@ -80,6 +80,10 @@ class Refunds
     public function quoteRefund(OrdenPuntoVenta $originalOrder, array $refundLines): float
     {
         $prepared = $this->prepareRefund($originalOrder, $refundLines);
+        if (!empty($prepared['document']->id())) {
+            throw new \RuntimeException('refund-quote-persisted-document');
+        }
+
         return abs((float)$prepared['document']->total);
     }
 

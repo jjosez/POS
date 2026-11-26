@@ -3,7 +3,7 @@
 namespace FacturaScripts\Plugins\POS\Tests\Unit;
 
 use FacturaScripts\Plugins\POS\Lib\Exception\InvalidTransactionException;
-use FacturaScripts\Plugins\POS\Lib\Core\PaymentSource\PaymentPolicy;
+use FacturaScripts\Plugins\POS\Enum\PaymentPolicy;
 use FacturaScripts\Plugins\POS\Lib\Services\PaymentValidator;
 use PHPUnit\Framework\TestCase;
 

@@ -179,6 +179,7 @@
   "consumed-amount": "Consumed amount",
   "settled-amount": "Settled amount",
   "refund-payment-source-not-supported": "An operation that uses Payment Sources cannot be refunded automatically.",
+  "refund-payments-disabled": "This terminal does not accept payments, so the refund can only be saved as a draft.",
 "withdraw": "Withdraw",
   "scroll-for-more": "Scroll for more customers",
   "no-customers-found": "No customers found",

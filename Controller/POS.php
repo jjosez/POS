@@ -16,6 +16,7 @@ use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\BorradorPuntoVenta;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
+use FacturaScripts\Dinamic\Model\PagoPuntoVentaSeguimiento;
 use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\POS\Enum\PaymentPolicy;
 use FacturaScripts\Plugins\POS\Lib\Customer\CustomerSearchResults;
@@ -50,6 +51,10 @@ class POS extends BaseController
 
         // Initialize minimal services
         $this->setupServices();
+
+        // Ensure the tracking schema is ready before any POS action starts a
+        // database transaction. Model initialization may create/update its table.
+        new PagoPuntoVentaSeguimiento();
 
         // Initialize session and context (lazy loading)
         $this->session = new SessionManager($user);
@@ -507,6 +512,13 @@ class POS extends BaseController
             return false;
         }
 
+        if (!$this->session->getTerminal()->aceptapagos) {
+            $this->setErrorResponse(['error' => 'refund-payments-disabled']);
+            $this->addMessage('refund-payments-disabled', 'warning');
+            $this->buildResponse();
+            return false;
+        }
+
         $originalCode = $this->request->input('original_code', '');
 
         $linesRaw = $this->request->input('lines', '[]');
@@ -552,27 +564,37 @@ class POS extends BaseController
             $this->lockOrderForRefund($originalOrder);
             $this->validateRefundLines($originalOrder, $refundLines);
 
-            $result = $refunds->processRefund($originalOrder, $refundLines, $payments);
-
+            $draft = null;
             if (!empty($devolucionId)) {
                 $draft = new DevolucionPuntoVenta();
-                if ($draft->load($devolucionId)) {
-                    if (
-                        (int)$draft->idsesion !== (int)$this->session->getSession()->idsesion
-                        || (int)$draft->idoperacion_original !== (int)$originalOrder->idoperacion
-                    ) {
-                        throw InvalidTransactionException::saveError('refund-draft-mismatch');
-                    }
-                    if (!$draft->delete()) {
-                        throw InvalidTransactionException::saveError('refund-draft-delete-error');
-                    }
+                $draftRows = $this->dataBase->select(
+                    'SELECT iddevolucion FROM ' . DevolucionPuntoVenta::tableName()
+                    . ' WHERE iddevolucion = ' . (int)$devolucionId . ' FOR UPDATE'
+                );
+                if (
+                    empty($draftRows)
+                    || !$draft->load($devolucionId)
+                    || !$draft->isOpen()
+                    || (int)$draft->idsesion !== (int)$this->session->getSession()->idsesion
+                    || (int)$draft->idoperacion_original !== (int)$originalOrder->idoperacion
+                ) {
+                    throw InvalidTransactionException::saveError('refund-draft-mismatch');
                 }
+            }
+
+            $result = $refunds->processRefund($originalOrder, $refundLines, $payments);
+
+            if ($draft && !$draft->setAsCompleted()) {
+                throw InvalidTransactionException::saveError('refund-draft-complete-error');
             }
 
             if (!$this->dataBase->commit()) {
                 throw InvalidTransactionException::saveError('database-transaction-commit-error');
             }
         } catch (POSException $e) {
+            if ($this->dataBase->inTransaction()) {
+                $this->dataBase->rollback();
+            }
             $this->handlePOSException($e);
             $this->buildResponse();
             return false;
@@ -628,6 +650,10 @@ class POS extends BaseController
         }
 
         try {
+            if (!$this->dataBase->beginTransaction()) {
+                throw InvalidTransactionException::saveError('database-transaction-start-error');
+            }
+
             $this->validateRefundLines($originalOrder, $lines);
 
             // Quote through the shared refund pipeline so the draft total
@@ -638,12 +664,56 @@ class POS extends BaseController
                 $this->context->paymentValidator()
             );
             $total = $refunds->quoteRefund($originalOrder, $lines);
+
+            $draft = new DevolucionPuntoVenta();
+            if (!empty($devolucionId)) {
+                $draftRows = $this->dataBase->select(
+                    'SELECT iddevolucion FROM ' . DevolucionPuntoVenta::tableName()
+                    . ' WHERE iddevolucion = ' . (int)$devolucionId . ' FOR UPDATE'
+                );
+                if (
+                    empty($draftRows)
+                    || !$draft->load($devolucionId)
+                    || !$draft->isOpen()
+                    || (int)$draft->idsesion !== (int)$this->session->getSession()->idsesion
+                    || (int)$draft->idoperacion_original !== (int)$originalOrder->idoperacion
+                ) {
+                    throw InvalidTransactionException::saveError('refund-draft-mismatch');
+                }
+            }
+
+            $draft->idoperacion_original = $originalOrder->idoperacion;
+            $draft->idsesion = $this->session->getSession()->idsesion;
+            $draft->nickusuario = $this->session->getSession()->nickusuario;
+            $draft->lineas = json_encode($lines);
+            $draft->fecha = Tools::date();
+            $draft->hora = Tools::hour();
+            $draft->total = $total;
+            $draft->codcliente = $originalOrder->codcliente;
+            $draft->nombrecliente = $originalOrder->nombrecliente;
+            $draft->codigo_original = $originalOrder->codigo;
+            if (empty($draft->codigo)) {
+                $draft->codigo = (string)$draft->newCode('codigo');
+            }
+
+            if (!$draft->save()) {
+                throw InvalidTransactionException::saveError('refund-draft-save-error');
+            }
+            if (!$this->dataBase->commit()) {
+                throw InvalidTransactionException::saveError('database-transaction-commit-error');
+            }
         } catch (POSException $exception) {
+            if ($this->dataBase->inTransaction()) {
+                $this->dataBase->rollback();
+            }
             $this->handlePOSException($exception);
             $this->buildResponse();
             return;
         } catch (Throwable $exception) {
-            Tools::log('POS-debug')->error('refund-draft-quote-error', [
+            if ($this->dataBase->inTransaction()) {
+                $this->dataBase->rollback();
+            }
+            Tools::log('POS-debug')->error('refund-draft-save-error', [
                 '%code%' => $originalCode,
                 '%error%' => $exception->getMessage(),
             ]);
@@ -653,47 +723,8 @@ class POS extends BaseController
             return;
         }
 
-        $draft = new DevolucionPuntoVenta();
-        $draft->idoperacion_original = $originalOrder->idoperacion;
-        $draft->idsesion = $this->session->getSession()->idsesion;
-        $draft->nickusuario = $this->session->getSession()->nickusuario;
-        $draft->lineas = json_encode($lines);
-        $draft->total = $total;
-        $draft->codcliente = $originalOrder->codcliente;
-        $draft->nombrecliente = $originalOrder->nombrecliente;
-        $draft->codigo = (string)$draft->newCode('codigo');
-        $draft->codigo_original = $originalOrder->codigo;
-
-        if ($draft->save()) {
-            if (!empty($devolucionId)) {
-                $oldDraft = new DevolucionPuntoVenta();
-                if ($oldDraft->load($devolucionId)) {
-                    if (
-                        (int)$oldDraft->idsesion !== (int)$this->session->getSession()->idsesion
-                        || (int)$oldDraft->idoperacion_original !== (int)$originalOrder->idoperacion
-                    ) {
-                        $draft->delete();
-                        $this->setErrorResponse(['error' => 'refund-draft-mismatch']);
-                        $this->addMessage('transaction-save-error', 'warning');
-                        $this->buildResponse();
-                        return;
-                    }
-                    if (!$oldDraft->delete()) {
-                        $draft->delete();
-                        $this->setErrorResponse(['error' => 'refund-draft-delete-error']);
-                        $this->addMessage('transaction-save-error', 'warning');
-                        $this->buildResponse();
-                        return;
-                    }
-                }
-            }
-            $this->addMessage('order-refund-saved');
-            $this->setSuccessResponse(['iddevolucion' => $draft->iddevolucion, 'total' => $total]);
-        } else {
-            $this->addMessage('order-refund-failed', 'warning');
-            $this->setSuccessResponse(['success' => false]);
-        }
-
+        $this->addMessage('order-refund-saved');
+        $this->setSuccessResponse(['iddevolucion' => $draft->iddevolucion, 'total' => $total]);
         $this->buildResponse();
     }
 
@@ -714,6 +745,7 @@ class POS extends BaseController
         $draft = new DevolucionPuntoVenta();
         if (
             !$draft->load($id)
+            || !$draft->isOpen()
             || (int)$draft->idsesion !== (int)$this->session->getSession()->idsesion
         ) {
             $this->buildResponse(['success' => false, 'message' => 'draft-not-found']);
@@ -770,6 +802,7 @@ class POS extends BaseController
         $draft = new DevolucionPuntoVenta();
         if (
             $draft->load($id)
+            && $draft->isOpen()
             && (int)$draft->idsesion === (int)$this->session->getSession()->idsesion
         ) {
             if (!$draft->delete()) {

@@ -148,6 +148,7 @@ class Products
     public function search(string $text, array $filters = [], string $warehouse = '', string $company = ''): array
     {
         $where = [];
+        $order = [];
         if (trim($text) !== '') {
             $search = [
                 Where::like('V.codbarras', $text),
@@ -156,6 +157,7 @@ class Products
             ];
             if (Plugins::isEnabled('SKU')) {
                 $search[] = Where::orLike('P.referencia_fabricante', $text);
+                $order = ['P.referencia_fabricante' => 'ASC'];
             }
 
             $where[] = Where::sub($search);
@@ -176,7 +178,7 @@ class Products
             $where[] = Where::in('P.codfamilia', $families);
         }
 
-        $products = $this->product->all($where, [], 0, 30);
+        $products = $this->product->all($where, $order, 0, 40);
         $this->applyProductRates($products, $filters);
         $this->applyTerminalAvailability($products);
         $this->applyLinePriceRounding($products);

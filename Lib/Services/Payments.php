@@ -50,10 +50,29 @@ class Payments
     /**
      * Save a receipt for an invoice payment.
      */
-    public function saveInvoiceReceipt(SalesDocument $invoice, PagoPuntoVenta $payment, int $number = 1): void
+    public function saveInvoiceReceipt(
+        SalesDocument $invoice,
+        PagoPuntoVenta $payment,
+        int $number = 1
+    ): ?ReciboCliente
+    {
+        return $this->saveInvoiceReceiptData(
+            $invoice,
+            (string)$payment->codpago,
+            $payment->pagoNeto(),
+            $number
+        );
+    }
+
+    public function saveInvoiceReceiptData(
+        SalesDocument $invoice,
+        string $paymentMethod,
+        float $amount,
+        int $number = 1
+    ): ?ReciboCliente
     {
         if ('FacturaCliente' !== $invoice->modelClassName()) {
-            return;
+            return null;
         }
 
         $receipt = new ReciboCliente();
@@ -61,15 +80,77 @@ class Payments
         $receipt->coddivisa = $invoice->coddivisa;
         $receipt->idempresa = $invoice->idempresa;
         $receipt->idfactura = $invoice->id();
-        $receipt->importe = $payment->pagoNeto();
+        $receipt->importe = $amount;
         $receipt->nick = $invoice->nick;
         $receipt->numero = $number;
         $receipt->fecha = $invoice->fecha;
-        $receipt->setPaymentMethod($payment->codpago);
+        $receipt->observaciones = 'pos-payment';
+        $receipt->setPaymentMethod($paymentMethod);
         $receipt->pagado = true;
         if (false === $receipt->save()) {
             throw new RuntimeException('payment-receipt-save-error');
         }
+
+        return $receipt;
+    }
+
+    /**
+     * Replaces the automatically generated invoice receipts with the POS
+     * payment-method breakdown.
+     *
+     * @param array<string, float> $amountsByMethod
+     */
+    public function replaceInvoiceReceipts(
+        SalesDocument $invoice,
+        array $amountsByMethod,
+        bool $addOutstanding = false
+    ): void {
+        if ('FacturaCliente' !== $invoice->modelClassName()) {
+            return;
+        }
+
+        $this->cleanInvoiceReceipts($invoice);
+        $counter = 1;
+        $collected = 0.0;
+
+        foreach ($amountsByMethod as $paymentMethod => $amount) {
+            if (abs((float)$amount) < 0.000001) {
+                continue;
+            }
+            $this->saveInvoiceReceiptData(
+                $invoice,
+                (string)$paymentMethod,
+                (float)$amount,
+                $counter++
+            );
+            $collected += (float)$amount;
+        }
+
+        $decimals = (new Currencies())->getDecimals();
+        $outstanding = round((float)$invoice->total - $collected, $decimals);
+        if ($addOutstanding && $outstanding > 0.0) {
+            $receipt = new ReciboCliente();
+            $receipt->codcliente = $invoice->codcliente;
+            $receipt->coddivisa = $invoice->coddivisa;
+            $receipt->idempresa = $invoice->idempresa;
+            $receipt->idfactura = $invoice->id();
+            $receipt->importe = $outstanding;
+            $receipt->nick = $invoice->nick;
+            $receipt->numero = $counter;
+            $receipt->fecha = $invoice->fecha;
+            $receipt->observaciones = 'pos-payment-pending';
+            $receipt->setPaymentMethod($invoice->codpago);
+            $receipt->pagado = false;
+            $receipt->liquidado = 0.0;
+            $receipt->fechapago = null;
+
+            if (!$receipt->save()) {
+                throw new RuntimeException('payment-receipt-save-error');
+            }
+        }
+
+        /** @var FacturaCliente $invoice */
+        (new ReceiptGenerator())->update($invoice);
     }
 
     /**
@@ -83,9 +164,10 @@ class Payments
      */
     public function savePayments(SalesDocument $document, OrdenPuntoVenta $orden, array $payments): bool
     {
-        $this->cleanInvoiceReceipts($document);
-        $counter = 1;
         $cashAmount = 0.0;
+        $amountsByMethod = [];
+        $tracking = new PaymentTracking();
+
         foreach ($payments as $payment) {
             if ($payment->isCashMethod) {
                 $cashAmount += $payment->pagoNeto();
@@ -97,38 +179,16 @@ class Payments
                 return false;
             }
 
-            $this->saveInvoiceReceipt($document, $payment, $counter++);
+            $tracking->registerInitial($document, $payment);
+            $amountsByMethod[$payment->codpago] =
+                ($amountsByMethod[$payment->codpago] ?? 0.0) + $payment->pagoNeto();
         }
 
-        $unpaid = 0.0;
-        if ($orden->payment_policy === PaymentPolicy::OPTIONAL->value) {
-            $collected = array_sum(
-                array: array_map(static fn(PagoPuntoVenta $payment): float => $payment->pagoNeto(), $payments)
-            );
-            $unpaid = round(max(0, (float)$document->total - $collected), (new Currencies())->getDecimals());
-        }
-        if ($unpaid > 0 && $document->modelClassName() === 'FacturaCliente') {
-            $receipt = new ReciboCliente();
-            $receipt->codcliente = $document->codcliente;
-            $receipt->coddivisa = $document->coddivisa;
-            $receipt->idempresa = $document->idempresa;
-            $receipt->idfactura = $document->id();
-            $receipt->importe = $unpaid;
-            $receipt->nick = $document->nick;
-            $receipt->numero = $counter;
-            $receipt->fecha = $document->fecha;
-            $receipt->setPaymentMethod($document->codpago);
-            $receipt->pagado = false;
-            $receipt->liquidado = 0.0;
-            $receipt->fechapago = null;
-
-            if (!$receipt->save()) {
-                throw new RuntimeException('payment-receipt-save-error');
-            }
-
-            /** @var FacturaCliente $document */
-            (new ReceiptGenerator())->update($document);
-        }
+        $this->replaceInvoiceReceipts(
+            $document,
+            $amountsByMethod,
+            $orden->payment_policy === PaymentPolicy::OPTIONAL->value
+        );
 
         // Update session cash balance if session is available
         if ($this->session !== null) {

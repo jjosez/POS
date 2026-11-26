@@ -18,9 +18,10 @@
                     <p class="truncate text-sm text-slate-500">{{ trans('till-session-operations') }}</p>
                 </div>
             </div>
-            {# <button class="ml-auto btn btn-icon btn-primary" data-action="session:close">
-                <i class="fa fw fa-arrow-down-wide-short"></i>
-            </button> #}
+            <button type="button" class="ml-auto btn btn-icon btn-light" data-action="returns:sale:search:action"
+                    aria-label="{{ trans('return-sale') }}">
+                <i class="fa-solid fa-rotate-back" aria-hidden="true"></i>
+            </button>
             <button type="button" class="ml-2 btn btn-icon btn-naked" data-toggle="modal"
                     data-target="order:last:list:modal" aria-label="{{ trans('close') }}">
                 <i class="fa-solid fa-times" aria-hidden="true"></i>

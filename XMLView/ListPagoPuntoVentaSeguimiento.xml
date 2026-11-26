@@ -14,14 +14,20 @@
         <column name="amount" display="right" order="100">
             <widget type="money" decimal="2" fieldname="cantidad"/>
         </column>
-        <column name="pos-payment" display="right" order="100">
-            <widget type="money" decimal="2" fieldname="cantidad"/>
+        <column name="pos-payment" display="right" order="120">
+            <widget type="number" fieldname="idpagopos" readonly="true"/>
         </column>
         <column name="idfrom" display="right" order="150">
-            <widget type="datetime" fieldname="idmodelfrom" readonly="true"/>
+            <widget type="number" fieldname="idmodelfrom" readonly="true"/>
         </column>
         <column name="modelfrom" display="right" order="160">
             <widget type="text" fieldname="modelfrom" readonly="true"/>
+        </column>
+        <column name="idto" display="right" order="170">
+            <widget type="number" fieldname="idmodelto" readonly="true"/>
+        </column>
+        <column name="modelto" display="right" order="180">
+            <widget type="text" fieldname="modelto" readonly="true"/>
         </column>
     </columns>
     <rows>

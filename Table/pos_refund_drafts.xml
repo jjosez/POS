@@ -32,7 +32,7 @@
     </column>
     <column>
         <name>hora</name>
-        <type>time without time zone</type>
+        <type>time</type>
         <null>NO</null>
     </column>
     <column>
@@ -59,6 +59,22 @@
     <column>
         <name>codigo_original</name>
         <type>character varying(20)</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>estado</name>
+        <type>character varying(20)</type>
+        <null>NO</null>
+        <default>'open'</default>
+    </column>
+    <column>
+        <name>fechacompletado</name>
+        <type>date</type>
+        <null>YES</null>
+    </column>
+    <column>
+        <name>horacompletado</name>
+        <type>time</type>
         <null>YES</null>
     </column>
     <constraint>

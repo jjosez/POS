@@ -5,6 +5,11 @@
         <type>double precision</type>
     </column>
     <column>
+        <name>codpago</name>
+        <type>character varying(10)</type>
+        <null>YES</null>
+    </column>
+    <column>
         <name>id</name>
         <type>serial</type>
         <null>NO</null>
@@ -25,6 +30,11 @@
         <null>NO</null>
     </column>
     <column>
+        <name>idparent</name>
+        <type>integer</type>
+        <null>YES</null>
+    </column>
+    <column>
         <name>modelfrom</name>
         <type>character varying(30)</type>
         <null>YES</null>
@@ -37,5 +47,21 @@
     <constraint>
         <name>pos_payment_tracking_pkey</name>
         <type>PRIMARY KEY (id)</type>
+    </constraint>
+    <constraint>
+        <name>ca_pos_payment_tracking_payment</name>
+        <type>FOREIGN KEY (idpagopos) REFERENCES pos_payments (idpago) ON DELETE CASCADE ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_pos_payment_tracking_parent</name>
+        <type>FOREIGN KEY (idparent) REFERENCES pos_payment_tracking (id) ON DELETE CASCADE ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>ca_pos_payment_tracking_method</name>
+        <type>FOREIGN KEY (codpago) REFERENCES formaspago (codpago) ON DELETE SET NULL ON UPDATE CASCADE</type>
+    </constraint>
+    <constraint>
+        <name>uq_pos_payment_tracking_transition</name>
+        <type>UNIQUE (idparent, modelto, idmodelto)</type>
     </constraint>
 </table>

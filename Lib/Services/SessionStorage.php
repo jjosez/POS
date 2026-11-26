@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of POS plugin for FacturaScripts
  * Copyright (C) 2022-2025 Juan José Prieto Dzul <juanjoseprieto88@gmail.com>
@@ -111,12 +112,14 @@ class SessionStorage
     public function getOrderFromDocument(string $modelClass, string $code): ?OrdenPuntoVenta
     {
         $order = new OrdenPuntoVenta();
+
         return $order->loadFromDocument($modelClass, $code) ? $order : null;
     }
 
     public function getRefundDrafts(): array
     {
-        return DevolucionPuntoVenta::allFromSession($this->session->idsesion);
+        //return DevolucionPuntoVenta::allOpenFromSession((string)$this->session->idsesion);
+        return DevolucionPuntoVenta::allOpenFromSession();
     }
 
     public function getOrderForRefund(string $code): array

@@ -289,7 +289,7 @@ const OrderRefundController = {
 
     async searchOrder() {
         const term = ReturnSaleView.getSearchTerm();
-        if (!term || this.pendingRefund || this.isProcessing) return;
+        if (this.pendingRefund || this.isProcessing) return;
 
         ReturnSaleView.clearLocalFilter();
         ReturnSaleView.show();

@@ -21,6 +21,8 @@ namespace FacturaScripts\Plugins\POS\Model;
 
 use FacturaScripts\Core\Template\ModelClass;
 use FacturaScripts\Core\Template\ModelTrait;
+use FacturaScripts\Core\Where;
+use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 
 /**
  * Tracks payments made from the POS and their lifecycle.
@@ -35,6 +37,13 @@ class PagoPuntoVentaSeguimiento extends ModelClass
      * @var float
      */
     public $cantidad;
+
+    /**
+     * Payment method snapshot.
+     *
+     * @var string|null
+     */
+    public $codpago;
 
     /**
      * @var int
@@ -61,6 +70,13 @@ class PagoPuntoVentaSeguimiento extends ModelClass
      * @var int
      */
     public $idpagopos;
+
+    /**
+     * Parent allocation in the document transformation chain.
+     *
+     * @var int|null
+     */
+    public $idparent;
 
     /**
      * Name of model from origin
@@ -90,5 +106,47 @@ class PagoPuntoVentaSeguimiento extends ModelClass
     public static function tableName(): string
     {
         return 'pos_payment_tracking';
+    }
+
+    /**
+     * @return static[]
+     */
+    public static function allForDocument(string $model, int $id): array
+    {
+        return static::all([
+            Where::eq('modelto', $model),
+            Where::eq('idmodelto', $id),
+        ], ['id' => 'ASC']);
+    }
+
+    /**
+     * @return static[]
+     */
+    public static function allFromParent(int $parentId): array
+    {
+        return static::all([
+            Where::eq('idparent', $parentId),
+        ], ['id' => 'ASC']);
+    }
+
+    public static function findTransition(int $parentId, string $model, int $id): ?self
+    {
+        $rows = static::all([
+            Where::eq('idparent', $parentId),
+            Where::eq('modelto', $model),
+            Where::eq('idmodelto', $id),
+        ], [], 0, 1);
+
+        return $rows[0] ?? null;
+    }
+
+    public function paymentMethodCode(): string
+    {
+        if (!empty($this->codpago)) {
+            return (string)$this->codpago;
+        }
+
+        $payment = new PagoPuntoVenta();
+        return $payment->load($this->idpagopos) ? (string)$payment->codpago : '';
     }
 }

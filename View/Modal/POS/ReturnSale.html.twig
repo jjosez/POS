@@ -98,20 +98,29 @@
                     <strong class="text-xl text-blue-700"><span id="returnSaleTotal">0.00</span></strong>
                 </div>
                 {% if terminal.aceptapagos %}
-                <button type="button" id="returnSalePause" class="btn btn-light justify-center"
-                        data-action="returns:sale:draft:save:action" disabled>
-                    <i class="fa-solid fa-floppy-disk mr-2" aria-hidden="true"></i>
-                    {{ trans('save') }}
-                </button>
+                    <button type="button" id="returnSalePause" class="btn btn-light justify-center"
+                            data-action="returns:sale:draft:save:action" disabled>
+                        <i class="fa-solid fa-floppy-disk mr-2" aria-hidden="true"></i>
+                        {{ trans('save') }}
+                    </button>
+                    <button type="button" id="returnSaleConfirm"
+                            class="btn btn-success justify-center sm:flex-none"
+                            data-action="returns:sale:confirm:action" disabled>
+                        <i class="fa-solid fa-credit-card mr-2" aria-hidden="true"></i>
+                        <span data-payment-label="{{ trans('process-return') }}" data-draft-label="{{ trans('save') }}">
+                            {{ trans('process-return') }}
+                        </span>
+                    </button>
+                {% else %}
+                    <button type="button" id="returnSaleConfirm"
+                            class="btn btn-success col-span-2 justify-center sm:flex-none"
+                            data-action="returns:sale:draft:save:action" disabled>
+                        <i class="fa-solid fa-floppy-disk mr-2" aria-hidden="true"></i>
+                        <span data-payment-label="{{ trans('process-return') }}" data-draft-label="{{ trans('save') }}">
+                            {{ trans('save') }}
+                        </span>
+                    </button>
                 {% endif %}
-                <button type="button" id="returnSaleConfirm"
-                        class="btn btn-success {{ terminal.aceptapagos ? '' : 'col-span-2' }} justify-center sm:flex-none"
-                        data-action="returns:sale:confirm:action" disabled>
-                    <i class="fa-solid fa-credit-card mr-2" aria-hidden="true"></i>
-                    <span data-payment-label="{{ trans('process-return') }}" data-draft-label="{{ trans('save') }}">
-                        {{ trans('process-return') }}
-                    </span>
-                </button>
             </div>
         </div>
     </div>

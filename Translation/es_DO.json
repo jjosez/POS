@@ -176,6 +176,7 @@
   "consumed-amount": "Importe consumido",
   "settled-amount": "Importe liquidado",
   "refund-payment-source-not-supported": "No se puede devolver automáticamente una operación que utiliza fuentes de pago.",
+  "refund-payments-disabled": "Esta terminal no acepta pagos, por lo que la devolución solo puede guardarse como borrador.",
 "withdraw": "Retiro",
   "scroll-for-more": "Deslice para ver más clientes",
   "no-customers-found": "No se encontraron clientes",
