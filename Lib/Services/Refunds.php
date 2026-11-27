@@ -6,7 +6,6 @@ use FacturaScripts\Core\Lib\Calculator;
 use FacturaScripts\Core\Model\Base\SalesDocument;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\DocTransformation;
-use FacturaScripts\Dinamic\Model\MovimientoPuntoVenta;
 use FacturaScripts\Dinamic\Model\OrdenPuntoVenta;
 use FacturaScripts\Dinamic\Model\PagoPuntoVenta;
 use FacturaScripts\Dinamic\Model\SesionPuntoVenta;
@@ -68,8 +67,6 @@ class Refunds
         $refundOrder = $this->createRefundOrder($originalOrder, $newDoc);
 
         $this->processRefundPayments($newDoc, $refundOrder, $payments);
-
-        $this->recordRefundMovement($newDoc, $refundOrder);
 
         return [
             'document' => $newDoc->toArray(true),
@@ -293,22 +290,6 @@ class Refunds
         }
 
         return $method;
-    }
-
-    private function recordRefundMovement(SalesDocument $newDoc, OrdenPuntoVenta $refundOrder): void
-    {
-        $movement = new MovimientoPuntoVenta();
-        $movement->idsesion = $this->session->idsesion;
-        $movement->nickusuario = $this->session->nickusuario;
-        $movement->descripcion = Tools::trans(
-            'refund-document',
-            ["%document%" => $newDoc->codigo, "%amount%" => $newDoc->total]
-        );
-        $movement->total = $newDoc->total;
-
-        if (false === $movement->save()) {
-            throw new \RuntimeException('refund-movement-save-error');
-        }
     }
 
     private function resolveRefundSerie(SalesDocument $originalDoc): string
